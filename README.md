@@ -1,4 +1,4 @@
-# manifold-dx for React
+# Manifold-dx for React
 
 Simplified state management, based on new approaches to providing 
 unidirectional predictability, and a great development experience 
@@ -36,28 +36,49 @@ Ok, what are these so-called "new approaches"?
    So in the example above, state objects can figure out that the 
    bowler's city can be accessed at {Application State}.bowler.address.city.
    
-1. **TypeScript is essential.  It's what allows calling the Action API
-   to be easy, quick and type-checked. You use it to define your 
-   state objects and your state shape.**
+1. **TypeScript is used to define your state, which allows the ActionAPI's
+   to be aware of what properties are available and what their data types
+   are.  This allows IDE's to present you with the right parameter choices 
+   and flag incorrect values.**
    
    Most state management frameworks related to React have been 
    retrofitted with TypeScript, but not taken full advantage of it.
    
    ![alt text](./docs/api_autocomplete.png)
    
-   TypeScript allows us to write API's so that IDE's
-   can provide the list of properties in a state object, 
-   or flag provided values if they're the wrong type.
-   
-   By taking advantage of both TypeScript and functional programming,
-   we can do a lot more than we could by relying exclusively on one or 
-   the other. 
-
+   *The net result is that when you define your state with TypeScript, you've
+   already defined all the actions that can be performed: insert, update or
+   delete on any property, which is uniquely identifiable within the state graph.  
+   There's no need to invent actions coupled to reducers
+   that you have to write, because its already in a generic API that wraps itself 
+   around the application state that you've defined.  All you have to do is call it, 
+   and your IDE can pretty much tell you what to put there using your application 
+   state's type information.*
 
 - **testing** `npm test --runInBand REACT_APP_STATE_MUTATION_CHECKING=true` 
   - `runInBand` since we need to have tests execute in order
   - and we want REACT_APP_STATE_MUTATION_CHECKING on when testing or debugging.
 
-**This is BETA software!!!**  there are no known problems but its very 'green'.
+##### What's Next
 - npm naming is being worked out
 - MVC ToDo example is working and will be published shortly
+
+##### What's in a name?
+This project is named after a mathematical concept that describes it, as well 
+as the effect it has on reducing code surface area:
+
+"The concept of a manifold is central to many parts of geometry and modern 
+mathematical physics because it allows complicated structures to be described 
+and understood in terms of the simpler local topological properties of Euclidean 
+space. Manifolds naturally arise as solution sets of systems of equations 
+and as graphs of functions." - Wikipedia
+
+Appending 'dx' to the name is intended to convey that its a framework 
+that deals with dynamic changes, as well as giving a nod to Redux,  
+the extremely popular de-facto standard that was used as a reference, 
+along with the ecosystem that's been enthusiastically built up around it.
+
+
+###This is BETA software!!!  
+There are no known problems but its very 'green'.
+

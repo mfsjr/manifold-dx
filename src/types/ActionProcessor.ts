@@ -27,10 +27,8 @@ export class ActionProcessor implements ActionProcessorAPI {
   protected mutationCheck: StateMutationCheck<any>;
   private preProcessors: ActionProcessorFunctionType[] = [];
   private postProcessors: ActionProcessorFunctionType[] = [];
-  private state: State<any>;
 
   constructor(state: State<any>, options: StateConfigOptions) {
-    this.state = state;
     this.mutationCheck = new StateMutationCheck<any>(state);
   }
 

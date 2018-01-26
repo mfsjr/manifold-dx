@@ -58,6 +58,7 @@ Ok, what are these so-called "new approaches"?
 - **testing** `npm test --runInBand REACT_APP_STATE_MUTATION_CHECKING=true` 
   - `runInBand` since we need to have tests execute in order
   - and we want REACT_APP_STATE_MUTATION_CHECKING on when testing or debugging.
+    - this will also turn on state diff output, when mutations are detected
 
 ##### What's Next
 - npm naming is being worked out

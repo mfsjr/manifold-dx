@@ -1,5 +1,6 @@
 import { Manager } from './Manager';
 import * as _ from 'lodash';
+import { onFailureDiff } from './StateMutationDiagnostics';
 
 /**
  * State data is comprised of plain objects that are modified to implement this interface.
@@ -161,13 +162,14 @@ export class State<A> {
     this.manager = new Manager(this, options);
     let stateMutateChecking = false;
     try {
-      stateMutateChecking = process.env.REACT_APP_MUTATION_CHECKING === 'true';
-      // console.log(`process.env.REACT_APP_MUTATION_CHECKING = '${process.env.REACT_APP_MUTATION_CHECKING}'`);
+      stateMutateChecking = process.env.REACT_APP_STATE_MUTATION_CHECKING === 'true';
+      // console.log(`process.env.REACT_APP_STATE_MUTATION_CHECKING = '${process.env.REACT_APP_STATE_MUTATION_CHECKING}'`);
     } catch (err) {
       // console.log(`process defined = ${!!process}`);
     }
     if (stateMutateChecking) {
       this.manager.getActionProcessorAPI().enableMutationChecking();
+      this.manager.getActionProcessorAPI().setMutationCheckOnFailureFunction(onFailureDiff);
     }
   }
 

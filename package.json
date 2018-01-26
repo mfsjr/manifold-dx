@@ -1,6 +1,6 @@
 {
   "name": "manifold-dx",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "private": false,
   "license": "MIT",
   "author": {
@@ -20,8 +20,9 @@
     "@types/lodash": "^4.14.85",
     "lodash": "^4.17.4"
   },
-  "scripts": {
-    "test": "node scripts/test.js --env=jsdom"
+  "peerDependencies": {
+    "react": "^0.14.0 || ^15.0.0-0 || ^16.0.0-0",
+    "@types/react": "^0.14.0 || ^15.0.0-0 || ^16.0.0-0"
   },
   "devDependencies": {
     "@types/react": "^16.0.34",
@@ -86,6 +87,9 @@
         "tsConfigFile": "/Users/mfsjr/WebstormProjects/node/manifold-dx/tsconfig.test.json"
       }
     }
+  },
+  "scripts": {
+    "test": "node scripts/test.js --env=jsdom"
   },
   "babel": {
     "presets": [

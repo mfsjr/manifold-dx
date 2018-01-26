@@ -75,7 +75,7 @@ space. Manifolds naturally arise as solution sets of systems of equations
 and as graphs of functions." - Wikipedia
 
 Appending 'dx' to the name is intended to convey that its a framework 
-that deals with dynamic changes, as well as giving a nod to Redux,  
+that deals with dynamic changes, as well as giving a nod to Redux, 
 the extremely popular de-facto standard that was used as a reference, 
 along with the ecosystem that's been enthusiastically built up around it.
 

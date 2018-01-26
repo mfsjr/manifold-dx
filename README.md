@@ -65,8 +65,8 @@ Ok, what are these so-called "new approaches"?
 - MVC ToDo example is working and will be published shortly
 
 ##### What's in a name?
-This project is named after a mathematical concept that describes it, as well 
-as the effect it has on reducing code surface area:
+This project is named after engineering and mathematical concepts that 
+describe it, as well as the effect it has on reducing code surface area:
 
 "The concept of a manifold is central to many parts of geometry and modern 
 mathematical physics because it allows complicated structures to be described 

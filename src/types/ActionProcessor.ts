@@ -1,13 +1,13 @@
-import {Action} from "../actions/actions";
-import {State, StateConfigOptions} from "./State";
-import {StateMutationCheck} from "./StateMutationCheck";
-import {ContainerComponent} from "../components/ContainerComponent";
+import { Action } from '../actions/actions';
+import { State, StateConfigOptions } from './State';
+import { ContainerComponent } from '../components/ContainerComponent';
+import { StateMutationCheck } from './StateMutationCheck';
 
 export type ActionProcessorFunctionType = (actions: Action[]) => Action[];
 
 export interface ActionProcessors {
-  pre: ActionProcessorFunctionType[],
-  post: ActionProcessorFunctionType[]
+  pre: ActionProcessorFunctionType[];
+  post: ActionProcessorFunctionType[];
 }
 
 export type ActionProcessorAPI = {
@@ -20,16 +20,14 @@ export type ActionProcessorAPI = {
   disableMutationChecking(): void,
   getProcessorClones(): ActionProcessors,
   setMutationCheckOnFailureFunction<T>(newFunction: (baseline: T, source: T) => string): void,
-  getMutationCheckOnFailureFunction<T>() : (baseline: T, source: T) => string
-}
+  getMutationCheckOnFailureFunction<T>(): (baseline: T, source: T) => string
+};
 
 export class ActionProcessor implements ActionProcessorAPI {
+  protected mutationCheck: StateMutationCheck<any>;
   private preProcessors: ActionProcessorFunctionType[] = [];
   private postProcessors: ActionProcessorFunctionType[] = [];
-
   private state: State<any>;
-
-  protected mutationCheck: StateMutationCheck<any>;
 
   constructor(state: State<any>, options: StateConfigOptions) {
     this.state = state;
@@ -40,7 +38,7 @@ export class ActionProcessor implements ActionProcessorAPI {
     this.mutationCheck.onFailure = newFunction;
   }
 
-  public getMutationCheckOnFailureFunction<T>() : (baseline: T, source: T) => string {
+  public getMutationCheckOnFailureFunction<T>(): (baseline: T, source: T) => string {
     return this.mutationCheck.onFailure;
   }
 
@@ -58,11 +56,11 @@ export class ActionProcessor implements ActionProcessorAPI {
 
   protected renderer(actions: Action[]): Action[] {
     let updated: ContainerComponent<any, any, any>[] = [];
-    actions.forEach(function (action) {
+    actions.forEach(function (action: Action) {
       action.containersToRender(updated);
     });
     if (updated.length > 0) {
-      updated.forEach(function (container) {
+      updated.forEach(function (container: ContainerComponent<any, any, any>) {
         container.handleChange(actions);
       });
     }
@@ -132,6 +130,6 @@ export class ActionProcessor implements ActionProcessorAPI {
     return {
       pre: [...this.preProcessors],
       post: [...this.postProcessors]
-    }
+    };
   }
 }

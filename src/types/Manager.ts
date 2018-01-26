@@ -1,8 +1,8 @@
-import {State, IStateObject, StateConfigOptions} from "./State";
-import {Action} from "../actions/actions";
-import {MappingState} from "./MappingState";
-import {createActionQueue, IActionQueue} from "./ActionQueue";
-import {ActionProcessor, ActionProcessorAPI} from "./ActionProcessor";
+import { State, StateObject, StateConfigOptions } from './State';
+import { Action } from '../actions/actions';
+import { MappingState } from './MappingState';
+import { createActionQueue, ActionQueue } from './ActionQueue';
+import { ActionProcessor, ActionProcessorAPI } from './ActionProcessor';
 
 /**
  * Manages state, contains no references to app-specific data, which is handled in the
@@ -18,6 +18,11 @@ export class Manager {
    */
   protected static manager: Manager;
 
+  protected state: State<any>;
+  protected actionQueue: ActionQueue;
+  protected mappingState: MappingState;
+  protected actionProcessor: ActionProcessor;
+
   public static get(): Manager {
     return Manager.manager;
   }
@@ -25,12 +30,6 @@ export class Manager {
   public static set(_manager: Manager): void {
     Manager.manager = _manager;
   }
-
-  protected state: State<any>;
-  protected actionQueue: IActionQueue;
-  protected mappingState: MappingState;
-  protected actionProcessor: ActionProcessor;
-
 
   constructor(state: State<any>, options: StateConfigOptions) {
     this.resetManager(state, {});
@@ -56,18 +55,17 @@ export class Manager {
     return this.actionQueue;
   }
 
-
   public actionUndo(nActions: number = 1, ..._undoActions: Action[]): number {
     let actions = _undoActions.length > 0 ? _undoActions : this.actionQueue.lastActions(nActions);
 
     actions.forEach((action) => {
-      if (actions != _undoActions) {
+      if (actions !== _undoActions) {
         if (action.pristine) {
-          throw Error("undo can't be performed on new/original/pristine actions")
+          throw Error('undo cannot be performed on new/original/pristine actions');
         }
       } else {
         if (!action.pristine) {
-          throw Error("expecting actions passed in to be new/origin/pristine");
+          throw Error('expecting actions passed in to be new/origin/pristine');
         }
       }
     });
@@ -84,7 +82,7 @@ export class Manager {
     let actions = this.actionQueue.nextActions(nActions);
     actions.forEach((action) => {
       if (action.pristine) {
-        throw Error("redo can't be performed on new/original/pristine actions")
+        throw Error('redo cannot be performed on new/original/pristine actions');
       }
     });
     actions = this.actionProcessor.preProcess(actions);
@@ -99,7 +97,7 @@ export class Manager {
   public actionPerform(...actions: Action[]): number {
     actions.forEach((action) => {
       if (!action.pristine) {
-        throw new Error("you can only perform actions for new/original/pristine actions");
+        throw new Error('you can only perform actions for new/original/pristine actions');
       }
     });
     actions = this.actionProcessor.preProcess(actions);
@@ -120,7 +118,7 @@ export class Manager {
     // get the lastN actions and reverse their order, as we want to execute last-to-first
     let undoActions = this.actionQueue.lastActions(lastN).reverse();
     undoActions.forEach(action => {
-      //annotateActionInState(action);
+      // annotateActionInState(action);
       action.undo();
       // decrement the actionQueue's current index by the actual number of actions undone
       this.actionQueue.incrementCurrentIndex(-undoActions.length);
@@ -136,7 +134,7 @@ export class Manager {
   public redoAction(nextN: number = 1): number {
     let redoActions = this.actionQueue.nextActions(nextN);
     redoActions.forEach(action => {
-      //annotateActionInState(action);
+      // annotateActionInState(action);
       action.perform();
       // increment the actionQueue's currentIndex by the actual number of actions redone
       this.actionQueue.incrementCurrentIndex(redoActions.length);
@@ -145,12 +143,12 @@ export class Manager {
     return redoActions.length;
   }
 
-  public getFullPath(container: IStateObject, propName: string): string {
+  public getFullPath(container: StateObject, propName: string): string {
     let fullPath: string = propName;
     let containerIterator = State.createStateObjectIterator(container);
-    let iteratorResult: IteratorResult<IStateObject> = containerIterator.next();
+    let iteratorResult: IteratorResult<StateObject> = containerIterator.next();
     while (!iteratorResult.done) {
-      if (iteratorResult.value.__parent__ != iteratorResult.value) {
+      if (iteratorResult.value.__parent__ !== iteratorResult.value) {
         fullPath = iteratorResult.value.__my_propname__ + '.' + fullPath;
       }
       iteratorResult = containerIterator.next();

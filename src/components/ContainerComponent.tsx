@@ -1,9 +1,9 @@
-import * as React from 'react'
-import {ReactNode, SFC} from "react";
-import {Action, DispatchType, StateCrudAction, MappingAction} from "../actions/actions";
+import * as React from 'react';
+import { ReactNode, SFC } from 'react';
+import { Action, DispatchType, StateCrudAction, MappingAction } from '../actions/actions';
 import * as _ from 'lodash';
-import {Manager} from "../types/Manager";
-import {IStateObject} from "../types/State";
+import { Manager } from '../types/Manager';
+import { StateObject } from '../types/State';
 
 export type ComponentGenerator<P> = (props: P) => React.Component<P, any>;
 
@@ -19,18 +19,14 @@ export type Renderer<P> = ComponentGenerator<P> | SFC<P>;
  *
  * CP: container props, a plain object (pojo)
  * VP: view component props, also a plain object
- * A: topmost application data residing in a state object {@link IStateObject}
+ * A: topmost application data residing in a state object {@link StateObject}
  */
-export abstract class ContainerComponent<CP, VP, A extends IStateObject> extends React.Component<CP> {
+export abstract class ContainerComponent<CP, VP, A extends StateObject> extends React.Component<CP> {
 
   // this class will be managing/creating the props to hand to the view, writable here, readonly in the view
   public viewProps: VP;
 
-  protected mappingActions: MappingAction<any, any, CP, VP, keyof VP>[];
-
-  public getMappingActions() { return this.mappingActions;}
-
-  protected appData: A;// IStateObject & A;
+  protected appData: A; 
 
   protected viewGenerator: ComponentGenerator<VP> | undefined;
 
@@ -44,6 +40,23 @@ export abstract class ContainerComponent<CP, VP, A extends IStateObject> extends
    */
   protected viewComponent: React.Component<VP, any>;
 
+  protected mappingActions: MappingAction<any, any, CP, VP, keyof VP>[];
+
+  /**
+   * Convenience method
+   * @param {Array<T>} oldArray
+   * @param {number} index
+   * @param {T} newElement
+   * @returns {Array<T>}
+   */
+  public static newArray<T>(oldArray: Array<T>, index: number, newElement: T): Array<T> {
+      let newArray = [...oldArray];
+      newArray[index] = newElement;
+      return newArray;
+  }
+
+  public getMappingActions() { return this.mappingActions; }
+  
   /**
    * There are two types of views this can create.  The preferred way is with
    * an 'SFC' (stateless functional component), the other way is by creating
@@ -51,20 +64,20 @@ export abstract class ContainerComponent<CP, VP, A extends IStateObject> extends
    * or the other.
    *
    * @param {CP} _props
-   * @param {IStateObject & A} appData
+   * @param {StateObject & A} appData
    * @param {React.SFC<VP> | undefined} sfc
    * @param {ComponentGenerator<VP> | undefined} viewGenerator
    */
-  constructor(_props: CP, appData: IStateObject & A, sfc: SFC<VP> | undefined, viewGenerator?: ComponentGenerator<VP> | undefined) {
+  constructor(_props: CP, appData: StateObject & A, sfc: SFC<VP> | undefined, viewGenerator?: ComponentGenerator<VP> | undefined) {
     super(_props);
     if (!_.isPlainObject(_props)) {
-      throw new Error("container props must be plain objects")
+      throw new Error('container props must be plain objects');
     }
     this.appData = appData;
     if (!appData) {
-      throw new Error('Failed to get appData to base container')
+      throw new Error('Failed to get appData to base container');
     } else {
-      //console.log(`appData in base container: ${JSON.stringify(this.appData, JSON_replaceCyclicParent, 4)}`);
+      // console.log(`appData in base container: ${JSON.stringify(this.appData, JSON_replaceCyclicParent, 4)}`);
     }
 
     // examine the component functions
@@ -80,10 +93,9 @@ export abstract class ContainerComponent<CP, VP, A extends IStateObject> extends
     }
   }
 
-  public createMapping<S extends IStateObject, K extends keyof S>
+  public createMapping<S extends StateObject, K extends keyof S>
           (stateObject: S, stateObjectProperty: K, targetViewProp: keyof VP, ...dispatches: DispatchType[])
-          : MappingAction<S, K, CP, VP, keyof VP>
-  {
+          : MappingAction<S, K, CP, VP, keyof VP> {
     return new MappingAction(stateObject, stateObjectProperty, this, targetViewProp, ...dispatches);
   }
 
@@ -97,7 +109,7 @@ export abstract class ContainerComponent<CP, VP, A extends IStateObject> extends
 
   /**
    * Create mappings from your application state to {@link viewProps}.  This method is
-   * analogous to Redux's "mapStateToProps" method.  The framework uses these mappings to
+   * analogous to Redux's 'mapStateToProps' method.  The framework uses these mappings to
    * forceUpdate this component when state changes occur.
    *
    * Implementations of this method are called once, to populate the stateMappingActions array.
@@ -117,7 +129,7 @@ export abstract class ContainerComponent<CP, VP, A extends IStateObject> extends
   /**
    * This method can be used to alter default state property and dispatch mappings
    */
-  public updateViewProps(executedActions: Action[]): void { }
+  public updateViewProps(executedActions: Action[]): void { return; }
 
   /**
    * Default implementation of dispatches using mapping actions.
@@ -133,12 +145,12 @@ export abstract class ContainerComponent<CP, VP, A extends IStateObject> extends
         if (mappingActions && mappingActions.length > 0) {
           mappingActions.forEach((mapping) => {
             if (mapping.dispatches && mapping.dispatches.length > 0) {
-              mapping.dispatches.forEach((dispatch) => dispatch(action))
+              mapping.dispatches.forEach((dispatch) => dispatch(action));
             }
-          })
+          });
         }
       }
-    })
+    });
   }
 
   /**
@@ -155,10 +167,10 @@ export abstract class ContainerComponent<CP, VP, A extends IStateObject> extends
         if (mappingActions && mappingActions.length) {
           mappingActions.forEach((mapping) => {
             this.viewProps[mapping.targetPropName] = action.value;
-          })
+          });
         }
       }
-    })
+    });
   }
 
   componentDidMount() {
@@ -202,16 +214,4 @@ export abstract class ContainerComponent<CP, VP, A extends IStateObject> extends
     throw new Error('Neither SFC nor React.Component is available for rendering');
   }
 
-  /**
-   * Convenience method
-   * @param {Array<T>} oldArray
-   * @param {number} index
-   * @param {T} newElement
-   * @returns {Array<T>}
-   */
-  public static newArray<T>(oldArray: Array<T>, index: number, newElement: T): Array<T> {
-    let newArray = [...oldArray];
-    newArray[index] = newElement;
-    return newArray;
-  }
 }

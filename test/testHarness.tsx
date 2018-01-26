@@ -1,15 +1,15 @@
-import {State} from "../src/types/State";
-import {IAddress, IName} from "./types.test";
-import {IStateObject} from "../src/types/State";
+import { State } from '../src/types/State';
+import { Address, Name } from './types.test';
+import { StateObject } from '../src/types/State';
 
-export interface ITestState {
-  name?: IName & IStateObject,
-  me?: IName & IStateObject,
-  address?: IAddress & IStateObject,
-  appName?: string
+export interface TestState {
+  name?: Name & StateObject;
+  me?: Name & StateObject;
+  address?: Address & StateObject;
+  appName?: string;
 }
 
-export function createTestState(): ITestState {
+export function createTestState(): TestState {
   return {};
 }
 

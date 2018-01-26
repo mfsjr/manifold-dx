@@ -1,4 +1,4 @@
-import {MappingAction} from "../actions/actions";
+import { MappingAction } from '../actions/actions';
 
 /**
  * Relates application state properties with React components, for the purpose of
@@ -9,9 +9,6 @@ import {MappingAction} from "../actions/actions";
  */
 export class MappingState {
   private pathMappings = new Map<string, MappingAction<any, any, any, any, any>[]>();
-
-  constructor() {
-  }
 
   /**
    * Primarily for testing purposes

@@ -1,9 +1,7 @@
-
-import {ActionId} from "./actions";
+import { ActionId } from './actions';
 import * as _ from 'lodash';
-import {MutationError} from "../types/StateMutationCheck";
-import {IStateObject, State} from "../types/State";
-
+import { MutationError } from '../types/StateMutationCheck';
+import { StateObject, State } from '../types/State';
 
 // This works when arrays are not optional/nullable/undefinable, see https://github.com/Microsoft/TypeScript/issues/20771
 /**
@@ -16,19 +14,15 @@ import {IStateObject, State} from "../types/State";
  * @param {number} index
  * @returns {{oldValue?: S[K][V]}}
  */
-export function mutateArray<S extends IStateObject, K extends keyof S, V extends keyof S[K]>
+export function mutateArray<S extends StateObject, K extends keyof S, V extends keyof S[K]>
           (actionType: ActionId, stateObject: S, values: Array<S[K][V]> | undefined,  value: S[K][V],  propertyName: K, index: number)
         : {oldValue?: S[K][V]} {
 
-// export let mutateArray = function<S extends IStateObject, K extends keyof S, T>
-//           (actionType: ActionId, stateObject: S, values: Array<T> | undefined, value: T,  propertyName: K, index: number)
-//         : {oldValue?: T} {
-//
   if (!values) {
     throw new Error(`${propertyName} array is falsey, insert the array property before trying to change it`);
   }
   validateArrayIndex(actionType, values, index, propertyName);
-  switch(actionType) {
+  switch (actionType) {
     case ActionId.UPDATE_PROPERTY: {
       let oldValue: S[K] = values[index];
       values[index] = value;
@@ -46,7 +40,7 @@ export function mutateArray<S extends IStateObject, K extends keyof S, V extends
     }
     default: throw new Error(`mutateArray: unhandled actionType=${actionType}`);
   }
-};
+}
 
 let actionImmutabilityCheck = function(actionId: ActionId, oldValue: any, newValue: any, propertyName: any, index?: number) {
   if (oldValue === newValue) {
@@ -54,10 +48,10 @@ let actionImmutabilityCheck = function(actionId: ActionId, oldValue: any, newVal
     message = index ? `${message} at index=${index}` : message;
     throw new MutationError(message);
   }
-}
+};
 
 let validateArrayIndex = function(actionType: ActionId, ra: Array<any>, index: number,  propertyName: string) {
-  let di = actionType == ActionId.INSERT_PROPERTY || actionType == ActionId.INSERT_STATE_OBJECT ? 1 : 0;
+  let di = actionType === ActionId.INSERT_PROPERTY || actionType === ActionId.INSERT_STATE_OBJECT ? 1 : 0;
   let max = ra.length - 1 + di;
   if (index < 0 || index > max) {
     throw new Error(`Index=${index} is not in [0, ${ra.length}] for array property=${propertyName}`);
@@ -71,8 +65,7 @@ let throwIf = function(condition: boolean, message: string) {
   }
 };
 
-
-export function mutateValue<S extends IStateObject, K extends keyof S>
+export function mutateValue<S extends StateObject, K extends keyof S>
         (actionType: ActionId, stateObject: S, value: S[K], propertyName: K)
       : { oldValue?: S[K] } {
   switch (actionType) {
@@ -82,7 +75,7 @@ export function mutateValue<S extends IStateObject, K extends keyof S>
       let oldValue: S[K] = _.get(stateObject, propertyName);
       actionImmutabilityCheck(actionType, oldValue, value, propertyName);
       _.set(stateObject, propertyName, value);
-      return {oldValue: oldValue}
+      return {oldValue: oldValue};
     }
     case ActionId.INSERT_PROPERTY: {
       let isStateObject = State.isInstanceOfIStateObject(value);
@@ -111,13 +104,13 @@ export function mutateValue<S extends IStateObject, K extends keyof S>
       // }
       State.createStateObject<S[K]>(stateObject, propertyName, value);
       actionImmutabilityCheck(actionType, undefined, value, propertyName);
-      return {}
+      return {};
     }
     case ActionId.DELETE_STATE_OBJECT: {
       let oldValue: S[K] = _.get(stateObject, propertyName);
       let isStateObject = State.isInstanceOfIStateObject(oldValue);
       throwIf(!isStateObject, `${ActionId[actionType]} action is applicable to state objects; value = ${oldValue}`);
-      let valueStateObject: IStateObject = _.get(stateObject, propertyName);
+      let valueStateObject: StateObject = _.get(stateObject, propertyName);
       actionImmutabilityCheck(actionType, oldValue, value, propertyName);
 
       // delete the valueStateObject from the app state graph
@@ -131,4 +124,4 @@ export function mutateValue<S extends IStateObject, K extends keyof S>
     default:
       throw new Error(`Unhandled actionType=${actionType}`);
   }
-};
+}

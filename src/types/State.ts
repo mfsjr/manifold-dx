@@ -1,16 +1,15 @@
-import {Manager} from "./Manager";
+import { Manager } from './Manager';
 import * as _ from 'lodash';
-
 
 /**
  * State data is comprised of plain objects that are modified to implement this interface.
  *
  * Note that __parents__ are never null (top level app state is self-referencing)
  */
-export interface IStateObject {
+export interface StateObject {
 
-  __parent__: IStateObject,
-  __my_propname__: string
+  __parent__: StateObject;
+  __my_propname__: string;
 }
 
 /**
@@ -29,26 +28,29 @@ export interface StateConfigOptions {
  */
 export class State<A> {
 
-  private static state_keys: string[] = State.getStateKeys();
+  private static StateKeys: string[] = State.getStateKeys();
 
-  private static getStateKeys(): string[] {
-    let state = State.createState();
-    return Object.keys(state);
-  }
+  /** the single store of data for this application */
+  private state: StateObject & A;
+
+  private manager: Manager;
 
   /**
    * Create state as a plain object.
    * @param parent container for this container, falsey implies this is to be top-level state
    * @param propName of this container in its parent, ie parent[propName] = this
-   * @returns {IStateObject}
+   * @returns {StateObject}
    */
-  public static createState(parent?: IStateObject, propName?: string): IStateObject {
-    let state: {} = {};
-    //state['__actions__'] = null;
-    state['__parent__'] = parent ? parent : state;
-    state['__my_propname__'] = propName ? propName : '';
-    return state as IStateObject;
-  };
+  public static createState(parent?: StateObject, propName?: string): StateObject {
+      let state: {} = {};
+      // this is linting horseshit, see:
+      // https://stackoverflow.com/questions/33387090/how-to-rewrite-code-to-avoid-tslint-object-access-via-string-literals
+      let parentKey = '__parent__';
+      state[parentKey] = parent ? parent : state;
+      let propKey = '__my_propname__';
+      state[propKey] = propName ? propName : '';
+      return state as StateObject;
+  }
 
   /**
    * Is the object an IStateObject?  Note this is not the same as an instance of
@@ -60,21 +62,21 @@ export class State<A> {
    * @param object
    * @returns {boolean}
    */
-  public static isInstanceOfIStateObject(object: any): object is IStateObject {
-    if (!object) {
-      return false;
-    }
-
-    if (!_.isPlainObject(object)) {
-      return false;
-    }
-    let object_keys: string[] = Object.keys(object);
-    for (let key in this.state_keys) {
-      if (object_keys.indexOf(this.state_keys[key]) < 0) {
-        return false;
+  public static isInstanceOfIStateObject(object: any): object is StateObject {
+      if (!object) {
+          return false;
       }
-    }
-    return true;
+
+      if (!_.isPlainObject(object)) {
+          return false;
+      }
+      let objectKeys: string[] = Object.keys(object);
+      for (let key in this.StateKeys) {
+          if (objectKeys.indexOf(this.StateKeys[key]) < 0) {
+              return false;
+          }
+      }
+      return true;
   }
 
   /**
@@ -86,18 +88,18 @@ export class State<A> {
    * Also note that the topmost app state is never initialized here, but
    * in the constructor of the State class.
    *
-   * @param {IStateObject} _parent
+   * @param {StateObject} _parent
    * @param {string} propertyName
    * @param {T} data
-   * @returns {IStateObject & T}
+   * @returns {StateObject & T}
    */
-  public static createStateObject<T extends {}>(_parent: IStateObject, propertyName: string, data: T): IStateObject & T {
-    let stateObject = State.createState(_parent, propertyName);
+  public static createStateObject<T extends {}>(_parent: StateObject, propertyName: string, data: T): StateObject & T {
+      let stateObject = State.createState(_parent, propertyName);
 
-    let newStateObject = Object.assign(data, stateObject);
-    _parent[propertyName] = newStateObject;
+      let newStateObject = Object.assign(data, stateObject);
+      _parent[propertyName] = newStateObject;
 
-    return newStateObject;
+      return newStateObject;
   }
 
   /**
@@ -115,29 +117,42 @@ export class State<A> {
    * This code looks a little awkward, since we need to return State once before returning done = true.
    * But, that seems to be the most sensible behavior.
    *
-   * @param {IStateObject} stateObject
-   * @returns {Iterator<IStateObject>}
+   * @param {StateObject} stateObject
+   * @returns {Iterator<StateObject>}
    */
-  public static createStateObjectIterator = function (stateObject: IStateObject): Iterator<IStateObject> {
-    let currentContainer: IStateObject = stateObject;
-    let done: boolean = false;
-    const next = function (): IteratorResult<IStateObject> {
-      let result = {done: done, value: currentContainer};
-      // if we have just returned State, then we are now done
-      done = currentContainer === currentContainer.__parent__;
-      currentContainer = currentContainer.__parent__;
-      return result;
-    };
+  public static createStateObjectIterator = function (stateObject: StateObject): Iterator<StateObject> {
+      let currentContainer: StateObject = stateObject;
+      let done: boolean = false;
+      const next = function (): IteratorResult<StateObject> {
+          let result = {done: done, value: currentContainer};
+          // if we have just returned State, then we are now done
+          done = currentContainer === currentContainer.__parent__;
+          currentContainer = currentContainer.__parent__;
+          return result;
+      };
 
-    return {next: next};
+      return {next: next};
   };
 
-  /** the single store of data for this application */
-  private state: IStateObject & A;
+  public static stripStateObject(stateObject: any): any {
+      if (State.isInstanceOfIStateObject(stateObject)) {
+          delete stateObject.__my_propname__;
+          delete stateObject.__parent__;
+          // let childStateObjects: IStateObject[];
+          for (let obj in stateObject) {
+              if (State.isInstanceOfIStateObject(stateObject[obj])) {
+                  this.stripStateObject(stateObject[obj]);
+              }
+          }
+      }
+  }
 
-  private manager: Manager;
+  private static getStateKeys(): string[] {
+    let state = State.createState();
+    return Object.keys(state);
+  }
 
-  constructor(appData: A, options: StateConfigOptions) {
+    constructor(appData: A, options: StateConfigOptions) {
     this.reset(appData, options);
   }
 
@@ -146,17 +161,17 @@ export class State<A> {
     this.manager = new Manager(this, options);
     let stateMutateChecking = false;
     try {
-      stateMutateChecking = process.env.REACT_APP_MUTATION_CHECKING == 'true';
-      //console.log(`process.env.REACT_APP_MUTATION_CHECKING = '${process.env.REACT_APP_MUTATION_CHECKING}'`);
+      stateMutateChecking = process.env.REACT_APP_MUTATION_CHECKING === 'true';
+      // console.log(`process.env.REACT_APP_MUTATION_CHECKING = '${process.env.REACT_APP_MUTATION_CHECKING}'`);
     } catch (err) {
-      console.log(`process defined = ${!!process}`);
+      // console.log(`process defined = ${!!process}`);
     }
     if (stateMutateChecking) {
       this.manager.getActionProcessorAPI().enableMutationChecking();
     }
   }
 
-  public getState(): IStateObject & A {
+  public getState(): StateObject & A {
     return this.state;
   }
 
@@ -164,20 +179,7 @@ export class State<A> {
     return this.manager;
   }
 
-  public static stripStateObject(stateObject: any): any {
-    if (State.isInstanceOfIStateObject(stateObject)) {
-      delete stateObject.__my_propname__;
-      delete stateObject.__parent__;
-      //let childStateObjects: IStateObject[];
-      for (let obj in stateObject) {
-        if (State.isInstanceOfIStateObject(stateObject[obj])) {
-          this.stripStateObject(stateObject[obj]);
-        }
-      }
-    }
-  }
 }
-
 
 /**
  * This is only used in JSON.stringify, to prevent cyclic errors arising from
@@ -187,5 +189,5 @@ export class State<A> {
  * @returns {string}
  */
 export function JSON_replaceCyclicParent(key: any, value: any) {
-  return key == "__parent__" ? "(parent)" : value;
+  return key === '__parent__' ? '(parent)' : value;
 }

@@ -1,39 +1,39 @@
-import {Action} from "../actions/actions";
+import { Action } from '../actions/actions';
 
-export interface IActionQueue {
+export interface ActionQueue {
   /**
    * Add the actions to the queue and increment currentIndex.  Note that if
    * some actions have been undone, they will be removed from the queue.
    * @param {Action} actions
    * @returns {number} currentIndex
    */
-  //push: (...actions: Action[]) => number,
-  push: (action: Action) => number,
+  // push: (...actions: Action[]) => number,
+  push: (action: Action) => number;
   /**
    * Get the lastN actions from the queue, or as many as are available.
    * Used in undo operations.
    * @param {number} lastN
    * @returns the number of actions performed, should be exactly actions.length
    */
-  lastActions: (lastN?: number) => Action[],
+  lastActions: (lastN?: number) => Action[];
   /**
    * Get the nextN actions above the current index from the queue, or as many as are available.
    * Used in redo operations.
    * @param {number} nextN
    * @returns the actual number of actions to be undone, may be less than lastN
    */
-  nextActions: (nextN?: number) => Action[],
+  nextActions: (nextN?: number) => Action[];
   /**
    * Increment the current index by dc.  Used in undo and redo operations, where actions are left
    * on the queue and undone or redone.
    * @param {number} dc
    * @returns {number} return the actual number of actions to be redone, may be less than nextN
    */
-  incrementCurrentIndex: (dc: number) => number,
+  incrementCurrentIndex: (dc: number) => number;
 
-  size: () => number,
+  size: () => number;
 
-  max: () => number
+  max: () => number;
 }
 
 /**
@@ -44,12 +44,12 @@ export interface IActionQueue {
  * @param {number} _max defaults to 100
  * @returns {any}
  */
-export const createActionQueue = function (_max: number = 100): IActionQueue {
+export const createActionQueue = function (_max: number = 100): ActionQueue {
   let queue: Action[] = [];
   let max: number = _max;
   let currentIndex: number = -1;
 
-  let api: IActionQueue = {
+  let api: ActionQueue = {
     push: function (actions: Action): number {
       // If the currentIndex is less than queue.length, some actions have been undone,
       // these new incoming actions are to be done, so the undone actions are discarded
@@ -58,7 +58,7 @@ export const createActionQueue = function (_max: number = 100): IActionQueue {
       }
       if (queue.length >= max) {
         queue.copyWithin(0, 1);
-        queue[queue.length-1] = actions;
+        queue[queue.length - 1] = actions;
       } else {
         queue.push(actions);
       }

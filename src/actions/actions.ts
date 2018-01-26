@@ -1,13 +1,12 @@
-import {mutateArray, mutateValue} from "./mutations";
-import {ContainerComponent} from "../components/ContainerComponent";
-import {IStateObject} from "../types/State";
-import {Manager} from "../types/Manager";
-
+import { mutateArray, mutateValue } from './mutations';
+import { ContainerComponent } from '../components/ContainerComponent';
+import { StateObject } from '../types/State';
+import { Manager } from '../types/Manager';
 
 /**
  * ActionId's for calling api's that change state.
  *
- * Separate CRUD operations for state objects ({@link IStateObject}) vs regular data
+ * Separate CRUD operations for state objects ({@link StateObject}) vs regular data
  * properties, since  state objects have special requirements that have to be checked.
  *
  * Also note that state objects themselves are not updated, ie swapped out for
@@ -23,7 +22,7 @@ export enum ActionId {
   MAP_STATE_TO_PROP,
 }
 
-export type DispatchType = (action: StateCrudAction<any,any>) => void;
+export type DispatchType = (action: StateCrudAction<any, any>) => void;
 
 export abstract class Action {
   type: ActionId;
@@ -32,7 +31,7 @@ export abstract class Action {
 
   protected abstract mutate(perform: boolean): void;
   
-  public abstract clone() : Action;
+  public abstract clone(): Action;
 
   constructor(actionType: ActionId) {
     this.type = actionType;
@@ -51,11 +50,11 @@ export abstract class Action {
   getUndoAction(): ActionId {
     // Invert the action (note that UPDATE is the inverse of UPDATE)
     let undoAction = ActionId.UPDATE_PROPERTY;
-    if (this.type == ActionId.DELETE_PROPERTY || this.type == ActionId.INSERT_PROPERTY) {
-      undoAction = this.type == ActionId.INSERT_PROPERTY ? ActionId.DELETE_PROPERTY : ActionId.INSERT_PROPERTY;
+    if (this.type === ActionId.DELETE_PROPERTY || this.type === ActionId.INSERT_PROPERTY) {
+      undoAction = this.type === ActionId.INSERT_PROPERTY ? ActionId.DELETE_PROPERTY : ActionId.INSERT_PROPERTY;
     }
-    if (this.type == ActionId.DELETE_STATE_OBJECT || this.type == ActionId.INSERT_STATE_OBJECT) {
-      undoAction = this.type == ActionId.INSERT_STATE_OBJECT ? ActionId.DELETE_STATE_OBJECT : ActionId.INSERT_STATE_OBJECT;
+    if (this.type === ActionId.DELETE_STATE_OBJECT || this.type === ActionId.INSERT_STATE_OBJECT) {
+      undoAction = this.type === ActionId.INSERT_STATE_OBJECT ? ActionId.DELETE_STATE_OBJECT : ActionId.INSERT_STATE_OBJECT;
     }
     return undoAction;
   }
@@ -64,14 +63,14 @@ export abstract class Action {
     this.mutate(false);
   }
 
-  public containersToRender(_containers: ContainerComponent<any,any,any>[]): void { };
+  public containersToRender(_containers: ContainerComponent<any, any, any>[]): void { return; }
 }
 
-export abstract class StateAction<S extends IStateObject, K extends keyof S> extends Action {
+export abstract class StateAction<S extends StateObject, K extends keyof S> extends Action {
   parent: S;
   propertyName: K;
 
-  protected assignProps(from: StateAction<S,K>) {
+  protected assignProps(from: StateAction<S, K>) {
     super.assignProps(from);
     this.parent = from.parent;
     this.propertyName = from.propertyName;
@@ -88,17 +87,17 @@ export abstract class StateAction<S extends IStateObject, K extends keyof S> ext
  * Action classes contain instructions for mutating state, in the form
  * of IStateObjects.
  */
-export class StateCrudAction<S extends IStateObject, K extends keyof S> extends StateAction<S, K> {
+export class StateCrudAction<S extends StateObject, K extends keyof S> extends StateAction<S, K> {
   mutateResult?: {oldValue?: S[K]};
   oldValue?: S[K];
   value: S[K];
-  mappingActions: MappingAction<any,any,any,any,any>[];
+  mappingActions: MappingAction<any, any, any, any, any>[];
 
   public getOldValue(): S[K] {
     return this.oldValue;
   }
 
-  protected assignProps(from: StateCrudAction<S,K>) {
+  protected assignProps(from: StateCrudAction<S, K>) {
     super.assignProps(from);
     this.mutateResult = from.mutateResult;
     this.oldValue = from.oldValue;
@@ -106,13 +105,13 @@ export class StateCrudAction<S extends IStateObject, K extends keyof S> extends 
     this.mappingActions = from.mappingActions;
   }
 
-  public clone() : StateCrudAction<S,K> {
+  public clone(): StateCrudAction<S, K> {
     let copy = new StateCrudAction(this.type, this.parent, this.propertyName, this.value);
     copy.assignProps(this);
     return copy;
   }
 
-  constructor(actionType: ActionId,_parent: S, _propertyName: K, _value: S[K]) {
+  constructor(actionType: ActionId, _parent: S, _propertyName: K, _value: S[K]) {
     super(actionType, _parent, _propertyName);
     this.value = _value;
   }
@@ -124,7 +123,7 @@ export class StateCrudAction<S extends IStateObject, K extends keyof S> extends 
     this.mappingActions = Manager.get().getMappingState().getPathMappings(fullpath) || [];
     this.mappingActions = Manager.get().getMappingState().getPathMappings(fullpath) || [];
 
-    //annotateActionInState(this);
+    // annotateActionInState(this);
     let actionId = perform ? this.type : this.getUndoAction();
     let _value = perform ? this.value : this.oldValue;
     this.mutateResult = mutateValue(actionId, this.parent, _value, this.propertyName);
@@ -138,7 +137,7 @@ export class StateCrudAction<S extends IStateObject, K extends keyof S> extends 
     }
   }
 
-  public containersToRender(containersBeingRendered: ContainerComponent<any,any,any>[]): void {
+  public containersToRender(containersBeingRendered: ContainerComponent<any, any, any>[]): void {
     let fullPath = Manager.get().getFullPath(this.parent, this.propertyName);
     let mappingActions = Manager.get().getMappingState().getPathMappings(fullPath);
     if (mappingActions) {
@@ -147,7 +146,7 @@ export class StateCrudAction<S extends IStateObject, K extends keyof S> extends 
         if (containersBeingRendered.indexOf(container) < 0) {
           containersBeingRendered.push(container);
         }
-      })
+      });
     }
   }
 }
@@ -155,14 +154,14 @@ export class StateCrudAction<S extends IStateObject, K extends keyof S> extends 
 /**
  * @deprecated replace the array itself when an element changes.
  */
-export class ArrayMutateAction<S extends IStateObject, K extends keyof S, V extends keyof S[K]> extends StateAction<S, K> {
+export class ArrayMutateAction<S extends StateObject, K extends keyof S, V extends keyof S[K]> extends StateAction<S, K> {
   mutateResult?: {oldValue?: S[K][V]};
   oldValue?: S[K][V];
   value: S[K][V];
   valuesArray?: S[K]; // see Typescript issue 20177
   index: number;
 
-  protected assignProps(from: ArrayMutateAction<S,K,V>) {
+  protected assignProps(from: ArrayMutateAction<S, K, V>) {
     super.assignProps(from);
     this.mutateResult = from.mutateResult;
     this.oldValue = from.oldValue;
@@ -171,13 +170,13 @@ export class ArrayMutateAction<S extends IStateObject, K extends keyof S, V exte
     this.index = from.index;
   }
 
-  public clone() : ArrayMutateAction<S,K,V> {
+  public clone(): ArrayMutateAction<S, K, V> {
     let copy = new ArrayMutateAction(this.type, this.parent, this.propertyName, this.valuesArray, this.index, this.value);
 
     return copy;
   }
 
-  constructor(actionType: ActionId,_parent: S, _propertyName: K, _values: S[K], _index: number,  _value: S[K][V]) {
+  constructor(actionType: ActionId, _parent: S, _propertyName: K, _values: S[K], _index: number,  _value: S[K][V]) {
     super(actionType, _parent, _propertyName);
     this.valuesArray = _values;
     this.index = _index;
@@ -186,7 +185,7 @@ export class ArrayMutateAction<S extends IStateObject, K extends keyof S, V exte
 
   protected mutate(perform: boolean = true): void {
     this.pristine = false;
-    //annotateActionInState(this);
+    // annotateActionInState(this);
     let actionId = perform ? this.type : this.getUndoAction();
     this.mutateResult = mutateArray(actionId, this.parent, this.valuesArray, this.value, this.propertyName, this.index);
     if (perform) {
@@ -199,8 +198,6 @@ export class ArrayMutateAction<S extends IStateObject, K extends keyof S, V exte
     }
   }
 }
-
-
 
 /**
  * Define a mapping between a state property and a component property, and optionally
@@ -221,15 +218,15 @@ export class ArrayMutateAction<S extends IStateObject, K extends keyof S, V exte
  */
 
 export class MappingAction
-      <S extends IStateObject, K extends keyof S, CP, VP, TP extends keyof VP>
-      extends StateAction<S,K> {
+      <S extends StateObject, K extends keyof S, CP, VP, TP extends keyof VP>
+      extends StateAction<S, K> {
 
-  component: ContainerComponent<CP,VP,any>;
+  component: ContainerComponent<CP, VP, any>;
   fullPath: string;
   targetPropName: TP;
   dispatches: DispatchType[];
 
-  protected assignProps(from:  MappingAction<S,K,CP,VP,TP>) {
+  protected assignProps(from:  MappingAction<S, K, CP, VP, TP>) {
     super.assignProps(from);
     this.component = from.component;
     this.fullPath = from.fullPath;
@@ -237,7 +234,7 @@ export class MappingAction
     this.dispatches = from.dispatches;
   }
 
-  public clone() : MappingAction<S,K,CP,VP,TP> {
+  public clone(): MappingAction<S, K, CP, VP, TP> {
     let copy = new MappingAction(this.parent, this.propertyName, this.component, this.targetPropName, ...this.dispatches);
     copy.assignProps(this);
     return copy;
@@ -256,12 +253,10 @@ export class MappingAction
   constructor(
               parent: S,
               _propertyOrArrayName: K,
-              _component: ContainerComponent<CP,VP,any>,
+              _component: ContainerComponent<CP, VP, any>,
               targetPropName: TP,
               ...dispatches: DispatchType[]
-              )
-
-  {
+              ) {
     super(ActionId.MAP_STATE_TO_PROP, parent, _propertyOrArrayName);
     this.component = _component;
     this.fullPath = Manager.get().getFullPath(this.parent, this.propertyName);

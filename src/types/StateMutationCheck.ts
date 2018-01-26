@@ -1,8 +1,6 @@
-import {Action} from "../actions/actions";
-import * as _ from "lodash"
-import {State} from "./State";
-import {onFailureDiff} from "./StateMutationDiagnostics";
-
+import { Action } from '../actions/actions';
+import * as _ from 'lodash';
+import { State } from './State';
 
 /**
  * This class implements mutation checking by taking, storing and testing snapshots
@@ -20,19 +18,19 @@ import {onFailureDiff} from "./StateMutationDiagnostics";
  *
  */
 export class StateMutationCheck<S> {
+
+  public onFailure: (baseline: S, failure: S) => string;
+
   private lastGood: S;
 
   private enabled: boolean = false;
 
-  public onFailure: (baseline: S, failure: S) => string;
-
   private state: State<S>;
-
 
   constructor(state: State<S>, onFailure?: (baseline: S, failure: S) => string) {
     this.state = state;
-    this.onFailure = onFailure ? onFailure : onFailureDefault;
-    //this.enableMutationChecks();
+    this.onFailure = onFailure ? onFailure : onFailureWarn;
+    // this.enableMutationChecks();
   }
 
   public isEnabled(): boolean {
@@ -71,29 +69,15 @@ export class MutationError extends Error {
   }
 }
 
-// /**
-//  * Default implementation for lightweight state mutation warnings, meaning that
-//  * libraries that do diagnostics are not loaded.
-//  *
-//  * @param {S} baseline
-//  * @param {S} failure
-//  * @returns {string}
-//  */
-// let onFailureWarn = function<S>(baseline: S, failure: S) : string {
-//   let result = `StateMutationCheck ERROR: state is being changed by something other than an action!!!`;
-//   console.log(result);
-//   return result;
-// };
-
 /**
- * Default implementation of state mutation failure handling uses jsondiffpatch to provide
- * an exact description of the deltas.
+ * Default implementation for lightweight state mutation warnings, meaning that
+ * libraries that do diagnostics are not loaded.
  *
- * For now we assume that mutation checking is disabled in prod, so this will only induce
- * 6k penalty, not a performance penalty.
- *
- * @type {<S>(baseline: S, failure: S) => string}
+ * @param {S} baseline
+ * @param {S} failure
+ * @returns {string}
  */
-export let onFailureDefault = onFailureDiff
-;
-
+let onFailureWarn = function<S>(baseline: S, failure: S): string {
+  let result = `StateMutationCheck ERROR: state is being changed by something other than an action!!!`;
+  throw new MutationError(result);
+};

@@ -2,6 +2,25 @@ import { Action } from '../actions/actions';
 import * as _ from 'lodash';
 import { State } from './State';
 
+export class MutationError extends Error {
+  constructor(message: string) {
+    super(message);
+  }
+}
+
+/**
+ * Default implementation for lightweight state mutation warnings, meaning that
+ * libraries that do diagnostics are not loaded.
+ *
+ * @param {S} baseline
+ * @param {S} failure
+ * @returns {string}
+ */
+let onFailureWarn = function<S>(baseline: S, failure: S): string {
+  let result = `StateMutationCheck ERROR: state is being changed by something other than an action!!!`;
+  throw new MutationError(result);
+};
+
 /**
  * This class implements mutation checking by taking, storing and testing snapshots
  * of application state, and should only be used in non-prod environments (and obviously
@@ -62,22 +81,3 @@ export class StateMutationCheck<S> {
     return actions;
   }
 }
-
-export class MutationError extends Error {
-  constructor(message: string) {
-    super(message);
-  }
-}
-
-/**
- * Default implementation for lightweight state mutation warnings, meaning that
- * libraries that do diagnostics are not loaded.
- *
- * @param {S} baseline
- * @param {S} failure
- * @returns {string}
- */
-let onFailureWarn = function<S>(baseline: S, failure: S): string {
-  let result = `StateMutationCheck ERROR: state is being changed by something other than an action!!!`;
-  throw new MutationError(result);
-};

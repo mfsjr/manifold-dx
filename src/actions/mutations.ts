@@ -3,6 +3,35 @@ import * as _ from 'lodash';
 import { MutationError } from '../types/StateMutationCheck';
 import { StateObject, State } from '../types/State';
 
+/* tslint:disable:no-any */
+let validateArrayIndex = function(actionType: ActionId, ra: Array<any>, index: number,  propertyName: string) {
+  /* tslint:enable:no-any */
+  let di = actionType === ActionId.INSERT_PROPERTY || actionType === ActionId.INSERT_STATE_OBJECT ? 1 : 0;
+  let max = ra.length - 1 + di;
+  if (index < 0 || index > max) {
+    throw new Error(`Index=${index} is not in [0, ${ra.length}] for array property=${propertyName}`);
+  }
+  return ra;
+};
+
+let throwIf = function(condition: boolean, message: string) {
+  if (condition) {
+    throw new Error(message);
+  }
+};
+
+/* tslint:disable:no-any */
+let actionImmutabilityCheck = function(actionId: ActionId, oldValue: any, newValue: any,
+                                       propertyName: any, index?: number) {
+  /* tslint:enable:no-any */
+  if (oldValue === newValue) {
+    let message = `Action immutability violated: ${ActionId[actionId]}: 
+      mutation in property '${propertyName}', oldValue=${oldValue}, newValue=${newValue}`;
+    message = index ? `${message} at index=${index}` : message;
+    throw new MutationError(message);
+  }
+};
+
 // see https://github.com/Microsoft/TypeScript/issues/20771
 /**
  * @deprecated may be able to resurrect this if/when this is fixed: https://github.com/Microsoft/TypeScript/issues/20771
@@ -15,9 +44,9 @@ import { StateObject, State } from '../types/State';
  * @returns {{oldValue?: S[K][V]}}
  */
 export function mutateArray<S extends StateObject, K extends keyof S, V extends keyof S[K]>
-          (actionType: ActionId, stateObject: S, values: Array<S[K][V]> | undefined,
-           value: S[K][V],  propertyName: K, index: number)
-        : {oldValue?: S[K][V]} {
+(actionType: ActionId, stateObject: S, values: Array<S[K][V]> | undefined,
+ value: S[K][V],  propertyName: K, index: number)
+: {oldValue?: S[K][V]} {
 
   if (!values) {
     throw new Error(`${propertyName} array is falsey, insert the array property before trying to change it`);
@@ -43,38 +72,9 @@ export function mutateArray<S extends StateObject, K extends keyof S, V extends 
   }
 }
 
-/* tslint:disable:no-any */
-let actionImmutabilityCheck = function(actionId: ActionId, oldValue: any, newValue: any,
-                                       propertyName: any, index?: number) {
-    /* tslint:enable:no-any */
-  if (oldValue === newValue) {
-    let message = `Action immutability violated: ${ActionId[actionId]}: 
-      mutation in property '${propertyName}', oldValue=${oldValue}, newValue=${newValue}`;
-    message = index ? `${message} at index=${index}` : message;
-    throw new MutationError(message);
-  }
-};
-
-/* tslint:disable:no-any */
-let validateArrayIndex = function(actionType: ActionId, ra: Array<any>, index: number,  propertyName: string) {
-    /* tslint:enable:no-any */
-  let di = actionType === ActionId.INSERT_PROPERTY || actionType === ActionId.INSERT_STATE_OBJECT ? 1 : 0;
-  let max = ra.length - 1 + di;
-  if (index < 0 || index > max) {
-    throw new Error(`Index=${index} is not in [0, ${ra.length}] for array property=${propertyName}`);
-  }
-  return ra;
-};
-
-let throwIf = function(condition: boolean, message: string) {
-  if (condition) {
-    throw new Error(message);
-  }
-};
-
 export function mutateValue<S extends StateObject, K extends keyof S>
-        (actionType: ActionId, stateObject: S, value: S[K], propertyName: K)
-      : { oldValue?: S[K] } {
+(actionType: ActionId, stateObject: S, value: S[K], propertyName: K)
+: { oldValue?: S[K] } {
   switch (actionType) {
     case ActionId.UPDATE_PROPERTY: {
       let isStateObject = State.isInstanceOfIStateObject(value);
@@ -105,8 +105,8 @@ export function mutateValue<S extends StateObject, K extends keyof S>
     }
     case ActionId.INSERT_STATE_OBJECT: {
       throwIf(
-          !_.isPlainObject(value),
-          `${ActionId[actionType]} action is applicable to plain objects; value = ${value}`);
+        !_.isPlainObject(value),
+        `${ActionId[actionType]} action is applicable to plain objects; value = ${value}`);
 
       State.createStateObject<S[K]>(stateObject, propertyName, value);
       actionImmutabilityCheck(actionType, undefined, value, propertyName);

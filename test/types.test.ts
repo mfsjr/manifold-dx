@@ -127,8 +127,10 @@ describe('Iterating through parents', () => {
 });
 
 describe('Mark the state graph with action annotations', () => {
-  let appendScoreAction = new ArrayMutateAction(ActionId.INSERT_PROPERTY, nameState, 'bowlingScores', nameState.bowlingScores, 141, 3);
-  // we are going to let 'custom' action props be handled by subclasses: appendScoreAction.custom = {lastChangeFlag: true}
+  let appendScoreAction = new ArrayMutateAction(
+      ActionId.INSERT_PROPERTY, nameState, 'bowlingScores', nameState.bowlingScores, 141, 3);
+  // we are going to let 'custom' action props be handled by subclasses:
+    // appendScoreAction.custom = {lastChangeFlag: true}
   let key = 'abc';
   appendScoreAction[key] = 1.2;
 
@@ -149,7 +151,8 @@ describe('Test the actionQueue', () => {
   let actionQueue: ActionQueue = createActionQueue(3);
   let updateMiddleAction = new StateCrudAction(ActionId.UPDATE_PROPERTY, nameState, 'middle', 'J');
   let insertScoresAction = new StateCrudAction(ActionId.INSERT_PROPERTY, nameState, 'bowlingScores', bowlingScores);
-  let appendScoreAction = new ArrayMutateAction(ActionId.INSERT_PROPERTY, nameState, 'bowlingScores', nameState.bowlingScores, 3, 141);
+  let appendScoreAction = new ArrayMutateAction(
+      ActionId.INSERT_PROPERTY, nameState, 'bowlingScores', nameState.bowlingScores, 3, 141);
   let deletePrefixAction = new StateCrudAction(ActionId.DELETE_PROPERTY, nameState, 'prefix', '');
   test('the currentIndex should equal the length after an action is added', () => {
     actionQueue.push(updateMiddleAction);

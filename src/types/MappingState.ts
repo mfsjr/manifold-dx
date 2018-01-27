@@ -8,7 +8,9 @@ import { MappingAction } from '../actions/actions';
  * with that itself.  Can revisit this if necessary.
  */
 export class MappingState {
+    /* tslint:disable:no-any */
   private pathMappings = new Map<string, MappingAction<any, any, any, any, any>[]>();
+    /* tslint:enable:no-any */
 
   /**
    * Primarily for testing purposes
@@ -17,12 +19,15 @@ export class MappingState {
   public getSize(): number {
     return this.pathMappings.size;
   }
-
+    /* tslint:disable:no-any */
   public getPathMappings(propFullPath: string): MappingAction<any, any, any, any, any>[] | undefined {
+      /* tslint:enable:no-any */
     return this.pathMappings.get(propFullPath);
   }
 
+    /* tslint:disable:no-any */
   public getOrCreatePathMappings(propFullPath: string): MappingAction<any, any, any, any, any>[] {
+      /* tslint:enable:no-any */
     let result = this.pathMappings.get(propFullPath);
     if (!result) {
       result = [];
@@ -37,8 +42,10 @@ export class MappingState {
    * @param {React.Component} container to be removed
    * @returns {number} index at which the component was removed, -1 if not found
    */
+    /* tslint:disable:no-any */
   public removePathMapping(_fullPath: string, container: MappingAction<any, any, any, any, any>): number {
     let containers: MappingAction<any, any, any, any, any>[] | undefined = this.pathMappings.get(_fullPath);
+      /* tslint:enable:no-any */
     if (containers) {
       let index = containers.indexOf(container);
       if (index > -1) {

@@ -80,7 +80,9 @@ describe('Add the name container', () => {
       expect(bowlingScores[0]).toBe(111);
     });
     test('array index notation should work', () => {
-      let updateAction = new ArrayMutateAction(ActionId.UPDATE_PROPERTY, nameState, 'bowlingScores', nameState.bowlingScores, 0, 101);
+      let updateAction = new ArrayMutateAction(
+          ActionId.UPDATE_PROPERTY, nameState, 'bowlingScores',
+          nameState.bowlingScores, 0, 101);
       expect(updateAction.index).toBe(0);
       updateAction.perform();
       expect(bowlingScores[0]).toBe(101);
@@ -104,7 +106,9 @@ describe('Add the name container', () => {
         throw new Error('nameState.bowlingScores should be defined but is falsey');
       }
 
-      let appendScore = new ArrayMutateAction(ActionId.INSERT_PROPERTY, nameState, 'bowlingScores', nameState.bowlingScores, nameState.bowlingScores.length, 299);
+      let appendScore = new ArrayMutateAction(
+          ActionId.INSERT_PROPERTY, nameState, 'bowlingScores',
+          nameState.bowlingScores, nameState.bowlingScores.length, 299);
       expect(() => {testState.getManager().actionPerform(appendScore); }).not.toThrow();
 
       // restore the old middle
@@ -123,7 +127,9 @@ describe('Add the name container', () => {
         throw new Error('nameState.bowlingScores should be defined but is falsey');
       }
 
-      let appendScore = new ArrayMutateAction(ActionId.INSERT_PROPERTY, nameState, 'bowlingScores', nameState.bowlingScores, nameState.bowlingScores.length, 299);
+      let appendScore = new ArrayMutateAction(
+          ActionId.INSERT_PROPERTY, nameState, 'bowlingScores',
+          nameState.bowlingScores, nameState.bowlingScores.length, 299);
       expect(() => {testState.getManager().actionPerform(appendScore); }).toThrow();
 
       // restore the old middle

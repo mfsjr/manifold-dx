@@ -24,12 +24,16 @@ export type ActionProcessorAPI = {
 };
 
 export class ActionProcessor implements ActionProcessorAPI {
+    /* tslint:disable:no-any */
   protected mutationCheck: StateMutationCheck<any>;
+    /* tslint:enable:no-any */
   private preProcessors: ActionProcessorFunctionType[] = [];
   private postProcessors: ActionProcessorFunctionType[] = [];
 
+    /* tslint:disable:no-any */
   constructor(state: State<any>, options: StateConfigOptions) {
     this.mutationCheck = new StateMutationCheck<any>(state);
+      /* tslint:enable:no-any */
   }
 
   public setMutationCheckOnFailureFunction<T>(newFunction: (baseline: T, source: T) => string): void {
@@ -53,12 +57,16 @@ export class ActionProcessor implements ActionProcessorAPI {
   }
 
   protected renderer(actions: Action[]): Action[] {
+      /* tslint:disable:no-any */
     let updated: ContainerComponent<any, any, any>[] = [];
+      /* tslint:enable:no-any */
     actions.forEach(function (action: Action) {
       action.containersToRender(updated);
     });
     if (updated.length > 0) {
+        /* tslint:disable:no-any */
       updated.forEach(function (container: ContainerComponent<any, any, any>) {
+          /* tslint:enable:no-any */
         container.handleChange(actions);
       });
     }

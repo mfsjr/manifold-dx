@@ -18,7 +18,9 @@ export class Manager {
    */
   protected static manager: Manager;
 
+    /* tslint:disable:no-any */
   protected state: State<any>;
+    /* tslint:disable:no-any */
   protected actionQueue: ActionQueue;
   protected mappingState: MappingState;
   protected actionProcessor: ActionProcessor;

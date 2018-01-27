@@ -3,7 +3,7 @@ import * as _ from 'lodash';
 import { MutationError } from '../types/StateMutationCheck';
 import { StateObject, State } from '../types/State';
 
-// This works when arrays are not optional/nullable/undefinable, see https://github.com/Microsoft/TypeScript/issues/20771
+// see https://github.com/Microsoft/TypeScript/issues/20771
 /**
  * @deprecated may be able to resurrect this if/when this is fixed: https://github.com/Microsoft/TypeScript/issues/20771
  * @param {ActionId} actionType
@@ -15,7 +15,8 @@ import { StateObject, State } from '../types/State';
  * @returns {{oldValue?: S[K][V]}}
  */
 export function mutateArray<S extends StateObject, K extends keyof S, V extends keyof S[K]>
-          (actionType: ActionId, stateObject: S, values: Array<S[K][V]> | undefined,  value: S[K][V],  propertyName: K, index: number)
+          (actionType: ActionId, stateObject: S, values: Array<S[K][V]> | undefined,
+           value: S[K][V],  propertyName: K, index: number)
         : {oldValue?: S[K][V]} {
 
   if (!values) {
@@ -42,15 +43,21 @@ export function mutateArray<S extends StateObject, K extends keyof S, V extends 
   }
 }
 
-let actionImmutabilityCheck = function(actionId: ActionId, oldValue: any, newValue: any, propertyName: any, index?: number) {
+/* tslint:disable:no-any */
+let actionImmutabilityCheck = function(actionId: ActionId, oldValue: any, newValue: any,
+                                       propertyName: any, index?: number) {
+    /* tslint:enable:no-any */
   if (oldValue === newValue) {
-    let message = `Action immutability violated: ${ActionId[actionId]}: mutation in property '${propertyName}', oldValue=${oldValue}, newValue=${newValue}`;
+    let message = `Action immutability violated: ${ActionId[actionId]}: 
+      mutation in property '${propertyName}', oldValue=${oldValue}, newValue=${newValue}`;
     message = index ? `${message} at index=${index}` : message;
     throw new MutationError(message);
   }
 };
 
+/* tslint:disable:no-any */
 let validateArrayIndex = function(actionType: ActionId, ra: Array<any>, index: number,  propertyName: string) {
+    /* tslint:enable:no-any */
   let di = actionType === ActionId.INSERT_PROPERTY || actionType === ActionId.INSERT_STATE_OBJECT ? 1 : 0;
   let max = ra.length - 1 + di;
   if (index < 0 || index > max) {
@@ -97,11 +104,10 @@ export function mutateValue<S extends StateObject, K extends keyof S>
       return {oldValue: oldValue};
     }
     case ActionId.INSERT_STATE_OBJECT: {
-      throwIf(!_.isPlainObject(value), `${ActionId[actionType]} action is applicable to plain objects; value = ${value}`);
+      throwIf(
+          !_.isPlainObject(value),
+          `${ActionId[actionType]} action is applicable to plain objects; value = ${value}`);
 
-      // if ( State.isInstanceOfIStateObject(value)) {
-      //   throwIf(State.isInstanceOfIStateObject(value), "user data objects/types are required, an IStateObject was provided");
-      // }
       State.createStateObject<S[K]>(stateObject, propertyName, value);
       actionImmutabilityCheck(actionType, undefined, value, propertyName);
       return {};

@@ -45,7 +45,8 @@ export class State<A> {
   public static createState(parent?: StateObject, propName?: string): StateObject {
       let state: {} = {};
       // this is linting horseshit, see:
-      // https://stackoverflow.com/questions/33387090/how-to-rewrite-code-to-avoid-tslint-object-access-via-string-literals
+      // https://stackoverflow.com/questions/33387090/
+      // how-to-rewrite-code-to-avoid-tslint-object-access-via-string-literals
       let parentKey = '__parent__';
       state[parentKey] = parent ? parent : state;
       let propKey = '__my_propname__';
@@ -63,7 +64,9 @@ export class State<A> {
    * @param object
    * @returns {boolean}
    */
+    /* tslint:disable:no-any */
   public static isInstanceOfIStateObject(object: any): object is StateObject {
+      /* tslint:enable:no-any */
       if (!object) {
           return false;
       }
@@ -135,7 +138,9 @@ export class State<A> {
       return {next: next};
   };
 
+    /* tslint:disable:no-any */
   public static stripStateObject(stateObject: any): any {
+      /* tslint:enable:no-any */
       if (State.isInstanceOfIStateObject(stateObject)) {
           delete stateObject.__my_propname__;
           delete stateObject.__parent__;
@@ -163,7 +168,6 @@ export class State<A> {
     let stateMutateChecking = false;
     try {
       stateMutateChecking = process.env.REACT_APP_STATE_MUTATION_CHECKING === 'true';
-      // console.log(`process.env.REACT_APP_STATE_MUTATION_CHECKING = '${process.env.REACT_APP_STATE_MUTATION_CHECKING}'`);
     } catch (err) {
       // console.log(`process defined = ${!!process}`);
     }
@@ -190,6 +194,8 @@ export class State<A> {
  * @param value
  * @returns {string}
  */
+/* tslint:disable:no-any */
 export function JSON_replaceCyclicParent(key: any, value: any) {
+    /* tslint:enable:no-any */
   return key === '__parent__' ? '(parent)' : value;
 }

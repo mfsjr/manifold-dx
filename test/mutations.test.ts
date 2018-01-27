@@ -31,7 +31,7 @@ describe('mutate object values', () => {
 
   // Reset test objects once, and insert a name
   resetTestObjects();
-  let resultInsertName: any;
+  let resultInsertName: {oldValue?: Name};
   test('should insert the name object', () => {
     resultInsertName = mutateValue(ActionId.INSERT_STATE_OBJECT, testState.getState(), nameState, 'me');
     expect(testState.getState().me).toBe(nameState);
@@ -68,7 +68,7 @@ describe('mutate object values', () => {
 
   // Insert addressState into name container
   let stateNameContainer = _.get(testState.getState(), 'name') as Name & StateObject;
-  let resultInsertAddress: any;
+  let resultInsertAddress: {oldValue?: Address};
   test('name should have an address', () => {
     resultInsertAddress = mutateValue(ActionId.INSERT_STATE_OBJECT, stateNameContainer, addressState, 'address');
     expect(testState.getState().name).toBe(nameState);
@@ -80,7 +80,7 @@ describe('mutate object values', () => {
   });
 
   // Let's update a name value
-  let resultUpdateMiddle: any;
+  let resultUpdateMiddle: {oldValue?: string};
   test('middle initial should be J', () => {
     let appState = testState.getState();
     // console.log(`appState has name? ${!!appState.name}`);
@@ -96,7 +96,9 @@ describe('mutate object values', () => {
       expect(() => { mutateValue(ActionId.DELETE_PROPERTY, nameState, undefined, 'address'); }).toThrow();
     });
     test('inserting a property should throw when a container is supplied', () => {
-      expect(() => {mutateValue(ActionId.INSERT_PROPERTY, testState.getState() as TestState & StateObject, addressState, 'address'); }).toThrow();
+      expect(() => {mutateValue(
+          ActionId.INSERT_PROPERTY, testState.getState() as TestState & StateObject,
+          addressState, 'address'); }).toThrow();
     });
   });
 
@@ -110,7 +112,9 @@ describe('mutate object values', () => {
     });
     let newScore = 141;
     test('should be able to insert to the end of the array', () => {
-      let appendScoreResult = mutateArray(ActionId.INSERT_PROPERTY, nameState, nameState.bowlingScores, newScore, 'bowlingScores', 3);
+      let appendScoreResult = mutateArray(
+          ActionId.INSERT_PROPERTY, nameState, nameState.bowlingScores,
+          newScore, 'bowlingScores', 3);
       expect(appendScoreResult).toEqual({});
     });
     test('new score property should be reachable', () => {
@@ -119,23 +123,28 @@ describe('mutate object values', () => {
     });
     let firstScore = 101;
     test('insert new first score', () => {
-      let firstScoreResult = mutateArray(ActionId.INSERT_PROPERTY, nameState,  nameState.bowlingScores, firstScore, 'bowlingScores', 0);
+      let firstScoreResult = mutateArray(
+          ActionId.INSERT_PROPERTY, nameState,  nameState.bowlingScores,
+          firstScore, 'bowlingScores', 0);
       expect(firstScoreResult).toEqual({});
       expect(nameState.bowlingScores).toBe(bowlingScores);
       expect(bowlingScores[0]).toBe(firstScore);
     });
     test('update the second score', () => {
-      let secondScoreResult = mutateArray(ActionId.UPDATE_PROPERTY, nameState, nameState.bowlingScores, 112, 'bowlingScores', 1);
+      let secondScoreResult = mutateArray(
+          ActionId.UPDATE_PROPERTY, nameState, nameState.bowlingScores, 112, 'bowlingScores', 1);
       expect(secondScoreResult).toEqual({oldValue: 111});
       expect(_.get(nameState, 'bowlingScores[1]')).toEqual(112);
     });
     test('delete the third score', () => {
-      let deleteThirdResult = mutateArray(ActionId.DELETE_PROPERTY, nameState, nameState.bowlingScores, undefined, 'bowlingScores', 2);
+      let deleteThirdResult = mutateArray(
+          ActionId.DELETE_PROPERTY, nameState, nameState.bowlingScores, undefined, 'bowlingScores', 2);
       expect(deleteThirdResult).toEqual({oldValue: 121});
       expect(bowlingScores.indexOf(121)).toEqual(-1);
     });
     test('array property notation to work', () => {
-      let updateFirstBowlingScore = mutateArray(ActionId.UPDATE_PROPERTY, nameState, nameState.bowlingScores, 99, 'bowlingScores', 0);
+      let updateFirstBowlingScore = mutateArray(
+          ActionId.UPDATE_PROPERTY, nameState, nameState.bowlingScores, 99, 'bowlingScores', 0);
       expect(updateFirstBowlingScore.oldValue).toEqual(101);
       expect(nameState.bowlingScores).toBe(bowlingScores);
       expect(bowlingScores[0]).toEqual(99);
@@ -147,13 +156,19 @@ describe('mutate object values', () => {
       }).toThrow();
     });
     test('deleting a container from an array should throw', () => {
-      expect(() => {mutateArray(ActionId.DELETE_STATE_OBJECT, nameState, nameState.bowlingScores, undefined, 'bowlingScores', 2); }).toThrow();
+      expect(() => {mutateArray(
+          ActionId.DELETE_STATE_OBJECT, nameState, nameState.bowlingScores,
+          undefined, 'bowlingScores', 2); }).toThrow();
     });
     test('inserting beyond the length of the array should throw', () => {
-      expect(() => {mutateArray(ActionId.INSERT_PROPERTY, nameState, nameState.bowlingScores, 300, 'bowlingScores', 9); }).toThrow();
+      expect(() => {mutateArray(
+          ActionId.INSERT_PROPERTY, nameState, nameState.bowlingScores,
+          300, 'bowlingScores', 9); }).toThrow();
     });
     test('inserting into an array at a negative index should throw', () => {
-      expect(() => {mutateArray(ActionId.INSERT_PROPERTY, nameState,  nameState.bowlingScores, 300, 'bowlingScores', -1); } ).toThrow();
+      expect(() => {mutateArray(
+          ActionId.INSERT_PROPERTY, nameState,  nameState.bowlingScores,
+          300, 'bowlingScores', -1); } ).toThrow();
     });
   });
 
@@ -179,7 +194,9 @@ describe('mutate object values', () => {
       expect(json.indexOf('__parent__')).toBeGreaterThan(0);
     });
     test('delete the nameState from the name container', () => {
-      let deleteResult = mutateValue(ActionId.DELETE_STATE_OBJECT, testState.getState() as TestState & StateObject, undefined, 'name');
+      let deleteResult = mutateValue(
+          ActionId.DELETE_STATE_OBJECT, testState.getState() as TestState & StateObject,
+          undefined, 'name');
       expect(deleteResult.oldValue).toBe(nameState);
     });
     test('nameState should be disconnected', () => {

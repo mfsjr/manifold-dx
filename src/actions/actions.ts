@@ -22,7 +22,9 @@ export enum ActionId {
   MAP_STATE_TO_PROP,
 }
 
+/* tslint:disable:no-any */
 export type DispatchType = (action: StateCrudAction<any, any>) => void;
+/* tslint:enable:no-any */
 
 export abstract class Action {
   type: ActionId;
@@ -54,7 +56,9 @@ export abstract class Action {
       undoAction = this.type === ActionId.INSERT_PROPERTY ? ActionId.DELETE_PROPERTY : ActionId.INSERT_PROPERTY;
     }
     if (this.type === ActionId.DELETE_STATE_OBJECT || this.type === ActionId.INSERT_STATE_OBJECT) {
-      undoAction = this.type === ActionId.INSERT_STATE_OBJECT ? ActionId.DELETE_STATE_OBJECT : ActionId.INSERT_STATE_OBJECT;
+      undoAction = this.type === ActionId.INSERT_STATE_OBJECT
+          ? ActionId.DELETE_STATE_OBJECT
+          : ActionId.INSERT_STATE_OBJECT;
     }
     return undoAction;
   }
@@ -62,8 +66,9 @@ export abstract class Action {
   undo(): void {
     this.mutate(false);
   }
-
+    /* tslint:disable:no-any */
   public containersToRender(_containers: ContainerComponent<any, any, any>[]): void { return; }
+    /* tslint:enable:no-any */
 }
 
 export abstract class StateAction<S extends StateObject, K extends keyof S> extends Action {
@@ -91,7 +96,9 @@ export class StateCrudAction<S extends StateObject, K extends keyof S> extends S
   mutateResult?: {oldValue?: S[K]};
   oldValue?: S[K];
   value: S[K];
+    /* tslint:disable:no-any */
   mappingActions: MappingAction<any, any, any, any, any>[];
+    /* tslint:enable:no-any */
 
   public getOldValue(): S[K] {
     return this.oldValue;
@@ -137,7 +144,9 @@ export class StateCrudAction<S extends StateObject, K extends keyof S> extends S
     }
   }
 
+    /* tslint:disable:no-any */
   public containersToRender(containersBeingRendered: ContainerComponent<any, any, any>[]): void {
+      /* tslint:enable:no-any */
     let fullPath = Manager.get().getFullPath(this.parent, this.propertyName);
     let mappingActions = Manager.get().getMappingState().getPathMappings(fullPath);
     if (mappingActions) {
@@ -154,7 +163,8 @@ export class StateCrudAction<S extends StateObject, K extends keyof S> extends S
 /**
  * @deprecated replace the array itself when an element changes.
  */
-export class ArrayMutateAction<S extends StateObject, K extends keyof S, V extends keyof S[K]> extends StateAction<S, K> {
+export class ArrayMutateAction
+  <S extends StateObject, K extends keyof S, V extends keyof S[K]> extends StateAction<S, K> {
   mutateResult?: {oldValue?: S[K][V]};
   oldValue?: S[K][V];
   value: S[K][V];
@@ -171,7 +181,12 @@ export class ArrayMutateAction<S extends StateObject, K extends keyof S, V exten
   }
 
   public clone(): ArrayMutateAction<S, K, V> {
-    let copy = new ArrayMutateAction(this.type, this.parent, this.propertyName, this.valuesArray, this.index, this.value);
+    let copy = new ArrayMutateAction(
+        this.type, this.parent,
+        this.propertyName,
+        this.valuesArray,
+        this.index,
+        this.value);
 
     return copy;
   }
@@ -221,7 +236,9 @@ export class MappingAction
       <S extends StateObject, K extends keyof S, CP, VP, TP extends keyof VP>
       extends StateAction<S, K> {
 
+  /* tslint:disable:no-any */
   component: ContainerComponent<CP, VP, any>;
+  /* tslint:enable:no-any */
   fullPath: string;
   targetPropName: TP;
   dispatches: DispatchType[];
@@ -235,7 +252,12 @@ export class MappingAction
   }
 
   public clone(): MappingAction<S, K, CP, VP, TP> {
-    let copy = new MappingAction(this.parent, this.propertyName, this.component, this.targetPropName, ...this.dispatches);
+    let copy = new MappingAction(
+        this.parent,
+        this.propertyName,
+        this.component,
+        this.targetPropName,
+        ...this.dispatches);
     copy.assignProps(this);
     return copy;
   }
@@ -250,10 +272,13 @@ export class MappingAction
    * @param {DispatchType} dispatches - these are generally instance functions in the component that update other
    *          component view properties as a function of the target view property having changed.
    */
+
   constructor(
               parent: S,
               _propertyOrArrayName: K,
+              /* tslint:disable:no-any */
               _component: ContainerComponent<CP, VP, any>,
+              /* tslint:enable:no-any */
               targetPropName: TP,
               ...dispatches: DispatchType[]
               ) {

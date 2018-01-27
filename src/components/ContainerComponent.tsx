@@ -5,7 +5,9 @@ import * as _ from 'lodash';
 import { Manager } from '../types/Manager';
 import { StateObject } from '../types/State';
 
+/* tslint:disable:no-any */
 export type ComponentGenerator<P> = (props: P) => React.Component<P, any>;
+/* tslint:enable:no-any */
 
 export type Renderer<P> = ComponentGenerator<P> | SFC<P>;
 
@@ -38,9 +40,13 @@ export abstract class ContainerComponent<CP, VP, A extends StateObject> extends 
   /**
    * An instance of a React.Component class created by the {@link ComponentGenerator} passed into the constructor.
    */
+    /* tslint:disable:no-any */
   protected viewComponent: React.Component<VP, any>;
+    /* tslint:enable:no-any */
 
+    /* tslint:disable:no-any */
   protected mappingActions: MappingAction<any, any, CP, VP, keyof VP>[];
+    /* tslint:enable:no-any */
 
   /**
    * Convenience method
@@ -68,7 +74,8 @@ export abstract class ContainerComponent<CP, VP, A extends StateObject> extends 
    * @param {React.SFC<VP> | undefined} sfc
    * @param {ComponentGenerator<VP> | undefined} viewGenerator
    */
-  constructor(_props: CP, appData: StateObject & A, sfc: SFC<VP> | undefined, viewGenerator?: ComponentGenerator<VP> | undefined) {
+  constructor(_props: CP, appData: StateObject & A, sfc: SFC<VP> | undefined,
+              viewGenerator?: ComponentGenerator<VP> | undefined) {
     super(_props);
     if (!_.isPlainObject(_props)) {
       throw new Error('container props must be plain objects');
@@ -116,7 +123,9 @@ export abstract class ContainerComponent<CP, VP, A extends StateObject> extends 
    *
    * @returns {MappingAction<any, any, CP, VP, keyof VP>[]} the array of mappings
    */
+    /* tslint:disable:no-any */
   abstract createMappingActions(): MappingAction<any, any, CP, VP, keyof VP>[];
+    /* tslint:enable:no-any */
 
   /**
    * Create default view properties, used to initialize {@link viewProps} and passed
@@ -183,7 +192,9 @@ export abstract class ContainerComponent<CP, VP, A extends StateObject> extends 
     if (this.mappingActions) {
 
       // unsubscribe from stateMappingActions, we need to undo these specific actions
+        /* tslint:disable:no-any */
       let unmappingActions: MappingAction<any, any, CP, VP, keyof VP>[] = [];
+        /* tslint:enable:no-any */
       this.mappingActions.forEach((action) => {
         let unmappingAction = action.clone();
         unmappingAction.pristine = true;

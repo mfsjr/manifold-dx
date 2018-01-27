@@ -73,11 +73,14 @@ export class BowlerContainer extends ContainerComponent<BowlerProps, ScoreCardPr
     return new React.Component(viewProps);
   }
 
+    /* tslint:disable:no-any */
   createMappingActions(): MappingAction<any, any, BowlerProps, ScoreCardProps, keyof ScoreCardProps>[] {
+      /* tslint:enable:no-any */
     // let result: StateMappingAction<any, any, BowlerProps, ScoreCardProps, keyof ScoreCardProps>[] = [];
     // result.push(this.createStateMappingAction(nameState, 'first', 'fullName'));
     let fullNameAction = new MappingAction(nameState, 'first', this, 'fullName');
-    let scoreAction = new MappingAction(nameState, 'bowlingScores', this, 'scores', this.calcAverage.bind(this));
+    let scoreAction = new MappingAction(
+        nameState, 'bowlingScores', this, 'scores', this.calcAverage.bind(this));
     return [fullNameAction, scoreAction];
   }
 
@@ -85,9 +88,12 @@ export class BowlerContainer extends ContainerComponent<BowlerProps, ScoreCardPr
     // this.updateViewPropsUsingMappings(executedActions);
   }
 
+    /* tslint:disable:no-any */
   public calcAverage(action: StateCrudAction<any, any>): void {
+      /* tslint:enable:no-any */
     // console.log(`calcAverage dispatched by ${ActionId[action.type]}`);
-    this.average = this.viewProps.scores.reduce(function(previous: number, current: number) { return previous + current; }, 0.0);
+    this.average = this.viewProps.scores.reduce(
+        function(previous: number, current: number) { return previous + current; }, 0.0);
     this.average = this.average / this.viewProps.scores.length;
   }
 }
@@ -151,8 +157,12 @@ describe('ContainerComponent instantiation, mount, update, unmount', () => {
     Manager.get().actionPerform(action);
     expect(container.average).toBeGreaterThan(100);
   });
-  test('unmount should result in bowler being removed from the still-present component state mapping value (array of commentsUI)', () => {
+  test(
+      'unmount should result in bowler being removed from the still-present component state mapping value ' +
+      '(array of commentsUI)',
+      () => {
     container.componentWillUnmount();
-    expect(Manager.get().getMappingState().getPathMappings(container.getMappingActions()[0].fullPath)).not.toContain(container);
+    expect(Manager.get().getMappingState().getPathMappings(container.getMappingActions()[0].fullPath))
+        .not.toContain(container);
   });
 });

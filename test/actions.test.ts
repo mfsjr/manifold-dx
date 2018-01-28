@@ -1,9 +1,9 @@
-import { Action, ActionId, ArrayMutateAction, StateCrudAction } from '../actions';
-import { State } from '../index';
+import { Action, ActionId, ArrayMutateAction, StateCrudAction } from '../src/actions/actions';
+import { State } from '../src/types/State';
 import { createTestState } from './testHarness';
 import { Address, Name } from './types.test';
 import { testState } from './testHarness';
-import { StateObject } from '../index';
+import { StateObject } from '../src/types/State';
 import { ActionProcessorFunctionType } from '../src/types/ActionProcessor';
 import { Manager } from '../src/types/Manager';
 import * as _ from 'lodash';

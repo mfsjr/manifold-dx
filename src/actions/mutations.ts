@@ -1,7 +1,7 @@
-import { ActionId } from '../../actions';
+import { ActionId } from './actions';
 import * as _ from 'lodash';
 import { MutationError } from '../types/StateMutationCheck';
-import { StateObject, State } from '../../index';
+import { StateObject, State } from '../types/State';
 
 /* tslint:disable:no-any */
 let validateArrayIndex = function(actionType: ActionId, ra: Array<any>, index: number,  propertyName: string) {

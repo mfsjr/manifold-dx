@@ -1,15 +1,18 @@
 {
   "compilerOptions": {
     "declaration": true,
-    "outDir": "build/dist",
-    "module": "esnext",
+    "outDir": "dist",
+    "module": "commonjs",
     "target": "es5",
     "lib": ["es6", "dom"],
     "sourceMap": true,
     "allowJs": false,
     "jsx": "react",
     "moduleResolution": "node",
+
     "rootDir": ".",
+    "baseUrl": "./dist/src",
+
     "forceConsistentCasingInFileNames": true,
     "noImplicitReturns": true,
     "noImplicitThis": true,

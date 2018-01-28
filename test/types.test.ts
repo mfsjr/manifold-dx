@@ -1,10 +1,10 @@
 import {
   createActionQueue,
   } from '../src/types/ActionQueue';
-import { ActionId, ArrayMutateAction, StateCrudAction } from '../actions';
+import { ActionId, ArrayMutateAction, StateCrudAction } from '../src/actions/actions';
 import * as _ from 'lodash';
 import { createTestState, testState } from './testHarness';
-import { State, StateObject } from '../index';
+import { State, StateObject } from '../src/types/State';
 import { Manager } from '../src/types/Manager';
 import { ActionQueue } from '../src/types/ActionQueue';
 // mport Test = jest.Test;

@@ -1,0 +1,208 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+var State_1 = require("../src/types/State");
+var mutations_1 = require("../src/actions/mutations");
+var actions_1 = require("../src/actions/actions");
+var _ = require("lodash");
+var testHarness_1 = require("./testHarness");
+var State_2 = require("../src/types/State");
+var name;
+var address;
+var address2;
+var nameState;
+var addressState;
+var bowlingScores;
+var resetTestObjects = function () {
+    testHarness_1.testState.reset(testHarness_1.createTestState(), {});
+    name = { first: 'Matthew', middle: 'F', last: 'Hooper', prefix: 'Mr' };
+    nameState = State_2.State.createStateObject(testHarness_1.testState.getState(), 'name', name);
+    address = { street: '54 Upton Lake Rd', city: 'Clinton Corners', state: 'NY', zip: '12514' };
+    addressState = State_2.State.createStateObject(nameState, 'address', address);
+    address2 = { street: '12 Bennett Common', city: 'Millbrook', state: 'NY', zip: '19106' };
+    bowlingScores = [111, 121, 131];
+    testHarness_1.testState.getManager().getActionProcessorAPI().enableMutationChecking();
+};
+/**
+ * Let's begin with simple object inserts, updates and deletes
+ */
+describe('mutate object values', function () {
+    // Reset test objects once, and insert a name
+    resetTestObjects();
+    var resultInsertName;
+    test('should insert the name object', function () {
+        resultInsertName = mutations_1.mutateValue(actions_1.ActionId.INSERT_STATE_OBJECT, testHarness_1.testState.getState(), nameState, 'me');
+        expect(testHarness_1.testState.getState().me).toBe(nameState);
+        expect(nameState.last).toEqual('Hooper');
+    });
+    test('return from insert should have oldValue undefined', function () {
+        expect(resultInsertName.oldValue).toBeUndefined();
+    });
+    test('return from insert should have no properties', function () {
+        expect(Object.getOwnPropertyNames(resultInsertName).length).toBe(0);
+    });
+    // let's insert an optional property "suffix" into the nameState
+    describe('insert the optional "suffix" property into the nameState', function () {
+        test('result from inserting the new suffix property should be a {}', function () {
+            var resultInsertNewProp = mutations_1.mutateValue(actions_1.ActionId.INSERT_PROPERTY, nameState, 'Jr', 'suffix');
+            expect(resultInsertNewProp).toEqual({});
+        });
+        test('nameState should have a new suffix property', function () {
+            var received = nameState.suffix;
+            expect(received).toBe('Jr');
+        });
+        describe('now delete the "suffix" property', function () {
+            // let's delete the optional property that's there now...
+            test('resultDeleteNewProp should have suffix value "Jr"', function () {
+                var resultDeleteNewProp = mutations_1.mutateValue(actions_1.ActionId.DELETE_PROPERTY, nameState, undefined, 'prefix');
+                expect(resultDeleteNewProp).toEqual({ oldValue: 'Mr' });
+            });
+            test('nameState\'s "prefix" property shouldn\'t be there any more', function () {
+                expect(Object.keys(nameState).indexOf('prefix') < 0).toBeTruthy();
+            });
+        });
+    });
+    // Insert addressState into name container
+    var stateNameContainer = _.get(testHarness_1.testState.getState(), 'name');
+    var resultInsertAddress;
+    test('name should have an address', function () {
+        resultInsertAddress = mutations_1.mutateValue(actions_1.ActionId.INSERT_STATE_OBJECT, stateNameContainer, addressState, 'address');
+        expect(testHarness_1.testState.getState().name).toBe(nameState);
+        expect(nameState.address).toBe(addressState);
+        expect(addressState.city).toEqual('Clinton Corners');
+    });
+    test('result should have no properties in it', function () {
+        expect(Object.getOwnPropertyNames(resultInsertAddress).length).toBe(0);
+    });
+    // Let's update a name value
+    var resultUpdateMiddle;
+    test('middle initial should be J', function () {
+        var appState = testHarness_1.testState.getState();
+        // console.log(`appState has name? ${!!appState.name}`);
+        resultUpdateMiddle = mutations_1.mutateValue(actions_1.ActionId.UPDATE_PROPERTY, nameState, 'J', 'middle');
+        expect(_.get(appState, 'name.middle')).toEqual('J');
+    });
+    test('old last middle initial to be F', function () {
+        expect(resultUpdateMiddle.oldValue).toEqual('F');
+    });
+    describe('Verify that mismatched property/container actions throw', function () {
+        test('deleting a property should throw when a container is supplied', function () {
+            expect(function () { mutations_1.mutateValue(actions_1.ActionId.DELETE_PROPERTY, nameState, undefined, 'address'); }).toThrow();
+        });
+        test('inserting a property should throw when a container is supplied', function () {
+            expect(function () {
+                mutations_1.mutateValue(actions_1.ActionId.INSERT_PROPERTY, testHarness_1.testState.getState(), addressState, 'address');
+            }).toThrow();
+        });
+    });
+    describe('insert array of bowling scores to name', function () {
+        test('result of adding scores should be {}', function () {
+            var addScoresResult = mutations_1.mutateValue(actions_1.ActionId.INSERT_PROPERTY, nameState, bowlingScores, 'bowlingScores');
+            expect(addScoresResult).toEqual({});
+        });
+        test('scores should be a property of names', function () {
+            expect(_.get(nameState, 'bowlingScores')).toBe(bowlingScores);
+        });
+        var newScore = 141;
+        test('should be able to insert to the end of the array', function () {
+            var appendScoreResult = mutations_1.mutateArray(actions_1.ActionId.INSERT_PROPERTY, nameState, nameState.bowlingScores, newScore, 'bowlingScores', 3);
+            expect(appendScoreResult).toEqual({});
+        });
+        test('new score property should be reachable', function () {
+            expect(nameState.bowlingScores).toBe(bowlingScores);
+            expect(bowlingScores[3]).toEqual(newScore);
+        });
+        var firstScore = 101;
+        test('insert new first score', function () {
+            var firstScoreResult = mutations_1.mutateArray(actions_1.ActionId.INSERT_PROPERTY, nameState, nameState.bowlingScores, firstScore, 'bowlingScores', 0);
+            expect(firstScoreResult).toEqual({});
+            expect(nameState.bowlingScores).toBe(bowlingScores);
+            expect(bowlingScores[0]).toBe(firstScore);
+        });
+        test('update the second score', function () {
+            var secondScoreResult = mutations_1.mutateArray(actions_1.ActionId.UPDATE_PROPERTY, nameState, nameState.bowlingScores, 112, 'bowlingScores', 1);
+            expect(secondScoreResult).toEqual({ oldValue: 111 });
+            expect(_.get(nameState, 'bowlingScores[1]')).toEqual(112);
+        });
+        test('delete the third score', function () {
+            var deleteThirdResult = mutations_1.mutateArray(actions_1.ActionId.DELETE_PROPERTY, nameState, nameState.bowlingScores, undefined, 'bowlingScores', 2);
+            expect(deleteThirdResult).toEqual({ oldValue: 121 });
+            expect(bowlingScores.indexOf(121)).toEqual(-1);
+        });
+        test('array property notation to work', function () {
+            var updateFirstBowlingScore = mutations_1.mutateArray(actions_1.ActionId.UPDATE_PROPERTY, nameState, nameState.bowlingScores, 99, 'bowlingScores', 0);
+            expect(updateFirstBowlingScore.oldValue).toEqual(101);
+            expect(nameState.bowlingScores).toBe(bowlingScores);
+            expect(bowlingScores[0]).toEqual(99);
+        });
+        test('updating array with same property to fail with MutationError', function () {
+            expect(function () {
+                mutations_1.mutateArray(actions_1.ActionId.UPDATE_PROPERTY, nameState, nameState.bowlingScores, 99, 'bowlingScores', 0);
+            }).toThrow();
+        });
+        test('deleting a container from an array should throw', function () {
+            expect(function () {
+                mutations_1.mutateArray(actions_1.ActionId.DELETE_STATE_OBJECT, nameState, nameState.bowlingScores, undefined, 'bowlingScores', 2);
+            }).toThrow();
+        });
+        test('inserting beyond the length of the array should throw', function () {
+            expect(function () {
+                mutations_1.mutateArray(actions_1.ActionId.INSERT_PROPERTY, nameState, nameState.bowlingScores, 300, 'bowlingScores', 9);
+            }).toThrow();
+        });
+        test('inserting into an array at a negative index should throw', function () {
+            expect(function () {
+                mutations_1.mutateArray(actions_1.ActionId.INSERT_PROPERTY, nameState, nameState.bowlingScores, 300, 'bowlingScores', -1);
+            }).toThrow();
+        });
+    });
+    describe('insert "country" property, not part of IAddress', function () {
+        test('result of insert country should be {}', function () {
+            var resultInsertCountry = mutations_1.mutateValue(actions_1.ActionId.INSERT_PROPERTY, addressState, 'USA', 'country');
+            expect(resultInsertCountry).toEqual({});
+        });
+        test(' address should now have a country', function () {
+            expect(_.get(addressState, 'country')).toEqual('USA');
+        });
+        describe('now delete the country', function () {
+            test('result of deleting country should be "{country: "USA"}" ', function () {
+                var resultDeleteCountry = mutations_1.mutateValue(actions_1.ActionId.DELETE_PROPERTY, addressState, '', 'country');
+                expect(resultDeleteCountry).toEqual({ oldValue: 'USA' });
+            });
+            test('address should not contain the country property', function () {
+                expect(Object.keys(addressState).indexOf('country')).toBeLessThan(0);
+            });
+        });
+        test('the JSON_replaceCyclicParent function, used to remove cyclic references for JSON.stringify', function () {
+            var json = JSON.stringify(nameState, State_1.JSON_replaceCyclicParent, 4);
+            expect(json.indexOf('__parent__')).toBeGreaterThan(0);
+        });
+        test('delete the nameState from the name container', function () {
+            var deleteResult = mutations_1.mutateValue(actions_1.ActionId.DELETE_STATE_OBJECT, testHarness_1.testState.getState(), undefined, 'name');
+            expect(deleteResult.oldValue).toBe(nameState);
+        });
+        test('nameState should be disconnected', function () {
+            expect(testHarness_1.testState.getState().name).toBeUndefined();
+        });
+    });
+    /**
+     * Mutability is all about changing data within state objects or state objects themselves,
+     * remember that we rely on immutability of objects to be rendered.
+     */
+    describe('Test mutationChecks on mutable objects', function () {
+        test('append element directly to array', function () {
+            if (!nameState.bowlingScores) {
+                throw new Error('Need bowlingScores to be defined to run this test');
+            }
+            nameState.bowlingScores.push(220);
+            expect(function () {
+                mutations_1.mutateValue(actions_1.ActionId.UPDATE_PROPERTY, nameState, nameState.bowlingScores, 'bowlingScores');
+            }).toThrow();
+        });
+        test('reinsert same object doesn\'t throw since state objects are recreated upon insertion', function () {
+            expect(function () {
+                mutations_1.mutateValue(actions_1.ActionId.INSERT_STATE_OBJECT, nameState, nameState.address, 'address');
+            }).not.toThrow();
+        });
+    });
+});
+//# sourceMappingURL=mutations.test.js.map

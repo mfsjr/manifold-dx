@@ -1,10 +1,10 @@
-import { JSON_replaceCyclicParent } from '../index';
+import { JSON_replaceCyclicParent } from '../src/types/State';
 import { Name, Address } from './types.test';
 import { mutateArray, mutateValue } from '../src/actions/mutations';
-import { ActionId } from '../actions';
+import { ActionId } from '../src/actions/actions';
 import * as _ from 'lodash';
 import { createTestState, TestState, testState } from './testHarness';
-import { State, StateObject } from '../index';
+import { State, StateObject } from '../src/types/State';
 
 let name: Name;
 let address: Address;

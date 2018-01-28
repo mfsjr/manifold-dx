@@ -1,7 +1,7 @@
-import { mutateArray, mutateValue } from './src/actions/mutations';
-import { ContainerComponent } from './src/components/ContainerComponent';
-import { StateObject } from './index';
-import { Manager } from './src/types/Manager';
+import { mutateArray, mutateValue } from './mutations';
+import { ContainerComponent } from '../components/ContainerComponent';
+import { StateObject } from '../types/State';
+import { Manager } from '../types/Manager';
 
 /**
  * ActionId's for calling api's that change state.

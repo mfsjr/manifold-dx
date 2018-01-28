@@ -1,6 +1,6 @@
-import { Manager } from './src/types/Manager';
+import { Manager } from './Manager';
 import * as _ from 'lodash';
-import { onFailureDiff } from './src/types/StateMutationDiagnostics';
+import { onFailureDiff } from './StateMutationDiagnostics';
 
 /**
  * State data is comprised of plain objects that are modified to implement this interface.

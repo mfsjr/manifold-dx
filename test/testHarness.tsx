@@ -1,6 +1,6 @@
-import { State } from '../index';
+import { State } from '../src/types/State';
 import { Address, Name } from './types.test';
-import { StateObject } from '../index';
+import { StateObject } from '../src/types/State';
 
 export interface TestState {
   name?: Name & StateObject;

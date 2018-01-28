@@ -1,7 +1,7 @@
-import { ActionId } from './actions';
+import { ActionId } from '../../actions';
 import * as _ from 'lodash';
 import { MutationError } from '../types/StateMutationCheck';
-import { StateObject, State } from '../types/State';
+import { StateObject, State } from '../../index';
 
 /* tslint:disable:no-any */
 let validateArrayIndex = function(actionType: ActionId, ra: Array<any>, index: number,  propertyName: string) {
@@ -77,7 +77,7 @@ export function mutateValue<S extends StateObject, K extends keyof S>
 : { oldValue?: S[K] } {
   switch (actionType) {
     case ActionId.UPDATE_PROPERTY: {
-      let isStateObject = State.isInstanceOfIStateObject(value);
+      let isStateObject = State.isInstanceOfStateObject(value);
       throwIf(isStateObject, `${ActionId[actionType]} action isn't applicable to state objects`);
       let oldValue: S[K] = _.get(stateObject, propertyName);
       actionImmutabilityCheck(actionType, oldValue, value, propertyName);
@@ -85,7 +85,7 @@ export function mutateValue<S extends StateObject, K extends keyof S>
       return {oldValue: oldValue};
     }
     case ActionId.INSERT_PROPERTY: {
-      let isStateObject = State.isInstanceOfIStateObject(value);
+      let isStateObject = State.isInstanceOfStateObject(value);
       throwIf(isStateObject, `${ActionId[actionType]} action is not applicable to state objects`);
       // NOTE: we don't care if its an object, the user will have to be aware and handle it
       stateObject[propertyName] = value;
@@ -93,7 +93,7 @@ export function mutateValue<S extends StateObject, K extends keyof S>
       return {};
     }
     case ActionId.DELETE_PROPERTY: {
-      let isStateObject = State.isInstanceOfIStateObject(_.get(stateObject, propertyName));
+      let isStateObject = State.isInstanceOfStateObject(_.get(stateObject, propertyName));
       throwIf(isStateObject, `${ActionId[actionType]} action isn''t applicable to state objects`);
       // delete performance is improving but still slow, but these are likely to be rare.
       // Let's be rigorous until we can't be (or until VM's address this, and they've started to)
@@ -114,7 +114,7 @@ export function mutateValue<S extends StateObject, K extends keyof S>
     }
     case ActionId.DELETE_STATE_OBJECT: {
       let oldValue: S[K] = _.get(stateObject, propertyName);
-      let isStateObject = State.isInstanceOfIStateObject(oldValue);
+      let isStateObject = State.isInstanceOfStateObject(oldValue);
       throwIf(!isStateObject, `${ActionId[actionType]} action is applicable to state objects; value = ${oldValue}`);
       let valueStateObject: StateObject = _.get(stateObject, propertyName);
       actionImmutabilityCheck(actionType, oldValue, value, propertyName);

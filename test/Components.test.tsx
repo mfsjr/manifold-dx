@@ -4,8 +4,8 @@ import { Address, Name } from './types.test';
 import { testState } from './testHarness';
 import * as React from 'react';
 import { ContainerComponent } from '../src/components/ContainerComponent';
-import { Action, ActionId, StateCrudAction, MappingAction } from '../src/actions/actions';
-import { State, StateObject } from '../src/types/State';
+import { Action, ActionId, StateCrudAction, MappingAction } from '../actions';
+import { State, StateObject } from '../index';
 
 let name: Name;
 let address: Address;

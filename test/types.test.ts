@@ -1,10 +1,10 @@
 import {
   createActionQueue,
   } from '../src/types/ActionQueue';
-import { ActionId, ArrayMutateAction, StateCrudAction } from '../src/actions/actions';
+import { ActionId, ArrayMutateAction, StateCrudAction } from '../actions';
 import * as _ from 'lodash';
 import { createTestState, testState } from './testHarness';
-import { State, StateObject } from '../src/types/State';
+import { State, StateObject } from '../index';
 import { Manager } from '../src/types/Manager';
 import { ActionQueue } from '../src/types/ActionQueue';
 // mport Test = jest.Test;
@@ -47,16 +47,16 @@ describe('state setup', () => {
   });
 
   test('nameState should be identified as a state object', () => {
-    expect(State.isInstanceOfIStateObject(nameState)).toBe(true);
-    expect(State.isInstanceOfIStateObject(nameState)).toBe(true);
+    expect(State.isInstanceOfStateObject(nameState)).toBe(true);
+    expect(State.isInstanceOfStateObject(nameState)).toBe(true);
   });
 
   test('state should be identified as a state object', () => {
-    expect(State.isInstanceOfIStateObject(testState.getState())).toBe(true);
+    expect(State.isInstanceOfStateObject(testState.getState())).toBe(true);
   });
 
   test('bowlingScores is not a state object', () => {
-    expect(State.isInstanceOfIStateObject(bowlingScores)).toBe(false);
+    expect(State.isInstanceOfStateObject(bowlingScores)).toBe(false);
   });
 
   test('if a plain object structurally matches a state object, it should be identified as a state object', () => {
@@ -66,7 +66,7 @@ describe('state setup', () => {
     };
     c.__parent__ = c as StateObject;
 
-    expect(State.isInstanceOfIStateObject(c)).toBe(true);
+    expect(State.isInstanceOfStateObject(c)).toBe(true);
   });
 
 });

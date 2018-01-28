@@ -1,5 +1,5 @@
-import { Action } from '../actions/actions';
-import { State, StateConfigOptions } from './State';
+import { Action } from '../../actions';
+import { State, StateConfigOptions } from '../../index';
 import { ContainerComponent } from '../components/ContainerComponent';
 import { StateMutationCheck } from './StateMutationCheck';
 

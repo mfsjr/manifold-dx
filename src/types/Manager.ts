@@ -1,5 +1,5 @@
-import { State, StateObject, StateConfigOptions } from './State';
-import { Action } from '../actions/actions';
+import { State, StateObject, StateConfigOptions } from '../../index';
+import { Action } from '../../actions';
 import { MappingState } from './MappingState';
 import { createActionQueue, ActionQueue } from './ActionQueue';
 import { ActionProcessor, ActionProcessorAPI } from './ActionProcessor';

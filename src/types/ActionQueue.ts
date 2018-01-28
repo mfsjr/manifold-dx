@@ -1,4 +1,4 @@
-import { Action } from '../actions/actions';
+import { Action } from '../../actions';
 
 export interface ActionQueue {
   /**

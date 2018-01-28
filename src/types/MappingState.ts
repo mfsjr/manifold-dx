@@ -1,4 +1,4 @@
-import { MappingAction } from '../actions/actions';
+import { MappingAction } from '../../actions';
 
 /**
  * Relates application state properties with React components, for the purpose of

@@ -1,9 +1,9 @@
 import * as React from 'react';
 import { ReactNode, SFC } from 'react';
-import { Action, DispatchType, StateCrudAction, MappingAction } from '../actions/actions';
+import { Action, DispatchType, StateCrudAction, MappingAction } from '../../actions';
 import * as _ from 'lodash';
 import { Manager } from '../types/Manager';
-import { StateObject } from '../types/State';
+import { StateObject } from '../../index';
 
 /* tslint:disable:no-any */
 export type ComponentGenerator<P> = (props: P) => React.Component<P, any>;

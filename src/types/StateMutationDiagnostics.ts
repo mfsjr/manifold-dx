@@ -1,6 +1,6 @@
 import { DiffPatcher } from 'jsondiffpatch';
 import * as _ from 'lodash';
-import { State } from './State';
+import { State } from '../../index';
 import { MutationError } from './StateMutationCheck';
 
 /**

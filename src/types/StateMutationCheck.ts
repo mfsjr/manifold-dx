@@ -1,6 +1,6 @@
-import { Action } from '../actions/actions';
+import { Action } from '../../actions';
 import * as _ from 'lodash';
-import { State } from './State';
+import { State } from '../../index';
 
 export class MutationError extends Error {
   constructor(message: string) {

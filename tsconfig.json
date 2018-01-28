@@ -1,18 +1,17 @@
 {
   "compilerOptions": {
     "declaration": true,
+    "allowJs": false,
     "outDir": "dist",
     "module": "commonjs",
+    "rootDir": ".",
+    "baseUrl": "./dist/src",
+    "moduleResolution": "node",
+
     "target": "es5",
     "lib": ["es6", "dom"],
     "sourceMap": true,
-    "allowJs": false,
     "jsx": "react",
-    "moduleResolution": "node",
-
-    "rootDir": ".",
-    "baseUrl": "./dist/src",
-
     "forceConsistentCasingInFileNames": true,
     "noImplicitReturns": true,
     "noImplicitThis": true,

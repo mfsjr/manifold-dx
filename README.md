@@ -54,6 +54,27 @@ Ok, what are these so-called "new approaches"?
    around the application state that you've defined.  All you have to do is call it, 
    and your IDE can pretty much tell you what to put there using your application 
    state's type information.*
+   
+**Demo**
+
+**Installing**
+`npm install --save manifold-dx`   
+   
+- **NPM**
+  - build instructions: `./node_modules/typescript/bin/tsc -p .` or `./node_modules/typescript/bin/tsc -p ./tsconfig.json`
+    - will build to the /dist directory
+  - build configuration settings of interest:
+    - tsconfig.json
+	    - "declaration": true,
+	    - "allowJs": false,
+	    - "outDir": "dist",
+	    - "module": "commonjs",
+	    - "rootDir": ".",
+	    - "baseUrl": "./dist/src",
+	    - "moduleResolution": "node"
+    - package.json
+		  - "main": "dist/src/index.js"
+		  - "types": "dist/src/index.d.ts"
 
 - **testing** `npm test --runInBand REACT_APP_STATE_MUTATION_CHECKING=true` 
   - `runInBand` since we need to have tests execute in order
@@ -61,12 +82,12 @@ Ok, what are these so-called "new approaches"?
     - this will also turn on state diff output, when mutations are detected
 
 ##### What's Next
-- npm naming is being worked out
-- MVC ToDo example is working and will be published shortly
+- larger examples
 
 ##### What's in a name?
-This project is named after engineering and mathematical concepts that 
-describe it, as well as the effect it has on reducing code surface area:
+"Manifolds" are concepts in engineering and mathematics that describe certain 
+geometries, in our case pertaining to object graphs and the modifications we make to them, 
+as well as the effect they have on reducing developer's code and required libraries:
 
 "The concept of a manifold is central to many parts of geometry and modern 
 mathematical physics because it allows complicated structures to be described 

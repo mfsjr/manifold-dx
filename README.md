@@ -57,29 +57,13 @@ Ok, what are these so-called "new approaches"?
 **To Install:**
 `npm install --save manifold-dx`   
    
-**Demo**
-See the "todo" app at [https://github.com/mfsjr/manifold-dx-todo]. 
+**Demo:**
+See the todo app at [https://github.com/mfsjr/manifold-dx-todo](https://github.com/mfsjr/manifold-dx-todo). 
 
-**NPM**
-- build instructions: `./node_modules/typescript/bin/tsc -p .` or `./node_modules/typescript/bin/tsc -p ./tsconfig.json`
-  - will build to the /dist directory
-- build configuration settings of interest:
-  - tsconfig.json
-    - "declaration": true,
-    - "allowJs": false,
-    - "outDir": "dist",
-    - "module": "commonjs",
-    - "rootDir": ".",
-    - "baseUrl": "./dist/src",
-    - "moduleResolution": "node"
-  - package.json
-	  - "main": "dist/src/index.js"
-	  - "types": "dist/src/index.d.ts"
-
-- **testing** `npm test --runInBand REACT_APP_STATE_MUTATION_CHECKING=true` 
-  - `runInBand` since we need to have tests execute in order
-  - and we want REACT_APP_STATE_MUTATION_CHECKING on when testing or debugging.
-    - this will also turn on state diff output, when mutations are detected
+**Run Tests:** `npm test --runInBand REACT_APP_STATE_MUTATION_CHECKING=true` 
+- `runInBand` since we need to have tests execute in order
+- and we want REACT_APP_STATE_MUTATION_CHECKING on when testing or debugging.
+  - this will also turn on state diff output, when mutations are detected
 
 ##### What's Next
 - Build optimizations

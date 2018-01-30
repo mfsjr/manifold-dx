@@ -73,7 +73,7 @@ See the todo app at [https://github.com/mfsjr/manifold-dx-todo](https://github.c
 "Manifolds" are concepts in engineering and mathematics that describe certain 
 geometries, in our case pertaining to object graphs and the modifications we 
 make to them, as well as the effects they have on reducing the code that 
-developer's have to write, and needing fewer accompanying libraries:
+developers are required to write, while needing fewer accompanying libraries:
 
 "The concept of a manifold is central to many parts of geometry and modern 
 mathematical physics because it allows complicated structures to be described 
@@ -87,6 +87,6 @@ the extremely popular de-facto standard that was used as a reference,
 along with the ecosystem that's been enthusiastically built up around it.
 
 
-###This is BETA software!!!  
+### This is BETA software!!!  
 There are no known problems but its very 'green'.
 

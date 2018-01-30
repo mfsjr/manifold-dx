@@ -81,7 +81,7 @@ See the todo app at [https://github.com/mfsjr/manifold-dx-todo](https://github.c
 - Larger, real-world example applications
 
 ##### TL;DR What's in a name?
-"Manifolds" are concepts in engineering and mathematics that describe certain 
+"Manifolds" exist in engineering and mathematics and describe certain 
 geometries, in our case pertaining to object graphs and the modifications we 
 make to them, as well as the effects they have on reducing the code that 
 developers are required to write, while needing fewer accompanying libraries:

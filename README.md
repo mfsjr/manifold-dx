@@ -54,6 +54,17 @@ Ok, what are these so-called "new approaches"?
    around the application state that you've defined.  All you have to do is call it, 
    and your IDE can provide drop-down lists of valid arguments.*
    
+**Features:**
+- Predictable, synchronous single-store state management with pure invertible functions,
+  including time-travel.
+- Type-safe action API eliminates need to code either actions or reducers, simply call API
+- Immutable React data
+- Mutable state 
+- Configurable mutation checking for development and testing   
+- Simplified middleware - functions that receive actions, can be ordered before or after 
+  actions are performed.
+- State can always be represented by a flat mapping, regardless of how deeply nested.
+   
 **To Install:**
 `npm install --save manifold-dx`   
    
@@ -67,7 +78,7 @@ See the todo app at [https://github.com/mfsjr/manifold-dx-todo](https://github.c
 
 ##### What's Next
 - Build optimizations
-- Larger, demanding example applications
+- Larger, real-world example applications
 
 ##### TL;DR What's in a name?
 "Manifolds" are concepts in engineering and mathematics that describe certain 

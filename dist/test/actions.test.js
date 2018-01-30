@@ -145,8 +145,8 @@ describe('Add the name container', function () {
         });
     });
 });
-describe('test stripping IStateObject info', function () {
-    test('stripping all IStateObject properties from the object graph', function () {
+describe('test stripping StateObject info', function () {
+    test('stripping all StateObject properties from the object graph', function () {
         var stateClone = _.cloneDeep(testHarness_2.testState.getState());
         State_1.State.stripStateObject(stateClone);
         expect(stateClone.hasOwnProperty('__parent__')).toBe(false);

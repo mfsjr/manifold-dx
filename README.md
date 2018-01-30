@@ -52,7 +52,8 @@ Ok, what are these so-called "new approaches"?
    There's no need to invent actions coupled to reducers
    that you have to write, because its already in a generic API that wraps itself 
    around the application state that you've defined.  All you have to do is call it, 
-   and your IDE can provide drop-down lists of valid arguments.*
+   and TypeScript helps your IDE provide all the assistance you would expect 
+   using a strongly typed API (valid arguments, type-checked values, etc).*
    
 **Features:**
 - Predictable, synchronous single-store state management with pure invertible functions,
@@ -81,7 +82,7 @@ See the todo app at [https://github.com/mfsjr/manifold-dx-todo](https://github.c
 - Larger, real-world example applications
 
 ##### TL;DR What's in a name?
-"Manifolds" exist in engineering and mathematics and describe certain 
+Manifolds exist in engineering and mathematics and describe certain 
 geometries, in our case pertaining to object graphs and the modifications we 
 make to them, as well as the effects they have on reducing the code that 
 developers are required to write, while needing fewer accompanying libraries:
@@ -94,8 +95,9 @@ and as graphs of functions." - Wikipedia
 
 Appending 'dx' to the name is intended to convey that its a framework 
 that deals with dynamic changes, as well as giving a nod to Redux, 
-the extremely popular de-facto standard that was used as a reference, 
-along with the ecosystem that's been enthusiastically built up around it.
+the excellent de-facto standard that was used as a reference, 
+along with complimentary libraries that have been enthusiastically 
+built up around it.
 
 
 ### This is BETA software!!!  

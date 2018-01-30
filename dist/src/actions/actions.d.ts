@@ -40,7 +40,7 @@ export declare abstract class StateAction<S extends StateObject, K extends keyof
 }
 /**
  * Action classes contain instructions for mutating state, in the form
- * of IStateObjects.
+ * of StateObjects.
  */
 export declare class StateCrudAction<S extends StateObject, K extends keyof S> extends StateAction<S, K> {
     mutateResult?: {

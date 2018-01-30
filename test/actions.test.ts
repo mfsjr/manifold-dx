@@ -169,9 +169,9 @@ describe('Add the name container', () => {
   });
 });
 
-describe('test stripping IStateObject info', () => {
+describe('test stripping StateObject info', () => {
 
-  test('stripping all IStateObject properties from the object graph', () => {
+  test('stripping all StateObject properties from the object graph', () => {
     let stateClone = _.cloneDeep(testState.getState());
     State.stripStateObject(stateClone);
     expect(stateClone.hasOwnProperty('__parent__')).toBe(false);

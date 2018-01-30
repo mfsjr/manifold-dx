@@ -6,7 +6,7 @@ var StateMutationDiagnostics_1 = require("./StateMutationDiagnostics");
 /**
  * Facade that joins the user's data with the framework's management of it.
  *
- * The generic type for the resulting state is IStateObject & A.
+ * The generic type for the resulting state is StateObject & A.
  *
  * A: represents the type (structure) of the app data that the state will be initialized to.
  */
@@ -81,7 +81,7 @@ var State = /** @class */ (function () {
         if (State.isInstanceOfStateObject(stateObject)) {
             delete stateObject.__my_propname__;
             delete stateObject.__parent__;
-            // let childStateObjects: IStateObject[];
+            // let childStateObjects: StateObject[];
             for (var obj in stateObject) {
                 if (State.isInstanceOfStateObject(stateObject[obj])) {
                     this.stripStateObject(stateObject[obj]);
@@ -125,7 +125,7 @@ var State = /** @class */ (function () {
      * so examples that omit it are also hosed, that interface should be { done: boolean, value?: T }.
      *
      * Will not be 'done' until next() is called when iterator's current stateObject/value equals the
-     * top-level application State (also an IStateObject).
+     * top-level application State (also an StateObject).
      *
      * This code looks a little awkward, since we need to return State once before returning done = true.
      * But, that seems to be the most sensible behavior.

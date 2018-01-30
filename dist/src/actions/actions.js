@@ -85,7 +85,7 @@ var StateAction = /** @class */ (function (_super) {
 exports.StateAction = StateAction;
 /**
  * Action classes contain instructions for mutating state, in the form
- * of IStateObjects.
+ * of StateObjects.
  */
 var StateCrudAction = /** @class */ (function (_super) {
     __extends(StateCrudAction, _super);

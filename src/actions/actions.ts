@@ -90,7 +90,7 @@ export abstract class StateAction<S extends StateObject, K extends keyof S> exte
 
 /**
  * Action classes contain instructions for mutating state, in the form
- * of IStateObjects.
+ * of StateObjects.
  */
 export class StateCrudAction<S extends StateObject, K extends keyof S> extends StateAction<S, K> {
   mutateResult?: {oldValue?: S[K]};

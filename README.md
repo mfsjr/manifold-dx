@@ -46,6 +46,9 @@ Ok, what are these so-called "new approaches"?
    
    ![alt text](./docs/api_autocomplete.png)
    
+   Manifold-dx takes the approach that type and structure should be used 
+   to manage state.
+   
    *The net result is that when you define your state with TypeScript, you've
    already defined all the actions that can be performed: insert, update or
    delete on any property, which is uniquely identifiable within the state graph.  

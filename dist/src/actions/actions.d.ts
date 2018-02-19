@@ -59,17 +59,17 @@ export declare class StateCrudAction<S extends StateObject, K extends keyof S> e
 /**
  *
  */
-export declare class ArrayMutateAction<S extends StateObject, K extends keyof S, V extends keyof S[K]> extends StateAction<S, K> {
+export declare class ArrayMutateAction<S extends StateObject, K extends keyof S, V> extends StateAction<S, K> {
     mutateResult?: {
-        oldValue?: S[K][V];
+        oldValue?: V;
     };
-    oldValue?: S[K][V];
-    value: S[K][V];
-    valuesArray: Array<S[K][V]> | undefined;
+    oldValue?: V | undefined;
+    value: V;
+    valuesArray: Array<V> | undefined;
     index: number;
     protected assignProps(from: ArrayMutateAction<S, K, V>): void;
     clone(): ArrayMutateAction<S, K, V>;
-    constructor(actionType: ActionId, _parent: S, _propertyName: K, _values: Array<S[K][V]> | undefined, _index: number, _value: S[K][V]);
+    constructor(actionType: ActionId, _parent: S, _propertyName: K, _values: Array<V> | undefined, _index: number, _value: V);
     protected mutate(perform?: boolean): void;
 }
 /**

@@ -43,10 +43,10 @@ let actionImmutabilityCheck = function(actionId: ActionId, oldValue: any, newVal
  * @param {number} index
  * @returns {{oldValue?: S[K][V]}}
  */
-export function mutateArray<S extends StateObject, K extends keyof S, V extends keyof S[K]>
-(actionType: ActionId, stateObject: S, values: Array<S[K][V]> | undefined,
- value: S[K][V],  propertyName: K, index: number)
-: {oldValue?: S[K][V]} {
+export function mutateArray<S extends StateObject, K extends keyof S, V>
+(actionType: ActionId, stateObject: S, values: Array<V> | undefined,
+ value: V,  propertyName: K, index: number)
+: {oldValue?: V} {
 
   if (!values) {
     throw new Error(`${propertyName} array is falsey, insert the array property before trying to change it`);
@@ -54,7 +54,7 @@ export function mutateArray<S extends StateObject, K extends keyof S, V extends 
   validateArrayIndex(actionType, values, index, propertyName);
   switch (actionType) {
     case ActionId.UPDATE_PROPERTY: {
-      let oldValue: S[K][V] = values[index];
+      let oldValue: V = values[index];
       values[index] = value;
       actionImmutabilityCheck(actionType, oldValue, value, propertyName, index);
       return {oldValue: oldValue};

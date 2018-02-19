@@ -178,7 +178,7 @@ var ArrayMutateAction = /** @class */ (function (_super) {
         var actionId = perform ? this.type : this.getUndoAction();
         this.mutateResult = mutations_1.mutateArray(actionId, this.parent, this.valuesArray, this.value, this.propertyName, this.index);
         if (perform) {
-            this.oldValue = this.mutateResult.oldValue;
+            this.oldValue = this.mutateResult ? this.mutateResult.oldValue : undefined;
             this.mutated = true;
         }
         else {

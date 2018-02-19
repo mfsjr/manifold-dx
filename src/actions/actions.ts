@@ -164,11 +164,11 @@ export class StateCrudAction<S extends StateObject, K extends keyof S> extends S
  *
  */
 export class ArrayMutateAction
-  <S extends StateObject, K extends keyof S, V extends keyof S[K]> extends StateAction<S, K> {
-  mutateResult?: {oldValue?: S[K][V]};
-  oldValue?: S[K][V];
-  value: S[K][V];
-  valuesArray: Array<S[K][V]> | undefined; // see Typescript issue 20177
+  <S extends StateObject, K extends keyof S, V> extends StateAction<S, K> {
+  mutateResult?: {oldValue?: V};
+  oldValue?: V | undefined;
+  value: V;
+  valuesArray: Array<V> | undefined; // see Typescript issue 20177
   index: number;
 
   protected assignProps(from: ArrayMutateAction<S, K, V>) {
@@ -191,8 +191,8 @@ export class ArrayMutateAction
     return copy;
   }
 
-  constructor(actionType: ActionId, _parent: S, _propertyName: K, _values: Array<S[K][V]> | undefined, _index: number,
-              _value: S[K][V]) {
+  constructor(actionType: ActionId, _parent: S, _propertyName: K, _values: Array<V> | undefined, _index: number,
+              _value: V) {
     super(actionType, _parent, _propertyName);
     this.valuesArray = _values;
     this.index = _index;
@@ -205,7 +205,7 @@ export class ArrayMutateAction
     let actionId = perform ? this.type : this.getUndoAction();
     this.mutateResult = mutateArray(actionId, this.parent, this.valuesArray, this.value, this.propertyName, this.index);
     if (perform) {
-      this.oldValue = this.mutateResult.oldValue;
+      this.oldValue = this.mutateResult ? this.mutateResult.oldValue : undefined;
       this.mutated = true;
     } else {
       this.mutateResult = undefined;

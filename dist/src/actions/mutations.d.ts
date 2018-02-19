@@ -4,11 +4,11 @@ import { StateObject } from '../types/State';
  *
  * @param {ActionId} actionType
  * @param {S} stateObject
- * @param {Array<S[K][V]> | undefined} values
- * @param {S[K][V]} value
+ * @param {Array<V> | undefined} values
+ * @param {V} value
  * @param {K} propertyName
  * @param {number} index
- * @returns {{oldValue?: S[K][V]}}
+ * @returns {{oldValue?: V}}
  */
 export declare function mutateArray<S extends StateObject, K extends keyof S, V>(actionType: ActionId, stateObject: S, values: Array<V> | undefined, value: V, propertyName: K, index: number): {
     oldValue?: V;

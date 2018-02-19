@@ -1,6 +1,6 @@
 {
   "name": "manifold-dx-latest",
-  "version": "0.1.21",
+  "version": "0.1.22",
   "private": false,
   "license": "MIT",
   "main": "dist/src/index.js",

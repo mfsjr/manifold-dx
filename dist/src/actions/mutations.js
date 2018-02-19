@@ -33,11 +33,11 @@ var actionImmutabilityCheck = function (actionId, oldValue, newValue, propertyNa
  *
  * @param {ActionId} actionType
  * @param {S} stateObject
- * @param {Array<S[K][V]> | undefined} values
- * @param {S[K][V]} value
+ * @param {Array<V> | undefined} values
+ * @param {V} value
  * @param {K} propertyName
  * @param {number} index
- * @returns {{oldValue?: S[K][V]}}
+ * @returns {{oldValue?: V}}
  */
 function mutateArray(actionType, stateObject, values, value, propertyName, index) {
     if (!values) {
@@ -109,12 +109,17 @@ function mutateValue(actionType, stateObject, value, propertyName) {
             var isStateObject = State_1.State.isInstanceOfStateObject(oldValue);
             throwIf(!isStateObject, actions_1.ActionId[actionType] + " action is applicable to state objects; value = " + oldValue);
             var valueStateObject = _.get(stateObject, propertyName);
-            actionImmutabilityCheck(actionType, oldValue, value, propertyName);
-            // delete the valueStateObject from the app state graph
-            _.unset(stateObject, propertyName);
-            // delete the stateObject from mappings of state to react commentsUI
-            // disable __parent__ as an indicator, and to prevent accidental traversal
-            valueStateObject.__parent__ = valueStateObject;
+            if (State_1.State.isInstanceOfStateObject(valueStateObject)) {
+                actionImmutabilityCheck(actionType, oldValue, value, propertyName);
+                // delete the valueStateObject from the app state graph
+                _.unset(stateObject, propertyName);
+                // delete the stateObject from mappings of state to react commentsUI
+                // disable __parent__ as an indicator, and to prevent accidental traversal
+                valueStateObject.__parent__ = valueStateObject;
+            }
+            else {
+                throw new Error("Expecting a StateObject for " + propertyName + " but is not a StateObject");
+            }
             return { oldValue: oldValue };
         }
         default:

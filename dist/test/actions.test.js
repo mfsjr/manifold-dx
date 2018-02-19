@@ -11,11 +11,16 @@ var StateMutationDiagnostics_1 = require("../src/types/StateMutationDiagnostics"
 var name;
 var nameState;
 var bowlingScores;
+var address;
+var addressState;
 var resetTestObjects = function () {
     testHarness_2.testState.reset(testHarness_1.createTestState(), {});
     name = { first: 'Matthew', middle: 'F', last: 'Hooper', prefix: 'Mr' };
     nameState = State_1.State.createStateObject(testHarness_2.testState.getState(), 'name', name);
     bowlingScores = [111, 121, 131];
+    address = { street: '54 Upton Lake Rd', city: 'Clinton Corners', state: 'NY', zip: '12514' };
+    addressState = State_1.State.createStateObject(nameState, 'address', address);
+    nameState.address = addressState;
     testHarness_2.testState.getManager().getActionProcessorAPI().enableMutationChecking();
 };
 describe('Add the name container', function () {

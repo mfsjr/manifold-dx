@@ -1,6 +1,6 @@
 {
-  "name": "manifold-dx-latest",
-  "version": "0.2.0",
+  "name": "manifold-dx",
+  "version": "0.2.1",
   "private": false,
   "license": "MIT",
   "main": "dist/src/index.js",
@@ -86,7 +86,7 @@
     ],
     "globals": {
       "ts-jest": {
-        "tsConfigFile": "/Users/mfsjr/WebstormProjects/node/manifold-dx-latest/tsconfig.test.json"
+        "tsConfigFile": "/Users/mfsjr/WebstormProjects/node/manifold-dx/tsconfig.test.json"
       }
     }
   },

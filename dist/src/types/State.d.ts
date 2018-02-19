@@ -58,7 +58,7 @@ export declare class State<A> {
      * @param {T} data
      * @returns {StateObject & T}
      */
-    static createStateObject<T extends {}>(_parent: StateObject, propertyName: string, data: T): StateObject & T;
+    static createStateObject<T>(_parent: StateObject, propertyName: string, data: T): StateObject & T;
     /**
      * Iterate through parent containers up to and including the top-level application state.
      *

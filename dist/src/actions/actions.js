@@ -121,7 +121,7 @@ var StateCrudAction = /** @class */ (function (_super) {
         var _value = perform ? this.value : this.oldValue;
         this.mutateResult = mutations_1.mutateValue(actionId, this.parent, _value, this.propertyName);
         if (perform) {
-            this.oldValue = this.mutateResult.oldValue;
+            this.oldValue = this.mutateResult ? this.mutateResult.oldValue : undefined;
             this.mutated = true;
         }
         else {
@@ -148,7 +148,7 @@ var StateCrudAction = /** @class */ (function (_super) {
 }(StateAction));
 exports.StateCrudAction = StateCrudAction;
 /**
- * @deprecated replace the array itself when an element changes.
+ *
  */
 var ArrayMutateAction = /** @class */ (function (_super) {
     __extends(ArrayMutateAction, _super);
@@ -220,10 +220,10 @@ var MappingAction = /** @class */ (function (_super) {
      *          component view properties as a function of the target view property having changed.
      */
     function MappingAction(parent, _propertyOrArrayName, 
-        /* tslint:disable:no-any */
-        _component, 
-        /* tslint:enable:no-any */
-        targetPropName) {
+    /* tslint:disable:no-any */
+    _component, 
+    /* tslint:enable:no-any */
+    targetPropName) {
         var dispatches = [];
         for (var _i = 4; _i < arguments.length; _i++) {
             dispatches[_i - 4] = arguments[_i];

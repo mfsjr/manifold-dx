@@ -8,7 +8,6 @@ var testHarness_1 = require("./testHarness");
 var State_2 = require("../src/types/State");
 var name;
 var address;
-var address2;
 var nameState;
 var addressState;
 var bowlingScores;
@@ -18,7 +17,6 @@ var resetTestObjects = function () {
     nameState = State_2.State.createStateObject(testHarness_1.testState.getState(), 'name', name);
     address = { street: '54 Upton Lake Rd', city: 'Clinton Corners', state: 'NY', zip: '12514' };
     addressState = State_2.State.createStateObject(nameState, 'address', address);
-    address2 = { street: '12 Bennett Common', city: 'Millbrook', state: 'NY', zip: '19106' };
     bowlingScores = [111, 121, 131];
     testHarness_1.testState.getManager().getActionProcessorAPI().enableMutationChecking();
 };

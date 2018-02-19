@@ -1,7 +1,7 @@
 import { Action, ActionId, ArrayMutateAction, StateCrudAction } from '../src/actions/actions';
 import { State } from '../src/types/State';
 import { createTestState } from './testHarness';
-import { Address, Name } from './types.test';
+import { Name } from './types.test';
 import { testState } from './testHarness';
 import { StateObject } from '../src/types/State';
 import { ActionProcessorFunctionType } from '../src/types/ActionProcessor';
@@ -11,19 +11,13 @@ import { onFailureDiff } from '../src/types/StateMutationDiagnostics';
 // import { MutationError } from '../src/types/StateMutationCheck';
 
 let name: Name;
-let address: Address;
-let address2: Address;
 let nameState: Name & StateObject;
-let addressState: Address & StateObject;
 let bowlingScores: number[];
 
 let resetTestObjects = () => {
   testState.reset(createTestState(), {});
   name = {first: 'Matthew', middle: 'F', last: 'Hooper', prefix: 'Mr'};
   nameState = State.createStateObject<Name>(testState.getState(), 'name', name);
-  address = {street: '54 Upton Lake Rd', city: 'Clinton Corners', state: 'NY', zip: '12514'};
-  addressState = State.createStateObject<Address>(nameState, 'address', address);
-  address2 = {street: '12 Bennett Common', city: 'Millbrook', state: 'NY', zip: '19106'};
   bowlingScores = [111, 121, 131];
   testState.getManager().getActionProcessorAPI().enableMutationChecking();
 };

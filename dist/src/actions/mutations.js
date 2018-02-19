@@ -30,7 +30,7 @@ var actionImmutabilityCheck = function (actionId, oldValue, newValue, propertyNa
 };
 // see https://github.com/Microsoft/TypeScript/issues/20771
 /**
- * @deprecated may be able to resurrect this if/when this is fixed: https://github.com/Microsoft/TypeScript/issues/20771
+ *
  * @param {ActionId} actionType
  * @param {S} stateObject
  * @param {Array<S[K][V]> | undefined} values
@@ -77,7 +77,10 @@ function mutateValue(actionType, stateObject, value, propertyName) {
         case actions_1.ActionId.INSERT_PROPERTY: {
             var isStateObject = State_1.State.isInstanceOfStateObject(value);
             throwIf(isStateObject, actions_1.ActionId[actionType] + " action is not applicable to state objects");
-            // NOTE: we don't care if its an object, the user will have to be aware and handle it
+            // only assign if value is not undefined or null
+            if (value === undefined || value == null) {
+                throw new Error('Cannot insert an undefined/null value, consider deleting instead');
+            }
             stateObject[propertyName] = value;
             actionImmutabilityCheck(actionType, undefined, value, propertyName);
             return {};
@@ -94,6 +97,9 @@ function mutateValue(actionType, stateObject, value, propertyName) {
         }
         case actions_1.ActionId.INSERT_STATE_OBJECT: {
             throwIf(!_.isPlainObject(value), actions_1.ActionId[actionType] + " action is applicable to plain objects; value = " + value);
+            if (!value) {
+                throw new Error('Cannot insert a falsey value, consider using delete instead');
+            }
             State_1.State.createStateObject(stateObject, propertyName, value);
             actionImmutabilityCheck(actionType, undefined, value, propertyName);
             return {};

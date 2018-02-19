@@ -9,18 +9,12 @@ var _ = require("lodash");
 var StateMutationDiagnostics_1 = require("../src/types/StateMutationDiagnostics");
 // import { MutationError } from '../src/types/StateMutationCheck';
 var name;
-var address;
-var address2;
 var nameState;
-var addressState;
 var bowlingScores;
 var resetTestObjects = function () {
     testHarness_2.testState.reset(testHarness_1.createTestState(), {});
     name = { first: 'Matthew', middle: 'F', last: 'Hooper', prefix: 'Mr' };
     nameState = State_1.State.createStateObject(testHarness_2.testState.getState(), 'name', name);
-    address = { street: '54 Upton Lake Rd', city: 'Clinton Corners', state: 'NY', zip: '12514' };
-    addressState = State_1.State.createStateObject(nameState, 'address', address);
-    address2 = { street: '12 Bennett Common', city: 'Millbrook', state: 'NY', zip: '19106' };
     bowlingScores = [111, 121, 131];
     testHarness_2.testState.getManager().getActionProcessorAPI().enableMutationChecking();
 };

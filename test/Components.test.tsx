@@ -1,6 +1,6 @@
 import { Manager } from '../src/types/Manager';
 import { createTestState, TestState } from './testHarness';
-import { Address, Name } from './types.test';
+import { Name } from './types.test';
 import { testState } from './testHarness';
 import * as React from 'react';
 import { ContainerComponent } from '../src/components/ContainerComponent';
@@ -8,14 +8,9 @@ import { Action, ActionId, StateCrudAction, MappingAction } from '../src/actions
 import { State, StateObject } from '../src/types/State';
 
 let name: Name;
-let address: Address;
-let address2: Address;
 let nameState: Name & StateObject;
-let addressState: Address & StateObject;
 let bowlingScores: number[];
 let initBowlerProps: BowlerProps;
-let initScoreCardProps: ScoreCardProps;
-let view: React.Component<ScoreCardProps>;
 let container: BowlerContainer;
 
 export interface BowlerProps {
@@ -102,24 +97,11 @@ let resetTestObjects = () => {
   testState.reset(createTestState(), {});
   name = {first: 'Matthew', middle: 'F', last: 'Hooper', prefix: 'Mr'};
   nameState = State.createStateObject<Name>(testState.getState(), 'name', name);
-  address = {street: '54 Upton Lake Rd', city: 'Clinton Corners', state: 'NY', zip: '12514'};
-  addressState = State.createStateObject<Address>(nameState, 'address', address);
-  address2 = {street: '12 Bennett Common', city: 'Millbrook', state: 'NY', zip: '19106'};
   bowlingScores = [111, 121, 131];
   initBowlerProps = { fullName: nameState.first };
-  initScoreCardProps = {
-    fullName: '',
-    scores: [],
-    street: '',
-    city: '',
-    state: '',
-    calcAverage: () => 0.0
-  };
   testState.reset({name: nameState}, {});
   container = new BowlerContainer(initBowlerProps);
-  view = container.getView();
   testState.getManager().getActionProcessorAPI().enableMutationChecking();
-
 };
 
 resetTestObjects();

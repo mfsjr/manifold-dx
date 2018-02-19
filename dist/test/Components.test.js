@@ -18,14 +18,9 @@ var ContainerComponent_1 = require("../src/components/ContainerComponent");
 var actions_1 = require("../src/actions/actions");
 var State_1 = require("../src/types/State");
 var name;
-var address;
-var address2;
 var nameState;
-var addressState;
 var bowlingScores;
 var initBowlerProps;
-var initScoreCardProps;
-var view;
 var container;
 var ScoreCardGeneraotr = function (props) {
     return new React.Component(props);
@@ -88,22 +83,10 @@ var resetTestObjects = function () {
     testHarness_2.testState.reset(testHarness_1.createTestState(), {});
     name = { first: 'Matthew', middle: 'F', last: 'Hooper', prefix: 'Mr' };
     nameState = State_1.State.createStateObject(testHarness_2.testState.getState(), 'name', name);
-    address = { street: '54 Upton Lake Rd', city: 'Clinton Corners', state: 'NY', zip: '12514' };
-    addressState = State_1.State.createStateObject(nameState, 'address', address);
-    address2 = { street: '12 Bennett Common', city: 'Millbrook', state: 'NY', zip: '19106' };
     bowlingScores = [111, 121, 131];
     initBowlerProps = { fullName: nameState.first };
-    initScoreCardProps = {
-        fullName: '',
-        scores: [],
-        street: '',
-        city: '',
-        state: '',
-        calcAverage: function () { return 0.0; }
-    };
     testHarness_2.testState.reset({ name: nameState }, {});
     container = new BowlerContainer(initBowlerProps);
-    view = container.getView();
     testHarness_2.testState.getManager().getActionProcessorAPI().enableMutationChecking();
 };
 resetTestObjects();

@@ -8,7 +8,6 @@ import { State, StateObject } from '../src/types/State';
 
 let name: Name;
 let address: Address;
-let address2: Address;
 let nameState: Name & StateObject;
 let addressState: Address & StateObject;
 let bowlingScores: Array<number>;
@@ -19,7 +18,6 @@ let resetTestObjects = () => {
   nameState = State.createStateObject<Name>(testState.getState() as TestState & StateObject, 'name', name);
   address = {street: '54 Upton Lake Rd', city: 'Clinton Corners', state: 'NY', zip: '12514'};
   addressState = State.createStateObject<Address>(nameState, 'address', address);
-  address2 = {street: '12 Bennett Common', city: 'Millbrook', state: 'NY', zip: '19106'};
   bowlingScores = [111, 121, 131];
   testState.getManager().getActionProcessorAPI().enableMutationChecking();
 };

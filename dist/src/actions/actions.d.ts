@@ -49,7 +49,7 @@ export declare class StateCrudAction<S extends StateObject, K extends keyof S> e
     oldValue?: S[K];
     value: S[K];
     mappingActions: MappingAction<any, any, any, any, any>[];
-    getOldValue(): S[K];
+    getOldValue(): S[K] | undefined;
     protected assignProps(from: StateCrudAction<S, K>): void;
     clone(): StateCrudAction<S, K>;
     constructor(actionType: ActionId, _parent: S, _propertyName: K, _value: S[K]);
@@ -57,7 +57,7 @@ export declare class StateCrudAction<S extends StateObject, K extends keyof S> e
     containersToRender(containersBeingRendered: ContainerComponent<any, any, any>[]): void;
 }
 /**
- * @deprecated replace the array itself when an element changes.
+ *
  */
 export declare class ArrayMutateAction<S extends StateObject, K extends keyof S, V extends keyof S[K]> extends StateAction<S, K> {
     mutateResult?: {
@@ -65,11 +65,11 @@ export declare class ArrayMutateAction<S extends StateObject, K extends keyof S,
     };
     oldValue?: S[K][V];
     value: S[K][V];
-    valuesArray?: S[K];
+    valuesArray: Array<S[K][V]> | undefined;
     index: number;
     protected assignProps(from: ArrayMutateAction<S, K, V>): void;
     clone(): ArrayMutateAction<S, K, V>;
-    constructor(actionType: ActionId, _parent: S, _propertyName: K, _values: S[K], _index: number, _value: S[K][V]);
+    constructor(actionType: ActionId, _parent: S, _propertyName: K, _values: Array<S[K][V]> | undefined, _index: number, _value: S[K][V]);
     protected mutate(perform?: boolean): void;
 }
 /**

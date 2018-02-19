@@ -100,7 +100,7 @@ export class StateCrudAction<S extends StateObject, K extends keyof S> extends S
   mappingActions: MappingAction<any, any, any, any, any>[];
     /* tslint:enable:no-any */
 
-  public getOldValue(): S[K] {
+  public getOldValue(): S[K] | undefined {
     return this.oldValue;
   }
 
@@ -135,7 +135,7 @@ export class StateCrudAction<S extends StateObject, K extends keyof S> extends S
     let _value = perform ? this.value : this.oldValue;
     this.mutateResult = mutateValue(actionId, this.parent, _value, this.propertyName);
     if (perform) {
-      this.oldValue = this.mutateResult.oldValue;
+      this.oldValue = this.mutateResult ? this.mutateResult.oldValue : undefined;
       this.mutated = true;
     } else {
       this.mutateResult = undefined;
@@ -161,14 +161,14 @@ export class StateCrudAction<S extends StateObject, K extends keyof S> extends S
 }
 
 /**
- * @deprecated replace the array itself when an element changes.
+ *
  */
 export class ArrayMutateAction
   <S extends StateObject, K extends keyof S, V extends keyof S[K]> extends StateAction<S, K> {
   mutateResult?: {oldValue?: S[K][V]};
   oldValue?: S[K][V];
   value: S[K][V];
-  valuesArray?: S[K]; // see Typescript issue 20177
+  valuesArray: Array<S[K][V]> | undefined; // see Typescript issue 20177
   index: number;
 
   protected assignProps(from: ArrayMutateAction<S, K, V>) {
@@ -191,7 +191,8 @@ export class ArrayMutateAction
     return copy;
   }
 
-  constructor(actionType: ActionId, _parent: S, _propertyName: K, _values: S[K], _index: number,  _value: S[K][V]) {
+  constructor(actionType: ActionId, _parent: S, _propertyName: K, _values: Array<S[K][V]> | undefined, _index: number,
+              _value: S[K][V]) {
     super(actionType, _parent, _propertyName);
     this.valuesArray = _values;
     this.index = _index;

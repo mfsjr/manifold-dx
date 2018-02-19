@@ -15,5 +15,6 @@ export {
   MappingAction,
   ActionId,
   DispatchType,
-  ContainerComponent
+  ContainerComponent,
+  ArrayMutateAction
 };

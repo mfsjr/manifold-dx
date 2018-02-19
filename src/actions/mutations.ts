@@ -34,7 +34,7 @@ let actionImmutabilityCheck = function(actionId: ActionId, oldValue: any, newVal
 
 // see https://github.com/Microsoft/TypeScript/issues/20771
 /**
- * @deprecated may be able to resurrect this if/when this is fixed: https://github.com/Microsoft/TypeScript/issues/20771
+ *
  * @param {ActionId} actionType
  * @param {S} stateObject
  * @param {Array<S[K][V]> | undefined} values
@@ -54,7 +54,7 @@ export function mutateArray<S extends StateObject, K extends keyof S, V extends 
   validateArrayIndex(actionType, values, index, propertyName);
   switch (actionType) {
     case ActionId.UPDATE_PROPERTY: {
-      let oldValue: S[K] = values[index];
+      let oldValue: S[K][V] = values[index];
       values[index] = value;
       actionImmutabilityCheck(actionType, oldValue, value, propertyName, index);
       return {oldValue: oldValue};
@@ -65,7 +65,7 @@ export function mutateArray<S extends StateObject, K extends keyof S, V extends 
       return {};
     }
     case ActionId.DELETE_PROPERTY: {
-      let subArray: S[K][] = values.splice(index, 1);
+      let subArray = values.splice(index, 1);
       return {oldValue: subArray[0]};
     }
     default: throw new Error(`mutateArray: unhandled actionType=${actionType}`);
@@ -73,7 +73,7 @@ export function mutateArray<S extends StateObject, K extends keyof S, V extends 
 }
 
 export function mutateValue<S extends StateObject, K extends keyof S>
-(actionType: ActionId, stateObject: S, value: S[K], propertyName: K)
+(actionType: ActionId, stateObject: S, value: S[K] | undefined, propertyName: K)
 : { oldValue?: S[K] } {
   switch (actionType) {
     case ActionId.UPDATE_PROPERTY: {
@@ -87,8 +87,12 @@ export function mutateValue<S extends StateObject, K extends keyof S>
     case ActionId.INSERT_PROPERTY: {
       let isStateObject = State.isInstanceOfStateObject(value);
       throwIf(isStateObject, `${ActionId[actionType]} action is not applicable to state objects`);
-      // NOTE: we don't care if its an object, the user will have to be aware and handle it
+      // only assign if value is not undefined or null
+      if (value === undefined || value == null) {
+        throw new Error('Cannot insert an undefined/null value, consider deleting instead');
+      }
       stateObject[propertyName] = value;
+
       actionImmutabilityCheck(actionType, undefined, value, propertyName);
       return {};
     }
@@ -108,6 +112,9 @@ export function mutateValue<S extends StateObject, K extends keyof S>
         !_.isPlainObject(value),
         `${ActionId[actionType]} action is applicable to plain objects; value = ${value}`);
 
+      if (!value) {
+        throw new Error('Cannot insert a falsey value, consider using delete instead');
+      }
       State.createStateObject<S[K]>(stateObject, propertyName, value);
       actionImmutabilityCheck(actionType, undefined, value, propertyName);
       return {};
@@ -116,7 +123,7 @@ export function mutateValue<S extends StateObject, K extends keyof S>
       let oldValue: S[K] = _.get(stateObject, propertyName);
       let isStateObject = State.isInstanceOfStateObject(oldValue);
       throwIf(!isStateObject, `${ActionId[actionType]} action is applicable to state objects; value = ${oldValue}`);
-      let valueStateObject: StateObject = _.get(stateObject, propertyName);
+      let valueStateObject = _.get(stateObject, propertyName);
       actionImmutabilityCheck(actionType, oldValue, value, propertyName);
 
       // delete the valueStateObject from the app state graph

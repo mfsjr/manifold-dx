@@ -1,11 +1,10 @@
 {
-  "name": "manifold-dx",
-  "version": "0.1.20",
+  "name": "manifold-dx-latest",
+  "version": "0.1.21",
   "private": false,
   "license": "MIT",
   "main": "dist/src/index.js",
   "types": "dist/src/index.d.ts",
-
   "author": {
     "name": "Matt Schleindl",
     "email": "mattschleindl@yahoo.com"
@@ -46,7 +45,7 @@
     "tslint": "^5.7.0",
     "tslint-loader": "^3.5.3",
     "tslint-react": "^3.2.0",
-    "typescript": "~2.5.3"
+    "typescript": "~2.7.2"
   },
   "jest": {
     "mapCoverage": true,
@@ -87,7 +86,7 @@
     ],
     "globals": {
       "ts-jest": {
-        "tsConfigFile": "/Users/mfsjr/WebstormProjects/node/manifold-dx/tsconfig.test.json"
+        "tsConfigFile": "/Users/mfsjr/WebstormProjects/node/manifold-dx-latest/tsconfig.test.json"
       }
     }
   },

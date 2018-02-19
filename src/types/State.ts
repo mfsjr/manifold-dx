@@ -94,7 +94,7 @@ export class State<A> {
    * @param {T} data
    * @returns {StateObject & T}
    */
-  public static createStateObject<T extends {}>(_parent: StateObject, propertyName: string, data: T): StateObject & T {
+  public static createStateObject<T>(_parent: StateObject, propertyName: string, data: T): StateObject & T {
       let stateObject = State.createState(_parent, propertyName);
 
       let newStateObject = Object.assign(data, stateObject);

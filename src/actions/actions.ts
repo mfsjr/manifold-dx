@@ -74,11 +74,15 @@ export abstract class Action {
 export abstract class StateAction<S extends StateObject, K extends keyof S> extends Action {
   parent: S;
   propertyName: K;
+  /* tslint:disable:no-any */
+  mappingActions: MappingAction<any, any, any, any, any>[];
+  /* tslint:enable:no-any */
 
   protected assignProps(from: StateAction<S, K>) {
     super.assignProps(from);
     this.parent = from.parent;
     this.propertyName = from.propertyName;
+    this.mappingActions = from.mappingActions;
   }
 
     constructor(actionType: ActionId, _parent: S, _propertyName: K) {
@@ -111,9 +115,6 @@ export class StateCrudAction<S extends StateObject, K extends keyof S> extends S
   mutateResult?: {oldValue?: S[K]};
   oldValue?: S[K];
   value: S[K];
-    /* tslint:disable:no-any */
-  mappingActions: MappingAction<any, any, any, any, any>[];
-    /* tslint:enable:no-any */
 
   public getOldValue(): S[K] | undefined {
     return this.oldValue;
@@ -124,7 +125,6 @@ export class StateCrudAction<S extends StateObject, K extends keyof S> extends S
     this.mutateResult = from.mutateResult;
     this.oldValue = from.oldValue;
     this.value = from.value;
-    this.mappingActions = from.mappingActions;
   }
 
   public clone(): StateCrudAction<S, K> {
@@ -143,7 +143,7 @@ export class StateCrudAction<S extends StateObject, K extends keyof S> extends S
 
     let fullpath = Manager.get().getFullPath(this.parent, this.propertyName);
     this.mappingActions = Manager.get().getMappingState().getPathMappings(fullpath) || [];
-    this.mappingActions = Manager.get().getMappingState().getPathMappings(fullpath) || [];
+    // this.mappingActions = Manager.get().getMappingState().getPathMappings(fullpath) || [];
 
     // annotateActionInState(this);
     let actionId = perform ? this.type : this.getUndoAction();
@@ -204,6 +204,10 @@ export class ArrayMutateAction
     this.pristine = false;
     // annotateActionInState(this);
     let actionId = perform ? this.type : this.getUndoAction();
+
+    let fullpath = Manager.get().getFullPath(this.parent, this.propertyName);
+    this.mappingActions = Manager.get().getMappingState().getPathMappings(fullpath) || [];
+
     this.mutateResult = mutateArray(actionId, this.parent, this.valuesArray, this.value, this.propertyName, this.index);
     if (perform) {
       this.oldValue = this.mutateResult ? this.mutateResult.oldValue : undefined;

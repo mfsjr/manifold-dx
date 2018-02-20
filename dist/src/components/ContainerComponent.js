@@ -14,6 +14,7 @@ var React = require("react");
 var actions_1 = require("../actions/actions");
 var _ = require("lodash");
 var Manager_1 = require("../types/Manager");
+var _1 = require("../");
 /**
  *
  * A React.Component designed to function as a container/controller.
@@ -126,11 +127,16 @@ var ContainerComponent = /** @class */ (function (_super) {
     ContainerComponent.prototype.updateViewPropsUsingMappings = function (executedActions) {
         var _this = this;
         executedActions.forEach(function (action) {
-            if (action instanceof actions_1.StateCrudAction) {
+            if (action instanceof actions_1.StateAction) {
                 var mappingActions = action.mappingActions;
                 if (mappingActions && mappingActions.length) {
                     mappingActions.forEach(function (mapping) {
-                        _this.viewProps[mapping.targetPropName] = action.value;
+                        if (action instanceof actions_1.StateCrudAction) {
+                            _this.viewProps[mapping.targetPropName] = action.value;
+                        }
+                        else if (action instanceof _1.ArrayMutateAction) {
+                            _this.viewProps[mapping.targetPropName] = action.valuesArray;
+                        }
                     });
                 }
             }

@@ -1,9 +1,10 @@
 import * as React from 'react';
 import { ReactNode, SFC } from 'react';
-import { Action, DispatchType, StateCrudAction, MappingAction } from '../actions/actions';
+import { Action, DispatchType, StateCrudAction, MappingAction, StateAction } from '../actions/actions';
 import * as _ from 'lodash';
 import { Manager } from '../types/Manager';
 import { StateObject } from '../types/State';
+import { ArrayMutateAction } from '../';
 
 /* tslint:disable:no-any */
 export type ComponentGenerator<P> = (props: P) => React.Component<P, any>;
@@ -171,11 +172,16 @@ export abstract class ContainerComponent<CP, VP, A extends StateObject> extends 
    */
   protected updateViewPropsUsingMappings(executedActions: Action[]): void {
     executedActions.forEach((action) => {
-      if (action instanceof StateCrudAction) {
+      if (action instanceof StateAction) {
         let mappingActions = action.mappingActions;
         if (mappingActions && mappingActions.length) {
           mappingActions.forEach((mapping) => {
-            this.viewProps[mapping.targetPropName] = action.value;
+            if (action instanceof StateCrudAction) {
+              this.viewProps[mapping.targetPropName] = action.value;
+            } else if (action instanceof ArrayMutateAction) {
+              this.viewProps[mapping.targetPropName] = action.valuesArray;
+            }
+
           });
         }
       }

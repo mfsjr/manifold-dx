@@ -75,10 +75,12 @@ var StateAction = /** @class */ (function (_super) {
         _this.propertyName = _propertyName;
         return _this;
     }
+    /* tslint:enable:no-any */
     StateAction.prototype.assignProps = function (from) {
         _super.prototype.assignProps.call(this, from);
         this.parent = from.parent;
         this.propertyName = from.propertyName;
+        this.mappingActions = from.mappingActions;
     };
     /* tslint:disable:no-any */
     StateAction.prototype.containersToRender = function (containersBeingRendered) {
@@ -108,7 +110,6 @@ var StateCrudAction = /** @class */ (function (_super) {
         _this.value = _value;
         return _this;
     }
-    /* tslint:enable:no-any */
     StateCrudAction.prototype.getOldValue = function () {
         return this.oldValue;
     };
@@ -117,7 +118,6 @@ var StateCrudAction = /** @class */ (function (_super) {
         this.mutateResult = from.mutateResult;
         this.oldValue = from.oldValue;
         this.value = from.value;
-        this.mappingActions = from.mappingActions;
     };
     StateCrudAction.prototype.clone = function () {
         var copy = new StateCrudAction(this.type, this.parent, this.propertyName, this.value);
@@ -129,7 +129,7 @@ var StateCrudAction = /** @class */ (function (_super) {
         this.pristine = false;
         var fullpath = Manager_1.Manager.get().getFullPath(this.parent, this.propertyName);
         this.mappingActions = Manager_1.Manager.get().getMappingState().getPathMappings(fullpath) || [];
-        this.mappingActions = Manager_1.Manager.get().getMappingState().getPathMappings(fullpath) || [];
+        // this.mappingActions = Manager.get().getMappingState().getPathMappings(fullpath) || [];
         // annotateActionInState(this);
         var actionId = perform ? this.type : this.getUndoAction();
         var _value = perform ? this.value : this.oldValue;
@@ -176,6 +176,8 @@ var ArrayMutateAction = /** @class */ (function (_super) {
         this.pristine = false;
         // annotateActionInState(this);
         var actionId = perform ? this.type : this.getUndoAction();
+        var fullpath = Manager_1.Manager.get().getFullPath(this.parent, this.propertyName);
+        this.mappingActions = Manager_1.Manager.get().getMappingState().getPathMappings(fullpath) || [];
         this.mutateResult = mutations_1.mutateArray(actionId, this.parent, this.valuesArray, this.value, this.propertyName, this.index);
         if (perform) {
             this.oldValue = this.mutateResult ? this.mutateResult.oldValue : undefined;

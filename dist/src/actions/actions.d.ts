@@ -35,6 +35,7 @@ export declare abstract class Action {
 export declare abstract class StateAction<S extends StateObject, K extends keyof S> extends Action {
     parent: S;
     propertyName: K;
+    mappingActions: MappingAction<any, any, any, any, any>[];
     protected assignProps(from: StateAction<S, K>): void;
     constructor(actionType: ActionId, _parent: S, _propertyName: K);
     containersToRender(containersBeingRendered: ContainerComponent<any, any, any>[]): void;
@@ -49,7 +50,6 @@ export declare class StateCrudAction<S extends StateObject, K extends keyof S> e
     };
     oldValue?: S[K];
     value: S[K];
-    mappingActions: MappingAction<any, any, any, any, any>[];
     getOldValue(): S[K] | undefined;
     protected assignProps(from: StateCrudAction<S, K>): void;
     clone(): StateCrudAction<S, K>;

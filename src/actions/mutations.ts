@@ -32,7 +32,8 @@ let actionImmutabilityCheck = function(actionId: ActionId, oldValue: any, newVal
   }
 };
 
-// see https://github.com/Microsoft/TypeScript/issues/20771
+// seems like changes to 2.7 and our simplifications have eliminated this problem:
+// https://github.com/Microsoft/TypeScript/issues/20771
 /**
  *
  * @param {ActionId} actionType

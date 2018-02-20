@@ -28,7 +28,8 @@ var actionImmutabilityCheck = function (actionId, oldValue, newValue, propertyNa
         throw new StateMutationCheck_1.MutationError(message);
     }
 };
-// see https://github.com/Microsoft/TypeScript/issues/20771
+// seems like changes to 2.7 and our simplifications have eliminated this problem:
+// https://github.com/Microsoft/TypeScript/issues/20771
 /**
  *
  * @param {ActionId} actionType

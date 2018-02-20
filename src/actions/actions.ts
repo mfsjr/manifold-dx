@@ -67,7 +67,7 @@ export abstract class Action {
     this.mutate(false);
   }
     /* tslint:disable:no-any */
-  public containersToRender(_containers: ContainerComponent<any, any, any>[]): void { return; }
+  public containersToRender(containersBeingRendered: ContainerComponent<any, any, any>[]): void { return; }
     /* tslint:enable:no-any */
 }
 
@@ -85,6 +85,21 @@ export abstract class StateAction<S extends StateObject, K extends keyof S> exte
     super(actionType);
     this.parent = _parent;
     this.propertyName = _propertyName;
+  }
+
+  /* tslint:disable:no-any */
+  public containersToRender(containersBeingRendered: ContainerComponent<any, any, any>[]): void {
+    /* tslint:enable:no-any */
+    let fullPath = Manager.get().getFullPath(this.parent, this.propertyName);
+    let mappingActions = Manager.get().getMappingState().getPathMappings(fullPath);
+    if (mappingActions) {
+      let containers = mappingActions.map((mapping) => mapping.component);
+      containers.forEach((container) => {
+        if (containersBeingRendered.indexOf(container) < 0) {
+          containersBeingRendered.push(container);
+        }
+      });
+    }
   }
 }
 
@@ -144,20 +159,6 @@ export class StateCrudAction<S extends StateObject, K extends keyof S> extends S
     }
   }
 
-    /* tslint:disable:no-any */
-  public containersToRender(containersBeingRendered: ContainerComponent<any, any, any>[]): void {
-      /* tslint:enable:no-any */
-    let fullPath = Manager.get().getFullPath(this.parent, this.propertyName);
-    let mappingActions = Manager.get().getMappingState().getPathMappings(fullPath);
-    if (mappingActions) {
-      let containers = mappingActions.map((mapping) => mapping.component);
-      containers.forEach((container) => {
-        if (containersBeingRendered.indexOf(container) < 0) {
-          containersBeingRendered.push(container);
-        }
-      });
-    }
-  }
 }
 
 /**

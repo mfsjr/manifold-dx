@@ -63,7 +63,7 @@ var Action = /** @class */ (function () {
         this.mutate(false);
     };
     /* tslint:disable:no-any */
-    Action.prototype.containersToRender = function (_containers) { return; };
+    Action.prototype.containersToRender = function (containersBeingRendered) { return; };
     return Action;
 }());
 exports.Action = Action;
@@ -79,6 +79,20 @@ var StateAction = /** @class */ (function (_super) {
         _super.prototype.assignProps.call(this, from);
         this.parent = from.parent;
         this.propertyName = from.propertyName;
+    };
+    /* tslint:disable:no-any */
+    StateAction.prototype.containersToRender = function (containersBeingRendered) {
+        /* tslint:enable:no-any */
+        var fullPath = Manager_1.Manager.get().getFullPath(this.parent, this.propertyName);
+        var mappingActions = Manager_1.Manager.get().getMappingState().getPathMappings(fullPath);
+        if (mappingActions) {
+            var containers = mappingActions.map(function (mapping) { return mapping.component; });
+            containers.forEach(function (container) {
+                if (containersBeingRendered.indexOf(container) < 0) {
+                    containersBeingRendered.push(container);
+                }
+            });
+        }
     };
     return StateAction;
 }(Action));
@@ -128,20 +142,6 @@ var StateCrudAction = /** @class */ (function (_super) {
             this.mutateResult = undefined;
             this.oldValue = undefined;
             this.mutated = false;
-        }
-    };
-    /* tslint:disable:no-any */
-    StateCrudAction.prototype.containersToRender = function (containersBeingRendered) {
-        /* tslint:enable:no-any */
-        var fullPath = Manager_1.Manager.get().getFullPath(this.parent, this.propertyName);
-        var mappingActions = Manager_1.Manager.get().getMappingState().getPathMappings(fullPath);
-        if (mappingActions) {
-            var containers = mappingActions.map(function (mapping) { return mapping.component; });
-            containers.forEach(function (container) {
-                if (containersBeingRendered.indexOf(container) < 0) {
-                    containersBeingRendered.push(container);
-                }
-            });
         }
     };
     return StateCrudAction;

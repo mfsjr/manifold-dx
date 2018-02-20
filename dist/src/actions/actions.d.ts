@@ -30,13 +30,14 @@ export declare abstract class Action {
     protected assignProps(from: Action): void;
     getUndoAction(): ActionId;
     undo(): void;
-    containersToRender(_containers: ContainerComponent<any, any, any>[]): void;
+    containersToRender(containersBeingRendered: ContainerComponent<any, any, any>[]): void;
 }
 export declare abstract class StateAction<S extends StateObject, K extends keyof S> extends Action {
     parent: S;
     propertyName: K;
     protected assignProps(from: StateAction<S, K>): void;
     constructor(actionType: ActionId, _parent: S, _propertyName: K);
+    containersToRender(containersBeingRendered: ContainerComponent<any, any, any>[]): void;
 }
 /**
  * Action classes contain instructions for mutating state, in the form
@@ -54,7 +55,6 @@ export declare class StateCrudAction<S extends StateObject, K extends keyof S> e
     clone(): StateCrudAction<S, K>;
     constructor(actionType: ActionId, _parent: S, _propertyName: K, _value: S[K]);
     protected mutate(perform?: boolean): void;
-    containersToRender(containersBeingRendered: ContainerComponent<any, any, any>[]): void;
 }
 /**
  *

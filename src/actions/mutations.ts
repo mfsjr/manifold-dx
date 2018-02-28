@@ -45,7 +45,7 @@ let actionImmutabilityCheck = function(actionId: ActionId, oldValue: any, newVal
  * @returns {{oldValue?: V}}
  */
 export function mutateArray<S extends StateObject, K extends keyof S, V>
-(actionType: ActionId, stateObject: S, values: Array<V> | undefined,
+(actionType: ActionId, stateObject: S, values: Array<V>,
  value: V,  propertyName: K, index: number)
 : {oldValue?: V} {
 
@@ -92,6 +92,10 @@ export function mutateValue<S extends StateObject, K extends keyof S>
       if (value === undefined || value == null) {
         throw new Error('Cannot insert an undefined/null value, consider deleting instead');
       }
+      // TODO: seems this should be uncommented, unless we decide ease-of-use is more important, and we document it
+      // if (stateObject[propertyName]) {
+      //   throw new Error('Cannot insert, a value already exists, use update instead');
+      // }
       stateObject[propertyName] = value;
 
       actionImmutabilityCheck(actionType, undefined, value, propertyName);

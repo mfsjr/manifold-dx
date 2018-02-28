@@ -165,14 +165,16 @@ export class StateCrudAction<S extends StateObject> extends StateAction<S> {
  *
  */
 export class ArrayMutateAction
-  <S extends StateObject, K extends keyof S, V> extends StateAction<S> {
+  <S extends StateObject, V> extends StateAction<S> {
   mutateResult?: {oldValue?: V};
   oldValue?: V | undefined;
   value: V;
-  valuesArray: Array<V> | undefined; // see Typescript issue 20177
+  // see Typescript issue 20177 at https://github.com/Microsoft/TypeScript/issues/20771#issuecomment-367834171
+  // ms: changed from optional to required, since arrays are simple properties that must be explicitly inserted
+  valuesArray: Array<V>;
   index: number;
 
-  protected assignProps(from: ArrayMutateAction<S, K, V>) {
+  protected assignProps(from: ArrayMutateAction<S, V>) {
     super.assignProps(from);
     this.mutateResult = from.mutateResult;
     this.oldValue = from.oldValue;
@@ -181,23 +183,31 @@ export class ArrayMutateAction
     this.index = from.index;
   }
 
-  public clone(): ArrayMutateAction<S, K, V> {
+  public clone(): ArrayMutateAction<S, V> {
     let copy = new ArrayMutateAction(
         this.type, this.parent,
         this.propertyName,
-        this.valuesArray,
         this.index,
+        this.valuesArray,
         this.value);
 
     return copy;
   }
 
-  constructor(actionType: ActionId, _parent: S, _propertyName: K, _values: Array<V> | undefined, _index: number,
-              _value: V) {
+  // TODO: restrict the set of ActionId's here to regular property insert/update/delete
+  constructor(actionType: ActionId, _parent: S, _propertyName: keyof S, _index: number,
+              valuesArray: Array<V>, _value: V) {
     super(actionType, _parent, _propertyName);
-    this.valuesArray = _values;
+    // let prop = _parent[_propertyName];
+    // if ( prop instanceof Array) {
+    //   this.valuesArray = prop;
+    // } else {
+    //   throw new Error(`parent property is not an array!`);
+    // }
+
     this.index = _index;
     this.value = _value;
+    this.valuesArray = valuesArray;
   }
 
   protected mutate(perform: boolean = true): void {
@@ -228,8 +238,7 @@ export class ArrayMutateAction
  * The functionality provided here is analogous to, but not the same as,
  * Redux's mapStateToProps/Dispatch.
  *
- * S: type of the parent
- * K: key of the propertyOrArrayName
+ * S: type of the parent state
  *
  * Prop types used in defining the ContainerComponent<CP,VP>
  * CP: container prop type

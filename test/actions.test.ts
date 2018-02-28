@@ -8,6 +8,7 @@ import { ActionProcessorFunctionType } from '../src/types/ActionProcessor';
 import { Manager } from '../src/types/Manager';
 import * as _ from 'lodash';
 import { onFailureDiff } from '../src/types/StateMutationDiagnostics';
+import { ArrayCrudActionCreator } from '../src/actions/actionCreators';
 // import { MutationError } from '../src/types/StateMutationCheck';
 
 let name: Name;
@@ -18,7 +19,7 @@ let addressState: Address & StateObject;
 
 let resetTestObjects = () => {
   testState.reset(createTestState(), {});
-  name = {first: 'Matthew', middle: 'F', last: 'Hooper', prefix: 'Mr'};
+  name = {first: 'Matthew', middle: 'F', last: 'Hooper', prefix: 'Mr', bowlingScores: []};
   nameState = State.createStateObject<Name>(testState.getState(), 'name', name);
   bowlingScores = [111, 121, 131];
   address = {street: '54 Upton Lake Rd', city: 'Clinton Corners', state: 'NY', zip: '12514'};
@@ -73,7 +74,7 @@ describe('Add the name container', () => {
 
   describe('Array related actions', () => {
     test('bowling scores should be present', () => {
-      let bowlingAction = new StateCrudAction(ActionId.INSERT_PROPERTY, nameState, 'bowlingScores', bowlingScores);
+      let bowlingAction = new StateCrudAction(ActionId.UPDATE_PROPERTY, nameState, 'bowlingScores', bowlingScores);
       bowlingAction.perform();
       expect(nameState.bowlingScores).toBe(bowlingScores);
       expect(bowlingScores[0]).toBe(111);
@@ -81,10 +82,22 @@ describe('Add the name container', () => {
     test('array index notation should work', () => {
       let updateAction = new ArrayMutateAction(
           ActionId.UPDATE_PROPERTY, nameState, 'bowlingScores',
-          nameState.bowlingScores, 0, 101);
+          0, nameState.bowlingScores, 101);
       expect(updateAction.index).toBe(0);
       updateAction.perform();
       expect(bowlingScores[0]).toBe(101);
+    });
+  });
+
+  describe('use ActionCreator for array changes', () => {
+    test('action creator modified the array', () => {
+      let action = new ArrayCrudActionCreator(
+        nameState,
+        'bowlingScores',
+        nameState.bowlingScores)
+        .insert(0, 103);
+      action.perform();
+      expect(nameState.bowlingScores[0]).toEqual(103);
     });
   });
 
@@ -107,7 +120,7 @@ describe('Add the name container', () => {
 
       let appendScore = new ArrayMutateAction(
           ActionId.INSERT_PROPERTY, nameState, 'bowlingScores',
-          nameState.bowlingScores, nameState.bowlingScores.length, 299);
+          nameState.bowlingScores.length, nameState.bowlingScores, 299);
       expect(() => {testState.getManager().actionPerform(appendScore); }).not.toThrow();
 
       // restore the old middle
@@ -126,9 +139,9 @@ describe('Add the name container', () => {
         throw new Error('nameState.bowlingScores should be defined but is falsey');
       }
 
-      let appendScore = new ArrayMutateAction(
+      let appendScore = new ArrayMutateAction<Name & StateObject, number>(
           ActionId.INSERT_PROPERTY, nameState, 'bowlingScores',
-          nameState.bowlingScores, nameState.bowlingScores.length, 299);
+          nameState.bowlingScores.length, nameState.bowlingScores, 299);
       expect(() => {testState.getManager().actionPerform(appendScore); }).toThrow();
 
       // restore the old middle

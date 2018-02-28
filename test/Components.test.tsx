@@ -95,7 +95,7 @@ export class BowlerContainer extends ContainerComponent<BowlerProps, ScoreCardPr
 
 let resetTestObjects = () => {
   testState.reset(createTestState(), {});
-  name = {first: 'Matthew', middle: 'F', last: 'Hooper', prefix: 'Mr'};
+  name = {first: 'Matthew', middle: 'F', last: 'Hooper', prefix: 'Mr', bowlingScores: []};
   nameState = State.createStateObject<Name>(testState.getState(), 'name', name);
   bowlingScores = [111, 121, 131];
   initBowlerProps = { fullName: nameState.first };
@@ -134,7 +134,6 @@ describe('ContainerComponent instantiation, mount, update, unmount', () => {
   });
   test('an update action', () => {
     expect(container.average).toBeUndefined();
-    expect(nameState.bowlingScores).toBeUndefined();
     let action = new StateCrudAction(ActionId.INSERT_PROPERTY, nameState, 'bowlingScores', bowlingScores);
     Manager.get().actionPerform(action);
     expect(container.average).toBeGreaterThan(100);

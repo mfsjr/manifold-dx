@@ -7,6 +7,7 @@ import { createTestState, testState } from './testHarness';
 import { State, StateObject } from '../src/types/State';
 import { Manager } from '../src/types/Manager';
 import { ActionQueue } from '../src/types/ActionQueue';
+import { ArrayCrudActionCreator } from '../src/actions/actionCreators';
 // mport Test = jest.Test;
 
 interface TestStateObjects {
@@ -17,7 +18,7 @@ interface TestStateObjects {
 
 let resetTestObjects = (): TestStateObjects => {
   testState.reset(createTestState(), {});
-  let name: Name = {first: 'Matthew', middle: 'F', last: 'Hooper', prefix: 'Mr'};
+  let name: Name = {first: 'Matthew', middle: 'F', last: 'Hooper', prefix: 'Mr', bowlingScores: []};
   let address: Address = {street: '54 Upton Lake Rd', city: 'Clinton Corners', state: 'NY', zip: '12514'};
   testState.getManager().getActionProcessorAPI().enableMutationChecking();
   let x = State.createStateObject<Name>(testState.getState(), 'name', name);
@@ -78,7 +79,7 @@ export interface Name {
   middle: string;
   last: string;
   address?: Address;
-  bowlingScores?: Array<number>;
+  bowlingScores: Array<number>;
 }
 
 export type NameContainer = Name & StateObject;
@@ -127,8 +128,11 @@ describe('Iterating through parents', () => {
 });
 
 describe('Mark the state graph with action annotations', () => {
-  let appendScoreAction = new ArrayMutateAction(
-      ActionId.INSERT_PROPERTY, nameState, 'bowlingScores', nameState.bowlingScores, 141, 3);
+  let appendScoreAction = new ArrayCrudActionCreator<Name & StateObject, number>(
+    nameState,
+    'bowlingScores',
+    nameState.bowlingScores)
+    .insert(3, 141); // insert 141 at index 3
   // we are going to let 'custom' action props be handled by subclasses:
     // appendScoreAction.custom = {lastChangeFlag: true}
   let key = 'abc';
@@ -152,7 +156,7 @@ describe('Test the actionQueue', () => {
   let updateMiddleAction = new StateCrudAction(ActionId.UPDATE_PROPERTY, nameState, 'middle', 'J');
   let insertScoresAction = new StateCrudAction(ActionId.INSERT_PROPERTY, nameState, 'bowlingScores', bowlingScores);
   let appendScoreAction = new ArrayMutateAction(
-      ActionId.INSERT_PROPERTY, nameState, 'bowlingScores', nameState.bowlingScores, 3, 141);
+      ActionId.INSERT_PROPERTY, nameState, 'bowlingScores', 3,  nameState.bowlingScores, 141);
   let deletePrefixAction = new StateCrudAction(ActionId.DELETE_PROPERTY, nameState, 'prefix', '');
   test('the currentIndex should equal the length after an action is added', () => {
     actionQueue.push(updateMiddleAction);

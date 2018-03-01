@@ -75,7 +75,7 @@ export abstract class StateAction<S extends StateObject> extends Action {
   parent: S;
   propertyName: keyof S;
   /* tslint:disable:no-any */
-  mappingActions: MappingAction<any, any, any, any>[];
+  mappingActions: MappingAction<any, any, any>[];
   /* tslint:enable:no-any */
 
   protected assignProps(from: StateAction<S>) {
@@ -243,22 +243,20 @@ export class ArrayMutateAction
  * Prop types used in defining the ContainerComponent<CP,VP>
  * CP: container prop type
  * VP: view prop type
- *
- * TP: keys of VP, the view prop type
  */
 
 export class MappingAction
-      <S extends StateObject, CP, VP, TP extends keyof VP>
+      <S extends StateObject, CP, VP>
       extends StateAction<S> {
 
   /* tslint:disable:no-any */
   component: ContainerComponent<CP, VP, any>;
   /* tslint:enable:no-any */
   fullPath: string;
-  targetPropName: TP;
+  targetPropName: keyof VP;
   dispatches: DispatchType[];
 
-  protected assignProps(from:  MappingAction<S, CP, VP, TP>) {
+  protected assignProps(from:  MappingAction<S, CP, VP>) {
     super.assignProps(from);
     this.component = from.component;
     this.fullPath = from.fullPath;
@@ -266,7 +264,7 @@ export class MappingAction
     this.dispatches = from.dispatches;
   }
 
-  public clone(): MappingAction<S, CP, VP, TP> {
+  public clone(): MappingAction<S, CP, VP> {
     let copy = new MappingAction(
         this.parent,
         this.propertyName,
@@ -294,7 +292,7 @@ export class MappingAction
               /* tslint:disable:no-any */
               _component: ContainerComponent<CP, VP, any>,
               /* tslint:enable:no-any */
-              targetPropName: TP,
+              targetPropName: keyof VP,
               ...dispatches: DispatchType[]
               ) {
     super(ActionId.MAP_STATE_TO_PROP, parent, _propertyOrArrayName);
@@ -308,7 +306,7 @@ export class MappingAction
     return this.parent[this.propertyName];
   }
 
-  getTargetPropName(): TP {
+  getTargetPropName(): keyof VP {
     return this.targetPropName;
   }
 

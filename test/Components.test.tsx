@@ -69,7 +69,7 @@ export class BowlerContainer extends ContainerComponent<BowlerProps, ScoreCardPr
   }
 
     /* tslint:disable:no-any */
-  createMappingActions(): MappingAction<any, BowlerProps, ScoreCardProps, keyof ScoreCardProps>[] {
+  createMappingActions(): MappingAction<any, BowlerProps, ScoreCardProps>[] {
       /* tslint:enable:no-any */
     // let result: StateMappingAction<any, any, BowlerProps, ScoreCardProps, keyof ScoreCardProps>[] = [];
     // result.push(this.createStateMappingAction(nameState, 'first', 'fullName'));

@@ -75,7 +75,7 @@ export abstract class StateAction<S extends StateObject> extends Action {
   parent: S;
   propertyName: keyof S;
   /* tslint:disable:no-any */
-  mappingActions: MappingAction<any, any, any>[];
+  mappingActions: MappingAction<any, any, any, any>[];
   /* tslint:enable:no-any */
 
   protected assignProps(from: StateAction<S>) {
@@ -246,17 +246,17 @@ export class ArrayMutateAction
  */
 
 export class MappingAction
-      <S extends StateObject, CP, VP>
+      <S extends StateObject, CP, VP, A extends StateObject>
       extends StateAction<S> {
 
   /* tslint:disable:no-any */
-  component: ContainerComponent<CP, VP, any>;
+  component: ContainerComponent<CP, VP, A>;
   /* tslint:enable:no-any */
   fullPath: string;
   targetPropName: keyof VP;
   dispatches: DispatchType[];
 
-  protected assignProps(from:  MappingAction<S, CP, VP>) {
+  protected assignProps(from:  MappingAction<S, CP, VP, A>) {
     super.assignProps(from);
     this.component = from.component;
     this.fullPath = from.fullPath;
@@ -264,7 +264,7 @@ export class MappingAction
     this.dispatches = from.dispatches;
   }
 
-  public clone(): MappingAction<S, CP, VP> {
+  public clone(): MappingAction<S, CP, VP, A> {
     let copy = new MappingAction(
         this.parent,
         this.propertyName,
@@ -289,9 +289,7 @@ export class MappingAction
   constructor(
               parent: S,
               _propertyOrArrayName: keyof S,
-              /* tslint:disable:no-any */
-              _component: ContainerComponent<CP, VP, any>,
-              /* tslint:enable:no-any */
+              _component: ContainerComponent<CP, VP, A>,
               targetPropName: keyof VP,
               ...dispatches: DispatchType[]
               ) {

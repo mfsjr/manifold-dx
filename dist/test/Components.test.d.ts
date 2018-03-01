@@ -22,7 +22,7 @@ export declare class BowlerContainer extends ContainerComponent<BowlerProps, Sco
     constructor(bowlerProps: BowlerProps);
     createViewProps(): ScoreCardProps;
     createView(viewProps: ScoreCardProps): React.Component<ScoreCardProps, {}>;
-    createMappingActions(): MappingAction<any, any, BowlerProps, ScoreCardProps, keyof ScoreCardProps>[];
+    createMappingActions(): MappingAction<any, BowlerProps, ScoreCardProps, any>[];
     updateViewProps(executedActions: Action[]): void;
-    calcAverage(action: StateCrudAction<any, any>): void;
+    calcAverage(action: StateCrudAction<any>): void;
 }

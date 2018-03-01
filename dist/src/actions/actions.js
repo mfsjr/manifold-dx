@@ -152,11 +152,18 @@ exports.StateCrudAction = StateCrudAction;
  */
 var ArrayMutateAction = /** @class */ (function (_super) {
     __extends(ArrayMutateAction, _super);
-    function ArrayMutateAction(actionType, _parent, _propertyName, _values, _index, _value) {
+    // TODO: restrict the set of ActionId's here to regular property insert/update/delete
+    function ArrayMutateAction(actionType, _parent, _propertyName, _index, valuesArray, _value) {
         var _this = _super.call(this, actionType, _parent, _propertyName) || this;
-        _this.valuesArray = _values;
+        // let prop = _parent[_propertyName];
+        // if ( prop instanceof Array) {
+        //   this.valuesArray = prop;
+        // } else {
+        //   throw new Error(`parent property is not an array!`);
+        // }
         _this.index = _index;
         _this.value = _value;
+        _this.valuesArray = valuesArray;
         return _this;
     }
     ArrayMutateAction.prototype.assignProps = function (from) {
@@ -168,7 +175,7 @@ var ArrayMutateAction = /** @class */ (function (_super) {
         this.index = from.index;
     };
     ArrayMutateAction.prototype.clone = function () {
-        var copy = new ArrayMutateAction(this.type, this.parent, this.propertyName, this.valuesArray, this.index, this.value);
+        var copy = new ArrayMutateAction(this.type, this.parent, this.propertyName, this.index, this.valuesArray, this.value);
         return copy;
     };
     ArrayMutateAction.prototype.mutate = function (perform) {
@@ -200,14 +207,11 @@ exports.ArrayMutateAction = ArrayMutateAction;
  * The functionality provided here is analogous to, but not the same as,
  * Redux's mapStateToProps/Dispatch.
  *
- * S: type of the parent
- * K: key of the propertyOrArrayName
+ * S: type of the parent state
  *
  * Prop types used in defining the ContainerComponent<CP,VP>
  * CP: container prop type
  * VP: view prop type
- *
- * TP: keys of VP, the view prop type
  */
 var MappingAction = /** @class */ (function (_super) {
     __extends(MappingAction, _super);
@@ -221,11 +225,7 @@ var MappingAction = /** @class */ (function (_super) {
      * @param {DispatchType} dispatches - these are generally instance functions in the component that update other
      *          component view properties as a function of the target view property having changed.
      */
-    function MappingAction(parent, _propertyOrArrayName, 
-    /* tslint:disable:no-any */
-    _component, 
-    /* tslint:enable:no-any */
-    targetPropName) {
+    function MappingAction(parent, _propertyOrArrayName, _component, targetPropName) {
         var dispatches = [];
         for (var _i = 4; _i < arguments.length; _i++) {
             dispatches[_i - 4] = arguments[_i];

@@ -6,9 +6,10 @@ var _ = require("lodash");
 var testHarness_1 = require("./testHarness");
 var State_1 = require("../src/types/State");
 var Manager_1 = require("../src/types/Manager");
+var actionCreators_1 = require("../src/actions/actionCreators");
 var resetTestObjects = function () {
     testHarness_1.testState.reset(testHarness_1.createTestState(), {});
-    var name = { first: 'Matthew', middle: 'F', last: 'Hooper', prefix: 'Mr' };
+    var name = { first: 'Matthew', middle: 'F', last: 'Hooper', prefix: 'Mr', bowlingScores: [] };
     var address = { street: '54 Upton Lake Rd', city: 'Clinton Corners', state: 'NY', zip: '12514' };
     testHarness_1.testState.getManager().getActionProcessorAPI().enableMutationChecking();
     var x = State_1.State.createStateObject(testHarness_1.testState.getState(), 'name', name);
@@ -84,7 +85,8 @@ describe('Iterating through parents', function () {
     });
 });
 describe('Mark the state graph with action annotations', function () {
-    var appendScoreAction = new actions_1.ArrayMutateAction(actions_1.ActionId.INSERT_PROPERTY, nameState, 'bowlingScores', nameState.bowlingScores, 141, 3);
+    var appendScoreAction = new actionCreators_1.ArrayCrudActionCreator(nameState, 'bowlingScores', nameState.bowlingScores)
+        .insert(3, 141); // insert 141 at index 3
     // we are going to let 'custom' action props be handled by subclasses:
     // appendScoreAction.custom = {lastChangeFlag: true}
     var key = 'abc';
@@ -103,7 +105,7 @@ describe('Test the actionQueue', function () {
     var actionQueue = ActionQueue_1.createActionQueue(3);
     var updateMiddleAction = new actions_1.StateCrudAction(actions_1.ActionId.UPDATE_PROPERTY, nameState, 'middle', 'J');
     var insertScoresAction = new actions_1.StateCrudAction(actions_1.ActionId.INSERT_PROPERTY, nameState, 'bowlingScores', bowlingScores);
-    var appendScoreAction = new actions_1.ArrayMutateAction(actions_1.ActionId.INSERT_PROPERTY, nameState, 'bowlingScores', nameState.bowlingScores, 3, 141);
+    var appendScoreAction = new actions_1.ArrayMutateAction(actions_1.ActionId.INSERT_PROPERTY, nameState, 'bowlingScores', 3, nameState.bowlingScores, 141);
     var deletePrefixAction = new actions_1.StateCrudAction(actions_1.ActionId.DELETE_PROPERTY, nameState, 'prefix', '');
     test('the currentIndex should equal the length after an action is added', function () {
         actionQueue.push(updateMiddleAction);

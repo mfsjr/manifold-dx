@@ -78,8 +78,3 @@ export class ArrayCrudActionCreator<S extends StateObject, V> {
       this.parent, this.propertyKey, index, this.valuesArray, undefined);
   }
 }
-
-// export class MappingActionCreator {
-//   constructor
-// }
-

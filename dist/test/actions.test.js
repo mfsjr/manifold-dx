@@ -7,6 +7,7 @@ var testHarness_2 = require("./testHarness");
 var Manager_1 = require("../src/types/Manager");
 var _ = require("lodash");
 var StateMutationDiagnostics_1 = require("../src/types/StateMutationDiagnostics");
+var actionCreators_1 = require("../src/actions/actionCreators");
 // import { MutationError } from '../src/types/StateMutationCheck';
 var name;
 var nameState;
@@ -15,7 +16,7 @@ var address;
 var addressState;
 var resetTestObjects = function () {
     testHarness_2.testState.reset(testHarness_1.createTestState(), {});
-    name = { first: 'Matthew', middle: 'F', last: 'Hooper', prefix: 'Mr' };
+    name = { first: 'Matthew', middle: 'F', last: 'Hooper', prefix: 'Mr', bowlingScores: [] };
     nameState = State_1.State.createStateObject(testHarness_2.testState.getState(), 'name', name);
     bowlingScores = [111, 121, 131];
     address = { street: '54 Upton Lake Rd', city: 'Clinton Corners', state: 'NY', zip: '12514' };
@@ -65,16 +66,24 @@ describe('Add the name container', function () {
     });
     describe('Array related actions', function () {
         test('bowling scores should be present', function () {
-            var bowlingAction = new actions_1.StateCrudAction(actions_1.ActionId.INSERT_PROPERTY, nameState, 'bowlingScores', bowlingScores);
+            var bowlingAction = new actions_1.StateCrudAction(actions_1.ActionId.UPDATE_PROPERTY, nameState, 'bowlingScores', bowlingScores);
             bowlingAction.perform();
             expect(nameState.bowlingScores).toBe(bowlingScores);
             expect(bowlingScores[0]).toBe(111);
         });
         test('array index notation should work', function () {
-            var updateAction = new actions_1.ArrayMutateAction(actions_1.ActionId.UPDATE_PROPERTY, nameState, 'bowlingScores', nameState.bowlingScores, 0, 101);
+            var updateAction = new actions_1.ArrayMutateAction(actions_1.ActionId.UPDATE_PROPERTY, nameState, 'bowlingScores', 0, nameState.bowlingScores, 101);
             expect(updateAction.index).toBe(0);
             updateAction.perform();
             expect(bowlingScores[0]).toBe(101);
+        });
+    });
+    describe('use ActionCreator for array changes', function () {
+        test('action creator modified the array', function () {
+            var action = new actionCreators_1.ArrayCrudActionCreator(nameState, 'bowlingScores', nameState.bowlingScores)
+                .insert(0, 103);
+            action.perform();
+            expect(nameState.bowlingScores[0]).toEqual(103);
         });
     });
     describe('Verify StateMutationCheck', function () {
@@ -92,7 +101,7 @@ describe('Add the name container', function () {
             if (!nameState.bowlingScores) {
                 throw new Error('nameState.bowlingScores should be defined but is falsey');
             }
-            var appendScore = new actions_1.ArrayMutateAction(actions_1.ActionId.INSERT_PROPERTY, nameState, 'bowlingScores', nameState.bowlingScores, nameState.bowlingScores.length, 299);
+            var appendScore = new actions_1.ArrayMutateAction(actions_1.ActionId.INSERT_PROPERTY, nameState, 'bowlingScores', nameState.bowlingScores.length, nameState.bowlingScores, 299);
             expect(function () { testHarness_2.testState.getManager().actionPerform(appendScore); }).not.toThrow();
             // restore the old middle
             nameState.middle = middle;
@@ -107,7 +116,7 @@ describe('Add the name container', function () {
             if (!nameState.bowlingScores) {
                 throw new Error('nameState.bowlingScores should be defined but is falsey');
             }
-            var appendScore = new actions_1.ArrayMutateAction(actions_1.ActionId.INSERT_PROPERTY, nameState, 'bowlingScores', nameState.bowlingScores, nameState.bowlingScores.length, 299);
+            var appendScore = new actions_1.ArrayMutateAction(actions_1.ActionId.INSERT_PROPERTY, nameState, 'bowlingScores', nameState.bowlingScores.length, nameState.bowlingScores, 299);
             expect(function () { testHarness_2.testState.getManager().actionPerform(appendScore); }).toThrow();
             // restore the old middle
             nameState.middle = middle;

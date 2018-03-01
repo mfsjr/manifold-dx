@@ -81,7 +81,7 @@ var BowlerContainer = /** @class */ (function (_super) {
 exports.BowlerContainer = BowlerContainer;
 var resetTestObjects = function () {
     testHarness_2.testState.reset(testHarness_1.createTestState(), {});
-    name = { first: 'Matthew', middle: 'F', last: 'Hooper', prefix: 'Mr' };
+    name = { first: 'Matthew', middle: 'F', last: 'Hooper', prefix: 'Mr', bowlingScores: [] };
     nameState = State_1.State.createStateObject(testHarness_2.testState.getState(), 'name', name);
     bowlingScores = [111, 121, 131];
     initBowlerProps = { fullName: nameState.first };
@@ -117,7 +117,6 @@ describe('ContainerComponent instantiation, mount, update, unmount', function ()
     });
     test('an update action', function () {
         expect(container.average).toBeUndefined();
-        expect(nameState.bowlingScores).toBeUndefined();
         var action = new actions_1.StateCrudAction(actions_1.ActionId.INSERT_PROPERTY, nameState, 'bowlingScores', bowlingScores);
         Manager_1.Manager.get().actionPerform(action);
         expect(container.average).toBeGreaterThan(100);

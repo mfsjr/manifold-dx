@@ -13,7 +13,7 @@ var addressState;
 var bowlingScores;
 var resetTestObjects = function () {
     testHarness_1.testState.reset(testHarness_1.createTestState(), {});
-    name = { first: 'Matthew', middle: 'F', last: 'Hooper', prefix: 'Mr' };
+    name = { first: 'Matthew', middle: 'F', last: 'Hooper', prefix: 'Mr', bowlingScores: [] };
     nameState = State_2.State.createStateObject(testHarness_1.testState.getState(), 'name', name);
     address = { street: '54 Upton Lake Rd', city: 'Clinton Corners', state: 'NY', zip: '12514' };
     addressState = State_2.State.createStateObject(nameState, 'address', address);

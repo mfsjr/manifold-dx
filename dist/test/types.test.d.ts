@@ -6,7 +6,7 @@ export interface Name {
     middle: string;
     last: string;
     address?: Address;
-    bowlingScores?: Array<number>;
+    bowlingScores: Array<number>;
 }
 export declare type NameContainer = Name & StateObject;
 export interface Address {

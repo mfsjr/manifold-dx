@@ -13,13 +13,13 @@ export declare class MappingState {
      * @returns {number}
      */
     getSize(): number;
-    getPathMappings(propFullPath: string): MappingAction<any, any, any, any, any>[] | undefined;
-    getOrCreatePathMappings(propFullPath: string): MappingAction<any, any, any, any, any>[];
+    getPathMappings(propFullPath: string): MappingAction<any, any, any, any>[] | undefined;
+    getOrCreatePathMappings(propFullPath: string): MappingAction<any, any, any, any>[];
     /**
      *
      * @param {string} _fullPath the key where the component may be found
      * @param {React.Component} container to be removed
      * @returns {number} index at which the component was removed, -1 if not found
      */
-    removePathMapping(_fullPath: string, container: MappingAction<any, any, any, any, any>): number;
+    removePathMapping(_fullPath: string, container: MappingAction<any, any, any, any>): number;
 }

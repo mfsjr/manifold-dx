@@ -46,7 +46,7 @@ export class MappingState {
     }
   }
 
-  getArrayMappingActions(path: string, key: string | number ): GenericMappingAction[] | undefined {
+  getArrayMappingActions(path: string, key: React.Key ): GenericMappingAction[] | undefined {
     let pathResults = this.pathMappings.get(path);
     if (!pathResults) {
       return undefined;

@@ -107,6 +107,10 @@ export abstract class StateAction<S extends StateObject> extends Action {
   }
 }
 
+/* tslint:disable:no-any */
+export type GenericStateCrudAction = StateCrudAction<any>;
+/* tslint:enable:no-any */
+
 /**
  * Action classes contain instructions for mutating state, in the form
  * of StateObjects.
@@ -162,10 +166,58 @@ export class StateCrudAction<S extends StateObject> extends StateAction<S> {
 }
 
 /**
+ * React requires 'key' data elements for list rendering, and we need to keep track of
+ * what indexes are associated with keys, for the purposes of modifying array state, since
+ * the mutate array api's require array indexes.
+ */
+export type KeyIndexMap = Map<React.Key, number>;
+
+export class ArrayKeyIndexMap<V> {
+  /* tslint:disable:no-any */
+  arrayMapper = new Map<Array<any>, KeyIndexMap>();
+  /* tslint:enable:no-any */
+
+  public getKeyIndexMap(array: Array<V>, keyFieldName: keyof V): KeyIndexMap {
+    let keyIndexMap = this.arrayMapper.get(array) || new Map<React.Key, number>();
+    if (keyIndexMap.size === 0 && array.length > 0) {
+      array.forEach((value, index) => {
+        let keyValue = value[keyFieldName];
+        if (typeof keyValue === 'string' || typeof keyValue === 'number') { // typeguard for React.Key
+          let reactKey: React.Key = keyValue;
+          let reactKeyValue = keyIndexMap.get(reactKey);
+          if (!reactKeyValue) {
+            throw Error(`Duplicate react key value of ${reactKey} for property ${keyFieldName} at index ${index}`);
+          }
+          keyIndexMap.set(reactKeyValue, index);
+        }
+      });
+    }
+    return keyIndexMap;
+  }
+
+  public delete(array: Array<V>): boolean {
+    return this.arrayMapper.delete(array);
+  }
+}
+
+/**
+ * Standalone data structure: for each array in state, maps keys to array indexes.
+ *
+ * - singleton created at startup
+ * - entries <Array, KeyIndexMap> are created lazily
+ * - updated upon ArrayMutateAction update
+ * - deleted upon StateCrudAction array delete
+ *
+ * Note that duplicated keys result in an Error being thrown.
+ */
+export const arrayKeyIndexMap = new ArrayKeyIndexMap();
+
+/**
  *
  */
 export class ArrayMutateAction
   <S extends StateObject, V> extends StateAction<S> {
+
   mutateResult?: {oldValue?: V};
   oldValue?: V | undefined;
   value: V;

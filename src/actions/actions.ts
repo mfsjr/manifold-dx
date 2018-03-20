@@ -166,33 +166,92 @@ export class StateCrudAction<S extends StateObject> extends StateAction<S> {
 }
 
 /**
+ * Functions like this are necessary to create mappings between React keys and StateObject array indexes, as
+ * in ArrayKeyIndexMap below.
+ *
+ * These functions should be created in StateObject's __accessors__, so that both
+ * 1. invocations of ArrayKeyIndexMap's getKeyIndexMap, and...
+ * 2. ArrayMutateAction's constructor's 'index' argument
+ * ... can use this function (since they have to be the same).
+ *
+ */
+/* tslint:disable:no-any */
+export type ArrayKeyGeneratorFn<V> = (arrayElement: V, index?: number, array?: Array<V>) => React.Key;
+/* tslint:enable:no-any */
+
+/**
+ * The name of this function is intended to convey the fact that it uses a property of the array
+ * object type to use as the key.
+ *
+ * Seems like this is the usual / expected case, so export this function to be used for that.
+ * Note that the signature is not the same as KeyGeneratorFnType, so to use it you will need to
+ * generate the actual KeyGeneratorFnType like so:
+ *
+ * `let idGenerator = bookKeyGenerator<Book>(book: Book) {
+ *    return propertyKeyGenerator<Book>(books, index, { propertyKey: 'id' } );
+ *  }
+ * `
+ *
+ * @param {Array<V>} array
+ * @param {number} index
+ * @param {{propertyKey: keyof V}} options
+ * @returns {React.Key}
+ */
+export function propertyKeyGenerator<V>(arrayElement: V, propertyKey: keyof V): React.Key {
+  let keyValue = arrayElement[propertyKey];
+  if (typeof keyValue === 'string' || typeof keyValue === 'number') { // typeguard for React.Key
+    return keyValue;
+  }
+  let message = `keyValue ${JSON.stringify(keyValue, null, 4)} is not a React.Key!`;
+  throw new Error(message);
+}
+
+/**
  * React requires 'key' data elements for list rendering, and we need to keep track of
  * what indexes are associated with keys, for the purposes of modifying array state, since
  * the mutate array api's require array indexes.
+ *
+ * keyValueFn<V>(index, obj: any) => uniqueKey: React.Key,
+ * eg: {Array<V>, key keyof V, index} => Array[index][keyFieldName]
  */
-export type KeyIndexMap = Map<React.Key, number>;
+export type KeyIndexMap<V> = Map<React.Key, number> & {keyGenerator: ArrayKeyGeneratorFn<V>};
 
 export class ArrayKeyIndexMap<V> {
   /* tslint:disable:no-any */
-  arrayMapper = new Map<Array<any>, KeyIndexMap>();
+  arrayMapper = new Map<Array<any>, KeyIndexMap<any>>();
   /* tslint:enable:no-any */
 
-  public getKeyIndexMap(array: Array<V>, keyFieldName: keyof V): KeyIndexMap {
-    let keyIndexMap = this.arrayMapper.get(array) || new Map<React.Key, number>();
-    if (keyIndexMap.size === 0 && array.length > 0) {
-      array.forEach((value, index) => {
-        let keyValue = value[keyFieldName];
-        if (typeof keyValue === 'string' || typeof keyValue === 'number') { // typeguard for React.Key
-          let reactKey: React.Key = keyValue;
-          let reactKeyValue = keyIndexMap.get(reactKey);
-          if (!reactKeyValue) {
-            throw Error(`Duplicate react key value of ${reactKey} for property ${keyFieldName} at index ${index}`);
-          }
-          keyIndexMap.set(reactKeyValue, index);
-        }
-      });
+  public getOrCreateKeyIndexMap(array: Array<V>, keyGenerator: ArrayKeyGeneratorFn<V>): KeyIndexMap<V> {
+    let keyIndexMap = this.arrayMapper.get(array);
+    if (!keyIndexMap) {
+      keyIndexMap = this.createKeyIndexMap(array, keyGenerator);
     }
     return keyIndexMap;
+  }
+
+  public hasKeyIndexMap(array: Array<V>): boolean {
+    return this.arrayMapper.has(array);
+  }
+
+  protected createKeyIndexMap(array: Array<V>, keyGenerator: ArrayKeyGeneratorFn<V>): KeyIndexMap<V> {
+    let map = new Map<React.Key, number>();
+    array.forEach((value, index, values) => {
+      let reactKey = keyGenerator(value, index, values);
+      if (map.has(reactKey)) {
+        throw new Error(`Duplicate key at index ${index}, key=${reactKey}`);
+      }
+      map.set(reactKey, index);
+    });
+    let keyIndexMap: KeyIndexMap<V> = {
+      ...map,
+      keyGenerator: keyGenerator
+    };
+    return keyIndexMap;
+  }
+
+  public putKeyIndexMap(array: Array<V>, keyGenerator: ArrayKeyGeneratorFn<V>) {
+    let keyIndexMap = this.createKeyIndexMap(array, keyGenerator);
+    this.arrayMapper.set(array, keyIndexMap);
   }
 
   public delete(array: Array<V>): boolean {
@@ -201,7 +260,7 @@ export class ArrayKeyIndexMap<V> {
 }
 
 /**
- * Standalone data structure: for each array in state, maps keys to array indexes.
+ * Standalone data structure: for each array in state, maps React list keys to array indexes.
  *
  * - singleton created at startup
  * - entries <Array, KeyIndexMap> are created lazily

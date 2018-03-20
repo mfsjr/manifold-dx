@@ -1,14 +1,25 @@
 import {
   createActionQueue,
   } from '../src/types/ActionQueue';
-import { ActionId, ArrayMutateAction, StateCrudAction } from '../src/actions/actions';
+import {
+  ActionId, ArrayMutateAction, ArrayKeyGeneratorFn,
+  StateCrudAction, propertyKeyGenerator
+} from '../src/actions/actions';
 import * as _ from 'lodash';
 import { createTestState, testState } from './testHarness';
 import { State, StateObject } from '../src/types/State';
 import { Manager } from '../src/types/Manager';
 import { ActionQueue } from '../src/types/ActionQueue';
-import { ArrayCrudActionCreator } from '../src/actions/actionCreators';
+import { ArrayCrudActionCreator, CrudActionCreator } from '../src/actions/actionCreators';
 // mport Test = jest.Test;
+
+export interface Address {
+  street: string;
+  city: string;
+  state: string;
+  zip: string;
+  country?: string;
+}
 
 interface TestStateObjects {
   nameState: Name & StateObject;
@@ -18,10 +29,11 @@ interface TestStateObjects {
 
 let resetTestObjects = (): TestStateObjects => {
   testState.reset(createTestState(), {});
-  let name: Name = {first: 'Matthew', middle: 'F', last: 'Hooper', prefix: 'Mr', bowlingScores: []};
+  let name: Name = {first: 'Matthew', middle: 'F', last: 'Hooper', prefix: 'Mr', bowlingScores: [], addresses: []};
   let address: Address = {street: '54 Upton Lake Rd', city: 'Clinton Corners', state: 'NY', zip: '12514'};
   testState.getManager().getActionProcessorAPI().enableMutationChecking();
   let x = State.createStateObject<Name>(testState.getState(), 'name', name);
+  // let x = createNameContainer(name, testState.getState(), 'name');
   let y = State.createStateObject<Address>(x, 'address', address);
   let z = [111, 121, 131];
   return {
@@ -31,7 +43,7 @@ let resetTestObjects = (): TestStateObjects => {
   };
 };
 
-let {/*name, address, address2,*/ nameState, addressState, bowlingScores} = resetTestObjects();
+const {/*name, address, address2,*/ nameState, addressState, bowlingScores} = resetTestObjects();
 
 describe ('manager setup', () => {
   test('Manager should be statically available', () => {
@@ -79,10 +91,62 @@ export interface Name {
   middle: string;
   last: string;
   address?: Address;
+  addresses: Array<Address>;
   bowlingScores: Array<number>;
 }
 
-export type NameContainer = Name & StateObject;
+/**
+ * Accessors to be used on our Name & StateObject data.
+ */
+export interface NameAccessors {
+  actionCreator: CrudActionCreator<Name & StateObject>;
+  keyGeneratorFn: ArrayKeyGeneratorFn<Address>;
+  addressesActionCreator: ArrayCrudActionCreator<Name & StateObject, Address>;
+}
+
+// export interface NameContainer extends Name, StateObject {
+//   __accessors__: NameAccessors;
+// }
+
+/**
+ * Create the name container state object and insert it into the parent.
+ *
+ * Example of how to create a StateObject containing an array.  The 'keyGenerator' is needed to create
+ * the keys that React requires, and the 'addressesActionCreator' is used to create actions that
+ * manipulate the array.
+ *
+ * Note that the returned NameContainer is never declared to be a NameContainer, but is built as an object
+ * literal, piece by piece until its returned, where structural subtyping verifies its a NameContainer
+ *
+ * @param {Name} nameData
+ * @param {StateObject} parent
+ * @param {string} myName
+ * @returns {NameContainer}
+ */
+export function createNameContainer(nameData: Name, parent: StateObject, myName: string): Name & StateObject {
+  let nameStateData: Name & StateObject = {
+    __my_propname__: myName,
+    __parent__: parent,
+    ...nameData,
+  };
+  // define the keyGeneratorFn, to be used in multiple places below
+  let keyGeneratorFn: ArrayKeyGeneratorFn<Address> =
+    (addr: Address): React.Key => propertyKeyGenerator(addr, 'street');
+
+  // build NameAccessors
+  let accessors: NameAccessors = {
+    actionCreator: new CrudActionCreator(nameStateData),
+    keyGeneratorFn,
+    addressesActionCreator: new ArrayCrudActionCreator(nameStateData, nameStateData.addresses, keyGeneratorFn)
+  };
+  nameStateData[`__accessors__`] = accessors;
+  parent[myName] = nameStateData;
+  return nameStateData;
+  // // structural subtyping verifies that the object is of type NameContainer (this function's return type)
+  // let result: NameContainer = { ...nameStateData,  __accessors__: accessors };
+  // parent[myName] = result;
+  // return result;
+}
 
 describe('creating child state objects', () => {
   test('nameState should have a __parent__ that points to state', () => {
@@ -97,14 +161,6 @@ describe('creating child state objects', () => {
     expect(nameState.address).toBe(addressState);
   });
 });
-
-export interface Address {
-  street: string;
-  city: string;
-  state: string;
-  zip: string;
-  country?: string;
-}
 
 describe('Iterating through parents', () => {
   test('find parents of addressState', () => {
@@ -121,35 +177,35 @@ describe('Iterating through parents', () => {
       result = iterator.next();
     }
     // when done, result.value is the app State
-    expect(result.value).toBe(testState.getState());
+    let temp = testState.getState();
+    expect(result.value).toBe(temp);
     expect(result.value.__parent__).toBe(result.value);
   });
 
 });
 
-describe('Mark the state graph with action annotations', () => {
-  let appendScoreAction = new ArrayCrudActionCreator<Name & StateObject, number>(
-    nameState,
-    'bowlingScores',
-    nameState.bowlingScores)
-    .insert(3, 141); // insert 141 at index 3
-  // we are going to let 'custom' action props be handled by subclasses:
-    // appendScoreAction.custom = {lastChangeFlag: true}
-  let key = 'abc';
-  appendScoreAction[key] = 1.2;
-
-  test('Customizability of actions', () => {
-    expect(appendScoreAction[key]).toBeCloseTo(1.2);
-  });
-
-  test('Enumerability of actions', () => {
-    let keys = Object.keys(appendScoreAction);
-    // console.log(`keys.length = ${keys.length}`);
-    // 'abc', propertyName, value and state object should be there among others
-    expect(keys.length).toBeGreaterThan(4);
-  });
-
-});
+// describe('Mark the state graph with action annotations', () => {
+//   let appendScoreAction = new ArrayCrudActionCreator<Name & StateObject, number>(
+//     nameState,
+//     nameState.bowlingScores)
+//     .insert(3, 141); // insert 141 at index 3
+//   // we are going to let 'custom' action props be handled by subclasses:
+//     // appendScoreAction.custom = {lastChangeFlag: true}
+//   let key = 'abc';
+//   appendScoreAction[key] = 1.2;
+//
+//   test('Customizability of actions', () => {
+//     expect(appendScoreAction[key]).toBeCloseTo(1.2);
+//   });
+//
+//   test('Enumerability of actions', () => {
+//     let keys = Object.keys(appendScoreAction);
+//     // console.log(`keys.length = ${keys.length}`);
+//     // 'abc', propertyName, value and state object should be there among others
+//     expect(keys.length).toBeGreaterThan(4);
+//   });
+//
+// });
 
 describe('Test the actionQueue', () => {
   let actionQueue: ActionQueue = createActionQueue(3);
@@ -218,9 +274,10 @@ describe('Get the full path of properties in state objects, usable by lodash "ge
   });
   test('full path for bowling scores', () => {
     let appState = testState.getState();
-    if (appState.name) {
-      nameState = appState.name;
-    }
+    // if (appState.name) {
+    //   nameState = appState.name;
+    // }
+    expect(appState.name).toBe(nameState);
     let insertScoresAction = new StateCrudAction(ActionId.INSERT_PROPERTY, nameState, 'bowlingScores', bowlingScores);
     insertScoresAction.perform();
     let fullPath = Manager.get().getFullPath(nameState, 'bowlingScores[0]');

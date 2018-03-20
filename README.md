@@ -1,8 +1,8 @@
 # Manifold-dx for React
 
 Simplified state management, based on new approaches to providing 
-unidirectional predictability, and a great development experience 
-with mutation checking, type safety from TypeScript, and 'time-travel'.
+unidirectional predictability, automatic / configurable  
+mutation checking, type safety from TypeScript, and 'time-travel'.
 
 Ok, what are these so-called "new approaches"?
 
@@ -81,7 +81,7 @@ See the todo app at [https://github.com/mfsjr/manifold-dx-todo](https://github.c
   - this will also turn on state diff output, when mutations are detected
 
 ##### What's Next
-- Build optimizations
+- 
 - Larger, real-world example applications
 
 ##### TL;DR What's in a name?
@@ -103,6 +103,9 @@ along with complimentary libraries that have been enthusiastically
 built up around it.
 
 
-### This is BETA software!!!  
-There are no known problems but its very 'green'.
+### This is ALPHA software!!!  
+Recent work has centered on handling arrays of state data and component lists in React,
+and locating action-creation API's in the StateObjects that they are operating on.
+
+This is still being designed and developed.
 

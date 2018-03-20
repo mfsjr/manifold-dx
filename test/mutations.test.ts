@@ -14,7 +14,7 @@ let bowlingScores: Array<number>;
 
 let resetTestObjects = () => {
   testState.reset(createTestState(), {});
-  name = {first: 'Matthew', middle: 'F', last: 'Hooper', prefix: 'Mr', bowlingScores: []};
+  name = {first: 'Matthew', middle: 'F', last: 'Hooper', prefix: 'Mr', bowlingScores: [], addresses: []};
   nameState = State.createStateObject<Name>(testState.getState() as TestState & StateObject, 'name', name);
   address = {street: '54 Upton Lake Rd', city: 'Clinton Corners', state: 'NY', zip: '12514'};
   addressState = State.createStateObject<Address>(nameState, 'address', address);

@@ -95,8 +95,9 @@ export class BowlerContainer extends ContainerComponent<BowlerProps, ScoreCardPr
 
 let resetTestObjects = () => {
   testState.reset(createTestState(), {});
-  name = {first: 'Matthew', middle: 'F', last: 'Hooper', prefix: 'Mr', bowlingScores: []};
+  name = {first: 'Matthew', middle: 'F', last: 'Hooper', prefix: 'Mr', bowlingScores: [], addresses: []};
   nameState = State.createStateObject<Name>(testState.getState(), 'name', name);
+  // nameState = createNameContainer(name, testState.getState(), 'name');
   bowlingScores = [111, 121, 131];
   initBowlerProps = { fullName: nameState.first };
   testState.reset({name: nameState}, {});

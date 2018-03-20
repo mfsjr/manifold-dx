@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ReactNode, SFC } from 'react';
+import { ReactElement, ReactNode, SFC } from 'react';
 import { Action, DispatchType, StateCrudAction, MappingAction, StateAction } from '../actions/actions';
 import * as _ from 'lodash';
 import { Manager } from '../types/Manager';
@@ -222,7 +222,16 @@ export abstract class ContainerComponent<CP, VP, A extends StateObject> extends 
 
   render(): ReactNode {
     if (this.sfcView) {
-      return this.sfcView(this.viewProps);
+      let result: ReactElement<VP> | null = this.sfcView(this.viewProps);
+      // if (result) {
+      //   let key: React.Key | null = result.key;
+      //   if (key) {
+      //     /* tslint:disable:no-console */
+      //     console.log(`key for this component is ${key}`);
+      //     /* tslint:enable:no-console */
+      //   }
+      // }
+      return result;
     }
     if (this.viewGenerator) {
       this.viewComponent = this.viewGenerator(this.viewProps);

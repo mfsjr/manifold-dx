@@ -8,7 +8,7 @@ import { ActionProcessorFunctionType } from '../src/types/ActionProcessor';
 import { Manager } from '../src/types/Manager';
 import * as _ from 'lodash';
 import { onFailureDiff } from '../src/types/StateMutationDiagnostics';
-import { ArrayCrudActionCreator } from '../src/actions/actionCreators';
+// import { ArrayCrudActionCreator } from '../src/actions/actionCreators';
 // import { MutationError } from '../src/types/StateMutationCheck';
 
 let name: Name;
@@ -19,8 +19,9 @@ let addressState: Address & StateObject;
 
 let resetTestObjects = () => {
   testState.reset(createTestState(), {});
-  name = {first: 'Matthew', middle: 'F', last: 'Hooper', prefix: 'Mr', bowlingScores: []};
+  name = {first: 'Matthew', middle: 'F', last: 'Hooper', prefix: 'Mr', bowlingScores: [], addresses: [] };
   nameState = State.createStateObject<Name>(testState.getState(), 'name', name);
+  // nameState = createNameContainer(name, testState.getState(), 'name');
   bowlingScores = [111, 121, 131];
   address = {street: '54 Upton Lake Rd', city: 'Clinton Corners', state: 'NY', zip: '12514'};
   addressState = State.createStateObject<Address>(nameState, 'address', address);
@@ -89,17 +90,19 @@ describe('Add the name container', () => {
     });
   });
 
-  describe('use ActionCreator for array changes', () => {
-    test('action creator modified the array', () => {
-      let action = new ArrayCrudActionCreator(
-        nameState,
-        'bowlingScores',
-        nameState.bowlingScores)
-        .insert(0, 103);
-      action.perform();
-      expect(nameState.bowlingScores[0]).toEqual(103);
-    });
-  });
+  // TODO: add tests for ArrayCrudActionCreator using types.test's createNameContainer
+
+  // describe('use ActionCreator for array changes', () => {
+  //   test('action creator modified the array', () => {
+  //     let action = new ArrayCrudActionCreator(
+  //       nameState,
+  //       nameState.bowlingScores,
+  //       ())
+  //       .insert(0, 103);
+  //     action.perform();
+  //     expect(nameState.bowlingScores[0]).toEqual(103);
+  //   });
+  // });
 
   describe('Verify StateMutationCheck', () => {
     // resetTestObjects();

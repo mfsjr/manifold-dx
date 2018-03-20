@@ -8,9 +8,17 @@ import { onFailureDiff } from './StateMutationDiagnostics';
  * Note that __parents__ are never null (top level app state is self-referencing)
  */
 export interface StateObject {
-
   __parent__: StateObject;
   __my_propname__: string;
+
+  /**
+   * Accessors are pojos containing methods written by devs as needed.  These methods typically operate on the
+   * data contained within this state object.  They can transform data, call the Action API
+   * for performing updates, inserts or deletes, etc.
+   */
+  /* tslint:disable:no-any */
+  __accessors__?: any;
+  /* tslint:enable:no-any */
 }
 
 /**

@@ -1,7 +1,7 @@
 import { Action, ActionId, ArrayMutateAction, StateCrudAction } from '../src/actions/actions';
 import { State } from '../src/types/State';
 import { createAppTestState, createTestState } from './testHarness';
-import { Address, Name } from './types.test';
+import { Address, createNameContainer, Name } from './types.test';
 import { StateObject } from '../src/types/State';
 import { ActionProcessorFunctionType } from '../src/types/ActionProcessor';
 import * as _ from 'lodash';
@@ -17,8 +17,8 @@ let addressState: Address & StateObject;
 let resetTestObjects = () => {
   testState.reset(createTestState(), {});
   name = {first: 'Matthew', middle: 'F', last: 'Hooper', prefix: 'Mr', bowlingScores: [], addresses: [] };
-  nameState = State.createStateObject<Name>(testState.getState(), 'name', name);
-  // nameState = createNameContainer(name, testState.getState(), 'name');
+  // nameState = State.createStateObject<Name>(testState.getState(), 'name', name);
+  nameState = createNameContainer(name, testState.getState(), 'name');
   bowlingScores = [111, 121, 131];
   address = {street: '54 Upton Lake Rd', city: 'Clinton Corners', state: 'NY', zip: '12514'};
   addressState = State.createStateObject<Address>(nameState, 'address', address);

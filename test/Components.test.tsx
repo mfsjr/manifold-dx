@@ -1,11 +1,12 @@
-import { TestState } from './testHarness';
+import { createAppTestState, TestState } from './testHarness';
 import { Name } from './types.test';
-import { testState } from './testHarness';
 import * as React from 'react';
 import { ContainerComponent } from '../src/components/ContainerComponent';
 import { Action, ActionId, StateCrudAction, MappingAction } from '../src/actions/actions';
 import { State, StateObject } from '../src/types/State';
 import { Manager } from '../src/types/Manager';
+
+const testState = createAppTestState();
 
 let name: Name;
 let nameState: Name & StateObject;

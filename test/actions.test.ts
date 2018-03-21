@@ -1,15 +1,13 @@
 import { Action, ActionId, ArrayMutateAction, StateCrudAction } from '../src/actions/actions';
 import { State } from '../src/types/State';
-import { createTestState } from './testHarness';
+import { createAppTestState, createTestState } from './testHarness';
 import { Address, Name } from './types.test';
-import { testState } from './testHarness';
 import { StateObject } from '../src/types/State';
 import { ActionProcessorFunctionType } from '../src/types/ActionProcessor';
 import * as _ from 'lodash';
 import { onFailureDiff } from '../src/types/StateMutationDiagnostics';
-// import { ArrayCrudActionCreator } from '../src/actions/actionCreators';
-// import { MutationError } from '../src/types/StateMutationCheck';
 
+const testState = createAppTestState();
 let name: Name;
 let nameState: Name & StateObject;
 let bowlingScores: number[];

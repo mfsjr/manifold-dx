@@ -3,8 +3,10 @@ import { Name, Address } from './types.test';
 import { mutateArray, mutateValue } from '../src/actions/mutations';
 import { ActionId } from '../src/actions/actions';
 import * as _ from 'lodash';
-import { createTestState, TestState, testState } from './testHarness';
+import { createAppTestState, createTestState, TestState } from './testHarness';
 import { State, StateObject } from '../src/types/State';
+
+const testState = createAppTestState();
 
 let name: Name;
 let address: Address;

@@ -6,7 +6,7 @@ import {
   StateCrudAction, propertyKeyGenerator
 } from '../src/actions/actions';
 import * as _ from 'lodash';
-import { createTestState, testState } from './testHarness';
+import { createAppTestState, createTestState } from './testHarness';
 import { State, StateObject } from '../src/types/State';
 import { ActionQueue } from '../src/types/ActionQueue';
 import { ArrayCrudActionCreator, CrudActionCreator } from '../src/actions/actionCreators';
@@ -24,6 +24,8 @@ interface TestStateObjects {
   addressState: Address & StateObject;
   bowlingScores: number[];
 }
+
+const testState = createAppTestState();
 
 let resetTestObjects = (): TestStateObjects => {
   testState.reset(createTestState(), {});

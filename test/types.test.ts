@@ -1,23 +1,8 @@
-import {
-  createActionQueue,
-  } from '../src/types/ActionQueue';
-import {
-  ActionId, ArrayMutateAction, ArrayKeyGeneratorFn,
-  StateCrudAction, propertyKeyGenerator
-} from '../src/actions/actions';
+import { ActionQueue, createActionQueue, } from '../src/types/ActionQueue';
+import { ActionId, ArrayMutateAction, StateCrudAction } from '../src/actions/actions';
 import * as _ from 'lodash';
-import { createAppTestState, createTestState } from './testHarness';
+import { Address, createAppTestState, createNameContainer, createTestState, Name } from './testHarness';
 import { State, StateObject } from '../src/types/State';
-import { ActionQueue } from '../src/types/ActionQueue';
-import { ArrayCrudActionCreator, CrudActionCreator } from '../src/actions/actionCreators';
-
-export interface Address {
-  street: string;
-  city: string;
-  state: string;
-  zip: string;
-  country?: string;
-}
 
 interface TestStateObjects {
   nameState: Name & StateObject;
@@ -32,8 +17,8 @@ let resetTestObjects = (): TestStateObjects => {
   let name: Name = {first: 'Matthew', middle: 'F', last: 'Hooper', prefix: 'Mr', bowlingScores: [], addresses: []};
   let address: Address = {street: '54 Upton Lake Rd', city: 'Clinton Corners', state: 'NY', zip: '12514'};
   testState.getManager().getActionProcessorAPI().enableMutationChecking();
-  let x = State.createStateObject<Name>(testState.getState(), 'name', name);
-  // let x = createNameContainer(name, testState.getState(), 'name');
+  // let x = State.createStateObject<Name>(testState.getState(), 'name', name);
+  let x = createNameContainer(name, testState.getState(), 'name');
   let y = State.createStateObject<Address>(x, 'address', address);
   let z = [111, 121, 131];
   return {
@@ -84,69 +69,9 @@ describe('state setup', () => {
 
 });
 
-export interface Name {
-  prefix?: string;
-  suffix?: string;
-  first: string;
-  middle: string;
-  last: string;
-  address?: Address;
-  addresses: Array<Address>;
-  bowlingScores: Array<number>;
-}
-
-/**
- * Accessors to be used on our Name & StateObject data.
- */
-export interface NameAccessors {
-  actionCreator: CrudActionCreator<Name & StateObject>;
-  keyGeneratorFn: ArrayKeyGeneratorFn<Address>;
-  addressesActionCreator: ArrayCrudActionCreator<Name & StateObject, Address>;
-}
-
 // export interface NameContainer extends Name, StateObject {
 //   __accessors__: NameAccessors;
 // }
-
-/**
- * Create the name container state object and insert it into the parent.
- *
- * Example of how to create a StateObject containing an array.  The 'keyGenerator' is needed to create
- * the keys that React requires, and the 'addressesActionCreator' is used to create actions that
- * manipulate the array.
- *
- * Note that the returned NameContainer is never declared to be a NameContainer, but is built as an object
- * literal, piece by piece until its returned, where structural subtyping verifies its a NameContainer
- *
- * @param {Name} nameData
- * @param {StateObject} parent
- * @param {string} myName
- * @returns {NameContainer}
- */
-export function createNameContainer(nameData: Name, parent: StateObject, myName: string): Name & StateObject {
-  let nameStateData: Name & StateObject = {
-    __my_propname__: myName,
-    __parent__: parent,
-    ...nameData,
-  };
-  // define the keyGeneratorFn, to be used in multiple places below
-  let keyGeneratorFn: ArrayKeyGeneratorFn<Address> =
-    (addr: Address): React.Key => propertyKeyGenerator(addr, 'street');
-
-  // build NameAccessors
-  let accessors: NameAccessors = {
-    actionCreator: new CrudActionCreator(nameStateData),
-    keyGeneratorFn,
-    addressesActionCreator: new ArrayCrudActionCreator(nameStateData, nameStateData.addresses, keyGeneratorFn)
-  };
-  nameStateData[`__accessors__`] = accessors;
-  parent[myName] = nameStateData;
-  return nameStateData;
-  // // structural subtyping verifies that the object is of type NameContainer (this function's return type)
-  // let result: NameContainer = { ...nameStateData,  __accessors__: accessors };
-  // parent[myName] = result;
-  // return result;
-}
 
 describe('creating child state objects', () => {
   test('nameState should have a __parent__ that points to state', () => {

@@ -1,5 +1,5 @@
-import { createAppTestState, TestState } from './testHarness';
-import { Name } from './types.test';
+import { createAppTestState, createNameContainer, TestState } from './testHarness';
+import { Name } from './testHarness';
 import * as React from 'react';
 import { ContainerComponent } from '../src/components/ContainerComponent';
 import { Action, ActionId, StateCrudAction, MappingAction } from '../src/actions/actions';
@@ -98,8 +98,8 @@ let resetTestObjects = () => {
   // testState.reset(createTestState(), {});
   testState.reset({name: nameState}, {});
   name = {first: 'Matthew', middle: 'F', last: 'Hooper', prefix: 'Mr', bowlingScores: [], addresses: []};
-  nameState = State.createStateObject<Name>(testState.getState(), 'name', name);
-  // nameState = createNameContainer(name, testState.getState(), 'name');
+  // nameState = State.createStateObject<Name>(testState.getState(), 'name', name);
+  nameState = createNameContainer(name, testState.getState(), 'name');
   bowlingScores = [111, 121, 131];
   initBowlerProps = { fullName: nameState.first };
   container = new BowlerContainer(initBowlerProps);

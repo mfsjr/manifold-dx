@@ -1,6 +1,74 @@
-import { State } from '../src/types/State';
-import { Address, Name } from './types.test';
-import { StateObject } from '../src/types/State';
+import { State, StateObject } from '../src/types/State';
+import { ArrayKeyGeneratorFn, propertyKeyGenerator } from '../src/actions/actions';
+import { ArrayCrudActionCreator, CrudActionCreator } from '../src/actions/actionCreators';
+
+export interface Address {
+  street: string;
+  city: string;
+  state: string;
+  zip: string;
+  country?: string;
+}
+
+export interface Name {
+  prefix?: string;
+  suffix?: string;
+  first: string;
+  middle: string;
+  last: string;
+  address?: Address;
+  addresses: Array<Address>;
+  bowlingScores: Array<number>;
+}
+
+/**
+ * Accessors to be used on our Name & StateObject data.
+ */
+export interface NameAccessors {
+  actionCreator: CrudActionCreator<Name & StateObject>;
+  keyGeneratorFn: ArrayKeyGeneratorFn<Address>;
+  addressesActionCreator: ArrayCrudActionCreator<Name & StateObject, Address>;
+}
+
+/**
+ * Create the name container state object and insert it into the parent.
+ *
+ * Example of how to create a StateObject containing an array.  The 'keyGenerator' is needed to create
+ * the keys that React requires, and the 'addressesActionCreator' is used to create actions that
+ * manipulate the array.
+ *
+ * Note that the returned NameContainer is never declared to be a NameContainer, but is built as an object
+ * literal, piece by piece until its returned, where structural subtyping verifies its a NameContainer
+ *
+ * @param {Name} nameData
+ * @param {StateObject} parent
+ * @param {string} myName
+ * @returns {NameContainer}
+ */
+export function createNameContainer(nameData: Name, parent: StateObject, myName: string): Name & StateObject {
+  let nameStateData: Name & StateObject = {
+    __my_propname__: myName,
+    __parent__: parent,
+    ...nameData,
+  };
+  // define the keyGeneratorFn, to be used in multiple places below
+  let keyGeneratorFn: ArrayKeyGeneratorFn<Address> =
+    (addr: Address): React.Key => propertyKeyGenerator(addr, 'street');
+
+  // build NameAccessors
+  let accessors: NameAccessors = {
+    actionCreator: new CrudActionCreator(nameStateData),
+    keyGeneratorFn,
+    addressesActionCreator: new ArrayCrudActionCreator(nameStateData, nameStateData.addresses, keyGeneratorFn)
+  };
+  nameStateData[`__accessors__`] = accessors;
+  parent[myName] = nameStateData;
+  return nameStateData;
+  // // structural subtyping verifies that the object is of type NameContainer (this function's return type)
+  // let result: NameContainer = { ...nameStateData,  __accessors__: accessors };
+  // parent[myName] = result;
+  // return result;
+}
 
 export interface TestState {
   name?: Name & StateObject;
@@ -25,80 +93,3 @@ export function createTestState(): TestState {
 export function createAppTestState() {
   return new State(createTestState(), {});
 }
-
-/**
- * Everything below here is just a demonstration of how we might choose to attach accessors, which
- * modify state by creating and executing actions, might work.
- *
- * Creating actions might be done more simply in ContainerComponents for simple cases, but
- * this approach is more organized.
- */
-
-export interface NameAccessors {
-  updateFirst: (newFirst: string) => string;
-  appendScore: (score: number) => number;
-}
-
-/**
- * Note that we are overriding StateObject's accessors?: any with non-null NameAccessors
- * Might be better to define accessors in Name.
- */
-export interface NameState extends Name, StateObject {
-  __accessors__: NameAccessors;
-}
-
-const nameSample: Name = {
-  first: 'Bo',
-  middle: 'F',
-  last: 'Jackson',
-  bowlingScores: [300],
-  addresses: []
-};
-
-/**
- * A factory method for StateObjects with accessor methods.
- *
- * This simple example intends only to demo how methods can be added and StateObjects generated,
- * note that these accessors violate the framework rule that state changes may only be performed
- * by actions.
- *
- * @param {Name} nameData
- * @param {StateObject} parent
- * @param {string} myPropertyName
- * @returns {NameState & StateObject}
- */
-function createNameState(nameData: Name, parent: StateObject, myPropertyName: string): NameState & StateObject {
-  let result: NameState = {
-    __parent__: parent,
-    __my_propname__: myPropertyName,
-    ...nameData,
-    // NOTE that these accessors violate state changes only by actions, they're here only for demonstration
-    __accessors__: {
-      updateFirst: (newFirst: string) => {
-        let oldName = result.first;
-        result.first = newFirst;
-        return oldName;
-      },
-      appendScore: (score: number) => {
-        result.bowlingScores.push(score);
-        return result.bowlingScores.length;
-      },
-    }
-  };
-  result.__parent__[result.__my_propname__] = result;
-  return result;
-}
-
-export const nameState = createNameState(nameSample, State.createState(), 'myname');
-nameState.__accessors__.appendScore(240);
-nameState.__accessors__.updateFirst('Matt');
-// /* tslint:disable:no-console */
-// console.log(`nameState = ${JSON.stringify(nameState, JSON_replaceCyclicParent, 4)}`);
-// // nope: console.log(ns2.first);
-// /* tslint:enable:no-console */
-
-// interface Mine {
-//   phone: string;
-//   homeValue: number;
-//   accessors?: NameAccessors;
-// }

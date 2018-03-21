@@ -1,9 +1,9 @@
 import { JSON_replaceCyclicParent } from '../src/types/State';
-import { Name, Address } from './types.test';
+import { Name } from './testHarness';
 import { mutateArray, mutateValue } from '../src/actions/mutations';
 import { ActionId } from '../src/actions/actions';
 import * as _ from 'lodash';
-import { createAppTestState, createTestState, TestState } from './testHarness';
+import { Address, createAppTestState, createTestState, TestState } from './testHarness';
 import { State, StateObject } from '../src/types/State';
 
 const testState = createAppTestState();

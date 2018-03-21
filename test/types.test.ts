@@ -8,10 +8,8 @@ import {
 import * as _ from 'lodash';
 import { createTestState, testState } from './testHarness';
 import { State, StateObject } from '../src/types/State';
-import { Manager } from '../src/types/Manager';
 import { ActionQueue } from '../src/types/ActionQueue';
 import { ArrayCrudActionCreator, CrudActionCreator } from '../src/actions/actionCreators';
-// mport Test = jest.Test;
 
 export interface Address {
   street: string;
@@ -47,10 +45,10 @@ const {/*name, address, address2,*/ nameState, addressState, bowlingScores} = re
 
 describe ('manager setup', () => {
   test('Manager should be statically available', () => {
-    expect(Manager.get()).toBeDefined();
+    expect(testState.getManager()).toBeDefined();
   });
   test('Manager\'s component state should be defined', () => {
-    expect(Manager.get().getMappingState()).toBeDefined();
+    expect(testState.getManager().getMappingState()).toBeDefined();
   });
 });
 
@@ -261,15 +259,15 @@ describe('Test the actionQueue', () => {
 describe('Get the full path of properties in state objects, usable by lodash "get"', () => {
   test('get a property of topmost state', () => {
     let appState: StateObject = testState.getState();
-    let fullPath: string = Manager.get().getFullPath(appState, 'appName');
+    let fullPath: string = testState.getManager().getFullPath(appState, 'appName');
     expect(fullPath).toEqual('appName');
   });
   test('nameState\'s "middle" property should have a full path indicating "name"', () => {
-    let fullPath = Manager.get().getFullPath(nameState, 'middle');
+    let fullPath = testState.getManager().getFullPath(nameState, 'middle');
     expect(fullPath).toEqual('name.middle');
   });
   test('addressState\'s "city" should include name and address in path', () => {
-    let fullPath = Manager.get().getFullPath(addressState, 'city');
+    let fullPath = testState.getManager().getFullPath(addressState, 'city');
     expect(fullPath).toEqual('name.address.city');
   });
   test('full path for bowling scores', () => {
@@ -280,12 +278,12 @@ describe('Get the full path of properties in state objects, usable by lodash "ge
     expect(appState.name).toBe(nameState);
     let insertScoresAction = new StateCrudAction(ActionId.INSERT_PROPERTY, nameState, 'bowlingScores', bowlingScores);
     insertScoresAction.perform();
-    let fullPath = Manager.get().getFullPath(nameState, 'bowlingScores[0]');
+    let fullPath = testState.getManager().getFullPath(nameState, 'bowlingScores[0]');
     expect(fullPath).toEqual('name.bowlingScores[0]');
     expect(_.get(appState, fullPath)).toBe(bowlingScores[0]);
   });
   test('full path for bowling scores array', () => {
-    let fullPath = Manager.get().getFullPath(nameState, 'bowlingScores');
+    let fullPath = testState.getManager().getFullPath(nameState, 'bowlingScores');
     expect(fullPath).toEqual('name.bowlingScores');
   });
 });
@@ -307,7 +305,7 @@ describe('Test perform/undo/redo actions marking the app state, mutating, and th
   // state.reset();
   // let's (re)define some actions
   test('expect the action queue to be empty at the start of this test', () => {
-    expect(Manager.get().getActionQueue().incrementCurrentIndex(0)).toBe(0);
+    expect(testState.getManager().getActionQueue().incrementCurrentIndex(0)).toBe(0);
   });
 
   test('the middle name at the start of actions', () => {
@@ -318,21 +316,21 @@ describe('Test perform/undo/redo actions marking the app state, mutating, and th
 
   test('perform the update middle action', () => {
     testState.reset(createTestState(), {});
-    let updateMiddleResult = Manager.get().actionPerform(updateMiddleAction);
+    let updateMiddleResult = testState.getManager().actionPerform(updateMiddleAction);
     expect(updateMiddleResult).toBe(1);
   });
 
   test('expect the action queue to contain our action', () => {
-    expect(Manager.get().getActionQueue().incrementCurrentIndex(0)).toBe(1);
+    expect(testState.getManager().getActionQueue().incrementCurrentIndex(0)).toBe(1);
   });
 
   test('expect action undo to work', () => {
-    let undoMiddleResult = Manager.get().actionUndo(1);
+    let undoMiddleResult = testState.getManager().actionUndo(1);
     expect(undoMiddleResult).toBe(1);
   });
 
   test('after undo, action queue\'s current index should be decremented by 1', () => {
-    expect(Manager.get().getActionQueue().incrementCurrentIndex(0)).toBe(0);
+    expect(testState.getManager().getActionQueue().incrementCurrentIndex(0)).toBe(0);
   });
 
   test('after undo, middle name should be the original', () => {
@@ -340,7 +338,7 @@ describe('Test perform/undo/redo actions marking the app state, mutating, and th
   });
 
   test('redo action should succeed', () => {
-    let redoMiddleResult = Manager.get().actionRedo(1);
+    let redoMiddleResult = testState.getManager().actionRedo(1);
     expect(redoMiddleResult).toBe(1);
   });
 
@@ -349,16 +347,16 @@ describe('Test perform/undo/redo actions marking the app state, mutating, and th
   });
 
   test('after redo action queue index should be restored', () => {
-    expect(Manager.get().getActionQueue().incrementCurrentIndex(0)).toBe(1);
+    expect(testState.getManager().getActionQueue().incrementCurrentIndex(0)).toBe(1);
   });
 
   test('the size of the action queue', () => {
-    expect(Manager.get().getActionQueue().size()).toBe(1);
+    expect(testState.getManager().getActionQueue().size()).toBe(1);
   });
 
   test('insert name container', () => {
     let insertName = new StateCrudAction(ActionId.INSERT_STATE_OBJECT, testState.getState(), 'name', nameState);
-    Manager.get().actionPerform(insertName);
+    testState.getManager().actionPerform(insertName);
     expect(testState.getState().name).toBeDefined();
   });
 });

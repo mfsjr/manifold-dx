@@ -9,6 +9,14 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
+var __assign = (this && this.__assign) || Object.assign || function(t) {
+    for (var s, i = 1, n = arguments.length; i < n; i++) {
+        s = arguments[i];
+        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+            t[p] = s[p];
+    }
+    return t;
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 var mutations_1 = require("./mutations");
 var Manager_1 = require("../types/Manager");
@@ -85,8 +93,8 @@ var StateAction = /** @class */ (function (_super) {
     /* tslint:disable:no-any */
     StateAction.prototype.containersToRender = function (containersBeingRendered) {
         /* tslint:enable:no-any */
-        var fullPath = Manager_1.Manager.get().getFullPath(this.parent, this.propertyName);
-        var mappingActions = Manager_1.Manager.get().getMappingState().getPathMappings(fullPath);
+        var fullPath = Manager_1.Manager.get(this.parent).getFullPath(this.parent, this.propertyName);
+        var mappingActions = Manager_1.Manager.get(this.parent).getMappingState().getPathMappings(fullPath);
         if (mappingActions) {
             var containers = mappingActions.map(function (mapping) { return mapping.component; });
             containers.forEach(function (container) {
@@ -99,6 +107,7 @@ var StateAction = /** @class */ (function (_super) {
     return StateAction;
 }(Action));
 exports.StateAction = StateAction;
+/* tslint:enable:no-any */
 /**
  * Action classes contain instructions for mutating state, in the form
  * of StateObjects.
@@ -127,9 +136,8 @@ var StateCrudAction = /** @class */ (function (_super) {
     StateCrudAction.prototype.mutate = function (perform) {
         if (perform === void 0) { perform = true; }
         this.pristine = false;
-        var fullpath = Manager_1.Manager.get().getFullPath(this.parent, this.propertyName);
-        this.mappingActions = Manager_1.Manager.get().getMappingState().getPathMappings(fullpath) || [];
-        // this.mappingActions = Manager.get().getMappingState().getPathMappings(fullpath) || [];
+        var fullpath = Manager_1.Manager.get(this.parent).getFullPath(this.parent, this.propertyName);
+        this.mappingActions = Manager_1.Manager.get(this.parent).getMappingState().getPathMappings(fullpath) || [];
         // annotateActionInState(this);
         var actionId = perform ? this.type : this.getUndoAction();
         var _value = perform ? this.value : this.oldValue;
@@ -147,6 +155,83 @@ var StateCrudAction = /** @class */ (function (_super) {
     return StateCrudAction;
 }(StateAction));
 exports.StateCrudAction = StateCrudAction;
+/* tslint:enable:no-any */
+/**
+ * The name of this function is intended to convey the fact that it uses a property of the array
+ * object type to use as the key.
+ *
+ * Seems like this is the usual / expected case, so export this function to be used for that.
+ * Note that the signature is not the same as KeyGeneratorFnType, so to use it you will need to
+ * generate the actual KeyGeneratorFnType like so:
+ *
+ * `let idGenerator = bookKeyGenerator<Book>(book: Book) {
+ *    return propertyKeyGenerator<Book>(books, index, { propertyKey: 'id' } );
+ *  }
+ * `
+ *
+ * @param {Array<V>} array
+ * @param {number} index
+ * @param {{propertyKey: keyof V}} options
+ * @returns {React.Key}
+ */
+function propertyKeyGenerator(arrayElement, propertyKey) {
+    var keyValue = arrayElement[propertyKey];
+    if (typeof keyValue === 'string' || typeof keyValue === 'number') {
+        return keyValue;
+    }
+    var message = "keyValue " + JSON.stringify(keyValue, null, 4) + " is not a React.Key!";
+    throw new Error(message);
+}
+exports.propertyKeyGenerator = propertyKeyGenerator;
+var ArrayKeyIndexMap = /** @class */ (function () {
+    function ArrayKeyIndexMap() {
+        /* tslint:disable:no-any */
+        this.arrayMapper = new Map();
+    }
+    /* tslint:enable:no-any */
+    ArrayKeyIndexMap.prototype.getOrCreateKeyIndexMap = function (array, keyGenerator) {
+        var keyIndexMap = this.arrayMapper.get(array);
+        if (!keyIndexMap) {
+            keyIndexMap = this.createKeyIndexMap(array, keyGenerator);
+        }
+        return keyIndexMap;
+    };
+    ArrayKeyIndexMap.prototype.hasKeyIndexMap = function (array) {
+        return this.arrayMapper.has(array);
+    };
+    ArrayKeyIndexMap.prototype.createKeyIndexMap = function (array, keyGenerator) {
+        var map = new Map();
+        array.forEach(function (value, index, values) {
+            var reactKey = keyGenerator(value, index, values);
+            if (map.has(reactKey)) {
+                throw new Error("Duplicate key at index " + index + ", key=" + reactKey);
+            }
+            map.set(reactKey, index);
+        });
+        var keyIndexMap = __assign({}, map, { keyGenerator: keyGenerator });
+        return keyIndexMap;
+    };
+    ArrayKeyIndexMap.prototype.putKeyIndexMap = function (array, keyGenerator) {
+        var keyIndexMap = this.createKeyIndexMap(array, keyGenerator);
+        this.arrayMapper.set(array, keyIndexMap);
+    };
+    ArrayKeyIndexMap.prototype.delete = function (array) {
+        return this.arrayMapper.delete(array);
+    };
+    return ArrayKeyIndexMap;
+}());
+exports.ArrayKeyIndexMap = ArrayKeyIndexMap;
+/**
+ * Standalone data structure: for each array in state, maps React list keys to array indexes.
+ *
+ * - singleton created at startup
+ * - entries <Array, KeyIndexMap> are created lazily
+ * - updated upon ArrayMutateAction update
+ * - deleted upon StateCrudAction array delete
+ *
+ * Note that duplicated keys result in an Error being thrown.
+ */
+exports.arrayKeyIndexMap = new ArrayKeyIndexMap();
 /**
  *
  */
@@ -183,8 +268,8 @@ var ArrayMutateAction = /** @class */ (function (_super) {
         this.pristine = false;
         // annotateActionInState(this);
         var actionId = perform ? this.type : this.getUndoAction();
-        var fullpath = Manager_1.Manager.get().getFullPath(this.parent, this.propertyName);
-        this.mappingActions = Manager_1.Manager.get().getMappingState().getPathMappings(fullpath) || [];
+        var fullpath = Manager_1.Manager.get(this.parent).getFullPath(this.parent, this.propertyName);
+        this.mappingActions = Manager_1.Manager.get(this.parent).getMappingState().getPathMappings(fullpath) || [];
         this.mutateResult = mutations_1.mutateArray(actionId, this.parent, this.valuesArray, this.value, this.propertyName, this.index);
         if (perform) {
             this.oldValue = this.mutateResult ? this.mutateResult.oldValue : undefined;
@@ -232,7 +317,7 @@ var MappingAction = /** @class */ (function (_super) {
         }
         var _this = _super.call(this, ActionId.MAP_STATE_TO_PROP, parent, _propertyOrArrayName) || this;
         _this.component = _component;
-        _this.fullPath = Manager_1.Manager.get().getFullPath(_this.parent, _this.propertyName);
+        _this.fullPath = Manager_1.Manager.get(_this.parent).getFullPath(_this.parent, _this.propertyName);
         _this.targetPropName = targetPropName;
         _this.dispatches = dispatches;
         return _this;
@@ -266,11 +351,11 @@ var MappingAction = /** @class */ (function (_super) {
         if (perform === void 0) { perform = true; }
         this.pristine = false;
         if (perform) {
-            var components = Manager_1.Manager.get().getMappingState().getOrCreatePathMappings(this.fullPath);
+            var components = Manager_1.Manager.get(this.parent).getMappingState().getOrCreatePathMappings(this.fullPath);
             components.push(this);
         }
         else {
-            Manager_1.Manager.get().getMappingState().removePathMapping(this.fullPath, this);
+            Manager_1.Manager.get(this.parent).getMappingState().removePathMapping(this.fullPath, this);
         }
     };
     // on componentDidMount

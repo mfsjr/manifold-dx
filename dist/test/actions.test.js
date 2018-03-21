@@ -4,11 +4,8 @@ var actions_1 = require("../src/actions/actions");
 var State_1 = require("../src/types/State");
 var testHarness_1 = require("./testHarness");
 var testHarness_2 = require("./testHarness");
-var Manager_1 = require("../src/types/Manager");
 var _ = require("lodash");
 var StateMutationDiagnostics_1 = require("../src/types/StateMutationDiagnostics");
-var actionCreators_1 = require("../src/actions/actionCreators");
-// import { MutationError } from '../src/types/StateMutationCheck';
 var name;
 var nameState;
 var bowlingScores;
@@ -16,8 +13,9 @@ var address;
 var addressState;
 var resetTestObjects = function () {
     testHarness_2.testState.reset(testHarness_1.createTestState(), {});
-    name = { first: 'Matthew', middle: 'F', last: 'Hooper', prefix: 'Mr', bowlingScores: [] };
+    name = { first: 'Matthew', middle: 'F', last: 'Hooper', prefix: 'Mr', bowlingScores: [], addresses: [] };
     nameState = State_1.State.createStateObject(testHarness_2.testState.getState(), 'name', name);
+    // nameState = createNameContainer(name, testState.getState(), 'name');
     bowlingScores = [111, 121, 131];
     address = { street: '54 Upton Lake Rd', city: 'Clinton Corners', state: 'NY', zip: '12514' };
     addressState = State_1.State.createStateObject(nameState, 'address', address);
@@ -78,14 +76,18 @@ describe('Add the name container', function () {
             expect(bowlingScores[0]).toBe(101);
         });
     });
-    describe('use ActionCreator for array changes', function () {
-        test('action creator modified the array', function () {
-            var action = new actionCreators_1.ArrayCrudActionCreator(nameState, 'bowlingScores', nameState.bowlingScores)
-                .insert(0, 103);
-            action.perform();
-            expect(nameState.bowlingScores[0]).toEqual(103);
-        });
-    });
+    // TODO: add tests for ArrayCrudActionCreator using types.test's createNameContainer
+    // describe('use ActionCreator for array changes', () => {
+    //   test('action creator modified the array', () => {
+    //     let action = new ArrayCrudActionCreator(
+    //       nameState,
+    //       nameState.bowlingScores,
+    //       ())
+    //       .insert(0, 103);
+    //     action.perform();
+    //     expect(nameState.bowlingScores[0]).toEqual(103);
+    //   });
+    // });
     describe('Verify StateMutationCheck', function () {
         // resetTestObjects();
         test('state should be defined', function () {
@@ -133,22 +135,22 @@ describe('Add the name container', function () {
         var testProcessor = function (actions) { return actions; };
         test('add processor to preProcess', function () {
             testHarness_2.testState.getManager().getActionProcessorAPI().appendPreProcessor(testProcessor);
-            var processors = Manager_1.Manager.get().getActionProcessorAPI().getProcessorClones();
+            var processors = testHarness_2.testState.getManager().getActionProcessorAPI().getProcessorClones();
             expect(processors.pre.indexOf(testProcessor)).toBeGreaterThan(-1);
         });
         test('add processor to postProcess', function () {
             testHarness_2.testState.getManager().getActionProcessorAPI().appendPostProcessor(testProcessor);
-            var processors = Manager_1.Manager.get().getActionProcessorAPI().getProcessorClones();
+            var processors = testHarness_2.testState.getManager().getActionProcessorAPI().getProcessorClones();
             expect(processors.post.indexOf(testProcessor)).toBeGreaterThan(-1);
         });
         test('remove processor from preProcess', function () {
             testHarness_2.testState.getManager().getActionProcessorAPI().removePreProcessor(testProcessor);
-            var processors = Manager_1.Manager.get().getActionProcessorAPI().getProcessorClones();
+            var processors = testHarness_2.testState.getManager().getActionProcessorAPI().getProcessorClones();
             expect(processors.pre.indexOf(testProcessor)).toBe(-1);
         });
         test('remove processor from postProcess', function () {
             testHarness_2.testState.getManager().getActionProcessorAPI().removePostProcessor(testProcessor);
-            var processors = Manager_1.Manager.get().getActionProcessorAPI().getProcessorClones();
+            var processors = testHarness_2.testState.getManager().getActionProcessorAPI().getProcessorClones();
             expect(processors.post.indexOf(testProcessor)).toBe(-1);
         });
     });

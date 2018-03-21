@@ -191,7 +191,7 @@ export abstract class ContainerComponent<CP, VP, A extends StateObject> extends 
   componentDidMount() {
     // subscribe
     this.mappingActions = this.mappingActions ? this.mappingActions : this.createMappingActions();
-    Manager.get().actionPerform(...this.mappingActions);
+    Manager.get(this.appData).actionPerform(...this.mappingActions);
   }
 
   componentWillUnmount() {
@@ -208,8 +208,8 @@ export abstract class ContainerComponent<CP, VP, A extends StateObject> extends 
         unmappingActions.push(unmappingAction);
 
       });
-      // perform these undo actions
-      Manager.get().actionUndo(0, ...unmappingActions);
+
+      Manager.get(this.appData).actionUndo(0, ...unmappingActions);
     }
   }
 

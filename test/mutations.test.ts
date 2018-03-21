@@ -222,3 +222,26 @@ describe('mutate object values', () => {
     });
   });
 });
+
+// shows that app state can mutate but still be used in maps
+describe('Test maps with mutating keys', () => {
+  interface Test { name: string; }
+
+  let map: Map<Test, string> = new Map();
+  let k1: Test = {name: 'John'};
+  map.set(k1, 'Doe');
+
+  let k2: Test = {name: 'Evie' };
+  map.set(k2, 'Hammond');
+
+  test('retrieve from the map', () => {
+    expect(map.get(k1)).toBe('Doe');
+    expect(map.get(k2)).toBe('Hammond');
+  });
+
+  k1.name = 'Inspector';
+  test('retrieve using same object with different contents', () => {
+    expect(map.get(k1)).toBe('Doe');
+  });
+
+});

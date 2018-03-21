@@ -1,11 +1,11 @@
-import { Manager } from '../src/types/Manager';
-import { createTestState, TestState } from './testHarness';
+import { TestState } from './testHarness';
 import { Name } from './types.test';
 import { testState } from './testHarness';
 import * as React from 'react';
 import { ContainerComponent } from '../src/components/ContainerComponent';
 import { Action, ActionId, StateCrudAction, MappingAction } from '../src/actions/actions';
 import { State, StateObject } from '../src/types/State';
+import { Manager } from '../src/types/Manager';
 
 let name: Name;
 let nameState: Name & StateObject;
@@ -94,13 +94,13 @@ export class BowlerContainer extends ContainerComponent<BowlerProps, ScoreCardPr
 }
 
 let resetTestObjects = () => {
-  testState.reset(createTestState(), {});
+  // testState.reset(createTestState(), {});
+  testState.reset({name: nameState}, {});
   name = {first: 'Matthew', middle: 'F', last: 'Hooper', prefix: 'Mr', bowlingScores: [], addresses: []};
   nameState = State.createStateObject<Name>(testState.getState(), 'name', name);
   // nameState = createNameContainer(name, testState.getState(), 'name');
   bowlingScores = [111, 121, 131];
   initBowlerProps = { fullName: nameState.first };
-  testState.reset({name: nameState}, {});
   container = new BowlerContainer(initBowlerProps);
   testState.getManager().getActionProcessorAPI().enableMutationChecking();
 };
@@ -111,7 +111,15 @@ describe('ContainerComponent instantiation, mount, update, unmount', () => {
   // placeholder
   test('after mounting, the component state should have something in it', () => {
     container.componentDidMount();
-    expect(Manager.get().getMappingState().getSize()).toBeGreaterThan(0);
+    if (!container.nameState) {
+      throw new Error('container.nameState is undefined!');
+    }
+    let so = testState.getState();
+    let top = State.getTopState(container.nameState);
+    if ( so !== top ) {
+      throw new Error('app state doesn\'t equal top of nameState');
+    }
+    expect(Manager.get(container.nameState).getMappingState().getSize()).toBeGreaterThan(0);
   });
   test('bowler\'s viewProps contains the correct "fullname"', () => {
     expect(container.viewProps.fullName).toEqual(nameState.first);
@@ -127,7 +135,8 @@ describe('ContainerComponent instantiation, mount, update, unmount', () => {
     expect(container.getMappingActions()[0].fullPath).toEqual('name.first');
   });
   test('component state should contain bowler component', () => {
-    let mappingActions = Manager.get().getMappingState().getPathMappings(container.getMappingActions()[0].fullPath);
+    let mappingActions =
+      testState.getManager().getMappingState().getPathMappings(container.getMappingActions()[0].fullPath);
     if (!mappingActions || mappingActions.length === 0) {
       throw new Error('mappingActions should be defined but isn\'t');
     }
@@ -136,7 +145,7 @@ describe('ContainerComponent instantiation, mount, update, unmount', () => {
   test('an update action', () => {
     expect(container.average).toBeUndefined();
     let action = new StateCrudAction(ActionId.INSERT_PROPERTY, nameState, 'bowlingScores', bowlingScores);
-    Manager.get().actionPerform(action);
+    testState.getManager().actionPerform(action);
     expect(container.average).toBeGreaterThan(100);
   });
   test(
@@ -144,7 +153,7 @@ describe('ContainerComponent instantiation, mount, update, unmount', () => {
       '(array of commentsUI)',
       () => {
     container.componentWillUnmount();
-    expect(Manager.get().getMappingState().getPathMappings(container.getMappingActions()[0].fullPath))
+    expect(testState.getManager().getMappingState().getPathMappings(container.getMappingActions()[0].fullPath))
         .not.toContain(container);
   });
 });

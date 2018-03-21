@@ -20,15 +20,39 @@ var MappingState = /** @class */ (function () {
     MappingState.prototype.getSize = function () {
         return this.pathMappings.size;
     };
+    MappingState.prototype.getMappingActions = function (path) {
+        var pathResults = this.pathMappings.get(path);
+        if (!pathResults) {
+            return undefined;
+        }
+        if (pathResults instanceof Array) {
+            return pathResults;
+        }
+        else {
+            throw Error("pathResults from " + path + " expected to be instanceof Array");
+        }
+    };
+    MappingState.prototype.getArrayMappingActions = function (path, key) {
+        var pathResults = this.pathMappings.get(path);
+        if (!pathResults) {
+            return undefined;
+        }
+        if (pathResults instanceof Map) {
+            return pathResults.get(key);
+        }
+        else {
+            throw new Error("pathResults from " + path + " expected to be instanceof Map");
+        }
+    };
     /* tslint:disable:no-any */
     MappingState.prototype.getPathMappings = function (propFullPath) {
         /* tslint:enable:no-any */
-        return this.pathMappings.get(propFullPath);
+        return this.getMappingActions(propFullPath);
     };
     /* tslint:disable:no-any */
     MappingState.prototype.getOrCreatePathMappings = function (propFullPath) {
         /* tslint:enable:no-any */
-        var result = this.pathMappings.get(propFullPath);
+        var result = this.getMappingActions(propFullPath);
         if (!result) {
             result = [];
             this.pathMappings.set(propFullPath, result);
@@ -43,7 +67,7 @@ var MappingState = /** @class */ (function () {
      */
     /* tslint:disable:no-any */
     MappingState.prototype.removePathMapping = function (_fullPath, container) {
-        var containers = this.pathMappings.get(_fullPath);
+        var containers = this.getMappingActions(_fullPath);
         /* tslint:enable:no-any */
         if (containers) {
             var index = containers.indexOf(container);

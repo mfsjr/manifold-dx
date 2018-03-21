@@ -4,6 +4,7 @@ var actions_1 = require("./actions");
 var _ = require("lodash");
 var StateMutationCheck_1 = require("../types/StateMutationCheck");
 var State_1 = require("../types/State");
+var Manager_1 = require("../types/Manager");
 /* tslint:disable:no-any */
 var validateArrayIndex = function (actionType, ra, index, propertyName) {
     /* tslint:enable:no-any */
@@ -97,6 +98,18 @@ function mutateValue(actionType, stateObject, value, propertyName) {
             // Let's be rigorous until we can't be (or until VM's address this, and they've started to)
             var oldValue = stateObject[propertyName];
             _.unset(stateObject, propertyName);
+            // if oldValue is an array, the array needs to be removed from the arrayKeyIndexMap
+            if (oldValue instanceof Array) {
+                if (!actions_1.arrayKeyIndexMap.delete(oldValue)) {
+                    var fullPath = Manager_1.Manager.get(stateObject).getFullPath(stateObject, propertyName);
+                    var message = "Failed to delete array from arrayKeyIndexMap at " + fullPath;
+                    /* tslint:disable:no-console */
+                    console.log(message);
+                    /* tslint:enable:no-console */
+                    // throw Error(message);
+                }
+            }
+            // TODO: is this really necessary?
             actionImmutabilityCheck(actionType, oldValue, value, propertyName);
             return { oldValue: oldValue };
         }

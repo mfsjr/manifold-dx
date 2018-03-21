@@ -94,8 +94,8 @@ export abstract class StateAction<S extends StateObject> extends Action {
   /* tslint:disable:no-any */
   public containersToRender(containersBeingRendered: ContainerComponent<any, any, any>[]): void {
     /* tslint:enable:no-any */
-    let fullPath = Manager.get().getFullPath(this.parent, this.propertyName);
-    let mappingActions = Manager.get().getMappingState().getPathMappings(fullPath);
+    let fullPath = Manager.get(this.parent).getFullPath(this.parent, this.propertyName);
+    let mappingActions = Manager.get(this.parent).getMappingState().getPathMappings(fullPath);
     if (mappingActions) {
       let containers = mappingActions.map((mapping) => mapping.component);
       containers.forEach((container) => {
@@ -145,9 +145,8 @@ export class StateCrudAction<S extends StateObject> extends StateAction<S> {
   protected mutate(perform: boolean = true): void {
     this.pristine = false;
 
-    let fullpath = Manager.get().getFullPath(this.parent, this.propertyName);
-    this.mappingActions = Manager.get().getMappingState().getPathMappings(fullpath) || [];
-    // this.mappingActions = Manager.get().getMappingState().getPathMappings(fullpath) || [];
+    let fullpath = Manager.get(this.parent).getFullPath(this.parent, this.propertyName);
+    this.mappingActions = Manager.get(this.parent).getMappingState().getPathMappings(fullpath) || [];
 
     // annotateActionInState(this);
     let actionId = perform ? this.type : this.getUndoAction();
@@ -326,8 +325,8 @@ export class ArrayMutateAction
     // annotateActionInState(this);
     let actionId = perform ? this.type : this.getUndoAction();
 
-    let fullpath = Manager.get().getFullPath(this.parent, this.propertyName);
-    this.mappingActions = Manager.get().getMappingState().getPathMappings(fullpath) || [];
+    let fullpath = Manager.get(this.parent).getFullPath(this.parent, this.propertyName);
+    this.mappingActions = Manager.get(this.parent).getMappingState().getPathMappings(fullpath) || [];
 
     this.mutateResult = mutateArray(actionId, this.parent, this.valuesArray, this.value, this.propertyName, this.index);
     if (perform) {
@@ -406,7 +405,7 @@ export class MappingAction
               ) {
     super(ActionId.MAP_STATE_TO_PROP, parent, _propertyOrArrayName);
     this.component = _component;
-    this.fullPath = Manager.get().getFullPath(this.parent, this.propertyName);
+    this.fullPath = Manager.get(this.parent).getFullPath(this.parent, this.propertyName);
     this.targetPropName = targetPropName;
     this.dispatches = dispatches;
   }
@@ -427,10 +426,10 @@ export class MappingAction
     this.pristine = false;
 
     if (perform) {
-      let components = Manager.get().getMappingState().getOrCreatePathMappings(this.fullPath);
+      let components = Manager.get(this.parent).getMappingState().getOrCreatePathMappings(this.fullPath);
       components.push(this);
     } else {
-      Manager.get().getMappingState().removePathMapping(this.fullPath, this);
+      Manager.get(this.parent).getMappingState().removePathMapping(this.fullPath, this);
     }
   }
 

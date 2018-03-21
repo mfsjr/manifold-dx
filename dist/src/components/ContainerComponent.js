@@ -145,7 +145,7 @@ var ContainerComponent = /** @class */ (function (_super) {
     ContainerComponent.prototype.componentDidMount = function () {
         // subscribe
         this.mappingActions = this.mappingActions ? this.mappingActions : this.createMappingActions();
-        (_a = Manager_1.Manager.get()).actionPerform.apply(_a, this.mappingActions);
+        (_a = Manager_1.Manager.get(this.appData)).actionPerform.apply(_a, this.mappingActions);
         var _a;
     };
     ContainerComponent.prototype.componentWillUnmount = function () {
@@ -160,8 +160,7 @@ var ContainerComponent = /** @class */ (function (_super) {
                 unmappingAction.type = action.getUndoAction();
                 unmappingActions_1.push(unmappingAction);
             });
-            // perform these undo actions
-            (_a = Manager_1.Manager.get()).actionUndo.apply(_a, [0].concat(unmappingActions_1));
+            (_a = Manager_1.Manager.get(this.appData)).actionUndo.apply(_a, [0].concat(unmappingActions_1));
         }
         var _a;
     };
@@ -173,7 +172,16 @@ var ContainerComponent = /** @class */ (function (_super) {
     };
     ContainerComponent.prototype.render = function () {
         if (this.sfcView) {
-            return this.sfcView(this.viewProps);
+            var result = this.sfcView(this.viewProps);
+            // if (result) {
+            //   let key: React.Key | null = result.key;
+            //   if (key) {
+            //     /* tslint:disable:no-console */
+            //     console.log(`key for this component is ${key}`);
+            //     /* tslint:enable:no-console */
+            //   }
+            // }
+            return result;
         }
         if (this.viewGenerator) {
             this.viewComponent = this.viewGenerator(this.viewProps);

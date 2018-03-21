@@ -13,7 +13,7 @@ var addressState;
 var bowlingScores;
 var resetTestObjects = function () {
     testHarness_1.testState.reset(testHarness_1.createTestState(), {});
-    name = { first: 'Matthew', middle: 'F', last: 'Hooper', prefix: 'Mr', bowlingScores: [] };
+    name = { first: 'Matthew', middle: 'F', last: 'Hooper', prefix: 'Mr', bowlingScores: [], addresses: [] };
     nameState = State_2.State.createStateObject(testHarness_1.testState.getState(), 'name', name);
     address = { street: '54 Upton Lake Rd', city: 'Clinton Corners', state: 'NY', zip: '12514' };
     addressState = State_2.State.createStateObject(nameState, 'address', address);
@@ -201,6 +201,22 @@ describe('mutate object values', function () {
                 mutations_1.mutateValue(actions_1.ActionId.INSERT_STATE_OBJECT, nameState, nameState.address, 'address');
             }).not.toThrow();
         });
+    });
+});
+// shows that app state can mutate but still be used in maps
+describe('Test maps with mutating keys', function () {
+    var map = new Map();
+    var k1 = { name: 'John' };
+    map.set(k1, 'Doe');
+    var k2 = { name: 'Evie' };
+    map.set(k2, 'Hammond');
+    test('retrieve from the map', function () {
+        expect(map.get(k1)).toBe('Doe');
+        expect(map.get(k2)).toBe('Hammond');
+    });
+    k1.name = 'Inspector';
+    test('retrieve using same object with different contents', function () {
+        expect(map.get(k1)).toBe('Doe');
     });
 });
 //# sourceMappingURL=mutations.test.js.map

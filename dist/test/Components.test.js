@@ -10,7 +10,6 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-var Manager_1 = require("../src/types/Manager");
 var testHarness_1 = require("./testHarness");
 var testHarness_2 = require("./testHarness");
 var React = require("react");
@@ -81,8 +80,9 @@ var BowlerContainer = /** @class */ (function (_super) {
 exports.BowlerContainer = BowlerContainer;
 var resetTestObjects = function () {
     testHarness_2.testState.reset(testHarness_1.createTestState(), {});
-    name = { first: 'Matthew', middle: 'F', last: 'Hooper', prefix: 'Mr', bowlingScores: [] };
+    name = { first: 'Matthew', middle: 'F', last: 'Hooper', prefix: 'Mr', bowlingScores: [], addresses: [] };
     nameState = State_1.State.createStateObject(testHarness_2.testState.getState(), 'name', name);
+    // nameState = createNameContainer(name, testState.getState(), 'name');
     bowlingScores = [111, 121, 131];
     initBowlerProps = { fullName: nameState.first };
     testHarness_2.testState.reset({ name: nameState }, {});
@@ -94,7 +94,7 @@ describe('ContainerComponent instantiation, mount, update, unmount', function ()
     // placeholder
     test('after mounting, the component state should have something in it', function () {
         container.componentDidMount();
-        expect(Manager_1.Manager.get().getMappingState().getSize()).toBeGreaterThan(0);
+        expect(testHarness_2.testState.getManager().getMappingState().getSize()).toBeGreaterThan(0);
     });
     test('bowler\'s viewProps contains the correct "fullname"', function () {
         expect(container.viewProps.fullName).toEqual(nameState.first);
@@ -109,7 +109,7 @@ describe('ContainerComponent instantiation, mount, update, unmount', function ()
         expect(container.getMappingActions()[0].fullPath).toEqual('name.first');
     });
     test('component state should contain bowler component', function () {
-        var mappingActions = Manager_1.Manager.get().getMappingState().getPathMappings(container.getMappingActions()[0].fullPath);
+        var mappingActions = testHarness_2.testState.getManager().getMappingState().getPathMappings(container.getMappingActions()[0].fullPath);
         if (!mappingActions || mappingActions.length === 0) {
             throw new Error('mappingActions should be defined but isn\'t');
         }
@@ -118,13 +118,13 @@ describe('ContainerComponent instantiation, mount, update, unmount', function ()
     test('an update action', function () {
         expect(container.average).toBeUndefined();
         var action = new actions_1.StateCrudAction(actions_1.ActionId.INSERT_PROPERTY, nameState, 'bowlingScores', bowlingScores);
-        Manager_1.Manager.get().actionPerform(action);
+        testHarness_2.testState.getManager().actionPerform(action);
         expect(container.average).toBeGreaterThan(100);
     });
     test('unmount should result in bowler being removed from the still-present component state mapping value ' +
         '(array of commentsUI)', function () {
         container.componentWillUnmount();
-        expect(Manager_1.Manager.get().getMappingState().getPathMappings(container.getMappingActions()[0].fullPath))
+        expect(testHarness_2.testState.getManager().getMappingState().getPathMappings(container.getMappingActions()[0].fullPath))
             .not.toContain(container);
     });
 });

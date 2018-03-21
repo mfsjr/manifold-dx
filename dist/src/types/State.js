@@ -75,6 +75,13 @@ var State = /** @class */ (function () {
         _parent[propertyName] = newStateObject;
         return newStateObject;
     };
+    State.getTopState = function (stateObject) {
+        var result = stateObject;
+        while (result.__parent__ !== result) {
+            result = result.__parent__;
+        }
+        return result;
+    };
     /* tslint:disable:no-any */
     State.stripStateObject = function (stateObject) {
         /* tslint:enable:no-any */
@@ -96,6 +103,7 @@ var State = /** @class */ (function () {
     State.prototype.reset = function (appData, options) {
         this.state = Object.assign(State.createState(), appData);
         this.manager = new Manager_1.Manager(this, options);
+        Manager_1.Manager.set(this.state, this.manager);
         var stateMutateChecking = false;
         try {
             stateMutateChecking = process.env.REACT_APP_STATE_MUTATION_CHECKING === 'true';

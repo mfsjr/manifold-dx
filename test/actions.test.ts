@@ -5,7 +5,6 @@ import { Address, Name } from './types.test';
 import { testState } from './testHarness';
 import { StateObject } from '../src/types/State';
 import { ActionProcessorFunctionType } from '../src/types/ActionProcessor';
-import { Manager } from '../src/types/Manager';
 import * as _ from 'lodash';
 import { onFailureDiff } from '../src/types/StateMutationDiagnostics';
 // import { ArrayCrudActionCreator } from '../src/actions/actionCreators';
@@ -163,22 +162,22 @@ describe('Add the name container', () => {
     let testProcessor: ActionProcessorFunctionType = (actions: Action[]) => {return actions; };
     test('add processor to preProcess', () => {
       testState.getManager().getActionProcessorAPI().appendPreProcessor(testProcessor);
-      let processors = Manager.get().getActionProcessorAPI().getProcessorClones();
+      let processors = testState.getManager().getActionProcessorAPI().getProcessorClones();
       expect(processors.pre.indexOf(testProcessor)).toBeGreaterThan(-1);
     });
     test('add processor to postProcess', () => {
       testState.getManager().getActionProcessorAPI().appendPostProcessor(testProcessor);
-      let processors = Manager.get().getActionProcessorAPI().getProcessorClones();
+      let processors = testState.getManager().getActionProcessorAPI().getProcessorClones();
       expect(processors.post.indexOf(testProcessor)).toBeGreaterThan(-1);
     });
     test('remove processor from preProcess', () => {
       testState.getManager().getActionProcessorAPI().removePreProcessor(testProcessor);
-      let processors = Manager.get().getActionProcessorAPI().getProcessorClones();
+      let processors = testState.getManager().getActionProcessorAPI().getProcessorClones();
       expect(processors.pre.indexOf(testProcessor)).toBe(-1);
     });
     test('remove processor from postProcess', () => {
       testState.getManager().getActionProcessorAPI().removePostProcessor(testProcessor);
-      let processors = Manager.get().getActionProcessorAPI().getProcessorClones();
+      let processors = testState.getManager().getActionProcessorAPI().getProcessorClones();
       expect(processors.post.indexOf(testProcessor)).toBe(-1);
     });
   });

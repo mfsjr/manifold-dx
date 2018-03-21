@@ -111,6 +111,14 @@ export class State<A> {
       return newStateObject;
   }
 
+  public static getTopState(stateObject: StateObject): StateObject {
+    let result = stateObject;
+    while (result.__parent__ !== result) {
+      result = result.__parent__;
+    }
+    return result;
+  }
+
   /**
    * Iterate through parent containers up to and including the top-level application state.
    *
@@ -163,13 +171,14 @@ export class State<A> {
     return Object.keys(state);
   }
 
-    constructor(appData: A, options: StateConfigOptions) {
+  constructor(appData: A, options: StateConfigOptions) {
     this.reset(appData, options);
   }
 
   public reset(appData: A, options: StateConfigOptions): void {
     this.state = Object.assign(State.createState(), appData);
     this.manager = new Manager(this, options);
+    Manager.set(this.state, this.manager);
     let stateMutateChecking = false;
     try {
       stateMutateChecking = process.env.REACT_APP_STATE_MUTATION_CHECKING === 'true';

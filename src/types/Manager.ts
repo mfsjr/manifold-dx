@@ -1,4 +1,4 @@
-import { State, StateObject, StateConfigOptions } from './State';
+import { State, StateObject, StateConfigOptions, JSON_replaceCyclicParent } from './State';
 import { Action } from '../actions/actions';
 import { MappingState } from './MappingState';
 import { createActionQueue, ActionQueue } from './ActionQueue';
@@ -18,6 +18,8 @@ export class Manager {
    */
   protected static manager: Manager;
 
+  protected static stateManagerMap: Map<StateObject, Manager> = new Map();
+
     /* tslint:disable:no-any */
   protected state: State<any>;
     /* tslint:disable:no-any */
@@ -25,12 +27,24 @@ export class Manager {
   protected mappingState: MappingState;
   protected actionProcessor: ActionProcessor;
 
-  public static get(): Manager {
-    return Manager.manager;
+  public static get(stateObject: StateObject): Manager {
+    let topState = State.getTopState(stateObject);
+    let result = Manager.stateManagerMap.get(topState);
+    if (!result) {
+      let err = `Failed to find manager for stateObject = 
+        ${JSON.stringify(stateObject, JSON_replaceCyclicParent, 4)}`;
+      throw Error(err);
+    }
+    return result;
   }
 
-  public static set(_manager: Manager): void {
-    Manager.manager = _manager;
+  public static set(stateObject: StateObject, manager: Manager): void {
+    if (Manager.stateManagerMap.has(stateObject)) {
+      let message = `Map already has key for 
+        ${JSON.stringify(stateObject, JSON_replaceCyclicParent, 4)}`;
+      throw new Error(message);
+    }
+    Manager.stateManagerMap.set(stateObject, manager);
   }
 
   constructor(state: State<any>, options: StateConfigOptions) {

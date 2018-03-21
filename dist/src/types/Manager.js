@@ -11,15 +11,32 @@ var ActionProcessor_1 = require("./ActionProcessor");
  * Note that the state class contains an instance of this class.
  */
 var Manager = /** @class */ (function () {
+    // public static get(): Manager {
+    //   return Manager.manager;
+    // }
+    //
+    // public static set(_manager: Manager): void {
+    //   Manager.manager = _manager;
+    // }
     function Manager(state, options) {
         this.resetManager(state, {});
         Manager.manager = this;
     }
-    Manager.get = function () {
-        return Manager.manager;
+    Manager.get = function (stateObject) {
+        var topState = State_1.State.getTopState(stateObject);
+        var result = Manager.stateManagerMap.get(topState);
+        if (!result) {
+            var err = "Failed to find manager for stateObject = \n        " + JSON.stringify(stateObject, State_1.JSON_replaceCyclicParent, 4);
+            throw Error(err);
+        }
+        return result;
     };
-    Manager.set = function (_manager) {
-        Manager.manager = _manager;
+    Manager.set = function (stateObject, manager) {
+        if (Manager.stateManagerMap.has(stateObject)) {
+            var message = "Map already has key for \n        " + JSON.stringify(stateObject, State_1.JSON_replaceCyclicParent, 4);
+            throw new Error(message);
+        }
+        Manager.stateManagerMap.set(stateObject, manager);
     };
     Manager.prototype.resetManager = function (state, options) {
         this.state = state;
@@ -151,6 +168,7 @@ var Manager = /** @class */ (function () {
     Manager.prototype.getMappingState = function () {
         return this.mappingState;
     };
+    Manager.stateManagerMap = new Map();
     return Manager;
 }());
 exports.Manager = Manager;

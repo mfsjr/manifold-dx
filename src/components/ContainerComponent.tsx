@@ -188,6 +188,7 @@ export abstract class ContainerComponent<CP, VP, A extends StateObject> extends 
     });
   }
 
+  // TODO: change this to componentWillMount?
   componentDidMount() {
     // subscribe
     this.mappingActions = this.mappingActions ? this.mappingActions : this.createMappingActions();

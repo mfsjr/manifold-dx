@@ -26,7 +26,7 @@ export interface Name {
  */
 export interface NameAccessors {
   actionCreator: CrudActionCreator<Name & StateObject>;
-  keyGeneratorFn: ArrayKeyGeneratorFn<Address>;
+  addressKeyGen: ArrayKeyGeneratorFn<Address>;
   addressesActionCreator: ArrayCrudActionCreator<Name & StateObject, Address>;
 }
 
@@ -58,16 +58,12 @@ export function createNameContainer(nameData: Name, parent: StateObject, myName:
   // build NameAccessors
   let accessors: NameAccessors = {
     actionCreator: new CrudActionCreator(nameStateData),
-    keyGeneratorFn,
+    addressKeyGen: keyGeneratorFn,
     addressesActionCreator: new ArrayCrudActionCreator(nameStateData, nameStateData.addresses, keyGeneratorFn)
   };
   nameStateData[`__accessors__`] = accessors;
   parent[myName] = nameStateData;
   return nameStateData;
-  // // structural subtyping verifies that the object is of type NameContainer (this function's return type)
-  // let result: NameContainer = { ...nameStateData,  __accessors__: accessors };
-  // parent[myName] = result;
-  // return result;
 }
 
 export interface TestState {

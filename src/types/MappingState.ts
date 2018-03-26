@@ -9,8 +9,8 @@ export type GenericMappingAction = MappingAction<any, any, any, any>;
 
 /**
  * Path strings map to values defined by this type, which can refer to simple properties having
- * multiple React components that they update, or to lists whose keys refer to one or more
- * React components that get updated when that row/key change.
+ * multiple React components that they update. Also includes deprecated support for lists whose keys refer to
+ * one or more React components that get updated when that row/key change.
  */
 export type PathMappingValue = GenericMappingAction[] | Map<React.Key, GenericMappingAction[]>;
 
@@ -22,9 +22,7 @@ export type PathMappingValue = GenericMappingAction[] | Map<React.Key, GenericMa
  * with that itself.  Can revisit this if necessary.
  */
 export class MappingState {
-    /* tslint:disable:no-any */
   private pathMappings = new Map<string, PathMappingValue>();
-    /* tslint:enable:no-any */
 
   /**
    * Primarily for testing purposes
@@ -46,27 +44,30 @@ export class MappingState {
     }
   }
 
-  getArrayMappingActions(path: string, key: React.Key ): GenericMappingAction[] | undefined {
-    let pathResults = this.pathMappings.get(path);
-    if (!pathResults) {
-      return undefined;
-    }
-    if (pathResults instanceof Map) {
-      return pathResults.get(key);
-    } else {
-      throw new Error(`pathResults from ${path} expected to be instanceof Map`);
-    }
-  }
+  // /**
+  //  * This doesn't seem supportable, since it requires arrays to be remapped any time their
+  //  * values change.  Better to rely on immutability and pure components
+  //  * @param {string} path
+  //  * @param {React.Key} key
+  //  * @returns {GenericMappingAction[] | undefined}
+  //  */
+  // getArrayMappingActions(path: string, key: React.Key ): GenericMappingAction[] | undefined {
+  //   let pathResults = this.pathMappings.get(path);
+  //   if (!pathResults) {
+  //     return undefined;
+  //   }
+  //   if (pathResults instanceof Map) {
+  //     return pathResults.get(key);
+  //   } else {
+  //     throw new Error(`pathResults from ${path} expected to be instanceof Map`);
+  //   }
+  // }
 
-    /* tslint:disable:no-any */
   public getPathMappings(propFullPath: string): GenericMappingAction[] | undefined {
-      /* tslint:enable:no-any */
     return this.getMappingActions(propFullPath);
   }
 
-    /* tslint:disable:no-any */
   public getOrCreatePathMappings(propFullPath: string): GenericMappingAction[] {
-      /* tslint:enable:no-any */
     let result = this.getMappingActions(propFullPath);
     if (!result) {
       result = [];
@@ -81,10 +82,8 @@ export class MappingState {
    * @param {React.Component} container to be removed
    * @returns {number} index at which the component was removed, -1 if not found
    */
-    /* tslint:disable:no-any */
   public removePathMapping(_fullPath: string, container: GenericMappingAction): number {
     let containers: GenericMappingAction[] | undefined = this.getMappingActions(_fullPath);
-      /* tslint:enable:no-any */
     if (containers) {
       let index = containers.indexOf(container);
       if (index > -1) {

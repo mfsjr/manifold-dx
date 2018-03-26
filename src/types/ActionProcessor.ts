@@ -58,14 +58,14 @@ export class ActionProcessor implements ActionProcessorAPI {
 
   protected renderer(actions: Action[]): Action[] {
       /* tslint:disable:no-any */
-    let updated: ContainerComponent<any, any, any>[] = [];
+    let updatedComponents: ContainerComponent<any, any, any>[] = [];
       /* tslint:enable:no-any */
     actions.forEach(function (action: Action) {
-      action.containersToRender(updated);
+      action.containersToRender(updatedComponents);
     });
-    if (updated.length > 0) {
+    if (updatedComponents.length > 0) {
         /* tslint:disable:no-any */
-      updated.forEach(function (container: ContainerComponent<any, any, any>) {
+      updatedComponents.forEach(function (container: ContainerComponent<any, any, any>) {
           /* tslint:enable:no-any */
         container.handleChange(actions);
       });

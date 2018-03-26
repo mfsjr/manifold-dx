@@ -81,8 +81,8 @@ See the todo app at [https://github.com/mfsjr/manifold-dx-todo](https://github.c
   - this will also turn on state diff output, when mutations are detected
 
 ##### What's Next
-- 
 - Larger, real-world example applications
+- Rendering optimizations
 
 ##### TL;DR What's in a name?
 Manifolds exist in engineering and mathematics and describe certain 
@@ -102,10 +102,11 @@ the excellent de-facto standard that was used as a reference,
 along with complimentary libraries that have been enthusiastically 
 built up around it.
 
+### This is experimental software!!!  
+Recent work has centered on:
+- Cleaned up state and api management to make testing easier (and added more unit tests)
+- Handling arrays of state data and component lists in React
+- action-creation API's for ease-of-use 
+- co-locating accessor methods alongside the StateObjects that they are operating on.
 
-### This is ALPHA software!!!  
-Recent work has centered on handling arrays of state data and component lists in React,
-and locating action-creation API's in the StateObjects that they are operating on.
-
-This is still being designed and developed.
 

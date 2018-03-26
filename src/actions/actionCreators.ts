@@ -81,13 +81,13 @@ export class ArrayCrudActionCreator<S extends StateObject, V extends Object> {
    *
    * @param {S} parent
    * @param {keyof S} propertyKey
-   * @param {Array<V>} childArrayProperty
+   * @param {Array<V>} childArray
    * @param {ArrayKeyGeneratorFn} keyGenerator
    */
-  constructor(parent: S, childArrayProperty: Array<V>, keyGenerator: ArrayKeyGeneratorFn<V>) {
+  constructor(parent: S, childArray: Array<V>, keyGenerator: ArrayKeyGeneratorFn<V>) {
     this.parent = parent;
     /* tslint:disable:no-any */
-    let array: any = childArrayProperty;
+    let array: any = childArray;
     for (let key in parent) {
       if (array === parent[key]) {
         this.propertyKey = key;
@@ -97,6 +97,7 @@ export class ArrayCrudActionCreator<S extends StateObject, V extends Object> {
     if (!this.propertyKey) {
       throw Error(`Failed to find array in parent`);
     }
+    this.valuesArray = array;
     this.keyGenerator = keyGenerator;
   }
 
@@ -114,9 +115,6 @@ export class ArrayCrudActionCreator<S extends StateObject, V extends Object> {
    */
   protected getIndexOf(value: V): number {
     let keyIndexMap = arrayKeyIndexMap.getOrCreateKeyIndexMap(this.valuesArray, this.keyGenerator);
-    if (!keyIndexMap) {
-      throw Error(`Failed to find keyIndexMap in actionCreator update for valuesArray '${this.propertyKey}'`);
-    }
     let key = this.keyGenerator(value);
     let index = keyIndexMap.get(key);
     if (!index) {
@@ -125,11 +123,11 @@ export class ArrayCrudActionCreator<S extends StateObject, V extends Object> {
     return index;
   }
 
-  public update(value: V): Action {
-    let index = this.getIndexOf(value);
+  public update(index: number, value: V): Action {
     return new ArrayMutateAction(
       ActionId.UPDATE_PROPERTY, this.parent, this.propertyKey, index, this.valuesArray, value);
   }
+
   public delete(index: number): Action {
     return new ArrayMutateAction(
       ActionId.DELETE_PROPERTY,

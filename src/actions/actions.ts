@@ -210,50 +210,73 @@ export function propertyKeyGenerator<V>(arrayElement: V, propertyKey: keyof V): 
  * what indexes are associated with keys, for the purposes of modifying array state, since
  * the mutate array api's require array indexes.
  *
- * keyValueFn<V>(index, obj: any) => uniqueKey: React.Key,
- * eg: {Array<V>, key keyof V, index} => Array[index][keyFieldName]
+ * This class holds mappings for all the arrays in the app state, and for each will return
+ * a map of type Map<React.Key, number>, which relates React's unique keys to the index
+ * which holds the array element.
+ *
+ * V the generic type of the values held in the array
  */
-export type KeyIndexMap<V> = Map<React.Key, number> & {keyGenerator: ArrayKeyGeneratorFn<V>};
-
 export class ArrayKeyIndexMap<V> {
   /* tslint:disable:no-any */
-  arrayMapper = new Map<Array<any>, KeyIndexMap<any>>();
+  protected arrayMapper = new Map<Array<any>, Map<React.Key, number>>();
+  protected keyGenMapper = new Map<Array<any>, ArrayKeyGeneratorFn<any>>();
+
   /* tslint:enable:no-any */
 
-  public getOrCreateKeyIndexMap(array: Array<V>, keyGenerator: ArrayKeyGeneratorFn<V>): KeyIndexMap<V> {
+  public getOrCreateKeyIndexMap(array: Array<V>, keyGenerator: ArrayKeyGeneratorFn<V>): Map<React.Key, number> {
     let keyIndexMap = this.arrayMapper.get(array);
     if (!keyIndexMap) {
-      keyIndexMap = this.createKeyIndexMap(array, keyGenerator);
+      keyIndexMap = this.populateMaps(array, keyGenerator);
+      this.arrayMapper.set(array, keyIndexMap);
     }
     return keyIndexMap;
   }
 
-  public hasKeyIndexMap(array: Array<V>): boolean {
-    return this.arrayMapper.has(array);
+  public getKeyGeneratorFn(array: Array<V>): ArrayKeyGeneratorFn<V> {
+    let result = this.keyGenMapper.get(array);
+    if (!result) {
+      throw new Error(`Failed to find key gen fn for array`);
+    }
+    return result;
   }
 
-  protected createKeyIndexMap(array: Array<V>, keyGenerator: ArrayKeyGeneratorFn<V>): KeyIndexMap<V> {
+  public size(): number {
+    return this.arrayMapper.size;
+  }
+
+  public get(array: Array<V>): Map<React.Key, number> {
+    let result = this.arrayMapper.get(array);
+    if (!result) {
+      throw new Error(`Failed to find map for array`);
+    }
+    return result;
+  }
+
+  public hasKeyIndexMap(array: Array<V>): boolean {
+    return this.arrayMapper.has(array) && this.keyGenMapper.has(array);
+  }
+
+  /**
+   * Creates the key index map, then inserts into it and the keyGenMapper
+   * @param {Array<V>} array
+   * @param {ArrayKeyGeneratorFn<V>} keyGenerator
+   * @returns {Map<React.Key, number>} the key/index map
+   */
+  protected populateMaps(array: Array<V>, keyGenerator: ArrayKeyGeneratorFn<V>): Map<React.Key, number> {
+    this.keyGenMapper.set(array, keyGenerator);
     let map = new Map<React.Key, number>();
     array.forEach((value, index, values) => {
       let reactKey = keyGenerator(value, index, values);
       if (map.has(reactKey)) {
-        throw new Error(`Duplicate key at index ${index}, key=${reactKey}`);
+        throw new Error(`Duplicate React key calculated at index ${index}, key=${reactKey}`);
       }
       map.set(reactKey, index);
     });
-    let keyIndexMap: KeyIndexMap<V> = {
-      ...map,
-      keyGenerator: keyGenerator
-    };
-    return keyIndexMap;
+    return map;
   }
 
-  public putKeyIndexMap(array: Array<V>, keyGenerator: ArrayKeyGeneratorFn<V>) {
-    let keyIndexMap = this.createKeyIndexMap(array, keyGenerator);
-    this.arrayMapper.set(array, keyIndexMap);
-  }
-
-  public delete(array: Array<V>): boolean {
+  public deleteFromMaps(array: Array<V>): boolean {
+    this.keyGenMapper.delete(array);
     return this.arrayMapper.delete(array);
   }
 }
@@ -426,6 +449,7 @@ export class MappingAction
     this.pristine = false;
 
     if (perform) {
+      // would need this to attempt to get list element components: let isArray = this.getValue() instanceof Array;
       let components = Manager.get(this.parent).getMappingState().getOrCreatePathMappings(this.fullPath);
       components.push(this);
     } else {

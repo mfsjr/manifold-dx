@@ -9,10 +9,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
  */
 var MappingState = /** @class */ (function () {
     function MappingState() {
-        /* tslint:disable:no-any */
         this.pathMappings = new Map();
     }
-    /* tslint:enable:no-any */
     /**
      * Primarily for testing purposes
      * @returns {number}
@@ -32,26 +30,28 @@ var MappingState = /** @class */ (function () {
             throw Error("pathResults from " + path + " expected to be instanceof Array");
         }
     };
-    MappingState.prototype.getArrayMappingActions = function (path, key) {
-        var pathResults = this.pathMappings.get(path);
-        if (!pathResults) {
-            return undefined;
-        }
-        if (pathResults instanceof Map) {
-            return pathResults.get(key);
-        }
-        else {
-            throw new Error("pathResults from " + path + " expected to be instanceof Map");
-        }
-    };
-    /* tslint:disable:no-any */
+    // /**
+    //  * This doesn't seem supportable, since it requires arrays to be remapped any time their
+    //  * values change.  Better to rely on immutability and pure components
+    //  * @param {string} path
+    //  * @param {React.Key} key
+    //  * @returns {GenericMappingAction[] | undefined}
+    //  */
+    // getArrayMappingActions(path: string, key: React.Key ): GenericMappingAction[] | undefined {
+    //   let pathResults = this.pathMappings.get(path);
+    //   if (!pathResults) {
+    //     return undefined;
+    //   }
+    //   if (pathResults instanceof Map) {
+    //     return pathResults.get(key);
+    //   } else {
+    //     throw new Error(`pathResults from ${path} expected to be instanceof Map`);
+    //   }
+    // }
     MappingState.prototype.getPathMappings = function (propFullPath) {
-        /* tslint:enable:no-any */
         return this.getMappingActions(propFullPath);
     };
-    /* tslint:disable:no-any */
     MappingState.prototype.getOrCreatePathMappings = function (propFullPath) {
-        /* tslint:enable:no-any */
         var result = this.getMappingActions(propFullPath);
         if (!result) {
             result = [];
@@ -65,10 +65,8 @@ var MappingState = /** @class */ (function () {
      * @param {React.Component} container to be removed
      * @returns {number} index at which the component was removed, -1 if not found
      */
-    /* tslint:disable:no-any */
     MappingState.prototype.removePathMapping = function (_fullPath, container) {
         var containers = this.getMappingActions(_fullPath);
-        /* tslint:enable:no-any */
         if (containers) {
             var index = containers.indexOf(container);
             if (index > -1) {

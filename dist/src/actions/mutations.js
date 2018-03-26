@@ -100,7 +100,7 @@ function mutateValue(actionType, stateObject, value, propertyName) {
             _.unset(stateObject, propertyName);
             // if oldValue is an array, the array needs to be removed from the arrayKeyIndexMap
             if (oldValue instanceof Array) {
-                if (!actions_1.arrayKeyIndexMap.delete(oldValue)) {
+                if (!actions_1.arrayKeyIndexMap.deleteFromMaps(oldValue)) {
                     var fullPath = Manager_1.Manager.get(stateObject).getFullPath(stateObject, propertyName);
                     var message = "Failed to delete array from arrayKeyIndexMap at " + fullPath;
                     /* tslint:disable:no-console */

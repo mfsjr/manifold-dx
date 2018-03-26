@@ -9,14 +9,6 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-var __assign = (this && this.__assign) || Object.assign || function(t) {
-    for (var s, i = 1, n = arguments.length; i < n; i++) {
-        s = arguments[i];
-        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-            t[p] = s[p];
-    }
-    return t;
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 var mutations_1 = require("./mutations");
 var Manager_1 = require("../types/Manager");
@@ -183,39 +175,72 @@ function propertyKeyGenerator(arrayElement, propertyKey) {
     throw new Error(message);
 }
 exports.propertyKeyGenerator = propertyKeyGenerator;
+/**
+ * React requires 'key' data elements for list rendering, and we need to keep track of
+ * what indexes are associated with keys, for the purposes of modifying array state, since
+ * the mutate array api's require array indexes.
+ *
+ * This class holds mappings for all the arrays in the app state, and for each will return
+ * a map of type Map<React.Key, number>, which relates React's unique keys to the index
+ * which holds the array element.
+ *
+ * V the generic type of the values held in the array
+ */
 var ArrayKeyIndexMap = /** @class */ (function () {
     function ArrayKeyIndexMap() {
         /* tslint:disable:no-any */
         this.arrayMapper = new Map();
+        this.keyGenMapper = new Map();
     }
     /* tslint:enable:no-any */
     ArrayKeyIndexMap.prototype.getOrCreateKeyIndexMap = function (array, keyGenerator) {
         var keyIndexMap = this.arrayMapper.get(array);
         if (!keyIndexMap) {
-            keyIndexMap = this.createKeyIndexMap(array, keyGenerator);
+            keyIndexMap = this.populateMaps(array, keyGenerator);
+            this.arrayMapper.set(array, keyIndexMap);
         }
         return keyIndexMap;
     };
-    ArrayKeyIndexMap.prototype.hasKeyIndexMap = function (array) {
-        return this.arrayMapper.has(array);
+    ArrayKeyIndexMap.prototype.getKeyGeneratorFn = function (array) {
+        var result = this.keyGenMapper.get(array);
+        if (!result) {
+            throw new Error("Failed to find key gen fn for array");
+        }
+        return result;
     };
-    ArrayKeyIndexMap.prototype.createKeyIndexMap = function (array, keyGenerator) {
+    ArrayKeyIndexMap.prototype.size = function () {
+        return this.arrayMapper.size;
+    };
+    ArrayKeyIndexMap.prototype.get = function (array) {
+        var result = this.arrayMapper.get(array);
+        if (!result) {
+            throw new Error("Failed to find map for array");
+        }
+        return result;
+    };
+    ArrayKeyIndexMap.prototype.hasKeyIndexMap = function (array) {
+        return this.arrayMapper.has(array) && this.keyGenMapper.has(array);
+    };
+    /**
+     * Creates the key index map, then inserts into it and the keyGenMapper
+     * @param {Array<V>} array
+     * @param {ArrayKeyGeneratorFn<V>} keyGenerator
+     * @returns {Map<React.Key, number>} the key/index map
+     */
+    ArrayKeyIndexMap.prototype.populateMaps = function (array, keyGenerator) {
+        this.keyGenMapper.set(array, keyGenerator);
         var map = new Map();
         array.forEach(function (value, index, values) {
             var reactKey = keyGenerator(value, index, values);
             if (map.has(reactKey)) {
-                throw new Error("Duplicate key at index " + index + ", key=" + reactKey);
+                throw new Error("Duplicate React key calculated at index " + index + ", key=" + reactKey);
             }
             map.set(reactKey, index);
         });
-        var keyIndexMap = __assign({}, map, { keyGenerator: keyGenerator });
-        return keyIndexMap;
+        return map;
     };
-    ArrayKeyIndexMap.prototype.putKeyIndexMap = function (array, keyGenerator) {
-        var keyIndexMap = this.createKeyIndexMap(array, keyGenerator);
-        this.arrayMapper.set(array, keyIndexMap);
-    };
-    ArrayKeyIndexMap.prototype.delete = function (array) {
+    ArrayKeyIndexMap.prototype.deleteFromMaps = function (array) {
+        this.keyGenMapper.delete(array);
         return this.arrayMapper.delete(array);
     };
     return ArrayKeyIndexMap;
@@ -351,6 +376,7 @@ var MappingAction = /** @class */ (function (_super) {
         if (perform === void 0) { perform = true; }
         this.pristine = false;
         if (perform) {
+            // would need this to attempt to get list element components: let isArray = this.getValue() instanceof Array;
             var components = Manager_1.Manager.get(this.parent).getMappingState().getOrCreatePathMappings(this.fullPath);
             components.push(this);
         }

@@ -1,6 +1,6 @@
 /// <reference types="react" />
 import { TestState } from './testHarness';
-import { Name } from './types.test';
+import { Name } from './testHarness';
 import * as React from 'react';
 import { ContainerComponent } from '../src/components/ContainerComponent';
 import { Action, StateCrudAction, MappingAction } from '../src/actions/actions';

@@ -7,6 +7,12 @@ import { Manager } from './Manager';
 export interface StateObject {
     __parent__: StateObject;
     __my_propname__: string;
+    /**
+     * Accessors are pojos containing methods written by devs as needed.  These methods typically operate on the
+     * data contained within this state object.  They can transform data, call the Action API
+     * for performing updates, inserts or deletes, etc.
+     */
+    __accessors__?: any;
 }
 /**
  * Options which may be passed directly to the State constructor
@@ -59,6 +65,7 @@ export declare class State<A> {
      * @returns {StateObject & T}
      */
     static createStateObject<T>(_parent: StateObject, propertyName: string, data: T): StateObject & T;
+    static getTopState(stateObject: StateObject): StateObject;
     /**
      * Iterate through parent containers up to and including the top-level application state.
      *

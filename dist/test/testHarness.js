@@ -9,57 +9,52 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var State_1 = require("../src/types/State");
+var actions_1 = require("../src/actions/actions");
+var actionCreators_1 = require("../src/actions/actionCreators");
+/**
+ * Create the name container state object and insert it into the parent.
+ *
+ * Example of how to create a StateObject containing an array.  The 'keyGenerator' is needed to create
+ * the keys that React requires, and the 'addressesActionCreator' is used to create actions that
+ * manipulate the array.
+ *
+ * Note that the returned NameContainer is never declared to be a NameContainer, but is built as an object
+ * literal, piece by piece until its returned, where structural subtyping verifies its a NameContainer
+ *
+ * @param {Name} nameData
+ * @param {StateObject} parent
+ * @param {string} myName
+ * @returns {NameContainer}
+ */
+function createNameContainer(nameData, parent, myName) {
+    var nameStateData = __assign({ __my_propname__: myName, __parent__: parent }, nameData);
+    // define the keyGeneratorFn, to be used in multiple places below
+    var keyGeneratorFn = function (addr) { return actions_1.propertyKeyGenerator(addr, 'street'); };
+    // build NameAccessors
+    var accessors = {
+        actionCreator: new actionCreators_1.CrudActionCreator(nameStateData),
+        addressKeyGen: keyGeneratorFn,
+        addressesActionCreator: new actionCreators_1.ArrayCrudActionCreator(nameStateData, nameStateData.addresses, keyGeneratorFn)
+    };
+    nameStateData["__accessors__"] = accessors;
+    parent[myName] = nameStateData;
+    return nameStateData;
+}
+exports.createNameContainer = createNameContainer;
 function createTestState() {
     return {};
 }
 exports.createTestState = createTestState;
-exports.testState = new State_1.State(createTestState(), {});
-var nameSample = {
-    first: 'Bo',
-    middle: 'F',
-    last: 'Jackson',
-    bowlingScores: [300],
-    addresses: []
-};
+// In a normal application, we would want to create a single state object like this:
+// export const testState = new State(createTestState(), {});
 /**
- * A factory method for StateObjects with accessor methods.
+ * It appears that Jest's 'runInBand' option forces sequential test execution, but allows parallel execution
+ * of test files, so we provide this function so that each test file can use its own state
  *
- * This simple example intends only to demo how methods can be added and StateObjects generated,
- * note that these accessors violate the framework rule that state changes may only be performed
- * by actions.
- *
- * @param {Name} nameData
- * @param {StateObject} parent
- * @param {string} myPropertyName
- * @returns {NameState & StateObject}
+ * @returns {State<TestState>}
  */
-function createNameState(nameData, parent, myPropertyName) {
-    var result = __assign({ __parent__: parent, __my_propname__: myPropertyName }, nameData, { 
-        // NOTE that these accessors violate state changes only by actions, they're here only for demonstration
-        __accessors__: {
-            updateFirst: function (newFirst) {
-                var oldName = result.first;
-                result.first = newFirst;
-                return oldName;
-            },
-            appendScore: function (score) {
-                result.bowlingScores.push(score);
-                return result.bowlingScores.length;
-            },
-        } });
-    result.__parent__[result.__my_propname__] = result;
-    return result;
+function createAppTestState() {
+    return new State_1.State(createTestState(), {});
 }
-exports.nameState = createNameState(nameSample, State_1.State.createState(), 'myname');
-exports.nameState.__accessors__.appendScore(240);
-exports.nameState.__accessors__.updateFirst('Matt');
-// /* tslint:disable:no-console */
-// console.log(`nameState = ${JSON.stringify(nameState, JSON_replaceCyclicParent, 4)}`);
-// // nope: console.log(ns2.first);
-// /* tslint:enable:no-console */
-// interface Mine {
-//   phone: string;
-//   homeValue: number;
-//   accessors?: NameAccessors;
-// }
+exports.createAppTestState = createAppTestState;
 //# sourceMappingURL=testHarness.js.map

@@ -11,13 +11,6 @@ var ActionProcessor_1 = require("./ActionProcessor");
  * Note that the state class contains an instance of this class.
  */
 var Manager = /** @class */ (function () {
-    // public static get(): Manager {
-    //   return Manager.manager;
-    // }
-    //
-    // public static set(_manager: Manager): void {
-    //   Manager.manager = _manager;
-    // }
     function Manager(state, options) {
         this.resetManager(state, {});
         Manager.manager = this;

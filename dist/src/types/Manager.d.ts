@@ -16,12 +16,13 @@ export declare class Manager {
      * own manager.
      */
     protected static manager: Manager;
+    protected static stateManagerMap: Map<StateObject, Manager>;
     protected state: State<any>;
     protected actionQueue: ActionQueue;
     protected mappingState: MappingState;
     protected actionProcessor: ActionProcessor;
-    static get(): Manager;
-    static set(_manager: Manager): void;
+    static get(stateObject: StateObject): Manager;
+    static set(stateObject: StateObject, manager: Manager): void;
     constructor(state: State<any>, options: StateConfigOptions);
     resetManager(state: State<any>, options: StateConfigOptions): void;
     getActionProcessorAPI(): ActionProcessorAPI;

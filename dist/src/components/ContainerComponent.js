@@ -142,6 +142,7 @@ var ContainerComponent = /** @class */ (function (_super) {
             }
         });
     };
+    // TODO: change this to componentWillMount?
     ContainerComponent.prototype.componentDidMount = function () {
         // subscribe
         this.mappingActions = this.mappingActions ? this.mappingActions : this.createMappingActions();

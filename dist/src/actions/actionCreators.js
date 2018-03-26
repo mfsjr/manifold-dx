@@ -65,13 +65,13 @@ var ArrayCrudActionCreator = /** @class */ (function () {
      *
      * @param {S} parent
      * @param {keyof S} propertyKey
-     * @param {Array<V>} childArrayProperty
+     * @param {Array<V>} childArray
      * @param {ArrayKeyGeneratorFn} keyGenerator
      */
-    function ArrayCrudActionCreator(parent, childArrayProperty, keyGenerator) {
+    function ArrayCrudActionCreator(parent, childArray, keyGenerator) {
         this.parent = parent;
         /* tslint:disable:no-any */
-        var array = childArrayProperty;
+        var array = childArray;
         for (var key in parent) {
             if (array === parent[key]) {
                 this.propertyKey = key;
@@ -81,6 +81,7 @@ var ArrayCrudActionCreator = /** @class */ (function () {
         if (!this.propertyKey) {
             throw Error("Failed to find array in parent");
         }
+        this.valuesArray = array;
         this.keyGenerator = keyGenerator;
     }
     ArrayCrudActionCreator.prototype.insert = function (index, value) {
@@ -95,9 +96,6 @@ var ArrayCrudActionCreator = /** @class */ (function () {
      */
     ArrayCrudActionCreator.prototype.getIndexOf = function (value) {
         var keyIndexMap = actions_1.arrayKeyIndexMap.getOrCreateKeyIndexMap(this.valuesArray, this.keyGenerator);
-        if (!keyIndexMap) {
-            throw Error("Failed to find keyIndexMap in actionCreator update for valuesArray '" + this.propertyKey + "'");
-        }
         var key = this.keyGenerator(value);
         var index = keyIndexMap.get(key);
         if (!index) {
@@ -105,8 +103,7 @@ var ArrayCrudActionCreator = /** @class */ (function () {
         }
         return index;
     };
-    ArrayCrudActionCreator.prototype.update = function (value) {
-        var index = this.getIndexOf(value);
+    ArrayCrudActionCreator.prototype.update = function (index, value) {
         return new actions_1.ArrayMutateAction(actions_1.ActionId.UPDATE_PROPERTY, this.parent, this.propertyKey, index, this.valuesArray, value);
     };
     ArrayCrudActionCreator.prototype.delete = function (index) {

@@ -27,14 +27,14 @@ var ActionProcessor = /** @class */ (function () {
     };
     ActionProcessor.prototype.renderer = function (actions) {
         /* tslint:disable:no-any */
-        var updated = [];
+        var updatedComponents = [];
         /* tslint:enable:no-any */
         actions.forEach(function (action) {
-            action.containersToRender(updated);
+            action.containersToRender(updatedComponents);
         });
-        if (updated.length > 0) {
+        if (updatedComponents.length > 0) {
             /* tslint:disable:no-any */
-            updated.forEach(function (container) {
+            updatedComponents.forEach(function (container) {
                 /* tslint:enable:no-any */
                 container.handleChange(actions);
             });

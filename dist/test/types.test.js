@@ -1,26 +1,18 @@
 "use strict";
-var __assign = (this && this.__assign) || Object.assign || function(t) {
-    for (var s, i = 1, n = arguments.length; i < n; i++) {
-        s = arguments[i];
-        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-            t[p] = s[p];
-    }
-    return t;
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 var ActionQueue_1 = require("../src/types/ActionQueue");
 var actions_1 = require("../src/actions/actions");
 var _ = require("lodash");
 var testHarness_1 = require("./testHarness");
 var State_1 = require("../src/types/State");
-var actionCreators_1 = require("../src/actions/actionCreators");
+var testState = testHarness_1.createAppTestState();
 var resetTestObjects = function () {
-    testHarness_1.testState.reset(testHarness_1.createTestState(), {});
+    testState.reset(testHarness_1.createTestState(), {});
     var name = { first: 'Matthew', middle: 'F', last: 'Hooper', prefix: 'Mr', bowlingScores: [], addresses: [] };
     var address = { street: '54 Upton Lake Rd', city: 'Clinton Corners', state: 'NY', zip: '12514' };
-    testHarness_1.testState.getManager().getActionProcessorAPI().enableMutationChecking();
-    var x = State_1.State.createStateObject(testHarness_1.testState.getState(), 'name', name);
-    // let x = createNameContainer(name, testState.getState(), 'name');
+    testState.getManager().getActionProcessorAPI().enableMutationChecking();
+    // let x = State.createStateObject<Name>(testState.getState(), 'name', name);
+    var x = testHarness_1.createNameContainer(name, testState.getState(), 'name');
     var y = State_1.State.createStateObject(x, 'address', address);
     var z = [111, 121, 131];
     return {
@@ -32,22 +24,22 @@ var resetTestObjects = function () {
 var _a = resetTestObjects(), /*name, address, address2,*/ nameState = _a.nameState, addressState = _a.addressState, bowlingScores = _a.bowlingScores;
 describe('manager setup', function () {
     test('Manager should be statically available', function () {
-        expect(testHarness_1.testState.getManager()).toBeDefined();
+        expect(testState.getManager()).toBeDefined();
     });
     test('Manager\'s component state should be defined', function () {
-        expect(testHarness_1.testState.getManager().getMappingState()).toBeDefined();
+        expect(testState.getManager().getMappingState()).toBeDefined();
     });
 });
 describe('state setup', function () {
     test('should return the initial state, containing __parent__ == this', function () {
-        expect(testHarness_1.testState.getState().__parent__).toEqual(testHarness_1.testState.getState());
+        expect(testState.getState().__parent__).toEqual(testState.getState());
     });
     test('nameState should be identified as a state object', function () {
         expect(State_1.State.isInstanceOfStateObject(nameState)).toBe(true);
         expect(State_1.State.isInstanceOfStateObject(nameState)).toBe(true);
     });
     test('state should be identified as a state object', function () {
-        expect(State_1.State.isInstanceOfStateObject(testHarness_1.testState.getState())).toBe(true);
+        expect(State_1.State.isInstanceOfStateObject(testState.getState())).toBe(true);
     });
     test('bowlingScores is not a state object', function () {
         expect(State_1.State.isInstanceOfStateObject(bowlingScores)).toBe(false);
@@ -64,43 +56,9 @@ describe('state setup', function () {
 // export interface NameContainer extends Name, StateObject {
 //   __accessors__: NameAccessors;
 // }
-/**
- * Create the name container state object and insert it into the parent.
- *
- * Example of how to create a StateObject containing an array.  The 'keyGenerator' is needed to create
- * the keys that React requires, and the 'addressesActionCreator' is used to create actions that
- * manipulate the array.
- *
- * Note that the returned NameContainer is never declared to be a NameContainer, but is built as an object
- * literal, piece by piece until its returned, where structural subtyping verifies its a NameContainer
- *
- * @param {Name} nameData
- * @param {StateObject} parent
- * @param {string} myName
- * @returns {NameContainer}
- */
-function createNameContainer(nameData, parent, myName) {
-    var nameStateData = __assign({ __my_propname__: myName, __parent__: parent }, nameData);
-    // define the keyGeneratorFn, to be used in multiple places below
-    var keyGeneratorFn = function (addr) { return actions_1.propertyKeyGenerator(addr, 'street'); };
-    // build NameAccessors
-    var accessors = {
-        actionCreator: new actionCreators_1.CrudActionCreator(nameStateData),
-        keyGeneratorFn: keyGeneratorFn,
-        addressesActionCreator: new actionCreators_1.ArrayCrudActionCreator(nameStateData, nameStateData.addresses, keyGeneratorFn)
-    };
-    nameStateData["__accessors__"] = accessors;
-    parent[myName] = nameStateData;
-    return nameStateData;
-    // // structural subtyping verifies that the object is of type NameContainer (this function's return type)
-    // let result: NameContainer = { ...nameStateData,  __accessors__: accessors };
-    // parent[myName] = result;
-    // return result;
-}
-exports.createNameContainer = createNameContainer;
 describe('creating child state objects', function () {
     test('nameState should have a __parent__ that points to state', function () {
-        expect(nameState.__parent__ === testHarness_1.testState.getState());
+        expect(nameState.__parent__ === testState.getState());
     });
     test('nameState should have a first IName of Matthew', function () {
         expect(nameState.first).toEqual('Matthew');
@@ -119,13 +77,13 @@ describe('Iterating through parents', function () {
             if (result.value === nameState) {
                 expect(result.value.__parent__).not.toBe(result.value);
             }
-            else if (result.value === testHarness_1.testState.getState()) {
+            else if (result.value === testState.getState()) {
                 expect(result.value.__parent__).toBe(result.value);
             }
             result = iterator.next();
         }
         // when done, result.value is the app State
-        var temp = testHarness_1.testState.getState();
+        var temp = testState.getState();
         expect(result.value).toBe(temp);
         expect(result.value.__parent__).toBe(result.value);
     });
@@ -202,45 +160,45 @@ describe('Test the actionQueue', function () {
 });
 describe('Get the full path of properties in state objects, usable by lodash "get"', function () {
     test('get a property of topmost state', function () {
-        var appState = testHarness_1.testState.getState();
-        var fullPath = testHarness_1.testState.getManager().getFullPath(appState, 'appName');
+        var appState = testState.getState();
+        var fullPath = testState.getManager().getFullPath(appState, 'appName');
         expect(fullPath).toEqual('appName');
     });
     test('nameState\'s "middle" property should have a full path indicating "name"', function () {
-        var fullPath = testHarness_1.testState.getManager().getFullPath(nameState, 'middle');
+        var fullPath = testState.getManager().getFullPath(nameState, 'middle');
         expect(fullPath).toEqual('name.middle');
     });
     test('addressState\'s "city" should include name and address in path', function () {
-        var fullPath = testHarness_1.testState.getManager().getFullPath(addressState, 'city');
+        var fullPath = testState.getManager().getFullPath(addressState, 'city');
         expect(fullPath).toEqual('name.address.city');
     });
     test('full path for bowling scores', function () {
-        var appState = testHarness_1.testState.getState();
+        var appState = testState.getState();
         // if (appState.name) {
         //   nameState = appState.name;
         // }
         expect(appState.name).toBe(nameState);
         var insertScoresAction = new actions_1.StateCrudAction(actions_1.ActionId.INSERT_PROPERTY, nameState, 'bowlingScores', bowlingScores);
         insertScoresAction.perform();
-        var fullPath = testHarness_1.testState.getManager().getFullPath(nameState, 'bowlingScores[0]');
+        var fullPath = testState.getManager().getFullPath(nameState, 'bowlingScores[0]');
         expect(fullPath).toEqual('name.bowlingScores[0]');
         expect(_.get(appState, fullPath)).toBe(bowlingScores[0]);
     });
     test('full path for bowling scores array', function () {
-        var fullPath = testHarness_1.testState.getManager().getFullPath(nameState, 'bowlingScores');
+        var fullPath = testState.getManager().getFullPath(nameState, 'bowlingScores');
         expect(fullPath).toEqual('name.bowlingScores');
     });
 });
 describe('Test state reset last - leave other tests undisturbed by it', function () {
     test('verify that app state gets reset, but state api does not', function () {
         var c = 'corruption';
-        testHarness_1.testState[c] = 'Hillary';
+        testState[c] = 'Hillary';
         var d = 'destruction';
-        testHarness_1.testState.getState()[d] = 'Trump';
-        testHarness_1.testState.reset(testHarness_1.createTestState(), {});
-        expect(testHarness_1.testState.getState()[d]).toBeUndefined();
-        expect(testHarness_1.testState[c]).toBe('Hillary');
-        delete testHarness_1.testState[c];
+        testState.getState()[d] = 'Trump';
+        testState.reset(testHarness_1.createTestState(), {});
+        expect(testState.getState()[d]).toBeUndefined();
+        expect(testState[c]).toBe('Hillary');
+        delete testState[c];
     });
 });
 describe('Test perform/undo/redo actions marking the app state, mutating, and the action queue', function () {
@@ -248,47 +206,47 @@ describe('Test perform/undo/redo actions marking the app state, mutating, and th
     // state.reset();
     // let's (re)define some actions
     test('expect the action queue to be empty at the start of this test', function () {
-        expect(testHarness_1.testState.getManager().getActionQueue().incrementCurrentIndex(0)).toBe(0);
+        expect(testState.getManager().getActionQueue().incrementCurrentIndex(0)).toBe(0);
     });
     test('the middle name at the start of actions', function () {
         expect(nameState.middle).toEqual('F');
     });
     var updateMiddleAction = new actions_1.StateCrudAction(actions_1.ActionId.UPDATE_PROPERTY, nameState, 'middle', 'J');
     test('perform the update middle action', function () {
-        testHarness_1.testState.reset(testHarness_1.createTestState(), {});
-        var updateMiddleResult = testHarness_1.testState.getManager().actionPerform(updateMiddleAction);
+        testState.reset(testHarness_1.createTestState(), {});
+        var updateMiddleResult = testState.getManager().actionPerform(updateMiddleAction);
         expect(updateMiddleResult).toBe(1);
     });
     test('expect the action queue to contain our action', function () {
-        expect(testHarness_1.testState.getManager().getActionQueue().incrementCurrentIndex(0)).toBe(1);
+        expect(testState.getManager().getActionQueue().incrementCurrentIndex(0)).toBe(1);
     });
     test('expect action undo to work', function () {
-        var undoMiddleResult = testHarness_1.testState.getManager().actionUndo(1);
+        var undoMiddleResult = testState.getManager().actionUndo(1);
         expect(undoMiddleResult).toBe(1);
     });
     test('after undo, action queue\'s current index should be decremented by 1', function () {
-        expect(testHarness_1.testState.getManager().getActionQueue().incrementCurrentIndex(0)).toBe(0);
+        expect(testState.getManager().getActionQueue().incrementCurrentIndex(0)).toBe(0);
     });
     test('after undo, middle name should be the original', function () {
         expect(nameState.middle).toBe('F');
     });
     test('redo action should succeed', function () {
-        var redoMiddleResult = testHarness_1.testState.getManager().actionRedo(1);
+        var redoMiddleResult = testState.getManager().actionRedo(1);
         expect(redoMiddleResult).toBe(1);
     });
     test('after redo middle name should be restored', function () {
         expect(nameState.middle).toBe('J');
     });
     test('after redo action queue index should be restored', function () {
-        expect(testHarness_1.testState.getManager().getActionQueue().incrementCurrentIndex(0)).toBe(1);
+        expect(testState.getManager().getActionQueue().incrementCurrentIndex(0)).toBe(1);
     });
     test('the size of the action queue', function () {
-        expect(testHarness_1.testState.getManager().getActionQueue().size()).toBe(1);
+        expect(testState.getManager().getActionQueue().size()).toBe(1);
     });
     test('insert name container', function () {
-        var insertName = new actions_1.StateCrudAction(actions_1.ActionId.INSERT_STATE_OBJECT, testHarness_1.testState.getState(), 'name', nameState);
-        testHarness_1.testState.getManager().actionPerform(insertName);
-        expect(testHarness_1.testState.getState().name).toBeDefined();
+        var insertName = new actions_1.StateCrudAction(actions_1.ActionId.INSERT_STATE_OBJECT, testState.getState(), 'name', nameState);
+        testState.getManager().actionPerform(insertName);
+        expect(testState.getState().name).toBeDefined();
     });
 });
 //# sourceMappingURL=types.test.js.map

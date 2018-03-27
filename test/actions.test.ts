@@ -99,6 +99,14 @@ describe('Add the name container', () => {
     });
   });
 
+  // describe('use CrudActionCreator', () => {
+  //   // let actionCreator = nameState.__accessors__.actionCreator;
+  //   let actionCreator = new CrudActionCreator(nameState);
+  //   // let last = nameState.last;
+  //   let updateAction = new StateCrudAction(ActionId.UPDATE_PROPERTY, nameState, 'last', 0);
+  //   updateAction.perform();
+  // })
+
   describe('use ActionCreator for array changes in nameState.addresses', () => {
     // let streetKey: ArrayKeyGeneratorFn<Address> = a => a.street;
     let streetKeyFn: ArrayKeyGeneratorFn<Address> = nameState.__accessors__.addressKeyGen;

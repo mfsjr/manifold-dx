@@ -6,7 +6,7 @@ import {
 
 export class CrudActionCreator<S extends StateObject> {
   private parent: S;
-  private propertyKey: keyof S;
+  // private propertyKey: keyof S;
 
   constructor(parent: S) {
     this.parent = parent;
@@ -17,35 +17,27 @@ export class CrudActionCreator<S extends StateObject> {
       /* tslint:disable:no-any */
       if (value as any === this.parent[key]) {
         /* tslint:enable:no-any */
-        this.propertyKey = key;
-        break;
+        return key;
       }
     }
-    if (!this.propertyKey) {
-      throw new Error(`Failed to find property value ${value} in parent`);
-    }
-    return this.propertyKey;
+    throw new Error(`Failed to find property value ${value} in parent`);
   }
 
-  public crudInsert(value: S[keyof S], propertyKey: keyof S): Action {
-    return new StateCrudAction(ActionId.UPDATE_PROPERTY, this.parent, this.propertyKey, value);
+  public crudInsert(propertyKey: keyof S, value: S[keyof S]): Action {
+    return new StateCrudAction(ActionId.UPDATE_PROPERTY, this.parent, propertyKey, value);
   }
-  public crudUpdate(value: S[keyof S]): Action {
-    this.propertyKey = this.getPropertyKeyForValue(value);
-    return new StateCrudAction(ActionId.UPDATE_PROPERTY, this.parent, this.propertyKey, value);
+  public crudUpdate(propertyKey: keyof S, value: S[keyof S]): Action {
+    return new StateCrudAction(ActionId.UPDATE_PROPERTY, this.parent, propertyKey, value);
   }
-  public crudDelete(value: S[keyof S]): Action {
-    this.propertyKey = this.getPropertyKeyForValue(value);
-    return new StateCrudAction(
-      ActionId.DELETE_PROPERTY,
-      this.parent, this.propertyKey, this.parent[this.propertyKey]);
+  public crudDelete(propertyKey: keyof S): Action {
+    return new StateCrudAction(ActionId.DELETE_PROPERTY, this.parent, propertyKey, this.parent[propertyKey]);
   }
   // TODO: can this and the crudInsert above actually work when defined in terms of non-existent keys?
   public crudNest(value: S[keyof S], propertyKey: keyof S): Action {
-    return new StateCrudAction(ActionId.INSERT_STATE_OBJECT, this.parent, this.propertyKey, value);
+    return new StateCrudAction(ActionId.INSERT_STATE_OBJECT, this.parent, propertyKey, value);
   }
-  public crudUnnest(value: S[keyof S]): Action {
-    return new StateCrudAction(ActionId.DELETE_STATE_OBJECT, this.parent, this.propertyKey, value);
+  public crudUnnest(propertyKey: keyof S): Action {
+    return new StateCrudAction(ActionId.DELETE_STATE_OBJECT, this.parent, propertyKey, this.parent[propertyKey]);
   }
 }
 

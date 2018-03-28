@@ -94,6 +94,31 @@ describe('Add the name container', function () {
             expect(bowlingScores[0]).toBe(101);
         });
     });
+    describe('use CrudActionCreator', function () {
+        // let actionCreator = nameState.__accessors__.actionCreator;
+        var actionCreator = new actionCreators_1.CrudActionCreator(nameState);
+        var last = nameState.last;
+        // let updateAction = new StateCrudAction(ActionId.UPDATE_PROPERTY, nameState, 'last', 'Doe');
+        test('actionCreator update', function () {
+            var updateAction = actionCreator.update('last', 'Doe');
+            updateAction.perform();
+            expect(nameState.last).toBe('Doe');
+            // restore the last name, note the action is performed inline
+            actionCreator.update('last', last).perform();
+            expect(nameState.last).toBe(last);
+        });
+        test('actionCreator insert', function () {
+            expect(nameState.suffix).toBeUndefined();
+            var insertAction = actionCreator.insert('suffix', 'Jr');
+            insertAction.perform();
+            expect(nameState.suffix).toBe('Jr');
+        });
+        test('actionCreator remove (delete)', function () {
+            var removeAction = actionCreator.remove('suffix');
+            removeAction.perform();
+            expect(nameState.suffix).toBeUndefined();
+        });
+    });
     describe('use ActionCreator for array changes in nameState.addresses', function () {
         // let streetKey: ArrayKeyGeneratorFn<Address> = a => a.street;
         var streetKeyFn = nameState.__accessors__.addressKeyGen;
@@ -120,7 +145,7 @@ describe('Add the name container', function () {
             expect(nameState.addresses[1]).toBe(address2);
         });
         test('delete an address', function () {
-            addrActionCreator.delete(0).perform();
+            addrActionCreator.remove(0).perform();
             expect(nameState.addresses.length).toBe(1);
             expect(nameState.addresses[0]).toBe(address2);
         });

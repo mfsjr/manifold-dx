@@ -1,9 +1,13 @@
 import { StateObject } from '../';
 import {
-  Action, ActionId, ArrayKeyGeneratorFn, arrayKeyIndexMap, ArrayMutateAction,
+  Action, ActionId, ArrayKeyGeneratorFn, ArrayMutateAction,
   StateCrudAction
 } from './actions';
 
+/**
+ * Create CRUD actions for properties of a StateObject.
+ * Array CRUD actions are in {@link ArrayCrudActionCreator}
+ */
 export class CrudActionCreator<S extends StateObject> {
   private parent: S;
   // private propertyKey: keyof S;
@@ -23,20 +27,26 @@ export class CrudActionCreator<S extends StateObject> {
     throw new Error(`Failed to find property value ${value} in parent`);
   }
 
-  public crudInsert(propertyKey: keyof S, value: S[keyof S]): Action {
+  public insert<K extends keyof S>(propertyKey: K, value: S[K]): Action {
     return new StateCrudAction(ActionId.UPDATE_PROPERTY, this.parent, propertyKey, value);
   }
-  public crudUpdate(propertyKey: keyof S, value: S[keyof S]): Action {
+  public update<K extends keyof S>(propertyKey: K, value: S[K]): Action {
     return new StateCrudAction(ActionId.UPDATE_PROPERTY, this.parent, propertyKey, value);
   }
-  public crudDelete(propertyKey: keyof S): Action {
-    return new StateCrudAction(ActionId.DELETE_PROPERTY, this.parent, propertyKey, this.parent[propertyKey]);
+
+  /**
+   * Delete the property (named 'remove' because 'delete' is a reserved word)
+   * @param {K} propertyKey
+   * @returns {Action}
+   */
+  public remove<K extends keyof S>(propertyKey: K): Action {
+    return new StateCrudAction(ActionId.DELETE_PROPERTY, this.parent, propertyKey);
   }
   // TODO: can this and the crudInsert above actually work when defined in terms of non-existent keys?
-  public crudNest(value: S[keyof S], propertyKey: keyof S): Action {
+  public insertStateObject<K extends keyof S>(value: S[K], propertyKey: K): Action {
     return new StateCrudAction(ActionId.INSERT_STATE_OBJECT, this.parent, propertyKey, value);
   }
-  public crudUnnest(propertyKey: keyof S): Action {
+  public removeStateObject<K extends keyof S>(propertyKey: K): Action {
     return new StateCrudAction(ActionId.DELETE_STATE_OBJECT, this.parent, propertyKey, this.parent[propertyKey]);
   }
 }
@@ -50,13 +60,13 @@ export class CrudActionCreator<S extends StateObject> {
  *
  * S is the StateObject which the array is a property of
  */
-export class ArrayCrudActionCreator<S extends StateObject, V extends Object> {
+export class ArrayCrudActionCreator<S extends StateObject, K extends keyof S, V extends Object> {
   private parent: S;
   private propertyKey: keyof S;
 
-  private valuesArray: Array<V>; // & keyof S[keyof S];
+  private valuesArray: Array<V> & S[K]; // & keyof S[keyof S];
 
-  private keyGenerator: ArrayKeyGeneratorFn<V>;
+  // private keyGenerator: ArrayKeyGeneratorFn<V>;
 
   /**
    * Construct an array crud creator.  We require a somewhat redundant 'valuesArray'
@@ -76,7 +86,7 @@ export class ArrayCrudActionCreator<S extends StateObject, V extends Object> {
    * @param {Array<V>} childArray
    * @param {ArrayKeyGeneratorFn} keyGenerator
    */
-  constructor(parent: S, childArray: Array<V>, keyGenerator: ArrayKeyGeneratorFn<V>) {
+  constructor(parent: S, childArray: Array<V> & S[K], keyGenerator: ArrayKeyGeneratorFn<V>) {
     this.parent = parent;
     /* tslint:disable:no-any */
     let array: any = childArray;
@@ -90,7 +100,7 @@ export class ArrayCrudActionCreator<S extends StateObject, V extends Object> {
       throw Error(`Failed to find array in parent`);
     }
     this.valuesArray = array;
-    this.keyGenerator = keyGenerator;
+    // this.keyGenerator = keyGenerator;
   }
 
   public insert(index: number, value: V): Action {
@@ -98,31 +108,30 @@ export class ArrayCrudActionCreator<S extends StateObject, V extends Object> {
       ActionId.INSERT_PROPERTY, this.parent, this.propertyKey, index, this.valuesArray, value);
   }
 
-  /**
-   * Note that we are finding the index of this from a map (not scanning).
-   * We throw if this.valuesArray is not found in arrayKeyIndexMap, likewise if the this.keyIndexMap does not
-   * contain the key calculated by this.keyGenerator.
-   * @param {V} value
-   * @returns {number}
-   */
-  protected getIndexOf(value: V): number {
-    let keyIndexMap = arrayKeyIndexMap.getOrCreateKeyIndexMap(this.valuesArray, this.keyGenerator);
-    let key = this.keyGenerator(value);
-    let index = keyIndexMap.get(key);
-    if (!index) {
-      throw new Error(`failed to find index in array ${this.propertyKey} for key ${key}`);
-    }
-    return index;
-  }
+  // /**
+  //  * Note that we are finding the index of this from a map (not scanning).
+  //  * We throw if this.valuesArray is not found in arrayKeyIndexMap, likewise if the this.keyIndexMap does not
+  //  * contain the key calculated by this.keyGenerator.
+  //  * @param {V} value
+  //  * @returns {number}
+  //  */
+  // protected getIndexOf(value: V): number {
+  //   let keyIndexMap = arrayKeyIndexMap.getOrCreateKeyIndexMap(this.valuesArray, this.keyGenerator);
+  //   let key = this.keyGenerator(value);
+  //   let index = keyIndexMap.get(key);
+  //   if (!index) {
+  //     throw new Error(`failed to find index in array ${this.propertyKey} for key ${key}`);
+  //   }
+  //   return index;
+  // }
 
   public update(index: number, value: V): Action {
     return new ArrayMutateAction(
       ActionId.UPDATE_PROPERTY, this.parent, this.propertyKey, index, this.valuesArray, value);
   }
 
-  public delete(index: number): Action {
+  public remove(index: number): Action {
     return new ArrayMutateAction(
-      ActionId.DELETE_PROPERTY,
-      this.parent, this.propertyKey, index, this.valuesArray, undefined);
+      ActionId.DELETE_PROPERTY, this.parent, this.propertyKey, index, this.valuesArray);
   }
 }

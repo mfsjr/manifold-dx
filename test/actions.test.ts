@@ -9,7 +9,7 @@ import { StateObject } from '../src/types/State';
 import { ActionProcessorFunctionType } from '../src/types/ActionProcessor';
 import * as _ from 'lodash';
 import { onFailureDiff } from '../src/types/StateMutationDiagnostics';
-import { ArrayCrudActionCreator } from '../src/actions/actionCreators';
+import { ArrayCrudActionCreator, CrudActionCreator } from '../src/actions/actionCreators';
 
 const testState = createAppTestState();
 let name: Name;
@@ -99,13 +99,32 @@ describe('Add the name container', () => {
     });
   });
 
-  // describe('use CrudActionCreator', () => {
-  //   // let actionCreator = nameState.__accessors__.actionCreator;
-  //   let actionCreator = new CrudActionCreator(nameState);
-  //   // let last = nameState.last;
-  //   let updateAction = new StateCrudAction(ActionId.UPDATE_PROPERTY, nameState, 'last', 0);
-  //   updateAction.perform();
-  // })
+  describe('use CrudActionCreator', () => {
+    // let actionCreator = nameState.__accessors__.actionCreator;
+    let actionCreator = new CrudActionCreator(nameState);
+    let last = nameState.last;
+    // let updateAction = new StateCrudAction(ActionId.UPDATE_PROPERTY, nameState, 'last', 'Doe');
+    test('actionCreator update', () => {
+      let updateAction = actionCreator.update('last', 'Doe');
+      updateAction.perform();
+      expect(nameState.last).toBe('Doe');
+      // restore the last name, note the action is performed inline
+      actionCreator.update('last', last).perform();
+      expect(nameState.last).toBe(last);
+    });
+    test('actionCreator insert', () => {
+      expect(nameState.suffix).toBeUndefined();
+      let insertAction = actionCreator.insert('suffix', 'Jr');
+      insertAction.perform();
+      expect(nameState.suffix).toBe('Jr');
+
+    });
+    test('actionCreator remove (delete)', () => {
+      let removeAction = actionCreator.remove('suffix');
+      removeAction.perform();
+      expect(nameState.suffix).toBeUndefined();
+    });
+  });
 
   describe('use ActionCreator for array changes in nameState.addresses', () => {
     // let streetKey: ArrayKeyGeneratorFn<Address> = a => a.street;
@@ -133,7 +152,7 @@ describe('Add the name container', () => {
       expect(nameState.addresses[1]).toBe(address2);
     });
     test('delete an address', () => {
-      addrActionCreator.delete(0).perform();
+      addrActionCreator.remove(0).perform();
       expect(nameState.addresses.length).toBe(1);
       expect(nameState.addresses[0]).toBe(address2);
     });
@@ -177,7 +196,7 @@ describe('Add the name container', () => {
         throw new Error('nameState.bowlingScores should be defined but is falsey');
       }
 
-      let appendScore = new ArrayMutateAction<Name & StateObject, number>(
+      let appendScore = new ArrayMutateAction(
           ActionId.INSERT_PROPERTY, nameState, 'bowlingScores',
           nameState.bowlingScores.length, nameState.bowlingScores, 299);
       expect(() => {testState.getManager().actionPerform(appendScore); }).toThrow();

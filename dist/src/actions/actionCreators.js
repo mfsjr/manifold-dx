@@ -1,7 +1,12 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var actions_1 = require("./actions");
+/**
+ * Create CRUD actions for properties of a StateObject.
+ * Array CRUD actions are in {@link ArrayCrudActionCreator}
+ */
 var CrudActionCreator = /** @class */ (function () {
+    // private propertyKey: keyof S;
     function CrudActionCreator(parent) {
         this.parent = parent;
     }
@@ -10,32 +15,31 @@ var CrudActionCreator = /** @class */ (function () {
             /* tslint:disable:no-any */
             if (value === this.parent[key]) {
                 /* tslint:enable:no-any */
-                this.propertyKey = key;
-                break;
+                return key;
             }
         }
-        if (!this.propertyKey) {
-            throw new Error("Failed to find property value " + value + " in parent");
-        }
-        return this.propertyKey;
+        throw new Error("Failed to find property value " + value + " in parent");
     };
-    CrudActionCreator.prototype.crudInsert = function (value, propertyKey) {
-        return new actions_1.StateCrudAction(actions_1.ActionId.UPDATE_PROPERTY, this.parent, this.propertyKey, value);
+    CrudActionCreator.prototype.insert = function (propertyKey, value) {
+        return new actions_1.StateCrudAction(actions_1.ActionId.UPDATE_PROPERTY, this.parent, propertyKey, value);
     };
-    CrudActionCreator.prototype.crudUpdate = function (value) {
-        this.propertyKey = this.getPropertyKeyForValue(value);
-        return new actions_1.StateCrudAction(actions_1.ActionId.UPDATE_PROPERTY, this.parent, this.propertyKey, value);
+    CrudActionCreator.prototype.update = function (propertyKey, value) {
+        return new actions_1.StateCrudAction(actions_1.ActionId.UPDATE_PROPERTY, this.parent, propertyKey, value);
     };
-    CrudActionCreator.prototype.crudDelete = function (value) {
-        this.propertyKey = this.getPropertyKeyForValue(value);
-        return new actions_1.StateCrudAction(actions_1.ActionId.DELETE_PROPERTY, this.parent, this.propertyKey, this.parent[this.propertyKey]);
+    /**
+     * Delete the property (named 'remove' because 'delete' is a reserved word)
+     * @param {K} propertyKey
+     * @returns {Action}
+     */
+    CrudActionCreator.prototype.remove = function (propertyKey) {
+        return new actions_1.StateCrudAction(actions_1.ActionId.DELETE_PROPERTY, this.parent, propertyKey);
     };
     // TODO: can this and the crudInsert above actually work when defined in terms of non-existent keys?
-    CrudActionCreator.prototype.crudNest = function (value, propertyKey) {
-        return new actions_1.StateCrudAction(actions_1.ActionId.INSERT_STATE_OBJECT, this.parent, this.propertyKey, value);
+    CrudActionCreator.prototype.insertStateObject = function (value, propertyKey) {
+        return new actions_1.StateCrudAction(actions_1.ActionId.INSERT_STATE_OBJECT, this.parent, propertyKey, value);
     };
-    CrudActionCreator.prototype.crudUnnest = function (value) {
-        return new actions_1.StateCrudAction(actions_1.ActionId.DELETE_STATE_OBJECT, this.parent, this.propertyKey, value);
+    CrudActionCreator.prototype.removeStateObject = function (propertyKey) {
+        return new actions_1.StateCrudAction(actions_1.ActionId.DELETE_STATE_OBJECT, this.parent, propertyKey, this.parent[propertyKey]);
     };
     return CrudActionCreator;
 }());
@@ -50,6 +54,7 @@ exports.CrudActionCreator = CrudActionCreator;
  * S is the StateObject which the array is a property of
  */
 var ArrayCrudActionCreator = /** @class */ (function () {
+    // private keyGenerator: ArrayKeyGeneratorFn<V>;
     /**
      * Construct an array crud creator.  We require a somewhat redundant 'valuesArray'
      * parameter in order to provide TypeScript with a strongly typed object that
@@ -82,32 +87,32 @@ var ArrayCrudActionCreator = /** @class */ (function () {
             throw Error("Failed to find array in parent");
         }
         this.valuesArray = array;
-        this.keyGenerator = keyGenerator;
+        // this.keyGenerator = keyGenerator;
     }
     ArrayCrudActionCreator.prototype.insert = function (index, value) {
         return new actions_1.ArrayMutateAction(actions_1.ActionId.INSERT_PROPERTY, this.parent, this.propertyKey, index, this.valuesArray, value);
     };
-    /**
-     * Note that we are finding the index of this from a map (not scanning).
-     * We throw if this.valuesArray is not found in arrayKeyIndexMap, likewise if the this.keyIndexMap does not
-     * contain the key calculated by this.keyGenerator.
-     * @param {V} value
-     * @returns {number}
-     */
-    ArrayCrudActionCreator.prototype.getIndexOf = function (value) {
-        var keyIndexMap = actions_1.arrayKeyIndexMap.getOrCreateKeyIndexMap(this.valuesArray, this.keyGenerator);
-        var key = this.keyGenerator(value);
-        var index = keyIndexMap.get(key);
-        if (!index) {
-            throw new Error("failed to find index in array " + this.propertyKey + " for key " + key);
-        }
-        return index;
-    };
+    // /**
+    //  * Note that we are finding the index of this from a map (not scanning).
+    //  * We throw if this.valuesArray is not found in arrayKeyIndexMap, likewise if the this.keyIndexMap does not
+    //  * contain the key calculated by this.keyGenerator.
+    //  * @param {V} value
+    //  * @returns {number}
+    //  */
+    // protected getIndexOf(value: V): number {
+    //   let keyIndexMap = arrayKeyIndexMap.getOrCreateKeyIndexMap(this.valuesArray, this.keyGenerator);
+    //   let key = this.keyGenerator(value);
+    //   let index = keyIndexMap.get(key);
+    //   if (!index) {
+    //     throw new Error(`failed to find index in array ${this.propertyKey} for key ${key}`);
+    //   }
+    //   return index;
+    // }
     ArrayCrudActionCreator.prototype.update = function (index, value) {
         return new actions_1.ArrayMutateAction(actions_1.ActionId.UPDATE_PROPERTY, this.parent, this.propertyKey, index, this.valuesArray, value);
     };
-    ArrayCrudActionCreator.prototype.delete = function (index) {
-        return new actions_1.ArrayMutateAction(actions_1.ActionId.DELETE_PROPERTY, this.parent, this.propertyKey, index, this.valuesArray, undefined);
+    ArrayCrudActionCreator.prototype.remove = function (index) {
+        return new actions_1.ArrayMutateAction(actions_1.ActionId.DELETE_PROPERTY, this.parent, this.propertyKey, index, this.valuesArray);
     };
     return ArrayCrudActionCreator;
 }());

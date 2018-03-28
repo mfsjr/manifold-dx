@@ -1,15 +1,23 @@
 import { StateObject } from '../';
 import { Action, ArrayKeyGeneratorFn } from './actions';
+/**
+ * Create CRUD actions for properties of a StateObject.
+ * Array CRUD actions are in {@link ArrayCrudActionCreator}
+ */
 export declare class CrudActionCreator<S extends StateObject> {
     private parent;
-    private propertyKey;
     constructor(parent: S);
     protected getPropertyKeyForValue<V>(value: V): keyof S;
-    crudInsert(value: S[keyof S], propertyKey: keyof S): Action;
-    crudUpdate(value: S[keyof S]): Action;
-    crudDelete(value: S[keyof S]): Action;
-    crudNest(value: S[keyof S], propertyKey: keyof S): Action;
-    crudUnnest(value: S[keyof S]): Action;
+    insert<K extends keyof S>(propertyKey: K, value: S[K]): Action;
+    update<K extends keyof S>(propertyKey: K, value: S[K]): Action;
+    /**
+     * Delete the property (named 'remove' because 'delete' is a reserved word)
+     * @param {K} propertyKey
+     * @returns {Action}
+     */
+    remove<K extends keyof S>(propertyKey: K): Action;
+    insertStateObject<K extends keyof S>(value: S[K], propertyKey: K): Action;
+    removeStateObject<K extends keyof S>(propertyKey: K): Action;
 }
 /**
  * Class for creating CRUD actions for arrays of objects (not primitives).
@@ -20,11 +28,10 @@ export declare class CrudActionCreator<S extends StateObject> {
  *
  * S is the StateObject which the array is a property of
  */
-export declare class ArrayCrudActionCreator<S extends StateObject, V extends Object> {
+export declare class ArrayCrudActionCreator<S extends StateObject, K extends keyof S, V extends Object> {
     private parent;
     private propertyKey;
     private valuesArray;
-    private keyGenerator;
     /**
      * Construct an array crud creator.  We require a somewhat redundant 'valuesArray'
      * parameter in order to provide TypeScript with a strongly typed object that
@@ -43,16 +50,8 @@ export declare class ArrayCrudActionCreator<S extends StateObject, V extends Obj
      * @param {Array<V>} childArray
      * @param {ArrayKeyGeneratorFn} keyGenerator
      */
-    constructor(parent: S, childArray: Array<V>, keyGenerator: ArrayKeyGeneratorFn<V>);
+    constructor(parent: S, childArray: Array<V> & S[K], keyGenerator: ArrayKeyGeneratorFn<V>);
     insert(index: number, value: V): Action;
-    /**
-     * Note that we are finding the index of this from a map (not scanning).
-     * We throw if this.valuesArray is not found in arrayKeyIndexMap, likewise if the this.keyIndexMap does not
-     * contain the key calculated by this.keyGenerator.
-     * @param {V} value
-     * @returns {number}
-     */
-    protected getIndexOf(value: V): number;
     update(index: number, value: V): Action;
-    delete(index: number): Action;
+    remove(index: number): Action;
 }

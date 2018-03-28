@@ -70,7 +70,7 @@ export class BowlerContainer extends ContainerComponent<BowlerProps, ScoreCardPr
   }
 
     /* tslint:disable:no-any */
-  createMappingActions(): MappingAction<any, BowlerProps, ScoreCardProps, any>[] {
+  createMappingActions(): MappingAction<any, any, BowlerProps, ScoreCardProps, any>[] {
       /* tslint:enable:no-any */
     // let result: StateMappingAction<any, any, BowlerProps, ScoreCardProps, keyof ScoreCardProps>[] = [];
     // result.push(this.createStateMappingAction(nameState, 'first', 'fullName'));
@@ -85,7 +85,7 @@ export class BowlerContainer extends ContainerComponent<BowlerProps, ScoreCardPr
   }
 
     /* tslint:disable:no-any */
-  public calcAverage(action: StateCrudAction<any>): void {
+  public calcAverage(action: StateCrudAction<any, any>): void {
       /* tslint:enable:no-any */
     // console.log(`calcAverage dispatched by ${ActionId[action.type]}`);
     this.average = this.viewProps.scores.reduce(

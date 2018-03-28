@@ -27,7 +27,7 @@ export interface Name {
 export interface NameAccessors {
   actionCreator: CrudActionCreator<Name & StateObject>;
   addressKeyGen: ArrayKeyGeneratorFn<Address>;
-  addressesActionCreator: ArrayCrudActionCreator<Name & StateObject, Address>;
+  addressesActionCreator: ArrayCrudActionCreator<Name & StateObject, keyof Name & StateObject, Address>;
 }
 
 /**

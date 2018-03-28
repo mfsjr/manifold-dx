@@ -19,7 +19,7 @@ export declare enum ActionId {
     DELETE_PROPERTY = 5,
     MAP_STATE_TO_PROP = 6,
 }
-export declare type DispatchType = (action: StateCrudAction<any>) => void;
+export declare type DispatchType = (action: StateCrudAction<any, any>) => void;
 export declare abstract class Action {
     type: ActionId;
     mutated: boolean;
@@ -33,29 +33,29 @@ export declare abstract class Action {
     undo(): void;
     containersToRender(containersBeingRendered: ContainerComponent<any, any, any>[]): void;
 }
-export declare abstract class StateAction<S extends StateObject> extends Action {
+export declare abstract class StateAction<S extends StateObject, K extends keyof S> extends Action {
     parent: S;
-    propertyName: keyof S;
-    mappingActions: MappingAction<any, any, any, any>[];
-    protected assignProps(from: StateAction<S>): void;
-    constructor(actionType: ActionId, _parent: S, _propertyName: keyof S);
+    propertyName: K;
+    mappingActions: GenericMappingAction[];
+    protected assignProps(from: StateAction<S, K>): void;
+    constructor(actionType: ActionId, _parent: S, _propertyName: K);
     containersToRender(containersBeingRendered: ContainerComponent<any, any, any>[]): void;
 }
-export declare type GenericStateCrudAction = StateCrudAction<any>;
+export declare type GenericStateCrudAction = StateCrudAction<any, any>;
 /**
  * Action classes contain instructions for mutating state, in the form
  * of StateObjects.
  */
-export declare class StateCrudAction<S extends StateObject> extends StateAction<S> {
+export declare class StateCrudAction<S extends StateObject, K extends keyof S> extends StateAction<S, K> {
     mutateResult?: {
-        oldValue?: S[keyof S];
+        oldValue?: S[K];
     };
-    oldValue?: S[keyof S];
-    value: S[keyof S];
-    getOldValue(): S[keyof S] | undefined;
-    protected assignProps(from: StateCrudAction<S>): void;
-    clone(): StateCrudAction<S>;
-    constructor(actionType: ActionId, _parent: S, _propertyName: keyof S, _value: S[keyof S]);
+    oldValue?: S[K];
+    value: S[K] | undefined;
+    getOldValue(): S[K] | undefined;
+    protected assignProps(from: StateCrudAction<S, K>): void;
+    clone(): StateCrudAction<S, K>;
+    constructor(actionType: ActionId, _parent: S, _propertyName: K, _value?: S[K]);
     protected mutate(perform?: boolean): void;
 }
 /**
@@ -130,17 +130,17 @@ export declare const arrayKeyIndexMap: ArrayKeyIndexMap<{}>;
 /**
  *
  */
-export declare class ArrayMutateAction<S extends StateObject, V> extends StateAction<S> {
+export declare class ArrayMutateAction<S extends StateObject, K extends keyof S, V> extends StateAction<S, K> {
     mutateResult?: {
         oldValue?: V;
     };
     oldValue?: V | undefined;
-    value: V;
-    valuesArray: Array<V>;
+    value: V | undefined;
+    valuesArray: Array<V> & S[K];
     index: number;
-    protected assignProps(from: ArrayMutateAction<S, V>): void;
-    clone(): ArrayMutateAction<S, V>;
-    constructor(actionType: ActionId, _parent: S, _propertyName: keyof S, _index: number, valuesArray: Array<V>, _value: V);
+    protected assignProps(from: ArrayMutateAction<S, K, V>): void;
+    clone(): ArrayMutateAction<S, K, V>;
+    constructor(actionType: ActionId, _parent: S, _propertyName: K, _index: number, valuesArray: Array<V> & S[K], _value?: V);
     protected mutate(perform?: boolean): void;
 }
 /**
@@ -157,13 +157,13 @@ export declare class ArrayMutateAction<S extends StateObject, V> extends StateAc
  * CP: container prop type
  * VP: view prop type
  */
-export declare class MappingAction<S extends StateObject, CP, VP, A extends StateObject> extends StateAction<S> {
+export declare class MappingAction<S extends StateObject, K extends keyof S, CP, VP, A extends StateObject> extends StateAction<S, K> {
     component: ContainerComponent<CP, VP, A>;
     fullPath: string;
     targetPropName: keyof VP;
     dispatches: DispatchType[];
-    protected assignProps(from: MappingAction<S, CP, VP, A>): void;
-    clone(): MappingAction<S, CP, VP, A>;
+    protected assignProps(from: MappingAction<S, K, CP, VP, A>): void;
+    clone(): MappingAction<S, K, CP, VP, A>;
     /**
      * Create a new mapping action from a state property to a view property
      *
@@ -174,7 +174,7 @@ export declare class MappingAction<S extends StateObject, CP, VP, A extends Stat
      * @param {DispatchType} dispatches - these are generally instance functions in the component that update other
      *          component view properties as a function of the target view property having changed.
      */
-    constructor(parent: S, _propertyOrArrayName: keyof S, _component: ContainerComponent<CP, VP, A>, targetPropName: keyof VP, ...dispatches: DispatchType[]);
+    constructor(parent: S, _propertyOrArrayName: K, _component: ContainerComponent<CP, VP, A>, targetPropName: keyof VP, ...dispatches: DispatchType[]);
     getValue(): S[keyof S];
     getTargetPropName(): keyof VP;
     /**
@@ -186,3 +186,4 @@ export declare class MappingAction<S extends StateObject, CP, VP, A extends Stat
     undo(): void;
     redo(): void;
 }
+export declare type GenericMappingAction = MappingAction<any, any, any, any, any>;

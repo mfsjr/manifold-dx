@@ -46,7 +46,7 @@ export abstract class ContainerComponent<CP, VP, A extends StateObject> extends 
     /* tslint:enable:no-any */
 
     /* tslint:disable:no-any */
-  protected mappingActions: MappingAction<any, CP, VP, A>[];
+  protected mappingActions: MappingAction<any, any, CP, VP, A>[];
     /* tslint:enable:no-any */
 
   /**
@@ -103,7 +103,7 @@ export abstract class ContainerComponent<CP, VP, A extends StateObject> extends 
 
   public createMapping<S extends StateObject, K extends keyof S>
           (stateObject: S, stateObjectProperty: K, targetViewProp: keyof VP, ...dispatches: DispatchType[])
-          : MappingAction<S, CP, VP, A> {
+          : MappingAction<S, K, CP, VP, A> {
     return new MappingAction(stateObject, stateObjectProperty, this, targetViewProp, ...dispatches);
   }
 
@@ -125,7 +125,7 @@ export abstract class ContainerComponent<CP, VP, A extends StateObject> extends 
    * @returns {MappingAction<any, any, CP, VP, keyof VP>[]} the array of mappings
    */
     /* tslint:disable:no-any */
-  abstract createMappingActions(): MappingAction<any, CP, VP, A>[];
+  abstract createMappingActions(): MappingAction<any, any, CP, VP, A>[];
     /* tslint:enable:no-any */
 
   /**
@@ -200,7 +200,7 @@ export abstract class ContainerComponent<CP, VP, A extends StateObject> extends 
 
       // unsubscribe from stateMappingActions, we need to undo these specific actions
         /* tslint:disable:no-any */
-      let unmappingActions: MappingAction<any, CP, VP, A>[] = [];
+      let unmappingActions: MappingAction<any, any, CP, VP, A>[] = [];
         /* tslint:enable:no-any */
       this.mappingActions.forEach((action) => {
         let unmappingAction = action.clone();

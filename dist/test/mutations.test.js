@@ -173,7 +173,7 @@ describe('mutate object values', function () {
         });
         test('the JSON_replaceCyclicParent function, used to remove cyclic references for JSON.stringify', function () {
             var json = JSON.stringify(nameState, State_1.JSON_replaceCyclicParent, 4);
-            expect(json.indexOf('__parent__')).toBeGreaterThan(0);
+            expect(json.indexOf('_parent')).toBeGreaterThan(0);
         });
         test('delete the nameState from the name container', function () {
             var deleteResult = mutations_1.mutateValue(actions_1.ActionId.DELETE_STATE_OBJECT, testState.getState(), undefined, 'name');

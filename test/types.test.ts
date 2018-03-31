@@ -40,8 +40,8 @@ describe ('manager setup', () => {
 });
 
 describe('state setup', () => {
-  test('should return the initial state, containing __parent__ == this', () => {
-    expect(testState.getState().__parent__).toEqual(testState.getState());
+  test('should return the initial state, containing _parent == this', () => {
+    expect(testState.getState()._parent).toEqual(testState.getState());
   });
 
   test('nameState should be identified as a state object', () => {
@@ -59,10 +59,10 @@ describe('state setup', () => {
 
   test('if a plain object structurally matches a state object, it should be identified as a state object', () => {
     let c = {
-      __parent__: null as (StateObject | null),
-      __my_propname__: ''
+      _parent: null as (StateObject | null),
+      _my_propname: ''
     };
-    c.__parent__ = c as StateObject;
+    c._parent = c as StateObject;
 
     expect(State.isInstanceOfStateObject(c)).toBe(true);
   });
@@ -70,12 +70,12 @@ describe('state setup', () => {
 });
 
 // export interface NameContainer extends Name, StateObject {
-//   __accessors__: NameAccessors;
+//   _accessors: NameAccessors;
 // }
 
 describe('creating child state objects', () => {
-  test('nameState should have a __parent__ that points to state', () => {
-    expect(nameState.__parent__ === testState.getState());
+  test('nameState should have a _parent that points to state', () => {
+    expect(nameState._parent === testState.getState());
   });
 
   test('nameState should have a first IName of Matthew', () => {
@@ -95,16 +95,16 @@ describe('Iterating through parents', () => {
     expect(result.value).toBe(addressState);
     while (!result.done) {
       if (result.value === nameState) {
-        expect(result.value.__parent__).not.toBe(result.value);
+        expect(result.value._parent).not.toBe(result.value);
       } else if (result.value === testState.getState()) {
-        expect(result.value.__parent__).toBe(result.value);
+        expect(result.value._parent).toBe(result.value);
       }
       result = iterator.next();
     }
     // when done, result.value is the app State
     let temp = testState.getState();
     expect(result.value).toBe(temp);
-    expect(result.value.__parent__).toBe(result.value);
+    expect(result.value._parent).toBe(result.value);
   });
 
 });

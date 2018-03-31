@@ -148,8 +148,8 @@ export function mutateValue<S extends StateObject, K extends keyof S>
         // delete the valueStateObject from the app state graph
         _.unset(stateObject, propertyName);
         // delete the stateObject from mappings of state to react commentsUI
-        // disable __parent__ as an indicator, and to prevent accidental traversal
-        valueStateObject.__parent__ = valueStateObject;
+        // disable _parent as an indicator, and to prevent accidental traversal
+        valueStateObject._parent = valueStateObject;
       } else {
         throw new Error(`Expecting a StateObject for ${propertyName} but is not a StateObject`);
       }

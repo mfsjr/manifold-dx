@@ -151,8 +151,8 @@ var Manager = /** @class */ (function () {
         var containerIterator = State_1.State.createStateObjectIterator(container);
         var iteratorResult = containerIterator.next();
         while (!iteratorResult.done) {
-            if (iteratorResult.value.__parent__ !== iteratorResult.value) {
-                fullPath = iteratorResult.value.__my_propname__ + '.' + fullPath;
+            if (iteratorResult.value._parent !== iteratorResult.value) {
+                fullPath = iteratorResult.value._my_propname + '.' + fullPath;
             }
             iteratorResult = containerIterator.next();
         }

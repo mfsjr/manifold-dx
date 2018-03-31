@@ -27,7 +27,7 @@ var actionCreators_1 = require("../src/actions/actionCreators");
  * @returns {NameContainer}
  */
 function createNameContainer(nameData, parent, myName) {
-    var nameStateData = __assign({ __my_propname__: myName, __parent__: parent }, nameData);
+    var nameStateData = __assign({ _my_propname: myName, _parent: parent }, nameData);
     // define the keyGeneratorFn, to be used in multiple places below
     var keyGeneratorFn = function (addr) { return actions_1.propertyKeyGenerator(addr, 'street'); };
     // build NameAccessors
@@ -36,7 +36,7 @@ function createNameContainer(nameData, parent, myName) {
         addressKeyGen: keyGeneratorFn,
         addressesActionCreator: new actionCreators_1.ArrayCrudActionCreator(nameStateData, nameStateData.addresses, keyGeneratorFn)
     };
-    nameStateData["__accessors__"] = accessors;
+    nameStateData["_accessors"] = accessors;
     parent[myName] = nameStateData;
     return nameStateData;
 }

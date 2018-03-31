@@ -47,8 +47,8 @@ export interface NameAccessors {
  */
 export function createNameContainer(nameData: Name, parent: StateObject, myName: string): Name & StateObject {
   let nameStateData: Name & StateObject = {
-    __my_propname__: myName,
-    __parent__: parent,
+    _my_propname: myName,
+    _parent: parent,
     ...nameData,
   };
   // define the keyGeneratorFn, to be used in multiple places below
@@ -61,7 +61,7 @@ export function createNameContainer(nameData: Name, parent: StateObject, myName:
     addressKeyGen: keyGeneratorFn,
     addressesActionCreator: new ArrayCrudActionCreator(nameStateData, nameStateData.addresses, keyGeneratorFn)
   };
-  nameStateData[`__accessors__`] = accessors;
+  nameStateData[`_accessors`] = accessors;
   parent[myName] = nameStateData;
   return nameStateData;
 }

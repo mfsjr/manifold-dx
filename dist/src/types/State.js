@@ -22,9 +22,9 @@ var State = /** @class */ (function () {
      */
     State.createState = function (parent, propName) {
         var state = {};
-        var parentKey = '__parent__';
+        var parentKey = '_parent';
         state[parentKey] = parent ? parent : state;
-        var propKey = '__my_propname__';
+        var propKey = '_my_propname';
         state[propKey] = propName ? propName : '';
         return state;
     };
@@ -77,8 +77,8 @@ var State = /** @class */ (function () {
     };
     State.getTopState = function (stateObject) {
         var result = stateObject;
-        while (result.__parent__ !== result) {
-            result = result.__parent__;
+        while (result._parent !== result) {
+            result = result._parent;
         }
         return result;
     };
@@ -86,8 +86,8 @@ var State = /** @class */ (function () {
     State.stripStateObject = function (stateObject) {
         /* tslint:enable:no-any */
         if (State.isInstanceOfStateObject(stateObject)) {
-            delete stateObject.__my_propname__;
-            delete stateObject.__parent__;
+            delete stateObject._my_propname;
+            delete stateObject._parent;
             // let childStateObjects: StateObject[];
             for (var obj in stateObject) {
                 if (State.isInstanceOfStateObject(stateObject[obj])) {
@@ -147,8 +147,8 @@ var State = /** @class */ (function () {
         var next = function () {
             var result = { done: done, value: currentContainer };
             // if we have just returned State, then we are now done
-            done = currentContainer === currentContainer.__parent__;
-            currentContainer = currentContainer.__parent__;
+            done = currentContainer === currentContainer._parent;
+            currentContainer = currentContainer._parent;
             return result;
         };
         return { next: next };
@@ -158,7 +158,7 @@ var State = /** @class */ (function () {
 exports.State = State;
 /**
  * This is only used in JSON.stringify, to prevent cyclic errors arising from
- * container.__parent__ === container
+ * container._parent === container
  * @param key
  * @param value
  * @returns {string}
@@ -166,7 +166,7 @@ exports.State = State;
 /* tslint:disable:no-any */
 function JSON_replaceCyclicParent(key, value) {
     /* tslint:enable:no-any */
-    return key === '__parent__' ? '(parent)' : value;
+    return key === '_parent' ? '(parent)' : value;
 }
 exports.JSON_replaceCyclicParent = JSON_replaceCyclicParent;
 //# sourceMappingURL=State.js.map

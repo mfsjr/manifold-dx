@@ -168,7 +168,7 @@ export class StateCrudAction<S extends StateObject, K extends keyof S> extends S
  * Functions like this are necessary to create mappings between React keys and StateObject array indexes, as
  * in ArrayKeyIndexMap below.
  *
- * These functions should be created in StateObject's __accessors__, so that both
+ * These functions should be created in StateObject's _accessors, so that both
  * 1. invocations of ArrayKeyIndexMap's getKeyIndexMap, and...
  * 2. ArrayMutateAction's constructor's 'index' argument
  * ... can use this function (since they have to be the same).

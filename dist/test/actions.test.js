@@ -51,7 +51,7 @@ describe('Add the name container', function () {
         expect(nameState.middle).toEqual('F');
     });
     test('nameState\'s parent should be state container', function () {
-        expect(nameState.__parent__).toBe(appState);
+        expect(nameState._parent).toBe(appState);
     });
     describe('Modify the name\'s middle initial', function () {
         var updateMiddleAction = new actions_1.StateCrudAction(actions_1.ActionId.UPDATE_PROPERTY, nameState, 'middle', 'J');
@@ -95,7 +95,7 @@ describe('Add the name container', function () {
         });
     });
     describe('use CrudActionCreator', function () {
-        // let actionCreator = nameState.__accessors__.actionCreator;
+        // let actionCreator = nameState._accessors.actionCreator;
         var actionCreator = new actionCreators_1.CrudActionCreator(nameState);
         var last = nameState.last;
         // let updateAction = new StateCrudAction(ActionId.UPDATE_PROPERTY, nameState, 'last', 'Doe');
@@ -121,7 +121,7 @@ describe('Add the name container', function () {
     });
     describe('use ActionCreator for array changes in nameState.addresses', function () {
         // let streetKey: ArrayKeyGeneratorFn<Address> = a => a.street;
-        var streetKeyFn = nameState.__accessors__.addressKeyGen;
+        var streetKeyFn = nameState._accessors.addressKeyGen;
         var addrActionCreator = new actionCreators_1.ArrayCrudActionCreator(nameState, nameState.addresses, streetKeyFn);
         test('insert into the addresses array', function () {
             var addr = {
@@ -221,18 +221,18 @@ describe('test stripping StateObject info', function () {
     test('stripping all StateObject properties from the object graph', function () {
         var stateClone = _.cloneDeep(testState.getState());
         State_1.State.stripStateObject(stateClone);
-        expect(stateClone.hasOwnProperty('__parent__')).toBe(false);
-        expect(stateClone.hasOwnProperty('__my_propname__')).toBe(false);
+        expect(stateClone.hasOwnProperty('_parent')).toBe(false);
+        expect(stateClone.hasOwnProperty('_my_propname')).toBe(false);
         if (!stateClone.name) {
             throw new Error('name is undefined');
         }
-        expect(stateClone.name.hasOwnProperty('__parent__')).toBe(false);
-        expect(stateClone.name.hasOwnProperty('__my_propname__')).toBe(false);
+        expect(stateClone.name.hasOwnProperty('_parent')).toBe(false);
+        expect(stateClone.name.hasOwnProperty('_my_propname')).toBe(false);
         if (!stateClone.name.address) {
             throw new Error('address is undefined');
         }
-        expect(stateClone.name.address.hasOwnProperty('__my_propname__')).toBe(false);
-        expect(stateClone.name.address.hasOwnProperty('__parent__')).toBe(false);
+        expect(stateClone.name.address.hasOwnProperty('_my_propname')).toBe(false);
+        expect(stateClone.name.address.hasOwnProperty('_parent')).toBe(false);
     });
 });
 describe('tests for ArrayKeyIndexMap', function () {
@@ -287,7 +287,7 @@ describe('tests for ArrayKeyIndexMap', function () {
     });
 });
 // describe('Tests for array action creator for array mutations', () => {
-//   let actionCreator = new ArrayCrudActionCreator(nameState, name.addresses, nameState.__accessors__.addressKeyFn);
+//   let actionCreator = new ArrayCrudActionCreator(nameState, name.addresses, nameState._accessors.addressKeyFn);
 //   actionCreator.insert(0, address).perform();
 //   test('address was inserted', () => {
 //     expect(name.addresses[0]).toBe(address);

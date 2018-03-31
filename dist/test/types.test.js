@@ -31,8 +31,8 @@ describe('manager setup', function () {
     });
 });
 describe('state setup', function () {
-    test('should return the initial state, containing __parent__ == this', function () {
-        expect(testState.getState().__parent__).toEqual(testState.getState());
+    test('should return the initial state, containing _parent == this', function () {
+        expect(testState.getState()._parent).toEqual(testState.getState());
     });
     test('nameState should be identified as a state object', function () {
         expect(State_1.State.isInstanceOfStateObject(nameState)).toBe(true);
@@ -46,19 +46,19 @@ describe('state setup', function () {
     });
     test('if a plain object structurally matches a state object, it should be identified as a state object', function () {
         var c = {
-            __parent__: null,
-            __my_propname__: ''
+            _parent: null,
+            _my_propname: ''
         };
-        c.__parent__ = c;
+        c._parent = c;
         expect(State_1.State.isInstanceOfStateObject(c)).toBe(true);
     });
 });
 // export interface NameContainer extends Name, StateObject {
-//   __accessors__: NameAccessors;
+//   _accessors: NameAccessors;
 // }
 describe('creating child state objects', function () {
-    test('nameState should have a __parent__ that points to state', function () {
-        expect(nameState.__parent__ === testState.getState());
+    test('nameState should have a _parent that points to state', function () {
+        expect(nameState._parent === testState.getState());
     });
     test('nameState should have a first IName of Matthew', function () {
         expect(nameState.first).toEqual('Matthew');
@@ -75,17 +75,17 @@ describe('Iterating through parents', function () {
         expect(result.value).toBe(addressState);
         while (!result.done) {
             if (result.value === nameState) {
-                expect(result.value.__parent__).not.toBe(result.value);
+                expect(result.value._parent).not.toBe(result.value);
             }
             else if (result.value === testState.getState()) {
-                expect(result.value.__parent__).toBe(result.value);
+                expect(result.value._parent).toBe(result.value);
             }
             result = iterator.next();
         }
         // when done, result.value is the app State
         var temp = testState.getState();
         expect(result.value).toBe(temp);
-        expect(result.value.__parent__).toBe(result.value);
+        expect(result.value._parent).toBe(result.value);
     });
 });
 // describe('Mark the state graph with action annotations', () => {

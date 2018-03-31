@@ -164,8 +164,8 @@ export class Manager {
     let containerIterator = State.createStateObjectIterator(container);
     let iteratorResult: IteratorResult<StateObject> = containerIterator.next();
     while (!iteratorResult.done) {
-      if (iteratorResult.value.__parent__ !== iteratorResult.value) {
-        fullPath = iteratorResult.value.__my_propname__ + '.' + fullPath;
+      if (iteratorResult.value._parent !== iteratorResult.value) {
+        fullPath = iteratorResult.value._my_propname + '.' + fullPath;
       }
       iteratorResult = containerIterator.next();
     }

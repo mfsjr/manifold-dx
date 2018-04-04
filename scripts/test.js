@@ -7,9 +7,9 @@ process.env.PUBLIC_URL = '';
 
 
 // Can't load ts from here, need another way
-// import {onFailureDiff} from "../src/manifold-dx/types/StateMutationDiagnostics";
+// import {onFailureDiffError} from "../src/manifold-dx/types/StateMutationDiagnostics";
 // import {onFailureDefault} from "../src/manifold-dx/types/StateMutationCheck";
-// onFailureDefault = onFailureDiff;
+// onFailureDefault = onFailureDiffError;
 
 
 // Makes the script crash on unhandled rejections instead of silently

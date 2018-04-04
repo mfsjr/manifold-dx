@@ -15,6 +15,24 @@ import { MutationError } from './StateMutationCheck';
 
 const diffPatcher = new DiffPatcher();
 
+// export let onFailureDiffError = function<S>(baseline: S, failure: S): string {
+//   // console.log(`StateMutationCheck failed: `);
+//   let baselineClone = _.cloneDeep(baseline);
+//   State.stripStateObject(baselineClone);
+//   let failureClone = _.cloneDeep(failure);
+//   State.stripStateObject(failureClone);
+//   let delta = diffPatcher.diff(baselineClone, failureClone);
+//   let result = JSON.stringify(delta, null, 4);
+//   // console.log(result);
+//   throw new MutationError(result);
+// };
+
+export let onFailureDiffError = function<S>(baseline: S, failure: S): string {
+  let result = onFailureDiff(baseline, failure);
+  // console.log(result);
+  throw new MutationError(result);
+};
+
 export let onFailureDiff = function<S>(baseline: S, failure: S): string {
   // console.log(`StateMutationCheck failed: `);
   let baselineClone = _.cloneDeep(baseline);
@@ -22,7 +40,5 @@ export let onFailureDiff = function<S>(baseline: S, failure: S): string {
   let failureClone = _.cloneDeep(failure);
   State.stripStateObject(failureClone);
   let delta = diffPatcher.diff(baselineClone, failureClone);
-  let result = JSON.stringify(delta, null, 4);
-  // console.log(result);
-  throw new MutationError(result);
+  return JSON.stringify(delta, null, 4);
 };

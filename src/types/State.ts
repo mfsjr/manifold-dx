@@ -1,6 +1,6 @@
 import { Manager } from './Manager';
-import * as _ from 'lodash';
-import { onFailureDiff } from './StateMutationDiagnostics';
+// import * as _ from 'lodash';
+import { onFailureDiffError } from './StateMutationDiagnostics';
 
 /**
  * State data is comprised of plain objects that are modified to implement this interface.
@@ -9,16 +9,16 @@ import { onFailureDiff } from './StateMutationDiagnostics';
  */
 export interface StateObject {
   _parent: StateObject;
-  _my_propname: string;
+  _myPropname: string;
 
-  /**
-   * Accessors are pojos containing methods written by devs as needed.  These methods typically operate on the
-   * data contained within this state object.  They can transform data, call the Action API
-   * for performing updates, inserts or deletes, etc.
-   */
-  /* tslint:disable:no-any */
-  _accessors?: any;
-  /* tslint:enable:no-any */
+  // /**
+  //  * Accessors are pojos containing methods written by devs as needed.  These methods typically operate on the
+  //  * data contained within this state object.  They can transform data, call the Action API
+  //  * for performing updates, inserts or deletes, etc.
+  //  */
+  // /* tslint:disable:no-any */
+  // _accessors?: any;
+  // /* tslint:enable:no-any */
 }
 
 /**
@@ -54,7 +54,7 @@ export class State<A> {
       let state: {} = {};
       let parentKey = '_parent';
       state[parentKey] = parent ? parent : state;
-      let propKey = '_my_propname';
+      let propKey = '_myPropname';
       state[propKey] = propName ? propName : '';
       return state as StateObject;
   }
@@ -76,9 +76,10 @@ export class State<A> {
           return false;
       }
 
-      if (!_.isPlainObject(object)) {
-          return false;
-      }
+      // Since we are allowing classes for state objects, we're removing this restriction
+      // if (!_.isPlainObject(object)) {
+      //     return false;
+      // }
       let objectKeys: string[] = Object.keys(object);
       for (let key in this.StateKeys) {
           if (objectKeys.indexOf(this.StateKeys[key]) < 0) {
@@ -151,11 +152,14 @@ export class State<A> {
       return {next: next};
   };
 
+  /**
+   * Recursively remove the properties that define a StateObject from the (potentially) nested graph.
+   */
     /* tslint:disable:no-any */
   public static stripStateObject(stateObject: any): any {
       /* tslint:enable:no-any */
       if (State.isInstanceOfStateObject(stateObject)) {
-          delete stateObject._my_propname;
+          delete stateObject._myPropname;
           delete stateObject._parent;
           // let childStateObjects: StateObject[];
           for (let obj in stateObject) {
@@ -187,7 +191,7 @@ export class State<A> {
     }
     if (stateMutateChecking) {
       this.manager.getActionProcessorAPI().enableMutationChecking();
-      this.manager.getActionProcessorAPI().setMutationCheckOnFailureFunction(onFailureDiff);
+      this.manager.getActionProcessorAPI().setMutationCheckOnFailureFunction(onFailureDiffError);
     }
   }
 

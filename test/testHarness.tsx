@@ -47,7 +47,7 @@ export interface NameAccessors {
  */
 export function createNameContainer(nameData: Name, parent: StateObject, myName: string): Name & StateObject {
   let nameStateData: Name & StateObject = {
-    _my_propname: myName,
+    _myPropname: myName,
     _parent: parent,
     ...nameData,
   };
@@ -64,6 +64,35 @@ export function createNameContainer(nameData: Name, parent: StateObject, myName:
   nameStateData[`_accessors`] = accessors;
   parent[myName] = nameStateData;
   return nameStateData;
+}
+
+export class NameState implements StateObject, Name {
+  _myPropname: string;
+  _parent: StateObject;
+  address: Address;
+  addresses: Array<Address>;
+  bowlingScores: Array<number>;
+  first: string;
+  last: string;
+  middle: string;
+  prefix: string;
+  suffix: string;
+
+  actionCreator: CrudActionCreator<NameState>;
+  addressKeyGen: ArrayKeyGeneratorFn<Address>;
+  addressesActionCreator: ArrayCrudActionCreator<NameState, 'addresses', Address>;
+
+  constructor(name: Name, parent: StateObject, myPropertyName: string) {
+    Object.assign(this, name);
+    this._parent = parent;
+    parent[myPropertyName] = this;
+
+    this.addressKeyGen = (addr: Address): React.Key => propertyKeyGenerator(addr, 'street');
+
+    this.actionCreator = new CrudActionCreator(this);
+
+    this.addressesActionCreator = new ArrayCrudActionCreator(this, this.addresses, this.addressKeyGen);
+  }
 }
 
 export interface TestState {

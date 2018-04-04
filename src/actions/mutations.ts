@@ -126,9 +126,9 @@ export function mutateValue<S extends StateObject, K extends keyof S>
       return {oldValue: oldValue};
     }
     case ActionId.INSERT_STATE_OBJECT: {
-      throwIf(
-        !_.isPlainObject(value),
-        `${ActionId[actionType]} action is applicable to plain objects; value = ${value}`);
+      // throwIf(
+      //   !_.isPlainObject(value),
+      //   `${ActionId[actionType]} action is applicable to plain objects; value = ${value}`);
 
       if (!value) {
         throw new Error('Cannot insert a falsey value, consider using delete instead');

@@ -2,18 +2,18 @@ import {
   Action, ActionId, ArrayKeyGeneratorFn, ArrayKeyIndexMap, ArrayMutateAction,
   StateCrudAction
 } from '../src/actions/actions';
-import { State } from '../src/types/State';
-import { Address, createAppTestState, createTestState, Name } from './testHarness';
-import { createNameContainer } from './testHarness';
+import { JSON_replaceCyclicParent, State } from '../src/types/State';
+import { Address, createAppTestState, createTestState, Name, NameState } from './testHarness';
+// import { createNameContainer } from './testHarness';
 import { StateObject } from '../src/types/State';
 import { ActionProcessorFunctionType } from '../src/types/ActionProcessor';
 import * as _ from 'lodash';
-import { onFailureDiff } from '../src/types/StateMutationDiagnostics';
+import { onFailureDiff, onFailureDiffError } from '../src/types/StateMutationDiagnostics';
 import { ArrayCrudActionCreator, CrudActionCreator } from '../src/actions/actionCreators';
 
 const testState = createAppTestState();
 let name: Name;
-let nameState: Name & StateObject;
+let nameState: NameState; // Name & StateObject;
 let bowlingScores: number[];
 let address: Address;
 let addressState: Address & StateObject;
@@ -30,7 +30,8 @@ let resetTestObjects = () => {
   testState.reset(createTestState(), {});
   name = {first: 'Matthew', middle: 'F', last: 'Hooper', prefix: 'Mr', bowlingScores: [], addresses: [] };
   // nameState = State.createStateObject<Name>(testState.getState(), 'name', name);
-  nameState = createNameContainer(name, testState.getState(), 'name');
+  // nameState = createNameContainer(name, testState.getState(), 'name');
+  nameState = new NameState(name, testState.getState(), 'name');
   bowlingScores = [111, 121, 131];
   address = {street: '54 Upton Lake Rd', city: 'Clinton Corners', state: 'NY', zip: '12514'};
   addressState = State.createStateObject<Address>(nameState, 'address', address);
@@ -128,7 +129,7 @@ describe('Add the name container', () => {
 
   describe('use ActionCreator for array changes in nameState.addresses', () => {
     // let streetKey: ArrayKeyGeneratorFn<Address> = a => a.street;
-    let streetKeyFn: ArrayKeyGeneratorFn<Address> = nameState._accessors.addressKeyGen;
+    let streetKeyFn: ArrayKeyGeneratorFn<Address> = nameState.addressKeyGen;
     let addrActionCreator = new ArrayCrudActionCreator(nameState, nameState.addresses, streetKeyFn);
     test('insert into the addresses array', () => {
       let addr: Address = {
@@ -205,7 +206,7 @@ describe('Add the name container', () => {
       nameState.middle = middle;
     });
     test('swapping out the StateMutationCheck onFailure function', () => {
-      testState.getManager().getActionProcessorAPI().setMutationCheckOnFailureFunction(onFailureDiff);
+      testState.getManager().getActionProcessorAPI().setMutationCheckOnFailureFunction(onFailureDiffError);
       let fn = testState.getManager().getActionProcessorAPI().getMutationCheckOnFailureFunction();
       let processors = testState.getManager().getActionProcessorAPI().getProcessorClones();
       processors.pre.push(testProcessor);
@@ -242,18 +243,28 @@ describe('test stripping StateObject info', () => {
 
   test('stripping all StateObject properties from the object graph', () => {
     let stateClone = _.cloneDeep(testState.getState());
+    /* tslint:disable:no-console */
+    console.log(`stateClone: \n ${JSON.stringify(stateClone, JSON_replaceCyclicParent, 4)}`);
+    /* tslint:enable:no-console */
     State.stripStateObject(stateClone);
+    let stateChanged = _.cloneDeep(testState.getState());
+    State.stripStateObject(stateChanged);
+    stateClone._myPropname = 'test';
+    let diff = onFailureDiff(stateClone, stateChanged);
+    expect(diff).toBeDefined();
+
     expect(stateClone.hasOwnProperty('_parent')).toBe(false);
-    expect(stateClone.hasOwnProperty('_my_propname')).toBe(false);
+    expect(stateClone.hasOwnProperty('_myPropname')).toBe(false);
     if (!stateClone.name) {
       throw new Error('name is undefined');
     }
+    // Note that stateClone.name is a instance of the NameState class
     expect(stateClone.name.hasOwnProperty('_parent')).toBe(false);
-    expect(stateClone.name.hasOwnProperty('_my_propname')).toBe(false);
+    expect(stateClone.name.hasOwnProperty('_myPropname')).toBe(false);
     if (!stateClone.name.address) {
       throw new Error('address is undefined');
     }
-    expect(stateClone.name.address.hasOwnProperty('_my_propname')).toBe(false);
+    expect(stateClone.name.address.hasOwnProperty('_myPropname')).toBe(false);
     expect(stateClone.name.address.hasOwnProperty('_parent')).toBe(false);
   });
 });

@@ -1,6 +1,7 @@
 import { State, StateObject } from '../src/types/State';
 import { ArrayKeyGeneratorFn, propertyKeyGenerator } from '../src/actions/actions';
 import { ArrayCrudActionCreator, CrudActionCreator } from '../src/actions/actionCreators';
+import * as _ from 'lodash';
 
 export interface Address {
   street: string;
@@ -94,6 +95,32 @@ export class NameState implements StateObject, Name {
     this.addressesActionCreator = new ArrayCrudActionCreator(this, this.addresses, this.addressKeyGen);
   }
 }
+
+export interface Army {
+  name: string;
+  rank: string;
+  serialNo: number;
+}
+export function testGetters(): Army  {
+  let _name = 'Matt';
+  let _rank = 'corporal';
+  let _serialNo = 123;
+
+  let _army: Army = {
+    // name: _name,
+    get name(): string { return _name; },
+    set name(n: string) { _name = n; },
+    rank: _rank,
+    serialNo: _serialNo
+  };
+  return _army;
+}
+
+let army = testGetters();
+let armyIsPojo = _.isPlainObject(army);
+/* tslint:disable:no-console */
+console.log(`armyIsPojo? ${armyIsPojo}`);
+/* tslint:enable:no-console */
 
 export interface TestState {
   name?: Name & StateObject;

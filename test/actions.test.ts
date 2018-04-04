@@ -2,7 +2,7 @@ import {
   Action, ActionId, ArrayKeyGeneratorFn, ArrayKeyIndexMap, ArrayMutateAction,
   StateCrudAction
 } from '../src/actions/actions';
-import { JSON_replaceCyclicParent, State } from '../src/types/State';
+import { State } from '../src/types/State';
 import { Address, createAppTestState, createTestState, Name, NameState } from './testHarness';
 // import { createNameContainer } from './testHarness';
 import { StateObject } from '../src/types/State';
@@ -243,12 +243,11 @@ describe('test stripping StateObject info', () => {
 
   test('stripping all StateObject properties from the object graph', () => {
     let stateClone = _.cloneDeep(testState.getState());
-    /* tslint:disable:no-console */
-    console.log(`stateClone: \n ${JSON.stringify(stateClone, JSON_replaceCyclicParent, 4)}`);
-    /* tslint:enable:no-console */
     State.stripStateObject(stateClone);
     let stateChanged = _.cloneDeep(testState.getState());
     State.stripStateObject(stateChanged);
+    let hasDiff = _.isEqual(stateClone, stateChanged);
+    expect(hasDiff).toBeFalsy();
     stateClone._myPropname = 'test';
     let diff = onFailureDiff(stateClone, stateChanged);
     expect(diff).toBeDefined();

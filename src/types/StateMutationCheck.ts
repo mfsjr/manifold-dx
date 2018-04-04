@@ -23,8 +23,8 @@ let onFailureWarn = function<S>(baseline: S, failure: S): string {
 
 /**
  * This class implements mutation checking by taking, storing and testing snapshots
- * of application state, and should only be used in non-prod environments (and obviously
- * automated testing).
+ * of application state, and should only (obviously) be used in non-prod environments
+ * and automated testing.
  *
  * If a developer accidentally makes a change to any piece of state data, other than through
  * actions, this is what can detect and warns you about it.  You should use it for all your

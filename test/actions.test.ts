@@ -244,16 +244,16 @@ describe('test stripping StateObject info', () => {
     let stateClone = _.cloneDeep(testState.getState());
     State.stripStateObject(stateClone);
     expect(stateClone.hasOwnProperty('_parent')).toBe(false);
-    expect(stateClone.hasOwnProperty('_my_propname')).toBe(false);
+    expect(stateClone.hasOwnProperty('_myPropname')).toBe(false);
     if (!stateClone.name) {
       throw new Error('name is undefined');
     }
     expect(stateClone.name.hasOwnProperty('_parent')).toBe(false);
-    expect(stateClone.name.hasOwnProperty('_my_propname')).toBe(false);
+    expect(stateClone.name.hasOwnProperty('_myPropname')).toBe(false);
     if (!stateClone.name.address) {
       throw new Error('address is undefined');
     }
-    expect(stateClone.name.address.hasOwnProperty('_my_propname')).toBe(false);
+    expect(stateClone.name.address.hasOwnProperty('_myPropname')).toBe(false);
     expect(stateClone.name.address.hasOwnProperty('_parent')).toBe(false);
   });
 });

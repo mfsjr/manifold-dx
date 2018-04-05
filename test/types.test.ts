@@ -60,7 +60,7 @@ describe('state setup', () => {
   test('if a plain object structurally matches a state object, it should be identified as a state object', () => {
     let c = {
       _parent: null as (StateObject | null),
-      _my_propname: ''
+      _myPropname: ''
     };
     c._parent = c as StateObject;
 

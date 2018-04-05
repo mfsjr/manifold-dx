@@ -47,7 +47,7 @@ export interface NameAccessors {
  */
 export function createNameContainer(nameData: Name, parent: StateObject, myName: string): Name & StateObject {
   let nameStateData: Name & StateObject = {
-    _my_propname: myName,
+    _myPropname: myName,
     _parent: parent,
     ...nameData,
   };

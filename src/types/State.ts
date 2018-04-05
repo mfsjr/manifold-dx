@@ -9,7 +9,7 @@ import { onFailureDiff } from './StateMutationDiagnostics';
  */
 export interface StateObject {
   _parent: StateObject;
-  _my_propname: string;
+  _myPropname: string;
 
   /**
    * Accessors are pojos containing methods written by devs as needed.  These methods typically operate on the
@@ -54,7 +54,7 @@ export class State<A> {
       let state: {} = {};
       let parentKey = '_parent';
       state[parentKey] = parent ? parent : state;
-      let propKey = '_my_propname';
+      let propKey = '_myPropname';
       state[propKey] = propName ? propName : '';
       return state as StateObject;
   }
@@ -155,7 +155,7 @@ export class State<A> {
   public static stripStateObject(stateObject: any): any {
       /* tslint:enable:no-any */
       if (State.isInstanceOfStateObject(stateObject)) {
-          delete stateObject._my_propname;
+          delete stateObject._myPropname;
           delete stateObject._parent;
           // let childStateObjects: StateObject[];
           for (let obj in stateObject) {

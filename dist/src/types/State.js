@@ -24,7 +24,7 @@ var State = /** @class */ (function () {
         var state = {};
         var parentKey = '_parent';
         state[parentKey] = parent ? parent : state;
-        var propKey = '_my_propname';
+        var propKey = '_myPropname';
         state[propKey] = propName ? propName : '';
         return state;
     };
@@ -86,7 +86,7 @@ var State = /** @class */ (function () {
     State.stripStateObject = function (stateObject) {
         /* tslint:enable:no-any */
         if (State.isInstanceOfStateObject(stateObject)) {
-            delete stateObject._my_propname;
+            delete stateObject._myPropname;
             delete stateObject._parent;
             // let childStateObjects: StateObject[];
             for (var obj in stateObject) {

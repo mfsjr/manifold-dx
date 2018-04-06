@@ -1,6 +1,7 @@
 import { State, StateObject } from '../src/types/State';
-import { ArrayKeyGeneratorFn, propertyKeyGenerator } from '../src/actions/actions';
+// import { ArrayKeyGeneratorFn, propertyKeyGenerator } from '../src/actions/actions';
 import { ArrayCrudActionCreator, CrudActionCreator } from '../src/actions/actionCreators';
+import { ArrayKeyGeneratorFn, propertyKeyGenerator } from '../src/actions/actions';
 
 export interface Address {
   street: string;
@@ -25,46 +26,129 @@ export interface Name {
  * Accessors to be used on our Name & StateObject data.
  */
 export interface NameAccessors {
-  actionCreator: CrudActionCreator<Name & StateObject>;
+  getActionCreator: (nameState: NameState) => CrudActionCreator<Name & StateObject>;
   addressKeyGen: ArrayKeyGeneratorFn<Address>;
-  addressesActionCreator: ArrayCrudActionCreator<Name & StateObject, keyof Name & StateObject, Address>;
+  getAddressesActionCreator: (nameState: NameState) => ArrayCrudActionCreator<NameState, 'addresses', Address>;
 }
 
+export interface NameState extends Name, StateObject, NameAccessors { }
+
+// Example of WebStorm Live Template ("getset") for creating getters and setters
+// get $PROPNAME$$END$(): $TYPE$$END$ { return $VAR$$END$; },
+// set $PROPNAME$(value: $TYPE$) { $VAR$ = value; },
+
 /**
- * Create the name container state object and insert it into the parent.
+ * Factory method for creating instances of {@link NameState}.  Note that the technique we use for
+ * providing options that are a function of the same NameState, is to provide a function that takes the
+ * NameState as an arg and lazily instantiates the object within the closure.
  *
- * Example of how to create a StateObject containing an array.  The 'keyGenerator' is needed to create
- * the keys that React requires, and the 'addressesActionCreator' is used to create actions that
- * manipulate the array.
+ * Result is that the state object can contain functions that are a function of the same state object.
  *
- * Note that the returned NameContainer is never declared to be a NameContainer, but is built as an object
- * literal, piece by piece until its returned, where structural subtyping verifies its a NameContainer
+ * Written out so that the closure variable and the lazy instantiator are side-by-side.
+ *
+ * Using getters and setters was just done as an exercise to demonstrate that data passed in could
+ * be used directly if needed, rather than copying the key/value pairs via spreads.
  *
  * @param {Name} nameData
  * @param {StateObject} parent
  * @param {string} myName
- * @returns {NameContainer}
+ * @returns {NameState}
  */
-export function createNameContainer(nameData: Name, parent: StateObject, myName: string): Name & StateObject {
-  let nameStateData: Name & StateObject = {
-    _myPropname: myName,
-    _parent: parent,
-    ...nameData,
+export function createNameContainer(nameData: Name, parent: StateObject, myName: string): NameState {
+
+  // lazy initialization held in the closure
+  let actionCreator: CrudActionCreator<NameState>;
+  let _getActionCreator = function(_nameState: NameState) {
+    if (!actionCreator) {
+      actionCreator = new CrudActionCreator<NameState>(_nameState);
+    }
+    return actionCreator;
   };
+
   // define the keyGeneratorFn, to be used in multiple places below
   let keyGeneratorFn: ArrayKeyGeneratorFn<Address> =
     (addr: Address): React.Key => propertyKeyGenerator(addr, 'street');
 
-  // build NameAccessors
-  let accessors: NameAccessors = {
-    actionCreator: new CrudActionCreator(nameStateData),
-    addressKeyGen: keyGeneratorFn,
-    addressesActionCreator: new ArrayCrudActionCreator(nameStateData, nameStateData.addresses, keyGeneratorFn)
+  let addressesActionCreator: ArrayCrudActionCreator<NameState, 'addresses', Address>;
+  let getAddressesActionCreator = function(_nameState: NameState) {
+    addressesActionCreator = addressesActionCreator ||
+      new ArrayCrudActionCreator(_nameState, _nameState.addresses, keyGeneratorFn);
+    return addressesActionCreator;
   };
-  nameStateData[`_accessors`] = accessors;
-  parent[myName] = nameStateData;
-  return nameStateData;
+
+  let nameState: NameState = {
+    _parent: parent,
+    _myPropname: myName,
+
+    get prefix(): string | undefined { return nameData.prefix; },
+    set prefix(value: string | undefined) { nameData.prefix = value; },
+
+    get suffix(): string | undefined { return nameData.suffix; },
+    set suffix(value: string | undefined) { nameData.suffix = value; },
+
+    get first(): string { return nameData.first; },
+    set first(value: string) { nameData.first = value; },
+
+    get middle(): string { return nameData.middle; },
+    set middle(value: string) { nameData.middle = value; },
+
+    get last(): string { return nameData.last; },
+    set last(value: string) { nameData.last = value; },
+
+    get address(): Address | undefined { return nameData.address; },
+    set address(value: Address | undefined) { nameData.address = value; },
+
+    get addresses(): Array<Address> { return nameData.addresses; },
+    set addresses(value: Array<Address>) { nameData.addresses = value; },
+
+    get bowlingScores(): Array<number> { return nameData.bowlingScores; },
+    set bowlingScores(value: Array<number>) { nameData.bowlingScores = value; },
+
+    getActionCreator: _getActionCreator,
+
+    addressKeyGen: keyGeneratorFn,
+
+    getAddressesActionCreator
+
+  };
+  parent[myName] = nameState;
+  return nameState;
 }
+// /**
+//  * Create the name container state object and insert it into the parent.
+//  *
+//  * Example of how to create a StateObject containing an array.  The 'keyGenerator' is needed to create
+//  * the keys that React requires, and the 'addressesActionCreator' is used to create actions that
+//  * manipulate the array.
+//  *
+//  * Note that the returned NameContainer is never declared to be a NameContainer, but is built as an object
+//  * literal, piece by piece until its returned, where structural subtyping verifies its a NameContainer
+//  *
+//  * @param {Name} nameData
+//  * @param {StateObject} parent
+//  * @param {string} myName
+//  * @returns {NameContainer}
+//  */
+// export function createNameContainer(nameData: Name, parent: StateObject, myName: string): Name & StateObject {
+//   let nameStateData: Name & StateObject = {
+//     _myPropname: myName,
+//     _parent: parent,
+//     ...nameData,
+//   };
+//   // define the keyGeneratorFn, to be used in multiple places below
+//   let keyGeneratorFn: ArrayKeyGeneratorFn<Address> =
+//     (addr: Address): React.Key => propertyKeyGenerator(addr, 'street');
+//
+//   // build NameAccessors
+//   let accessors: NameAccessors = {
+//     actionCreator: new CrudActionCreator(nameStateData),
+//     addressKeyGen: keyGeneratorFn,
+//     addressesActionCreator: new ArrayCrudActionCreator(nameStateData, nameStateData.addresses, keyGeneratorFn)
+//   };
+//   nameStateData[`_accessors`] = accessors;
+//   parent[myName] = nameStateData;
+//   return nameStateData;
+// }
 
 export interface TestState {
   name?: Name & StateObject;
@@ -89,3 +173,5 @@ export function createTestState(): TestState {
 export function createAppTestState() {
   return new State(createTestState(), {});
 }
+
+

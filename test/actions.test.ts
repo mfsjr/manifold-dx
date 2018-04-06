@@ -3,7 +3,7 @@ import {
   StateCrudAction
 } from '../src/actions/actions';
 import { State } from '../src/types/State';
-import { Address, createAppTestState, createTestState, Name } from './testHarness';
+import { Address, createAppTestState, createTestState, Name, NameState } from './testHarness';
 import { createNameContainer } from './testHarness';
 import { StateObject } from '../src/types/State';
 import { ActionProcessorFunctionType } from '../src/types/ActionProcessor';
@@ -13,7 +13,7 @@ import { ArrayCrudActionCreator, CrudActionCreator } from '../src/actions/action
 
 const testState = createAppTestState();
 let name: Name;
-let nameState: Name & StateObject;
+let nameState: NameState; // Name & StateObject;
 let bowlingScores: number[];
 let address: Address;
 let addressState: Address & StateObject;
@@ -128,7 +128,7 @@ describe('Add the name container', () => {
 
   describe('use ActionCreator for array changes in nameState.addresses', () => {
     // let streetKey: ArrayKeyGeneratorFn<Address> = a => a.street;
-    let streetKeyFn: ArrayKeyGeneratorFn<Address> = nameState._accessors.addressKeyGen;
+    let streetKeyFn: ArrayKeyGeneratorFn<Address> = nameState.addressKeyGen;
     let addrActionCreator = new ArrayCrudActionCreator(nameState, nameState.addresses, streetKeyFn);
     test('insert into the addresses array', () => {
       let addr: Address = {

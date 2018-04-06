@@ -69,13 +69,10 @@ describe('state setup', () => {
 
 });
 
-// export interface NameContainer extends Name, StateObject {
-//   _accessors: NameAccessors;
-// }
-
 describe('creating child state objects', () => {
   test('nameState should have a _parent that points to state', () => {
     expect(nameState._parent === testState.getState());
+    // expect( testState.getState().name ).toBe(nameState);
   });
 
   test('nameState should have a first IName of Matthew', () => {

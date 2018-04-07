@@ -376,20 +376,22 @@ export class ArrayMutateAction
  * Prop types used in defining the ContainerComponent<CP,VP>
  * CP: container prop type
  * VP: view prop type
+ * TP: a particular key of VP
+ * A: application state
  */
 
 export class MappingAction
-      <S extends StateObject, K extends keyof S, CP, VP, A extends StateObject>
+      <S extends StateObject, K extends keyof S, CP, VP, TP extends keyof VP, A extends StateObject>
       extends StateAction<S, K> {
 
   /* tslint:disable:no-any */
   component: ContainerComponent<CP, VP, A>;
   /* tslint:enable:no-any */
   fullPath: string;
-  targetPropName: keyof VP;
+  targetPropName: TP;
   dispatches: DispatchType[];
 
-  protected assignProps(from:  MappingAction<S, K, CP, VP, A>) {
+  protected assignProps(from:  MappingAction<S, K, CP, VP, TP, A>) {
     super.assignProps(from);
     this.component = from.component;
     this.fullPath = from.fullPath;
@@ -397,7 +399,7 @@ export class MappingAction
     this.dispatches = from.dispatches;
   }
 
-  public clone(): MappingAction<S, K, CP, VP, A> {
+  public clone(): MappingAction<S, K, CP, VP, TP, A> {
     let copy = new MappingAction(
         this.parent,
         this.propertyName,
@@ -423,7 +425,7 @@ export class MappingAction
               parent: S,
               _propertyOrArrayName: K,
               _component: ContainerComponent<CP, VP, A>,
-              targetPropName: keyof VP,
+              targetPropName: TP,
               ...dispatches: DispatchType[]
               ) {
     super(ActionId.MAP_STATE_TO_PROP, parent, _propertyOrArrayName);
@@ -471,5 +473,5 @@ export class MappingAction
 }
 
 /* tslint:disable:no-any */
-export type GenericMappingAction = MappingAction<any, any, any, any, any>;
+export type GenericMappingAction = MappingAction<any, any, any, any, any, any>;
 /* tslint:enable:no-any */

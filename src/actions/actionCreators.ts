@@ -1,8 +1,9 @@
 import { StateObject } from '../';
 import {
-  Action, ActionId, ArrayKeyGeneratorFn, ArrayMutateAction,
+  Action, ActionId, ArrayKeyGeneratorFn, ArrayMutateAction, DispatchType, MappingAction,
   StateCrudAction
 } from './actions';
+import { ContainerComponent } from '../components/ContainerComponent';
 
 /**
  * Create CRUD actions for properties of a StateObject.
@@ -134,4 +135,50 @@ export class ArrayCrudActionCreator<S extends StateObject, K extends keyof S, V 
     return new ArrayMutateAction(
       ActionId.DELETE_PROPERTY, this.parent, this.propertyKey, index, this.valuesArray);
   }
+}
+
+// /**
+//  * Reduce the burden of mapping actions by providing a mapping action creator, that requires only 2 parameters.
+//  *
+//  * Create an object that will create mappings for a component from their parent state object to their view props.
+//  */
+// export class MappingActionCreator<S extends StateObject, A extends StateObject, VP, CP> {
+//   private parent: S;
+//   private component: ContainerComponent<CP, VP, A>;
+//
+//   constructor(_parent: S, _component: ContainerComponent<CP, VP, A>) {
+//     this.parent = _parent;
+//     this.component = _component;
+//   }
+//
+//   createMappingAction<K extends keyof S, TP extends keyof VP>
+//             (_propKey: K, targetPropKey: TP, ...dispatches: DispatchType[]): MappingAction<S, K, CP, VP, TP, A> {
+//     return new MappingAction(this.parent, _propKey, this.component, targetPropKey, ...dispatches);
+//   }
+// }
+
+/**
+ * Interface for api to create mapping actions
+ */
+export interface MappingCreator<S extends StateObject, A extends StateObject, VP, CP> {
+  createMappingAction<K extends keyof S, TP extends keyof VP>
+  (_propKey: K, targetPropKey: TP, ...dispatches: DispatchType[]): MappingAction<S, K, CP, VP, TP, A>;
+}
+
+/**
+ * Simple function for returning a {@link MappingCreator}, which makes {@link MappingAction}s easy to create.
+ * @param {S} _parent
+ * @param {ContainerComponent<CP, VP, A extends StateObject>} _component
+ * @returns {MappingCreator<S extends StateObject, A extends StateObject, VP, CP>}
+ */
+export function getMappingCreator<S extends StateObject, A extends StateObject, VP, CP>
+  (_parent: S, _component: ContainerComponent<CP, VP, A>)
+  : MappingCreator<S, A, VP, CP> {
+
+  let _createMappingAction = function<K extends keyof S, TP extends keyof VP>
+    (_propKey: K, targetPropKey: TP, ...dispatches: DispatchType[]): MappingAction<S, K, CP, VP, TP, A> {
+    return new MappingAction(_parent, _propKey, _component, targetPropKey, ...dispatches);
+  };
+
+  return { createMappingAction: _createMappingAction };
 }

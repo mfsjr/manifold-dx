@@ -1,15 +1,16 @@
-import { createAppTestState, createNameContainer, TestState } from './testHarness';
+import { createAppTestState, createNameContainer, TestState, NameState } from './testHarness';
 import { Name } from './testHarness';
 import * as React from 'react';
-import { ContainerComponent } from '../src/components/ContainerComponent';
-import { Action, ActionId, StateCrudAction, MappingAction } from '../src/actions/actions';
+import { ContainerComponent, GenericContainerMappingTypes } from '../src/components/ContainerComponent';
+import { Action, ActionId, StateCrudAction } from '../src/actions/actions';
 import { State, StateObject } from '../src/types/State';
 import { Manager } from '../src/types/Manager';
+import { getMappingCreator } from '../src/actions/actionCreators';
 
 const testState = createAppTestState();
 
 let name: Name;
-let nameState: Name & StateObject;
+let nameState: NameState;
 let bowlingScores: number[];
 let initBowlerProps: BowlerProps;
 let container: BowlerContainer;
@@ -27,7 +28,7 @@ export interface ScoreCardProps {
   calcAverage: () => number;
 }
 
-const ScoreCardGeneraotr = function(props: ScoreCardProps): React.Component<ScoreCardProps> {
+const ScoreCardGenerator = function(props: ScoreCardProps): React.Component<ScoreCardProps> {
   return new React.Component<ScoreCardProps>(props);
 };
 
@@ -36,10 +37,13 @@ export class BowlerContainer extends ContainerComponent<BowlerProps, ScoreCardPr
   public average: number;
 
     // nameState = state.getState().name;
-  nameState: Name & StateObject | undefined;
+  nameState: Name & StateObject; // | undefined;
 
   constructor(bowlerProps: BowlerProps) {
-    super(bowlerProps, testState.getState(), undefined, ScoreCardGeneraotr);
+    super(bowlerProps, testState.getState(), undefined, ScoreCardGenerator);
+    if (!this.appData.name) {
+      throw new Error('nameState must be defined!');
+    }
     this.nameState = this.appData.name;
   }
 
@@ -69,15 +73,12 @@ export class BowlerContainer extends ContainerComponent<BowlerProps, ScoreCardPr
     return new React.Component(viewProps);
   }
 
-    /* tslint:disable:no-any */
-  createMappingActions(): MappingAction<any, any, BowlerProps, ScoreCardProps, any>[] {
-      /* tslint:enable:no-any */
-    // let result: StateMappingAction<any, any, BowlerProps, ScoreCardProps, keyof ScoreCardProps>[] = [];
-    // result.push(this.createStateMappingAction(nameState, 'first', 'fullName'));
-    let fullNameAction = new MappingAction(nameState, 'first', this, 'fullName');
-    let scoreAction = new MappingAction(
-        nameState, 'bowlingScores', this, 'scores', this.calcAverage.bind(this));
-    return [fullNameAction, scoreAction];
+  createMappingActions(): GenericContainerMappingTypes<BowlerProps, ScoreCardProps, TestState & StateObject>[] {
+    let nameStateMapper = getMappingCreator(this.nameState, this);
+    return [
+      nameStateMapper.createMappingAction('first', 'fullName'),
+      nameStateMapper.createMappingAction('bowlingScores', 'scores', this.calcAverage.bind(this))
+    ];
   }
 
   public updateViewProps(executedActions: Action[]) {

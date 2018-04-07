@@ -24,7 +24,8 @@ export type Renderer<P> = ComponentGenerator<P> | SFC<P>;
  * VP: view component props, also a plain object
  * A: topmost application data residing in a state object {@link StateObject}
  */
-export abstract class ContainerComponent<CP, VP, A extends StateObject> extends React.Component<CP> {
+export abstract class ContainerComponent<CP, VP, A extends StateObject>
+    extends React.Component<CP> {
 
   // this class will be managing/creating the props to hand to the view, writable here, readonly in the view
   public viewProps: VP;
@@ -45,9 +46,7 @@ export abstract class ContainerComponent<CP, VP, A extends StateObject> extends 
   protected viewComponent: React.Component<VP, any>;
     /* tslint:enable:no-any */
 
-    /* tslint:disable:no-any */
-  protected mappingActions: MappingAction<any, any, CP, VP, A>[];
-    /* tslint:enable:no-any */
+  protected mappingActions: GenericContainerMappingTypes<CP, VP, A>[];
 
   /**
    * Convenience method
@@ -63,7 +62,12 @@ export abstract class ContainerComponent<CP, VP, A extends StateObject> extends 
   }
 
   public getMappingActions() { return this.mappingActions; }
-  
+
+  createMappingAction<S extends StateObject, K extends keyof S, TP extends keyof VP>
+  (parentState: S, _propKey: K, targetPropKey: TP, ...dispatches: DispatchType[]): MappingAction<S, K, CP, VP, TP, A> {
+    return new MappingAction(parentState, _propKey, this, targetPropKey, ...dispatches);
+  }
+
   /**
    * There are two types of views this can create.  The preferred way is with
    * an 'SFC' (stateless functional component), the other way is by creating
@@ -101,9 +105,9 @@ export abstract class ContainerComponent<CP, VP, A extends StateObject> extends 
     }
   }
 
-  public createMapping<S extends StateObject, K extends keyof S>
-          (stateObject: S, stateObjectProperty: K, targetViewProp: keyof VP, ...dispatches: DispatchType[])
-          : MappingAction<S, K, CP, VP, A> {
+  public createMapping<S extends StateObject, K extends keyof S, TP extends keyof VP>
+          (stateObject: S, stateObjectProperty: K, targetViewProp: TP, ...dispatches: DispatchType[])
+          : MappingAction<S, K, CP, VP, TP, A> {
     return new MappingAction(stateObject, stateObjectProperty, this, targetViewProp, ...dispatches);
   }
 
@@ -122,11 +126,9 @@ export abstract class ContainerComponent<CP, VP, A extends StateObject> extends 
    *
    * Implementations of this method are called once, to populate the stateMappingActions array.
    *
-   * @returns {MappingAction<any, any, CP, VP, keyof VP>[]} the array of mappings
+   * @returns {GenericContainerMappingTypes<CP, VP, A>[]} the array of mappings for a container
    */
-    /* tslint:disable:no-any */
-  abstract createMappingActions(): MappingAction<any, any, CP, VP, A>[];
-    /* tslint:enable:no-any */
+  abstract createMappingActions(): GenericContainerMappingTypes<CP, VP, A>[];
 
   /**
    * Create default view properties, used to initialize {@link viewProps} and passed
@@ -200,7 +202,7 @@ export abstract class ContainerComponent<CP, VP, A extends StateObject> extends 
 
       // unsubscribe from stateMappingActions, we need to undo these specific actions
         /* tslint:disable:no-any */
-      let unmappingActions: MappingAction<any, any, CP, VP, A>[] = [];
+      let unmappingActions: GenericContainerMappingTypes<CP, VP, A>[] = [];
         /* tslint:enable:no-any */
       this.mappingActions.forEach((action) => {
         let unmappingAction = action.clone();
@@ -242,3 +244,7 @@ export abstract class ContainerComponent<CP, VP, A extends StateObject> extends 
   }
 
 }
+
+/* tslint:disable:no-any */
+export type GenericContainerMappingTypes<CP, VP, A extends StateObject> = MappingAction<any, any, CP, VP, any, A>;
+/* tslint:enable:no-any */

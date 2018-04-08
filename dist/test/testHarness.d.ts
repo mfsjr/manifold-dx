@@ -24,7 +24,7 @@ export interface Name {
 export interface NameAccessors {
     actionCreator: CrudActionCreator<Name & StateObject>;
     addressKeyGen: ArrayKeyGeneratorFn<Address>;
-    addressesActionCreator: ArrayCrudActionCreator<Name & StateObject, Address>;
+    addressesActionCreator: ArrayCrudActionCreator<Name & StateObject, keyof Name & StateObject, Address>;
 }
 /**
  * Create the name container state object and insert it into the parent.

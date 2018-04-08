@@ -8,8 +8,8 @@ import { onFailureDiff } from './StateMutationDiagnostics';
  * Note that __parents__ are never null (top level app state is self-referencing)
  */
 export interface StateObject {
-  __parent__: StateObject;
-  __my_propname__: string;
+  _parent: StateObject;
+  _myPropname: string;
 
   /**
    * Accessors are pojos containing methods written by devs as needed.  These methods typically operate on the
@@ -17,7 +17,7 @@ export interface StateObject {
    * for performing updates, inserts or deletes, etc.
    */
   /* tslint:disable:no-any */
-  __accessors__?: any;
+  _accessors?: any;
   /* tslint:enable:no-any */
 }
 
@@ -52,9 +52,9 @@ export class State<A> {
    */
   public static createState(parent?: StateObject, propName?: string): StateObject {
       let state: {} = {};
-      let parentKey = '__parent__';
+      let parentKey = '_parent';
       state[parentKey] = parent ? parent : state;
-      let propKey = '__my_propname__';
+      let propKey = '_myPropname';
       state[propKey] = propName ? propName : '';
       return state as StateObject;
   }
@@ -113,8 +113,8 @@ export class State<A> {
 
   public static getTopState(stateObject: StateObject): StateObject {
     let result = stateObject;
-    while (result.__parent__ !== result) {
-      result = result.__parent__;
+    while (result._parent !== result) {
+      result = result._parent;
     }
     return result;
   }
@@ -143,8 +143,8 @@ export class State<A> {
       const next = function (): IteratorResult<StateObject> {
           let result = {done: done, value: currentContainer};
           // if we have just returned State, then we are now done
-          done = currentContainer === currentContainer.__parent__;
-          currentContainer = currentContainer.__parent__;
+          done = currentContainer === currentContainer._parent;
+          currentContainer = currentContainer._parent;
           return result;
       };
 
@@ -155,8 +155,8 @@ export class State<A> {
   public static stripStateObject(stateObject: any): any {
       /* tslint:enable:no-any */
       if (State.isInstanceOfStateObject(stateObject)) {
-          delete stateObject.__my_propname__;
-          delete stateObject.__parent__;
+          delete stateObject._myPropname;
+          delete stateObject._parent;
           // let childStateObjects: StateObject[];
           for (let obj in stateObject) {
               if (State.isInstanceOfStateObject(stateObject[obj])) {
@@ -203,7 +203,7 @@ export class State<A> {
 
 /**
  * This is only used in JSON.stringify, to prevent cyclic errors arising from
- * container.__parent__ === container
+ * container._parent === container
  * @param key
  * @param value
  * @returns {string}
@@ -211,5 +211,5 @@ export class State<A> {
 /* tslint:disable:no-any */
 export function JSON_replaceCyclicParent(key: any, value: any) {
     /* tslint:enable:no-any */
-  return key === '__parent__' ? '(parent)' : value;
+  return key === '_parent' ? '(parent)' : value;
 }

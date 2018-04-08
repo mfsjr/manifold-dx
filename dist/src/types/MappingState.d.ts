@@ -1,9 +1,8 @@
 /// <reference types="react" />
-import { MappingAction } from '../actions/actions';
+import { GenericMappingAction } from '../actions/actions';
 /**
  * Mapping actions require specific generic types, but common data structures need to hold 'any'
  */
-export declare type GenericMappingAction = MappingAction<any, any, any, any>;
 /**
  * Path strings map to values defined by this type, which can refer to simple properties having
  * multiple React components that they update. Also includes deprecated support for lists whose keys refer to

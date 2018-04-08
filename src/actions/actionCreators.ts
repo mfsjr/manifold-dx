@@ -1,12 +1,17 @@
 import { StateObject } from '../';
 import {
-  Action, ActionId, ArrayKeyGeneratorFn, arrayKeyIndexMap, ArrayMutateAction,
+  Action, ActionId, ArrayKeyGeneratorFn, ArrayMutateAction, DispatchType, MappingAction,
   StateCrudAction
 } from './actions';
+import { ContainerComponent } from '../components/ContainerComponent';
 
+/**
+ * Create CRUD actions for properties of a StateObject.
+ * Array CRUD actions are in {@link ArrayCrudActionCreator}
+ */
 export class CrudActionCreator<S extends StateObject> {
   private parent: S;
-  private propertyKey: keyof S;
+  // private propertyKey: keyof S;
 
   constructor(parent: S) {
     this.parent = parent;
@@ -17,38 +22,50 @@ export class CrudActionCreator<S extends StateObject> {
       /* tslint:disable:no-any */
       if (value as any === this.parent[key]) {
         /* tslint:enable:no-any */
-        this.propertyKey = key;
-        break;
+        return key;
       }
     }
-    if (!this.propertyKey) {
-      throw new Error(`Failed to find property value ${value} in parent`);
-    }
-    return this.propertyKey;
+    throw new Error(`Failed to find property value ${value} in parent`);
   }
 
-  public crudInsert(value: S[keyof S], propertyKey: keyof S): Action {
-    return new StateCrudAction(ActionId.UPDATE_PROPERTY, this.parent, this.propertyKey, value);
+  public insert<K extends keyof S>(propertyKey: K, value: S[K]): Action {
+    return new StateCrudAction(ActionId.UPDATE_PROPERTY, this.parent, propertyKey, value);
   }
-  public crudUpdate(value: S[keyof S]): Action {
-    this.propertyKey = this.getPropertyKeyForValue(value);
-    return new StateCrudAction(ActionId.UPDATE_PROPERTY, this.parent, this.propertyKey, value);
+  public update<K extends keyof S>(propertyKey: K, value: S[K]): Action {
+    return new StateCrudAction(ActionId.UPDATE_PROPERTY, this.parent, propertyKey, value);
   }
-  public crudDelete(value: S[keyof S]): Action {
-    this.propertyKey = this.getPropertyKeyForValue(value);
-    return new StateCrudAction(
-      ActionId.DELETE_PROPERTY,
-      this.parent, this.propertyKey, this.parent[this.propertyKey]);
+
+  /**
+   * Delete the property (named 'remove' because 'delete' is a reserved word)
+   * @param {K} propertyKey
+   * @returns {Action}
+   */
+  public remove<K extends keyof S>(propertyKey: K): Action {
+    return new StateCrudAction(ActionId.DELETE_PROPERTY, this.parent, propertyKey);
   }
   // TODO: can this and the crudInsert above actually work when defined in terms of non-existent keys?
-  public crudNest(value: S[keyof S], propertyKey: keyof S): Action {
-    return new StateCrudAction(ActionId.INSERT_STATE_OBJECT, this.parent, this.propertyKey, value);
+  public insertStateObject<K extends keyof S>(value: S[K], propertyKey: K): Action {
+    return new StateCrudAction(ActionId.INSERT_STATE_OBJECT, this.parent, propertyKey, value);
   }
-  public crudUnnest(value: S[keyof S]): Action {
-    return new StateCrudAction(ActionId.DELETE_STATE_OBJECT, this.parent, this.propertyKey, value);
+  public removeStateObject<K extends keyof S>(propertyKey: K): Action {
+    return new StateCrudAction(ActionId.DELETE_STATE_OBJECT, this.parent, propertyKey, this.parent[propertyKey]);
   }
 }
 
+/**
+ * Factory method for CrudActionCreator, rather than exposing implementation details
+ * @param {S} parent
+ * @returns {CrudActionCreator<S extends StateObject>}
+ */
+export function getCrudCreator<S extends StateObject>(parent: S): CrudActionCreator<S> {
+  return new CrudActionCreator(parent);
+}
+
+export function getArrayCrudCreator<S extends StateObject, K extends keyof S, V extends Object>
+(parent: S, childArray: Array<V> & S[K], keyGenerator: ArrayKeyGeneratorFn<V>)
+: ArrayCrudActionCreator<S, K, V> {
+  return new ArrayCrudActionCreator(parent, childArray, keyGenerator);
+}
 /**
  * Class for creating CRUD actions for arrays of objects (not primitives).
  *
@@ -56,15 +73,17 @@ export class CrudActionCreator<S extends StateObject> {
  * using {@link CrudActionCreator}s above.  Note that the creation and deletion of arrays of
  * objects would need to use the same.
  *
+ * usage example from tests:  new ArrayCrudActionCreator(nameState, nameState.addresses, streetKeyFn)
+ *
  * S is the StateObject which the array is a property of
  */
-export class ArrayCrudActionCreator<S extends StateObject, V extends Object> {
+export class ArrayCrudActionCreator<S extends StateObject, K extends keyof S, V extends Object> {
   private parent: S;
   private propertyKey: keyof S;
 
-  private valuesArray: Array<V>; // & keyof S[keyof S];
+  private valuesArray: Array<V> & S[K]; // & keyof S[keyof S];
 
-  private keyGenerator: ArrayKeyGeneratorFn<V>;
+  // private keyGenerator: ArrayKeyGeneratorFn<V>;
 
   /**
    * Construct an array crud creator.  We require a somewhat redundant 'valuesArray'
@@ -84,7 +103,7 @@ export class ArrayCrudActionCreator<S extends StateObject, V extends Object> {
    * @param {Array<V>} childArray
    * @param {ArrayKeyGeneratorFn} keyGenerator
    */
-  constructor(parent: S, childArray: Array<V>, keyGenerator: ArrayKeyGeneratorFn<V>) {
+  constructor(parent: S, childArray: Array<V> & S[K], keyGenerator: ArrayKeyGeneratorFn<V>) {
     this.parent = parent;
     /* tslint:disable:no-any */
     let array: any = childArray;
@@ -98,7 +117,7 @@ export class ArrayCrudActionCreator<S extends StateObject, V extends Object> {
       throw Error(`Failed to find array in parent`);
     }
     this.valuesArray = array;
-    this.keyGenerator = keyGenerator;
+    // this.keyGenerator = keyGenerator;
   }
 
   public insert(index: number, value: V): Action {
@@ -106,31 +125,76 @@ export class ArrayCrudActionCreator<S extends StateObject, V extends Object> {
       ActionId.INSERT_PROPERTY, this.parent, this.propertyKey, index, this.valuesArray, value);
   }
 
-  /**
-   * Note that we are finding the index of this from a map (not scanning).
-   * We throw if this.valuesArray is not found in arrayKeyIndexMap, likewise if the this.keyIndexMap does not
-   * contain the key calculated by this.keyGenerator.
-   * @param {V} value
-   * @returns {number}
-   */
-  protected getIndexOf(value: V): number {
-    let keyIndexMap = arrayKeyIndexMap.getOrCreateKeyIndexMap(this.valuesArray, this.keyGenerator);
-    let key = this.keyGenerator(value);
-    let index = keyIndexMap.get(key);
-    if (!index) {
-      throw new Error(`failed to find index in array ${this.propertyKey} for key ${key}`);
-    }
-    return index;
-  }
+  // /**
+  //  * Note that we are finding the index of this from a map (not scanning).
+  //  * We throw if this.valuesArray is not found in arrayKeyIndexMap, likewise if the this.keyIndexMap does not
+  //  * contain the key calculated by this.keyGenerator.
+  //  * @param {V} value
+  //  * @returns {number}
+  //  */
+  // protected getIndexOf(value: V): number {
+  //   let keyIndexMap = arrayKeyIndexMap.getOrCreateKeyIndexMap(this.valuesArray, this.keyGenerator);
+  //   let key = this.keyGenerator(value);
+  //   let index = keyIndexMap.get(key);
+  //   if (!index) {
+  //     throw new Error(`failed to find index in array ${this.propertyKey} for key ${key}`);
+  //   }
+  //   return index;
+  // }
 
   public update(index: number, value: V): Action {
     return new ArrayMutateAction(
       ActionId.UPDATE_PROPERTY, this.parent, this.propertyKey, index, this.valuesArray, value);
   }
 
-  public delete(index: number): Action {
+  public remove(index: number): Action {
     return new ArrayMutateAction(
-      ActionId.DELETE_PROPERTY,
-      this.parent, this.propertyKey, index, this.valuesArray, undefined);
+      ActionId.DELETE_PROPERTY, this.parent, this.propertyKey, index, this.valuesArray);
   }
+}
+
+// /**
+//  * Reduce the burden of mapping actions by providing a mapping action creator, that requires only 2 parameters.
+//  *
+//  * Create an object that will create mappings for a component from their parent state object to their view props.
+//  */
+// export class MappingActionCreator<S extends StateObject, A extends StateObject, VP, CP> {
+//   private parent: S;
+//   private component: ContainerComponent<CP, VP, A>;
+//
+//   constructor(_parent: S, _component: ContainerComponent<CP, VP, A>) {
+//     this.parent = _parent;
+//     this.component = _component;
+//   }
+//
+//   createMappingAction<K extends keyof S, TP extends keyof VP>
+//             (_propKey: K, targetPropKey: TP, ...dispatches: DispatchType[]): MappingAction<S, K, CP, VP, TP, A> {
+//     return new MappingAction(this.parent, _propKey, this.component, targetPropKey, ...dispatches);
+//   }
+// }
+
+/**
+ * Interface for api to create mapping actions
+ */
+export interface MappingCreator<S extends StateObject, A extends StateObject, VP, CP> {
+  createMappingAction<K extends keyof S, TP extends keyof VP>
+  (_propKey: K, targetPropKey: TP, ...dispatches: DispatchType[]): MappingAction<S, K, CP, VP, TP, A>;
+}
+
+/**
+ * Simple function for returning a {@link MappingCreator}, which makes it easy to create {@link MappingAction}s
+ * @param {S} _parent StateObject, where you're mapping the data from
+ * @param {ContainerComponent<CP, VP, A extends StateObject>} _component that is using the mapping
+ * @returns {MappingCreator<S extends StateObject, A extends StateObject, VP, CP>} for creating {@link MappingAction}s
+ */
+export function getMappingCreator<S extends StateObject, A extends StateObject, VP, CP>
+  (_parent: S, _component: ContainerComponent<CP, VP, A>)
+  : MappingCreator<S, A, VP, CP> {
+
+  let _createMappingAction = function<K extends keyof S, TP extends keyof VP>
+    (_propKey: K, targetPropKey: TP, ...dispatches: DispatchType[]): MappingAction<S, K, CP, VP, TP, A> {
+    return new MappingAction(_parent, _propKey, _component, targetPropKey, ...dispatches);
+  };
+
+  return { createMappingAction: _createMappingAction };
 }

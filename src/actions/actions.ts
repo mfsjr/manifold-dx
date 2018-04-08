@@ -23,7 +23,7 @@ export enum ActionId {
 }
 
 /* tslint:disable:no-any */
-export type DispatchType = (action: StateCrudAction<any>) => void;
+export type DispatchType = (action: StateCrudAction<any, any>) => void;
 /* tslint:enable:no-any */
 
 export abstract class Action {
@@ -71,21 +71,21 @@ export abstract class Action {
     /* tslint:enable:no-any */
 }
 
-export abstract class StateAction<S extends StateObject> extends Action {
+export abstract class StateAction<S extends StateObject, K extends keyof S> extends Action {
   parent: S;
-  propertyName: keyof S;
+  propertyName: K;
   /* tslint:disable:no-any */
-  mappingActions: MappingAction<any, any, any, any>[];
+  mappingActions: GenericMappingAction[];
   /* tslint:enable:no-any */
 
-  protected assignProps(from: StateAction<S>) {
+  protected assignProps(from: StateAction<S, K>) {
     super.assignProps(from);
     this.parent = from.parent;
     this.propertyName = from.propertyName;
     this.mappingActions = from.mappingActions;
   }
 
-    constructor(actionType: ActionId, _parent: S, _propertyName: keyof S) {
+    constructor(actionType: ActionId, _parent: S, _propertyName: K) {
     super(actionType);
     this.parent = _parent;
     this.propertyName = _propertyName;
@@ -108,36 +108,36 @@ export abstract class StateAction<S extends StateObject> extends Action {
 }
 
 /* tslint:disable:no-any */
-export type GenericStateCrudAction = StateCrudAction<any>;
+export type GenericStateCrudAction = StateCrudAction<any, any>;
 /* tslint:enable:no-any */
 
 /**
  * Action classes contain instructions for mutating state, in the form
  * of StateObjects.
  */
-export class StateCrudAction<S extends StateObject> extends StateAction<S> {
-  mutateResult?: {oldValue?: S[keyof S]};
-  oldValue?: S[keyof S];
-  value: S[keyof S];
+export class StateCrudAction<S extends StateObject, K extends keyof S> extends StateAction<S, K> {
+  mutateResult?: {oldValue?: S[K]};
+  oldValue?: S[K];
+  value: S[K] | undefined;
 
-  public getOldValue(): S[keyof S] | undefined {
+  public getOldValue(): S[K] | undefined {
     return this.oldValue;
   }
 
-  protected assignProps(from: StateCrudAction<S>) {
+  protected assignProps(from: StateCrudAction<S, K>) {
     super.assignProps(from);
     this.mutateResult = from.mutateResult;
     this.oldValue = from.oldValue;
     this.value = from.value;
   }
 
-  public clone(): StateCrudAction<S> {
+  public clone(): StateCrudAction<S, K> {
     let copy = new StateCrudAction(this.type, this.parent, this.propertyName, this.value);
     copy.assignProps(this);
     return copy;
   }
 
-  constructor(actionType: ActionId, _parent: S, _propertyName: keyof S, _value: S[keyof S]) {
+  constructor(actionType: ActionId, _parent: S, _propertyName: K, _value?: S[K]) {
     super(actionType, _parent, _propertyName);
     this.value = _value;
   }
@@ -168,7 +168,7 @@ export class StateCrudAction<S extends StateObject> extends StateAction<S> {
  * Functions like this are necessary to create mappings between React keys and StateObject array indexes, as
  * in ArrayKeyIndexMap below.
  *
- * These functions should be created in StateObject's __accessors__, so that both
+ * These functions should be created in StateObject's _accessors, so that both
  * 1. invocations of ArrayKeyIndexMap's getKeyIndexMap, and...
  * 2. ArrayMutateAction's constructor's 'index' argument
  * ... can use this function (since they have to be the same).
@@ -297,17 +297,17 @@ export const arrayKeyIndexMap = new ArrayKeyIndexMap();
  *
  */
 export class ArrayMutateAction
-  <S extends StateObject, V> extends StateAction<S> {
+  <S extends StateObject, K extends keyof S, V> extends StateAction<S, K> {
 
   mutateResult?: {oldValue?: V};
   oldValue?: V | undefined;
-  value: V;
+  value: V | undefined;
   // see Typescript issue 20177 at https://github.com/Microsoft/TypeScript/issues/20771#issuecomment-367834171
   // ms: changed from optional to required, since arrays are simple properties that must be explicitly inserted
-  valuesArray: Array<V>;
+  valuesArray: Array<V> & S[K];
   index: number;
 
-  protected assignProps(from: ArrayMutateAction<S, V>) {
+  protected assignProps(from: ArrayMutateAction<S, K, V>) {
     super.assignProps(from);
     this.mutateResult = from.mutateResult;
     this.oldValue = from.oldValue;
@@ -316,8 +316,8 @@ export class ArrayMutateAction
     this.index = from.index;
   }
 
-  public clone(): ArrayMutateAction<S, V> {
-    let copy = new ArrayMutateAction(
+  public clone(): ArrayMutateAction<S, K, V> {
+    let copy: ArrayMutateAction<S, K, V> = new ArrayMutateAction(
         this.type, this.parent,
         this.propertyName,
         this.index,
@@ -328,8 +328,8 @@ export class ArrayMutateAction
   }
 
   // TODO: restrict the set of ActionId's here to regular property insert/update/delete
-  constructor(actionType: ActionId, _parent: S, _propertyName: keyof S, _index: number,
-              valuesArray: Array<V>, _value: V) {
+  constructor(actionType: ActionId, _parent: S, _propertyName: K, _index: number,
+              valuesArray: Array<V> & S[K], _value?: V) {
     super(actionType, _parent, _propertyName);
     // let prop = _parent[_propertyName];
     // if ( prop instanceof Array) {
@@ -376,20 +376,22 @@ export class ArrayMutateAction
  * Prop types used in defining the ContainerComponent<CP,VP>
  * CP: container prop type
  * VP: view prop type
+ * TP: a particular key of VP
+ * A: application state
  */
 
 export class MappingAction
-      <S extends StateObject, CP, VP, A extends StateObject>
-      extends StateAction<S> {
+      <S extends StateObject, K extends keyof S, CP, VP, TP extends keyof VP, A extends StateObject>
+      extends StateAction<S, K> {
 
   /* tslint:disable:no-any */
   component: ContainerComponent<CP, VP, A>;
   /* tslint:enable:no-any */
   fullPath: string;
-  targetPropName: keyof VP;
+  targetPropName: TP;
   dispatches: DispatchType[];
 
-  protected assignProps(from:  MappingAction<S, CP, VP, A>) {
+  protected assignProps(from:  MappingAction<S, K, CP, VP, TP, A>) {
     super.assignProps(from);
     this.component = from.component;
     this.fullPath = from.fullPath;
@@ -397,7 +399,7 @@ export class MappingAction
     this.dispatches = from.dispatches;
   }
 
-  public clone(): MappingAction<S, CP, VP, A> {
+  public clone(): MappingAction<S, K, CP, VP, TP, A> {
     let copy = new MappingAction(
         this.parent,
         this.propertyName,
@@ -421,9 +423,9 @@ export class MappingAction
 
   constructor(
               parent: S,
-              _propertyOrArrayName: keyof S,
+              _propertyOrArrayName: K,
               _component: ContainerComponent<CP, VP, A>,
-              targetPropName: keyof VP,
+              targetPropName: TP,
               ...dispatches: DispatchType[]
               ) {
     super(ActionId.MAP_STATE_TO_PROP, parent, _propertyOrArrayName);
@@ -469,3 +471,7 @@ export class MappingAction
     this.perform();
   }
 }
+
+/* tslint:disable:no-any */
+export type GenericMappingAction = MappingAction<any, any, any, any, any, any>;
+/* tslint:enable:no-any */

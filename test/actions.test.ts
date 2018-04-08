@@ -3,17 +3,17 @@ import {
   StateCrudAction
 } from '../src/actions/actions';
 import { State } from '../src/types/State';
-import { Address, createAppTestState, createTestState, Name } from './testHarness';
+import { Address, createAppTestState, createTestState, Name, NameState } from './testHarness';
 import { createNameContainer } from './testHarness';
 import { StateObject } from '../src/types/State';
 import { ActionProcessorFunctionType } from '../src/types/ActionProcessor';
 import * as _ from 'lodash';
 import { onFailureDiff } from '../src/types/StateMutationDiagnostics';
-import { ArrayCrudActionCreator } from '../src/actions/actionCreators';
+import { ArrayCrudActionCreator, CrudActionCreator } from '../src/actions/actionCreators';
 
 const testState = createAppTestState();
 let name: Name;
-let nameState: Name & StateObject;
+let nameState: NameState; // Name & StateObject;
 let bowlingScores: number[];
 let address: Address;
 let addressState: Address & StateObject;
@@ -50,7 +50,7 @@ describe('Add the name container', () => {
     expect(nameState.middle).toEqual('F');
   });
   test('nameState\'s parent should be state container', () => {
-    expect(nameState.__parent__).toBe(appState);
+    expect(nameState._parent).toBe(appState);
   });
 
   describe('Modify the name\'s middle initial', () => {
@@ -99,9 +99,36 @@ describe('Add the name container', () => {
     });
   });
 
+  describe('use CrudActionCreator', () => {
+    // let crudCreator = nameState._accessors.crudCreator;
+    let crudCreator = new CrudActionCreator(nameState);
+    let last = nameState.last;
+    // let updateAction = new StateCrudAction(ActionId.UPDATE_PROPERTY, nameState, 'last', 'Doe');
+    test('crudCreator update', () => {
+      let updateAction = crudCreator.update('last', 'Doe');
+      updateAction.perform();
+      expect(nameState.last).toBe('Doe');
+      // restore the last name, note the action is performed inline
+      crudCreator.update('last', last).perform();
+      expect(nameState.last).toBe(last);
+    });
+    test('crudCreator insert', () => {
+      expect(nameState.suffix).toBeUndefined();
+      let insertAction = crudCreator.insert('suffix', 'Jr');
+      insertAction.perform();
+      expect(nameState.suffix).toBe('Jr');
+
+    });
+    test('crudCreator remove (delete)', () => {
+      let removeAction = crudCreator.remove('suffix');
+      removeAction.perform();
+      expect(nameState.suffix).toBeUndefined();
+    });
+  });
+
   describe('use ActionCreator for array changes in nameState.addresses', () => {
     // let streetKey: ArrayKeyGeneratorFn<Address> = a => a.street;
-    let streetKeyFn: ArrayKeyGeneratorFn<Address> = nameState.__accessors__.addressKeyGen;
+    let streetKeyFn: ArrayKeyGeneratorFn<Address> = nameState.addressKeyGen;
     let addrActionCreator = new ArrayCrudActionCreator(nameState, nameState.addresses, streetKeyFn);
     test('insert into the addresses array', () => {
       let addr: Address = {
@@ -125,7 +152,7 @@ describe('Add the name container', () => {
       expect(nameState.addresses[1]).toBe(address2);
     });
     test('delete an address', () => {
-      addrActionCreator.delete(0).perform();
+      addrActionCreator.remove(0).perform();
       expect(nameState.addresses.length).toBe(1);
       expect(nameState.addresses[0]).toBe(address2);
     });
@@ -169,7 +196,7 @@ describe('Add the name container', () => {
         throw new Error('nameState.bowlingScores should be defined but is falsey');
       }
 
-      let appendScore = new ArrayMutateAction<Name & StateObject, number>(
+      let appendScore = new ArrayMutateAction(
           ActionId.INSERT_PROPERTY, nameState, 'bowlingScores',
           nameState.bowlingScores.length, nameState.bowlingScores, 299);
       expect(() => {testState.getManager().actionPerform(appendScore); }).toThrow();
@@ -216,18 +243,18 @@ describe('test stripping StateObject info', () => {
   test('stripping all StateObject properties from the object graph', () => {
     let stateClone = _.cloneDeep(testState.getState());
     State.stripStateObject(stateClone);
-    expect(stateClone.hasOwnProperty('__parent__')).toBe(false);
-    expect(stateClone.hasOwnProperty('__my_propname__')).toBe(false);
+    expect(stateClone.hasOwnProperty('_parent')).toBe(false);
+    expect(stateClone.hasOwnProperty('_myPropname')).toBe(false);
     if (!stateClone.name) {
       throw new Error('name is undefined');
     }
-    expect(stateClone.name.hasOwnProperty('__parent__')).toBe(false);
-    expect(stateClone.name.hasOwnProperty('__my_propname__')).toBe(false);
+    expect(stateClone.name.hasOwnProperty('_parent')).toBe(false);
+    expect(stateClone.name.hasOwnProperty('_myPropname')).toBe(false);
     if (!stateClone.name.address) {
       throw new Error('address is undefined');
     }
-    expect(stateClone.name.address.hasOwnProperty('__my_propname__')).toBe(false);
-    expect(stateClone.name.address.hasOwnProperty('__parent__')).toBe(false);
+    expect(stateClone.name.address.hasOwnProperty('_myPropname')).toBe(false);
+    expect(stateClone.name.address.hasOwnProperty('_parent')).toBe(false);
   });
 });
 
@@ -296,7 +323,7 @@ describe('tests for ArrayKeyIndexMap', () => {
 });
 
 // describe('Tests for array action creator for array mutations', () => {
-//   let actionCreator = new ArrayCrudActionCreator(nameState, name.addresses, nameState.__accessors__.addressKeyFn);
+//   let actionCreator = new ArrayCrudActionCreator(nameState, name.addresses, nameState._accessors.addressKeyFn);
 //   actionCreator.insert(0, address).perform();
 //   test('address was inserted', () => {
 //     expect(name.addresses[0]).toBe(address);

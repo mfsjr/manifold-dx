@@ -5,14 +5,14 @@ import { Manager } from './Manager';
  * Note that __parents__ are never null (top level app state is self-referencing)
  */
 export interface StateObject {
-    __parent__: StateObject;
-    __my_propname__: string;
+    _parent: StateObject;
+    _my_propname: string;
     /**
      * Accessors are pojos containing methods written by devs as needed.  These methods typically operate on the
      * data contained within this state object.  They can transform data, call the Action API
      * for performing updates, inserts or deletes, etc.
      */
-    __accessors__?: any;
+    _accessors?: any;
 }
 /**
  * Options which may be passed directly to the State constructor
@@ -94,7 +94,7 @@ export declare class State<A> {
 }
 /**
  * This is only used in JSON.stringify, to prevent cyclic errors arising from
- * container.__parent__ === container
+ * container._parent === container
  * @param key
  * @param value
  * @returns {string}

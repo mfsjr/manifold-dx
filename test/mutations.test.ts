@@ -191,7 +191,7 @@ describe('mutate object values', () => {
     });
     test('the JSON_replaceCyclicParent function, used to remove cyclic references for JSON.stringify', () => {
       let json = JSON.stringify(nameState, JSON_replaceCyclicParent, 4);
-      expect(json.indexOf('__parent__')).toBeGreaterThan(0);
+      expect(json.indexOf('_parent')).toBeGreaterThan(0);
     });
     test('delete the nameState from the name container', () => {
       let deleteResult = mutateValue(

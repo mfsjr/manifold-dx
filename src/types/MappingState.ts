@@ -1,10 +1,9 @@
-import { MappingAction } from '../actions/actions';
+import { GenericMappingAction } from '../actions/actions';
 
 /**
  * Mapping actions require specific generic types, but common data structures need to hold 'any'
  */
 /* tslint:disable:no-any */
-export type GenericMappingAction = MappingAction<any, any, any, any>;
 /* tslint:enable:no-any */
 
 /**

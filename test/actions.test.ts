@@ -100,27 +100,27 @@ describe('Add the name container', () => {
   });
 
   describe('use CrudActionCreator', () => {
-    // let actionCreator = nameState._accessors.actionCreator;
-    let actionCreator = new CrudActionCreator(nameState);
+    // let crudCreator = nameState._accessors.crudCreator;
+    let crudCreator = new CrudActionCreator(nameState);
     let last = nameState.last;
     // let updateAction = new StateCrudAction(ActionId.UPDATE_PROPERTY, nameState, 'last', 'Doe');
-    test('actionCreator update', () => {
-      let updateAction = actionCreator.update('last', 'Doe');
+    test('crudCreator update', () => {
+      let updateAction = crudCreator.update('last', 'Doe');
       updateAction.perform();
       expect(nameState.last).toBe('Doe');
       // restore the last name, note the action is performed inline
-      actionCreator.update('last', last).perform();
+      crudCreator.update('last', last).perform();
       expect(nameState.last).toBe(last);
     });
-    test('actionCreator insert', () => {
+    test('crudCreator insert', () => {
       expect(nameState.suffix).toBeUndefined();
-      let insertAction = actionCreator.insert('suffix', 'Jr');
+      let insertAction = crudCreator.insert('suffix', 'Jr');
       insertAction.perform();
       expect(nameState.suffix).toBe('Jr');
 
     });
-    test('actionCreator remove (delete)', () => {
-      let removeAction = actionCreator.remove('suffix');
+    test('crudCreator remove (delete)', () => {
+      let removeAction = crudCreator.remove('suffix');
       removeAction.perform();
       expect(nameState.suffix).toBeUndefined();
     });

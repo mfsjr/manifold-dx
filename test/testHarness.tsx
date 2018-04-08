@@ -79,30 +79,31 @@ export function createNameContainer(nameData: Name, parent: StateObject, myName:
   let nameState: NameState = {
     _parent: parent,
     _myPropname: myName,
+    ...nameData,
 
-    get prefix(): string | undefined { return nameData.prefix; },
-    set prefix(value: string | undefined) { nameData.prefix = value; },
-
-    get suffix(): string | undefined { return nameData.suffix; },
-    set suffix(value: string | undefined) { nameData.suffix = value; },
-
-    get first(): string { return nameData.first; },
-    set first(value: string) { nameData.first = value; },
-
-    get middle(): string { return nameData.middle; },
-    set middle(value: string) { nameData.middle = value; },
-
-    get last(): string { return nameData.last; },
-    set last(value: string) { nameData.last = value; },
-
-    get address(): Address | undefined { return nameData.address; },
-    set address(value: Address | undefined) { nameData.address = value; },
-
-    get addresses(): Array<Address> { return nameData.addresses; },
-    set addresses(value: Array<Address>) { nameData.addresses = value; },
-
-    get bowlingScores(): Array<number> { return nameData.bowlingScores; },
-    set bowlingScores(value: Array<number>) { nameData.bowlingScores = value; },
+    // get prefix(): string | undefined { return nameData.prefix; },
+    // set prefix(value: string | undefined) { nameData.prefix = value; },
+    //
+    // get suffix(): string | undefined { return nameData.suffix; },
+    // set suffix(value: string | undefined) { nameData.suffix = value; },
+    //
+    // get first(): string { return nameData.first; },
+    // set first(value: string) { nameData.first = value; },
+    //
+    // get middle(): string { return nameData.middle; },
+    // set middle(value: string) { nameData.middle = value; },
+    //
+    // get last(): string { return nameData.last; },
+    // set last(value: string) { nameData.last = value; },
+    //
+    // get address(): Address | undefined { return nameData.address; },
+    // set address(value: Address | undefined) { nameData.address = value; },
+    //
+    // get addresses(): Array<Address> { return nameData.addresses; },
+    // set addresses(value: Array<Address>) { nameData.addresses = value; },
+    //
+    // get bowlingScores(): Array<number> { return nameData.bowlingScores; },
+    // set bowlingScores(value: Array<number>) { nameData.bowlingScores = value; },
 
     getActionCreator: _getActionCreator,
 

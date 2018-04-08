@@ -9,36 +9,73 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var State_1 = require("../src/types/State");
-var actions_1 = require("../src/actions/actions");
+// import { ArrayKeyGeneratorFn, propertyKeyGenerator } from '../src/actions/actions';
 var actionCreators_1 = require("../src/actions/actionCreators");
+var actions_1 = require("../src/actions/actions");
+// Example of WebStorm Live Template ("getset") for creating getters and setters
+// get $PROPNAME$$END$(): $TYPE$$END$ { return $VAR$$END$; },
+// set $PROPNAME$(value: $TYPE$) { $VAR$ = value; },
 /**
- * Create the name container state object and insert it into the parent.
+ * Factory method for creating instances of {@link NameState}.  Note that the technique we use for
+ * providing options that are a function of the same NameState, is to provide a function that takes the
+ * NameState as an arg and lazily instantiates the object within the closure.
  *
- * Example of how to create a StateObject containing an array.  The 'keyGenerator' is needed to create
- * the keys that React requires, and the 'addressesActionCreator' is used to create actions that
- * manipulate the array.
+ * Result is that the state object can contain functions that are a function of the same state object.
  *
- * Note that the returned NameContainer is never declared to be a NameContainer, but is built as an object
- * literal, piece by piece until its returned, where structural subtyping verifies its a NameContainer
+ * Written out so that the closure variable and the lazy instantiator are side-by-side (fn could be done inline tho)
+ *
+ * Using getters and setters isn't necessary, just done as an exercise to demonstrate that data passed in could
+ * be used directly if needed, rather than copying the key/value pairs via spreads.
  *
  * @param {Name} nameData
  * @param {StateObject} parent
  * @param {string} myName
- * @returns {NameContainer}
+ * @returns {NameState}
  */
 function createNameContainer(nameData, parent, myName) {
-    var nameStateData = __assign({ _my_propname: myName, _parent: parent }, nameData);
+    // lazy initialization held in the closure
+    var actionCreator;
+    var _getActionCreator = function (_nameState) {
+        if (!actionCreator) {
+            actionCreator = new actionCreators_1.CrudActionCreator(_nameState);
+        }
+        return actionCreator;
+    };
     // define the keyGeneratorFn, to be used in multiple places below
     var keyGeneratorFn = function (addr) { return actions_1.propertyKeyGenerator(addr, 'street'); };
-    // build NameAccessors
-    var accessors = {
-        actionCreator: new actionCreators_1.CrudActionCreator(nameStateData),
-        addressKeyGen: keyGeneratorFn,
-        addressesActionCreator: new actionCreators_1.ArrayCrudActionCreator(nameStateData, nameStateData.addresses, keyGeneratorFn)
+    var addressesActionCreator;
+    var getAddressesActionCreator = function (_nameState) {
+        addressesActionCreator = addressesActionCreator ||
+            new actionCreators_1.ArrayCrudActionCreator(_nameState, _nameState.addresses, keyGeneratorFn);
+        return addressesActionCreator;
     };
-    nameStateData["_accessors"] = accessors;
-    parent[myName] = nameStateData;
-    return nameStateData;
+    var nameState = __assign({ _parent: parent, _myPropname: myName }, nameData, { 
+        // get prefix(): string | undefined { return nameData.prefix; },
+        // set prefix(value: string | undefined) { nameData.prefix = value; },
+        //
+        // get suffix(): string | undefined { return nameData.suffix; },
+        // set suffix(value: string | undefined) { nameData.suffix = value; },
+        //
+        // get first(): string { return nameData.first; },
+        // set first(value: string) { nameData.first = value; },
+        //
+        // get middle(): string { return nameData.middle; },
+        // set middle(value: string) { nameData.middle = value; },
+        //
+        // get last(): string { return nameData.last; },
+        // set last(value: string) { nameData.last = value; },
+        //
+        // get address(): Address | undefined { return nameData.address; },
+        // set address(value: Address | undefined) { nameData.address = value; },
+        //
+        // get addresses(): Array<Address> { return nameData.addresses; },
+        // set addresses(value: Array<Address>) { nameData.addresses = value; },
+        //
+        // get bowlingScores(): Array<number> { return nameData.bowlingScores; },
+        // set bowlingScores(value: Array<number>) { nameData.bowlingScores = value; },
+        getActionCreator: _getActionCreator, addressKeyGen: keyGeneratorFn, getAddressesActionCreator: getAddressesActionCreator });
+    parent[myName] = nameState;
+    return nameState;
 }
 exports.createNameContainer = createNameContainer;
 function createTestState() {

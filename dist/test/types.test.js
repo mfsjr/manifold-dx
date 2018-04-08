@@ -47,18 +47,16 @@ describe('state setup', function () {
     test('if a plain object structurally matches a state object, it should be identified as a state object', function () {
         var c = {
             _parent: null,
-            _my_propname: ''
+            _myPropname: ''
         };
         c._parent = c;
         expect(State_1.State.isInstanceOfStateObject(c)).toBe(true);
     });
 });
-// export interface NameContainer extends Name, StateObject {
-//   _accessors: NameAccessors;
-// }
 describe('creating child state objects', function () {
     test('nameState should have a _parent that points to state', function () {
         expect(nameState._parent === testState.getState());
+        // expect( testState.getState().name ).toBe(nameState);
     });
     test('nameState should have a first IName of Matthew', function () {
         expect(nameState.first).toEqual('Matthew');

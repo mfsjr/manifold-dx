@@ -322,6 +322,8 @@ exports.ArrayMutateAction = ArrayMutateAction;
  * Prop types used in defining the ContainerComponent<CP,VP>
  * CP: container prop type
  * VP: view prop type
+ * TP: a particular key of VP
+ * A: application state
  */
 var MappingAction = /** @class */ (function (_super) {
     __extends(MappingAction, _super);

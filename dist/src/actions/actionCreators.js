@@ -45,11 +45,26 @@ var CrudActionCreator = /** @class */ (function () {
 }());
 exports.CrudActionCreator = CrudActionCreator;
 /**
+ * Factory method for CrudActionCreator, rather than exposing implementation details
+ * @param {S} parent
+ * @returns {CrudActionCreator<S extends StateObject>}
+ */
+function getCrudCreator(parent) {
+    return new CrudActionCreator(parent);
+}
+exports.getCrudCreator = getCrudCreator;
+function getArrayCrudCreator(parent, childArray, keyGenerator) {
+    return new ArrayCrudActionCreator(parent, childArray, keyGenerator);
+}
+exports.getArrayCrudCreator = getArrayCrudCreator;
+/**
  * Class for creating CRUD actions for arrays of objects (not primitives).
  *
  * Arrays of primitives can be handled with CRUD operations that treat arrays as simple properties,
  * using {@link CrudActionCreator}s above.  Note that the creation and deletion of arrays of
  * objects would need to use the same.
+ *
+ * usage example from tests:  new ArrayCrudActionCreator(nameState, nameState.addresses, streetKeyFn)
  *
  * S is the StateObject which the array is a property of
  */
@@ -117,4 +132,21 @@ var ArrayCrudActionCreator = /** @class */ (function () {
     return ArrayCrudActionCreator;
 }());
 exports.ArrayCrudActionCreator = ArrayCrudActionCreator;
+/**
+ * Simple function for returning a {@link MappingCreator}, which makes it easy to create {@link MappingAction}s
+ * @param {S} _parent StateObject, where you're mapping the data from
+ * @param {ContainerComponent<CP, VP, A extends StateObject>} _component that is using the mapping
+ * @returns {MappingCreator<S extends StateObject, A extends StateObject, VP, CP>} for creating {@link MappingAction}s
+ */
+function getMappingCreator(_parent, _component) {
+    var _createMappingAction = function (_propKey, targetPropKey) {
+        var dispatches = [];
+        for (var _i = 2; _i < arguments.length; _i++) {
+            dispatches[_i - 2] = arguments[_i];
+        }
+        return new (actions_1.MappingAction.bind.apply(actions_1.MappingAction, [void 0, _parent, _propKey, _component, targetPropKey].concat(dispatches)))();
+    };
+    return { createMappingAction: _createMappingAction };
+}
+exports.getMappingCreator = getMappingCreator;
 //# sourceMappingURL=actionCreators.js.map

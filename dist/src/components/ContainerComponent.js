@@ -64,7 +64,6 @@ var ContainerComponent = /** @class */ (function (_super) {
         }
         return _this;
     }
-    /* tslint:enable:no-any */
     /**
      * Convenience method
      * @param {Array<T>} oldArray
@@ -78,6 +77,13 @@ var ContainerComponent = /** @class */ (function (_super) {
         return newArray;
     };
     ContainerComponent.prototype.getMappingActions = function () { return this.mappingActions; };
+    ContainerComponent.prototype.createMappingAction = function (parentState, _propKey, targetPropKey) {
+        var dispatches = [];
+        for (var _i = 3; _i < arguments.length; _i++) {
+            dispatches[_i - 3] = arguments[_i];
+        }
+        return new (actions_1.MappingAction.bind.apply(actions_1.MappingAction, [void 0, parentState, _propKey, this, targetPropKey].concat(dispatches)))();
+    };
     ContainerComponent.prototype.createMapping = function (stateObject, stateObjectProperty, targetViewProp) {
         var dispatches = [];
         for (var _i = 3; _i < arguments.length; _i++) {
@@ -193,4 +199,5 @@ var ContainerComponent = /** @class */ (function (_super) {
     return ContainerComponent;
 }(React.Component));
 exports.ContainerComponent = ContainerComponent;
+/* tslint:enable:no-any */
 //# sourceMappingURL=ContainerComponent.js.map

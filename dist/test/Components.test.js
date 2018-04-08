@@ -16,19 +16,23 @@ var ContainerComponent_1 = require("../src/components/ContainerComponent");
 var actions_1 = require("../src/actions/actions");
 var State_1 = require("../src/types/State");
 var Manager_1 = require("../src/types/Manager");
+var actionCreators_1 = require("../src/actions/actionCreators");
 var testState = testHarness_1.createAppTestState();
 var name;
 var nameState;
 var bowlingScores;
 var initBowlerProps;
 var container;
-var ScoreCardGeneraotr = function (props) {
+var ScoreCardGenerator = function (props) {
     return new React.Component(props);
 };
 var BowlerContainer = /** @class */ (function (_super) {
     __extends(BowlerContainer, _super);
     function BowlerContainer(bowlerProps) {
-        var _this = _super.call(this, bowlerProps, testState.getState(), undefined, ScoreCardGeneraotr) || this;
+        var _this = _super.call(this, bowlerProps, testState.getState(), undefined, ScoreCardGenerator) || this;
+        if (!_this.appData.name) {
+            throw new Error('nameState must be defined!');
+        }
         _this.nameState = _this.appData.name;
         return _this;
     }
@@ -57,14 +61,12 @@ var BowlerContainer = /** @class */ (function (_super) {
     BowlerContainer.prototype.createView = function (viewProps) {
         return new React.Component(viewProps);
     };
-    /* tslint:disable:no-any */
     BowlerContainer.prototype.createMappingActions = function () {
-        /* tslint:enable:no-any */
-        // let result: StateMappingAction<any, any, BowlerProps, ScoreCardProps, keyof ScoreCardProps>[] = [];
-        // result.push(this.createStateMappingAction(nameState, 'first', 'fullName'));
-        var fullNameAction = new actions_1.MappingAction(nameState, 'first', this, 'fullName');
-        var scoreAction = new actions_1.MappingAction(nameState, 'bowlingScores', this, 'scores', this.calcAverage.bind(this));
-        return [fullNameAction, scoreAction];
+        var nameStateMapper = actionCreators_1.getMappingCreator(this.nameState, this);
+        return [
+            nameStateMapper.createMappingAction('first', 'fullName'),
+            nameStateMapper.createMappingAction('bowlingScores', 'scores', this.calcAverage.bind(this))
+        ];
     };
     BowlerContainer.prototype.updateViewProps = function (executedActions) {
         // this.updateViewPropsUsingMappings(executedActions);

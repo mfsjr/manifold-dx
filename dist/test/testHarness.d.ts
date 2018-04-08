@@ -1,6 +1,6 @@
 import { State, StateObject } from '../src/types/State';
-import { ArrayKeyGeneratorFn } from '../src/actions/actions';
 import { ArrayCrudActionCreator, CrudActionCreator } from '../src/actions/actionCreators';
+import { ArrayKeyGeneratorFn } from '../src/actions/actions';
 export interface Address {
     street: string;
     city: string;
@@ -22,26 +22,30 @@ export interface Name {
  * Accessors to be used on our Name & StateObject data.
  */
 export interface NameAccessors {
-    actionCreator: CrudActionCreator<Name & StateObject>;
+    getActionCreator: (nameState: NameState) => CrudActionCreator<Name & StateObject>;
     addressKeyGen: ArrayKeyGeneratorFn<Address>;
-    addressesActionCreator: ArrayCrudActionCreator<Name & StateObject, keyof Name & StateObject, Address>;
+    getAddressesActionCreator: (nameState: NameState) => ArrayCrudActionCreator<NameState, 'addresses', Address>;
+}
+export interface NameState extends Name, StateObject, NameAccessors {
 }
 /**
- * Create the name container state object and insert it into the parent.
+ * Factory method for creating instances of {@link NameState}.  Note that the technique we use for
+ * providing options that are a function of the same NameState, is to provide a function that takes the
+ * NameState as an arg and lazily instantiates the object within the closure.
  *
- * Example of how to create a StateObject containing an array.  The 'keyGenerator' is needed to create
- * the keys that React requires, and the 'addressesActionCreator' is used to create actions that
- * manipulate the array.
+ * Result is that the state object can contain functions that are a function of the same state object.
  *
- * Note that the returned NameContainer is never declared to be a NameContainer, but is built as an object
- * literal, piece by piece until its returned, where structural subtyping verifies its a NameContainer
+ * Written out so that the closure variable and the lazy instantiator are side-by-side (fn could be done inline tho)
+ *
+ * Using getters and setters isn't necessary, just done as an exercise to demonstrate that data passed in could
+ * be used directly if needed, rather than copying the key/value pairs via spreads.
  *
  * @param {Name} nameData
  * @param {StateObject} parent
  * @param {string} myName
- * @returns {NameContainer}
+ * @returns {NameState}
  */
-export declare function createNameContainer(nameData: Name, parent: StateObject, myName: string): Name & StateObject;
+export declare function createNameContainer(nameData: Name, parent: StateObject, myName: string): NameState;
 export interface TestState {
     name?: Name & StateObject;
     me?: Name & StateObject;

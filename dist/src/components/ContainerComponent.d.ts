@@ -29,7 +29,7 @@ export declare abstract class ContainerComponent<CP, VP, A extends StateObject> 
      * An instance of a React.Component class created by the {@link ComponentGenerator} passed into the constructor.
      */
     protected viewComponent: React.Component<VP, any>;
-    protected mappingActions: MappingAction<any, any, CP, VP, A>[];
+    protected mappingActions: GenericContainerMappingTypes<CP, VP, A>[];
     /**
      * Convenience method
      * @param {Array<T>} oldArray
@@ -38,7 +38,8 @@ export declare abstract class ContainerComponent<CP, VP, A extends StateObject> 
      * @returns {Array<T>}
      */
     static newArray<T>(oldArray: Array<T>, index: number, newElement: T): Array<T>;
-    getMappingActions(): MappingAction<any, any, CP, VP, A>[];
+    getMappingActions(): MappingAction<any, any, CP, VP, any, A>[];
+    createMappingAction<S extends StateObject, K extends keyof S, TP extends keyof VP>(parentState: S, _propKey: K, targetPropKey: TP, ...dispatches: DispatchType[]): MappingAction<S, K, CP, VP, TP, A>;
     /**
      * There are two types of views this can create.  The preferred way is with
      * an 'SFC' (stateless functional component), the other way is by creating
@@ -51,7 +52,7 @@ export declare abstract class ContainerComponent<CP, VP, A extends StateObject> 
      * @param {ComponentGenerator<VP> | undefined} viewGenerator
      */
     constructor(_props: CP, appData: StateObject & A, sfc: SFC<VP> | undefined, viewGenerator?: ComponentGenerator<VP> | undefined);
-    createMapping<S extends StateObject, K extends keyof S>(stateObject: S, stateObjectProperty: K, targetViewProp: keyof VP, ...dispatches: DispatchType[]): MappingAction<S, K, CP, VP, A>;
+    createMapping<S extends StateObject, K extends keyof S, TP extends keyof VP>(stateObject: S, stateObjectProperty: K, targetViewProp: TP, ...dispatches: DispatchType[]): MappingAction<S, K, CP, VP, TP, A>;
     /**
      * This is only used for testing
      * @returns {React.Component<VP, any>}
@@ -64,9 +65,9 @@ export declare abstract class ContainerComponent<CP, VP, A extends StateObject> 
      *
      * Implementations of this method are called once, to populate the stateMappingActions array.
      *
-     * @returns {MappingAction<any, any, CP, VP, keyof VP>[]} the array of mappings
+     * @returns {GenericContainerMappingTypes<CP, VP, A>[]} the array of mappings for a container
      */
-    abstract createMappingActions(): MappingAction<any, any, CP, VP, A>[];
+    abstract createMappingActions(): GenericContainerMappingTypes<CP, VP, A>[];
     /**
      * Create default view properties, used to initialize {@link viewProps} and passed
      * into this container's presentational component, either {@link sfcView} or
@@ -99,3 +100,4 @@ export declare abstract class ContainerComponent<CP, VP, A extends StateObject> 
     handleChange(executedActions: Action[]): void;
     render(): ReactNode;
 }
+export declare type GenericContainerMappingTypes<CP, VP, A extends StateObject> = MappingAction<any, any, CP, VP, any, A>;

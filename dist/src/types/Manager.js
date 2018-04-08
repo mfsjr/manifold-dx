@@ -152,7 +152,7 @@ var Manager = /** @class */ (function () {
         var iteratorResult = containerIterator.next();
         while (!iteratorResult.done) {
             if (iteratorResult.value._parent !== iteratorResult.value) {
-                fullPath = iteratorResult.value._my_propname + '.' + fullPath;
+                fullPath = iteratorResult.value._myPropname + '.' + fullPath;
             }
             iteratorResult = containerIterator.next();
         }

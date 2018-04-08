@@ -6,7 +6,7 @@ import { Manager } from './Manager';
  */
 export interface StateObject {
     _parent: StateObject;
-    _my_propname: string;
+    _myPropname: string;
     /**
      * Accessors are pojos containing methods written by devs as needed.  These methods typically operate on the
      * data contained within this state object.  They can transform data, call the Action API

@@ -156,14 +156,16 @@ export declare class ArrayMutateAction<S extends StateObject, K extends keyof S,
  * Prop types used in defining the ContainerComponent<CP,VP>
  * CP: container prop type
  * VP: view prop type
+ * TP: a particular key of VP
+ * A: application state
  */
-export declare class MappingAction<S extends StateObject, K extends keyof S, CP, VP, A extends StateObject> extends StateAction<S, K> {
+export declare class MappingAction<S extends StateObject, K extends keyof S, CP, VP, TP extends keyof VP, A extends StateObject> extends StateAction<S, K> {
     component: ContainerComponent<CP, VP, A>;
     fullPath: string;
-    targetPropName: keyof VP;
+    targetPropName: TP;
     dispatches: DispatchType[];
-    protected assignProps(from: MappingAction<S, K, CP, VP, A>): void;
-    clone(): MappingAction<S, K, CP, VP, A>;
+    protected assignProps(from: MappingAction<S, K, CP, VP, TP, A>): void;
+    clone(): MappingAction<S, K, CP, VP, TP, A>;
     /**
      * Create a new mapping action from a state property to a view property
      *
@@ -174,7 +176,7 @@ export declare class MappingAction<S extends StateObject, K extends keyof S, CP,
      * @param {DispatchType} dispatches - these are generally instance functions in the component that update other
      *          component view properties as a function of the target view property having changed.
      */
-    constructor(parent: S, _propertyOrArrayName: K, _component: ContainerComponent<CP, VP, A>, targetPropName: keyof VP, ...dispatches: DispatchType[]);
+    constructor(parent: S, _propertyOrArrayName: K, _component: ContainerComponent<CP, VP, A>, targetPropName: TP, ...dispatches: DispatchType[]);
     getValue(): S[keyof S];
     getTargetPropName(): keyof VP;
     /**
@@ -186,4 +188,4 @@ export declare class MappingAction<S extends StateObject, K extends keyof S, CP,
     undo(): void;
     redo(): void;
 }
-export declare type GenericMappingAction = MappingAction<any, any, any, any, any>;
+export declare type GenericMappingAction = MappingAction<any, any, any, any, any, any>;

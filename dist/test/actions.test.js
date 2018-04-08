@@ -17,7 +17,7 @@ var StateMutationDiagnostics_1 = require("../src/types/StateMutationDiagnostics"
 var actionCreators_1 = require("../src/actions/actionCreators");
 var testState = testHarness_1.createAppTestState();
 var name;
-var nameState;
+var nameState; // Name & StateObject;
 var bowlingScores;
 var address;
 var addressState;
@@ -95,33 +95,33 @@ describe('Add the name container', function () {
         });
     });
     describe('use CrudActionCreator', function () {
-        // let actionCreator = nameState._accessors.actionCreator;
-        var actionCreator = new actionCreators_1.CrudActionCreator(nameState);
+        // let crudCreator = nameState._accessors.crudCreator;
+        var crudCreator = new actionCreators_1.CrudActionCreator(nameState);
         var last = nameState.last;
         // let updateAction = new StateCrudAction(ActionId.UPDATE_PROPERTY, nameState, 'last', 'Doe');
-        test('actionCreator update', function () {
-            var updateAction = actionCreator.update('last', 'Doe');
+        test('crudCreator update', function () {
+            var updateAction = crudCreator.update('last', 'Doe');
             updateAction.perform();
             expect(nameState.last).toBe('Doe');
             // restore the last name, note the action is performed inline
-            actionCreator.update('last', last).perform();
+            crudCreator.update('last', last).perform();
             expect(nameState.last).toBe(last);
         });
-        test('actionCreator insert', function () {
+        test('crudCreator insert', function () {
             expect(nameState.suffix).toBeUndefined();
-            var insertAction = actionCreator.insert('suffix', 'Jr');
+            var insertAction = crudCreator.insert('suffix', 'Jr');
             insertAction.perform();
             expect(nameState.suffix).toBe('Jr');
         });
-        test('actionCreator remove (delete)', function () {
-            var removeAction = actionCreator.remove('suffix');
+        test('crudCreator remove (delete)', function () {
+            var removeAction = crudCreator.remove('suffix');
             removeAction.perform();
             expect(nameState.suffix).toBeUndefined();
         });
     });
     describe('use ActionCreator for array changes in nameState.addresses', function () {
         // let streetKey: ArrayKeyGeneratorFn<Address> = a => a.street;
-        var streetKeyFn = nameState._accessors.addressKeyGen;
+        var streetKeyFn = nameState.addressKeyGen;
         var addrActionCreator = new actionCreators_1.ArrayCrudActionCreator(nameState, nameState.addresses, streetKeyFn);
         test('insert into the addresses array', function () {
             var addr = {

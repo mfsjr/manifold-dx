@@ -68,13 +68,15 @@ export declare class ArrayCrudActionCreator<S extends StateObject, K extends key
 /**
  * Interface for api to create mapping actions
  */
-export interface MappingCreator<S extends StateObject, A extends StateObject, VP, CP> {
+export interface MappingCreator<S extends StateObject, A extends StateObject, CP, VP> {
     createMappingAction<K extends keyof S, TP extends keyof VP>(_propKey: K, targetPropKey: TP, ...dispatches: DispatchType[]): MappingAction<S, K, CP, VP, TP, A>;
 }
 /**
- * Simple function for returning a {@link MappingCreator}, which makes it easy to create {@link MappingAction}s
+ * Simple function for returning a {@link MappingCreator}, which makes it easy to create {@link MappingAction}s.
+ * Big advantage here is in avoiding the full generic declaration of the MappingCreator<S, A, CP, VP>
+ *
  * @param {S} _parent StateObject, where you're mapping the data from
  * @param {ContainerComponent<CP, VP, A extends StateObject>} _component that is using the mapping
  * @returns {MappingCreator<S extends StateObject, A extends StateObject, VP, CP>} for creating {@link MappingAction}s
  */
-export declare function getMappingCreator<S extends StateObject, A extends StateObject, VP, CP>(_parent: S, _component: ContainerComponent<CP, VP, A>): MappingCreator<S, A, VP, CP>;
+export declare function getMappingCreator<S extends StateObject, A extends StateObject, CP, VP>(_parent: S, _component: ContainerComponent<CP, VP, A>): MappingCreator<S, A, CP, VP>;

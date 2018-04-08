@@ -133,7 +133,9 @@ var ArrayCrudActionCreator = /** @class */ (function () {
 }());
 exports.ArrayCrudActionCreator = ArrayCrudActionCreator;
 /**
- * Simple function for returning a {@link MappingCreator}, which makes it easy to create {@link MappingAction}s
+ * Simple function for returning a {@link MappingCreator}, which makes it easy to create {@link MappingAction}s.
+ * Big advantage here is in avoiding the full generic declaration of the MappingCreator<S, A, CP, VP>
+ *
  * @param {S} _parent StateObject, where you're mapping the data from
  * @param {ContainerComponent<CP, VP, A extends StateObject>} _component that is using the mapping
  * @returns {MappingCreator<S extends StateObject, A extends StateObject, VP, CP>} for creating {@link MappingAction}s

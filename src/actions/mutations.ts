@@ -1,7 +1,7 @@
 import { ActionId, arrayKeyIndexMap } from './actions';
 import * as _ from 'lodash';
 import { MutationError } from '../types/StateMutationCheck';
-import { StateObject, State } from '../types/State';
+import { StateObject, Store } from '../types/State';
 import { Manager } from '../types/Manager';
 
 /* tslint:disable:no-any */
@@ -79,7 +79,7 @@ export function mutateValue<S extends StateObject, K extends keyof S>
 : { oldValue?: S[K] } {
   switch (actionType) {
     case ActionId.UPDATE_PROPERTY: {
-      let isStateObject = State.isInstanceOfStateObject(value);
+      let isStateObject = Store.isInstanceOfStateObject(value);
       throwIf(isStateObject, `${ActionId[actionType]} action isn't applicable to state objects`);
       let oldValue: S[K] = _.get(stateObject, propertyName);
       actionImmutabilityCheck(actionType, oldValue, value, propertyName);
@@ -87,7 +87,7 @@ export function mutateValue<S extends StateObject, K extends keyof S>
       return {oldValue: oldValue};
     }
     case ActionId.INSERT_PROPERTY: {
-      let isStateObject = State.isInstanceOfStateObject(value);
+      let isStateObject = Store.isInstanceOfStateObject(value);
       throwIf(isStateObject, `${ActionId[actionType]} action is not applicable to state objects`);
       // only assign if value is not undefined or null
       if (value === undefined || value == null) {
@@ -103,7 +103,7 @@ export function mutateValue<S extends StateObject, K extends keyof S>
       return {};
     }
     case ActionId.DELETE_PROPERTY: {
-      let isStateObject = State.isInstanceOfStateObject(_.get(stateObject, propertyName));
+      let isStateObject = Store.isInstanceOfStateObject(_.get(stateObject, propertyName));
       throwIf(isStateObject, `${ActionId[actionType]} action isn''t applicable to state objects`);
       // delete performance is improving but still slow, but these are likely to be rare.
       // Let's be rigorous until we can't be (or until VM's address this, and they've started to)
@@ -133,16 +133,16 @@ export function mutateValue<S extends StateObject, K extends keyof S>
       if (!value) {
         throw new Error('Cannot insert a falsey value, consider using delete instead');
       }
-      State.createStateObject<S[K]>(stateObject, propertyName, value);
+      Store.createStateObject<S[K]>(stateObject, propertyName, value);
       actionImmutabilityCheck(actionType, undefined, value, propertyName);
       return {};
     }
     case ActionId.DELETE_STATE_OBJECT: {
       let oldValue: S[K] = _.get(stateObject, propertyName);
-      let isStateObject = State.isInstanceOfStateObject(oldValue);
+      let isStateObject = Store.isInstanceOfStateObject(oldValue);
       throwIf(!isStateObject, `${ActionId[actionType]} action is applicable to state objects; value = ${oldValue}`);
       let valueStateObject = _.get(stateObject, propertyName);
-      if (State.isInstanceOfStateObject(valueStateObject)) {
+      if (Store.isInstanceOfStateObject(valueStateObject)) {
         actionImmutabilityCheck(actionType, oldValue, value, propertyName);
 
         // delete the valueStateObject from the app state graph

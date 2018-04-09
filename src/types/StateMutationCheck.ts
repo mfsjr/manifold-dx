@@ -1,6 +1,6 @@
 import { Action } from '../actions/actions';
 import * as _ from 'lodash';
-import { State } from './State';
+import { Store } from './State';
 
 export class MutationError extends Error {
   constructor(message: string) {
@@ -44,9 +44,9 @@ export class StateMutationCheck<S> {
 
   private enabled: boolean = false;
 
-  private state: State<S>;
+  private state: Store<S>;
 
-  constructor(state: State<S>, onFailure?: (baseline: S, failure: S) => string) {
+  constructor(state: Store<S>, onFailure?: (baseline: S, failure: S) => string) {
     this.state = state;
     this.onFailure = onFailure ? onFailure : onFailureWarn;
     // this.enableMutationChecks();

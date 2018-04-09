@@ -2,8 +2,8 @@ import {
   Action, ActionId, ArrayKeyGeneratorFn, ArrayKeyIndexMap, ArrayMutateAction,
   StateCrudAction
 } from '../src/actions/actions';
-import { State } from '../src/types/State';
-import { Address, createAppTestState, createTestState, Name, NameState } from './testHarness';
+import { Store } from '../src/types/State';
+import { Address, createTestStore, createTestState, Name, NameState } from './testHarness';
 import { createNameContainer } from './testHarness';
 import { StateObject } from '../src/types/State';
 import { ActionProcessorFunctionType } from '../src/types/ActionProcessor';
@@ -11,7 +11,7 @@ import * as _ from 'lodash';
 import { onFailureDiff } from '../src/types/StateMutationDiagnostics';
 import { ArrayCrudActionCreator, CrudActionCreator } from '../src/actions/actionCreators';
 
-const testState = createAppTestState();
+const testStore = createTestStore();
 let name: Name;
 let nameState: NameState; // Name & StateObject;
 let bowlingScores: number[];
@@ -27,20 +27,20 @@ let address2: Address = {
 };
 
 let resetTestObjects = () => {
-  testState.reset(createTestState(), {});
+  testStore.reset(createTestState(), {});
   name = {first: 'Matthew', middle: 'F', last: 'Hooper', prefix: 'Mr', bowlingScores: [], addresses: [] };
-  // nameState = State.createStateObject<Name>(testState.getState(), 'name', name);
-  nameState = createNameContainer(name, testState.getState(), 'name');
+  // nameState = State.createStateObject<Name>(testStore.getState(), 'name', name);
+  nameState = createNameContainer(name, testStore.getState(), 'name');
   bowlingScores = [111, 121, 131];
   address = {street: '54 Upton Lake Rd', city: 'Clinton Corners', state: 'NY', zip: '12514'};
-  addressState = State.createStateObject<Address>(nameState, 'address', address);
+  addressState = Store.createStateObject<Address>(nameState, 'address', address);
   nameState.address = addressState;
-  testState.getManager().getActionProcessorAPI().enableMutationChecking();
+  testStore.getManager().getActionProcessorAPI().enableMutationChecking();
 };
 
 describe('Add the name container', () => {
   resetTestObjects();
-  let appState = testState.getState();
+  let appState = testStore.getState();
   let insertNameAction = new StateCrudAction(ActionId.INSERT_STATE_OBJECT, appState, 'name', nameState);
   // true: console.log(`insertNameAction instanceof Action ${insertNameAction instanceof Action}`);
   test('state should contain the name container', () => {
@@ -161,14 +161,14 @@ describe('Add the name container', () => {
   describe('Verify StateMutationCheck', () => {
     // resetTestObjects();
     test('state should be defined', () => {
-      expect(testState).toBeDefined();
+      expect(testStore).toBeDefined();
     });
     test('initial state mutation checking is true', () => {
-      expect(testState.getManager().getActionProcessorAPI().isMutationCheckingEnabled()).toEqual(true);
+      expect(testStore.getManager().getActionProcessorAPI().isMutationCheckingEnabled()).toEqual(true);
     });
 
     test('Mutations are not detected when checking is off', () => {
-      testState.getManager().getActionProcessorAPI().disableMutationChecking();
+      testStore.getManager().getActionProcessorAPI().disableMutationChecking();
       let middle = nameState.middle;
       nameState.middle = 'ZAX';
       if (!nameState.bowlingScores) {
@@ -178,15 +178,15 @@ describe('Add the name container', () => {
       let appendScore = new ArrayMutateAction(
           ActionId.INSERT_PROPERTY, nameState, 'bowlingScores',
           nameState.bowlingScores.length, nameState.bowlingScores, 299);
-      expect(() => {testState.getManager().actionPerform(appendScore); }).not.toThrow();
+      expect(() => {testStore.getManager().actionPerform(appendScore); }).not.toThrow();
 
       // restore the old middle
       nameState.middle = middle;
     });
 
     test('turn on mutationChecking', () => {
-      testState.getManager().getActionProcessorAPI().enableMutationChecking();
-      expect(testState.getManager().getActionProcessorAPI().isMutationCheckingEnabled()).toBe(true);
+      testStore.getManager().getActionProcessorAPI().enableMutationChecking();
+      expect(testStore.getManager().getActionProcessorAPI().isMutationCheckingEnabled()).toBe(true);
     });
 
     test('state mutations cause actions to throw when checking is on', () => {
@@ -199,15 +199,15 @@ describe('Add the name container', () => {
       let appendScore = new ArrayMutateAction(
           ActionId.INSERT_PROPERTY, nameState, 'bowlingScores',
           nameState.bowlingScores.length, nameState.bowlingScores, 299);
-      expect(() => {testState.getManager().actionPerform(appendScore); }).toThrow();
+      expect(() => {testStore.getManager().actionPerform(appendScore); }).toThrow();
 
       // restore the old middle
       nameState.middle = middle;
     });
     test('swapping out the StateMutationCheck onFailure function', () => {
-      testState.getManager().getActionProcessorAPI().setMutationCheckOnFailureFunction(onFailureDiff);
-      let fn = testState.getManager().getActionProcessorAPI().getMutationCheckOnFailureFunction();
-      let processors = testState.getManager().getActionProcessorAPI().getProcessorClones();
+      testStore.getManager().getActionProcessorAPI().setMutationCheckOnFailureFunction(onFailureDiff);
+      let fn = testStore.getManager().getActionProcessorAPI().getMutationCheckOnFailureFunction();
+      let processors = testStore.getManager().getActionProcessorAPI().getProcessorClones();
       processors.pre.push(testProcessor);
       // expect(fn(processors.pre, processors.post)).toContain('MUTATION');
       // let result = fn(processors.pre, processors.post);
@@ -216,23 +216,23 @@ describe('Add the name container', () => {
 
     let testProcessor: ActionProcessorFunctionType = (actions: Action[]) => {return actions; };
     test('add processor to preProcess', () => {
-      testState.getManager().getActionProcessorAPI().appendPreProcessor(testProcessor);
-      let processors = testState.getManager().getActionProcessorAPI().getProcessorClones();
+      testStore.getManager().getActionProcessorAPI().appendPreProcessor(testProcessor);
+      let processors = testStore.getManager().getActionProcessorAPI().getProcessorClones();
       expect(processors.pre.indexOf(testProcessor)).toBeGreaterThan(-1);
     });
     test('add processor to postProcess', () => {
-      testState.getManager().getActionProcessorAPI().appendPostProcessor(testProcessor);
-      let processors = testState.getManager().getActionProcessorAPI().getProcessorClones();
+      testStore.getManager().getActionProcessorAPI().appendPostProcessor(testProcessor);
+      let processors = testStore.getManager().getActionProcessorAPI().getProcessorClones();
       expect(processors.post.indexOf(testProcessor)).toBeGreaterThan(-1);
     });
     test('remove processor from preProcess', () => {
-      testState.getManager().getActionProcessorAPI().removePreProcessor(testProcessor);
-      let processors = testState.getManager().getActionProcessorAPI().getProcessorClones();
+      testStore.getManager().getActionProcessorAPI().removePreProcessor(testProcessor);
+      let processors = testStore.getManager().getActionProcessorAPI().getProcessorClones();
       expect(processors.pre.indexOf(testProcessor)).toBe(-1);
     });
     test('remove processor from postProcess', () => {
-      testState.getManager().getActionProcessorAPI().removePostProcessor(testProcessor);
-      let processors = testState.getManager().getActionProcessorAPI().getProcessorClones();
+      testStore.getManager().getActionProcessorAPI().removePostProcessor(testProcessor);
+      let processors = testStore.getManager().getActionProcessorAPI().getProcessorClones();
       expect(processors.post.indexOf(testProcessor)).toBe(-1);
     });
   });
@@ -241,8 +241,8 @@ describe('Add the name container', () => {
 describe('test stripping StateObject info', () => {
 
   test('stripping all StateObject properties from the object graph', () => {
-    let stateClone = _.cloneDeep(testState.getState());
-    State.stripStateObject(stateClone);
+    let stateClone = _.cloneDeep(testStore.getState());
+    Store.stripStateObject(stateClone);
     expect(stateClone.hasOwnProperty('_parent')).toBe(false);
     expect(stateClone.hasOwnProperty('_myPropname')).toBe(false);
     if (!stateClone.name) {

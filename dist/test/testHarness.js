@@ -88,7 +88,7 @@ exports.createTestState = createTestState;
  * It appears that Jest's 'runInBand' option forces sequential test execution, but allows parallel execution
  * of test files, so we provide this function so that each test file can use its own state
  *
- * @returns {State<TestState>}
+ * @returns {Store<TestState>}
  */
 function createAppTestState() {
     return new State_1.State(createTestState(), {});

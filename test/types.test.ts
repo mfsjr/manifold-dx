@@ -1,8 +1,8 @@
 import { ActionQueue, createActionQueue, } from '../src/types/ActionQueue';
 import { ActionId, ArrayMutateAction, StateCrudAction } from '../src/actions/actions';
 import * as _ from 'lodash';
-import { Address, createAppTestState, createNameContainer, createTestState, Name } from './testHarness';
-import { State, StateObject } from '../src/types/State';
+import { Address, createTestStore, createNameContainer, createTestState, Name } from './testHarness';
+import { Store, StateObject } from '../src/types/State';
 
 interface TestStateObjects {
   nameState: Name & StateObject;
@@ -10,16 +10,16 @@ interface TestStateObjects {
   bowlingScores: number[];
 }
 
-const testState = createAppTestState();
+const testStore = createTestStore();
 
 let resetTestObjects = (): TestStateObjects => {
-  testState.reset(createTestState(), {});
+  testStore.reset(createTestState(), {});
   let name: Name = {first: 'Matthew', middle: 'F', last: 'Hooper', prefix: 'Mr', bowlingScores: [], addresses: []};
   let address: Address = {street: '54 Upton Lake Rd', city: 'Clinton Corners', state: 'NY', zip: '12514'};
-  testState.getManager().getActionProcessorAPI().enableMutationChecking();
-  // let x = State.createStateObject<Name>(testState.getState(), 'name', name);
-  let x = createNameContainer(name, testState.getState(), 'name');
-  let y = State.createStateObject<Address>(x, 'address', address);
+  testStore.getManager().getActionProcessorAPI().enableMutationChecking();
+  // let x = State.createStateObject<Name>(testStore.getState(), 'name', name);
+  let x = createNameContainer(name, testStore.getState(), 'name');
+  let y = Store.createStateObject<Address>(x, 'address', address);
   let z = [111, 121, 131];
   return {
     nameState: x,
@@ -32,29 +32,29 @@ const {/*name, address, address2,*/ nameState, addressState, bowlingScores} = re
 
 describe ('manager setup', () => {
   test('Manager should be statically available', () => {
-    expect(testState.getManager()).toBeDefined();
+    expect(testStore.getManager()).toBeDefined();
   });
   test('Manager\'s component state should be defined', () => {
-    expect(testState.getManager().getMappingState()).toBeDefined();
+    expect(testStore.getManager().getMappingState()).toBeDefined();
   });
 });
 
 describe('state setup', () => {
   test('should return the initial state, containing _parent == this', () => {
-    expect(testState.getState()._parent).toEqual(testState.getState());
+    expect(testStore.getState()._parent).toEqual(testStore.getState());
   });
 
   test('nameState should be identified as a state object', () => {
-    expect(State.isInstanceOfStateObject(nameState)).toBe(true);
-    expect(State.isInstanceOfStateObject(nameState)).toBe(true);
+    expect(Store.isInstanceOfStateObject(nameState)).toBe(true);
+    expect(Store.isInstanceOfStateObject(nameState)).toBe(true);
   });
 
   test('state should be identified as a state object', () => {
-    expect(State.isInstanceOfStateObject(testState.getState())).toBe(true);
+    expect(Store.isInstanceOfStateObject(testStore.getState())).toBe(true);
   });
 
   test('bowlingScores is not a state object', () => {
-    expect(State.isInstanceOfStateObject(bowlingScores)).toBe(false);
+    expect(Store.isInstanceOfStateObject(bowlingScores)).toBe(false);
   });
 
   test('if a plain object structurally matches a state object, it should be identified as a state object', () => {
@@ -64,15 +64,15 @@ describe('state setup', () => {
     };
     c._parent = c as StateObject;
 
-    expect(State.isInstanceOfStateObject(c)).toBe(true);
+    expect(Store.isInstanceOfStateObject(c)).toBe(true);
   });
 
 });
 
 describe('creating child state objects', () => {
   test('nameState should have a _parent that points to state', () => {
-    expect(nameState._parent === testState.getState());
-    // expect( testState.getState().name ).toBe(nameState);
+    expect(nameState._parent === testStore.getState());
+    // expect( testStore.getState().name ).toBe(nameState);
   });
 
   test('nameState should have a first IName of Matthew', () => {
@@ -86,20 +86,20 @@ describe('creating child state objects', () => {
 
 describe('Iterating through parents', () => {
   test('find parents of addressState', () => {
-    let iterator = State.createStateObjectIterator(addressState);
+    let iterator = Store.createStateObjectIterator(addressState);
     let result = iterator.next();
     // first call to next returns the original state object
     expect(result.value).toBe(addressState);
     while (!result.done) {
       if (result.value === nameState) {
         expect(result.value._parent).not.toBe(result.value);
-      } else if (result.value === testState.getState()) {
+      } else if (result.value === testStore.getState()) {
         expect(result.value._parent).toBe(result.value);
       }
       result = iterator.next();
     }
     // when done, result.value is the app State
-    let temp = testState.getState();
+    let temp = testStore.getState();
     expect(result.value).toBe(temp);
     expect(result.value._parent).toBe(result.value);
   });
@@ -182,45 +182,45 @@ describe('Test the actionQueue', () => {
 
 describe('Get the full path of properties in state objects, usable by lodash "get"', () => {
   test('get a property of topmost state', () => {
-    let appState: StateObject = testState.getState();
-    let fullPath: string = testState.getManager().getFullPath(appState, 'appName');
+    let appState: StateObject = testStore.getState();
+    let fullPath: string = testStore.getManager().getFullPath(appState, 'appName');
     expect(fullPath).toEqual('appName');
   });
   test('nameState\'s "middle" property should have a full path indicating "name"', () => {
-    let fullPath = testState.getManager().getFullPath(nameState, 'middle');
+    let fullPath = testStore.getManager().getFullPath(nameState, 'middle');
     expect(fullPath).toEqual('name.middle');
   });
   test('addressState\'s "city" should include name and address in path', () => {
-    let fullPath = testState.getManager().getFullPath(addressState, 'city');
+    let fullPath = testStore.getManager().getFullPath(addressState, 'city');
     expect(fullPath).toEqual('name.address.city');
   });
   test('full path for bowling scores', () => {
-    let appState = testState.getState();
+    let appState = testStore.getState();
     // if (appState.name) {
     //   nameState = appState.name;
     // }
     expect(appState.name).toBe(nameState);
     let insertScoresAction = new StateCrudAction(ActionId.INSERT_PROPERTY, nameState, 'bowlingScores', bowlingScores);
     insertScoresAction.perform();
-    let fullPath = testState.getManager().getFullPath(nameState, 'bowlingScores[0]');
+    let fullPath = testStore.getManager().getFullPath(nameState, 'bowlingScores[0]');
     expect(fullPath).toEqual('name.bowlingScores[0]');
     expect(_.get(appState, fullPath)).toBe(bowlingScores[0]);
   });
   test('full path for bowling scores array', () => {
-    let fullPath = testState.getManager().getFullPath(nameState, 'bowlingScores');
+    let fullPath = testStore.getManager().getFullPath(nameState, 'bowlingScores');
     expect(fullPath).toEqual('name.bowlingScores');
   });
 });
 describe('Test state reset last - leave other tests undisturbed by it', () => {
   test('verify that app state gets reset, but state api does not', () => {
     let c = 'corruption';
-    testState[c] = 'Hillary';
+    testStore[c] = 'Hillary';
     let d = 'destruction';
-    testState.getState()[d] = 'Trump';
-    testState.reset(createTestState(), {});
-    expect(testState.getState()[d]).toBeUndefined();
-    expect(testState[c]).toBe('Hillary');
-    delete testState[c];
+    testStore.getState()[d] = 'Trump';
+    testStore.reset(createTestState(), {});
+    expect(testStore.getState()[d]).toBeUndefined();
+    expect(testStore[c]).toBe('Hillary');
+    delete testStore[c];
   });
 });
 
@@ -229,7 +229,7 @@ describe('Test perform/undo/redo actions marking the app state, mutating, and th
   // state.reset();
   // let's (re)define some actions
   test('expect the action queue to be empty at the start of this test', () => {
-    expect(testState.getManager().getActionQueue().incrementCurrentIndex(0)).toBe(0);
+    expect(testStore.getManager().getActionQueue().incrementCurrentIndex(0)).toBe(0);
   });
 
   test('the middle name at the start of actions', () => {
@@ -239,22 +239,22 @@ describe('Test perform/undo/redo actions marking the app state, mutating, and th
   let updateMiddleAction = new StateCrudAction(ActionId.UPDATE_PROPERTY, nameState, 'middle', 'J');
 
   test('perform the update middle action', () => {
-    testState.reset(createTestState(), {});
-    let updateMiddleResult = testState.getManager().actionPerform(updateMiddleAction);
+    testStore.reset(createTestState(), {});
+    let updateMiddleResult = testStore.getManager().actionPerform(updateMiddleAction);
     expect(updateMiddleResult).toBe(1);
   });
 
   test('expect the action queue to contain our action', () => {
-    expect(testState.getManager().getActionQueue().incrementCurrentIndex(0)).toBe(1);
+    expect(testStore.getManager().getActionQueue().incrementCurrentIndex(0)).toBe(1);
   });
 
   test('expect action undo to work', () => {
-    let undoMiddleResult = testState.getManager().actionUndo(1);
+    let undoMiddleResult = testStore.getManager().actionUndo(1);
     expect(undoMiddleResult).toBe(1);
   });
 
   test('after undo, action queue\'s current index should be decremented by 1', () => {
-    expect(testState.getManager().getActionQueue().incrementCurrentIndex(0)).toBe(0);
+    expect(testStore.getManager().getActionQueue().incrementCurrentIndex(0)).toBe(0);
   });
 
   test('after undo, middle name should be the original', () => {
@@ -262,7 +262,7 @@ describe('Test perform/undo/redo actions marking the app state, mutating, and th
   });
 
   test('redo action should succeed', () => {
-    let redoMiddleResult = testState.getManager().actionRedo(1);
+    let redoMiddleResult = testStore.getManager().actionRedo(1);
     expect(redoMiddleResult).toBe(1);
   });
 
@@ -271,16 +271,16 @@ describe('Test perform/undo/redo actions marking the app state, mutating, and th
   });
 
   test('after redo action queue index should be restored', () => {
-    expect(testState.getManager().getActionQueue().incrementCurrentIndex(0)).toBe(1);
+    expect(testStore.getManager().getActionQueue().incrementCurrentIndex(0)).toBe(1);
   });
 
   test('the size of the action queue', () => {
-    expect(testState.getManager().getActionQueue().size()).toBe(1);
+    expect(testStore.getManager().getActionQueue().size()).toBe(1);
   });
 
   test('insert name container', () => {
-    let insertName = new StateCrudAction(ActionId.INSERT_STATE_OBJECT, testState.getState(), 'name', nameState);
-    testState.getManager().actionPerform(insertName);
-    expect(testState.getState().name).toBeDefined();
+    let insertName = new StateCrudAction(ActionId.INSERT_STATE_OBJECT, testStore.getState(), 'name', nameState);
+    testStore.getManager().actionPerform(insertName);
+    expect(testStore.getState().name).toBeDefined();
   });
 });

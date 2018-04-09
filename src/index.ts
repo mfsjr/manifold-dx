@@ -1,6 +1,6 @@
 import { Action, StateCrudAction, MappingAction, DispatchType } from './actions/actions';
 import { ContainerComponent } from './components/ContainerComponent';
-import { State, StateObject } from './types/State';
+import { Store, StateObject } from './types/State';
 import { ArrayMutateAction } from './actions/actions';
 import { getCrudCreator, getArrayCrudCreator, getMappingCreator } from './actions/actionCreators';
 
@@ -10,7 +10,7 @@ import { getCrudCreator, getArrayCrudCreator, getMappingCreator } from './action
  * of usage should be in the unit tests.
  */
 export {
-  State,
+  Store,
   StateObject,
   Action,
   getCrudCreator,

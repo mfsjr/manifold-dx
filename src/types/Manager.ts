@@ -1,4 +1,4 @@
-import { State, StateObject, StateConfigOptions, JSON_replaceCyclicParent } from './State';
+import { Store, StateObject, StateConfigOptions, JSON_replaceCyclicParent } from './State';
 import { Action } from '../actions/actions';
 import { MappingState } from './MappingState';
 import { createActionQueue, ActionQueue } from './ActionQueue';
@@ -21,14 +21,14 @@ export class Manager {
   protected static stateManagerMap: Map<StateObject, Manager> = new Map();
 
     /* tslint:disable:no-any */
-  protected state: State<any>;
+  protected state: Store<any>;
     /* tslint:disable:no-any */
   protected actionQueue: ActionQueue;
   protected mappingState: MappingState;
   protected actionProcessor: ActionProcessor;
 
   public static get(stateObject: StateObject): Manager {
-    let topState = State.getTopState(stateObject);
+    let topState = Store.getTopState(stateObject);
     let result = Manager.stateManagerMap.get(topState);
     if (!result) {
       let err = `Failed to find manager for stateObject = 
@@ -47,12 +47,12 @@ export class Manager {
     Manager.stateManagerMap.set(stateObject, manager);
   }
 
-  constructor(state: State<any>, options: StateConfigOptions) {
+  constructor(state: Store<any>, options: StateConfigOptions) {
     this.resetManager(state, {});
     Manager.manager = this;
   }
 
-  public resetManager(state: State<any>, options: StateConfigOptions): void {
+  public resetManager(state: Store<any>, options: StateConfigOptions): void {
     this.state = state;
     this.actionQueue = createActionQueue(options.actionQueueSize);
     this.mappingState = new MappingState();
@@ -63,7 +63,7 @@ export class Manager {
     return this.actionProcessor;
   }
 
-  public resetActionProcessors(state: State<any>, options: StateConfigOptions) {
+  public resetActionProcessors(state: Store<any>, options: StateConfigOptions) {
     this.actionProcessor = new ActionProcessor(state, options);
   }
 
@@ -161,7 +161,7 @@ export class Manager {
 
   public getFullPath(container: StateObject, propName: string): string {
     let fullPath: string = propName;
-    let containerIterator = State.createStateObjectIterator(container);
+    let containerIterator = Store.createStateObjectIterator(container);
     let iteratorResult: IteratorResult<StateObject> = containerIterator.next();
     while (!iteratorResult.done) {
       if (iteratorResult.value._parent !== iteratorResult.value) {

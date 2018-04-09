@@ -3,10 +3,10 @@ import { Name } from './testHarness';
 import { mutateArray, mutateValue } from '../src/actions/mutations';
 import { ActionId } from '../src/actions/actions';
 import * as _ from 'lodash';
-import { Address, createAppTestState, createTestState, TestState } from './testHarness';
-import { State, StateObject } from '../src/types/State';
+import { Address, createTestStore, createTestState, TestState } from './testHarness';
+import { Store, StateObject } from '../src/types/State';
 
-const testState = createAppTestState();
+const testStore = createTestStore();
 
 let name: Name;
 let address: Address;
@@ -15,13 +15,13 @@ let addressState: Address & StateObject;
 let bowlingScores: Array<number>;
 
 let resetTestObjects = () => {
-  testState.reset(createTestState(), {});
+  testStore.reset(createTestState(), {});
   name = {first: 'Matthew', middle: 'F', last: 'Hooper', prefix: 'Mr', bowlingScores: [], addresses: []};
-  nameState = State.createStateObject<Name>(testState.getState() as TestState & StateObject, 'name', name);
+  nameState = Store.createStateObject<Name>(testStore.getState() as TestState & StateObject, 'name', name);
   address = {street: '54 Upton Lake Rd', city: 'Clinton Corners', state: 'NY', zip: '12514'};
-  addressState = State.createStateObject<Address>(nameState, 'address', address);
+  addressState = Store.createStateObject<Address>(nameState, 'address', address);
   bowlingScores = [111, 121, 131];
-  testState.getManager().getActionProcessorAPI().enableMutationChecking();
+  testStore.getManager().getActionProcessorAPI().enableMutationChecking();
 };
 
 /**
@@ -33,8 +33,8 @@ describe('mutate object values', () => {
   resetTestObjects();
   let resultInsertName: {oldValue?: Name};
   test('should insert the name object', () => {
-    resultInsertName = mutateValue(ActionId.INSERT_STATE_OBJECT, testState.getState(), nameState, 'me');
-    expect(testState.getState().me).toBe(nameState);
+    resultInsertName = mutateValue(ActionId.INSERT_STATE_OBJECT, testStore.getState(), nameState, 'me');
+    expect(testStore.getState().me).toBe(nameState);
     expect(nameState.last).toEqual('Hooper');
   });
   test('return from insert should have oldValue undefined', () => {
@@ -67,11 +67,11 @@ describe('mutate object values', () => {
   });
 
   // Insert addressState into name container
-  let stateNameContainer = _.get(testState.getState(), 'name') as Name & StateObject;
+  let stateNameContainer = _.get(testStore.getState(), 'name') as Name & StateObject;
   let resultInsertAddress: {oldValue?: Address};
   test('name should have an address', () => {
     resultInsertAddress = mutateValue(ActionId.INSERT_STATE_OBJECT, stateNameContainer, addressState, 'address');
-    expect(testState.getState().name).toBe(nameState);
+    expect(testStore.getState().name).toBe(nameState);
     expect(nameState.address).toBe(addressState);
     expect(addressState.city).toEqual('Clinton Corners');
   });
@@ -82,7 +82,7 @@ describe('mutate object values', () => {
   // Let's update a name value
   let resultUpdateMiddle: {oldValue?: string};
   test('middle initial should be J', () => {
-    let appState = testState.getState();
+    let appState = testStore.getState();
     // console.log(`appState has name? ${!!appState.name}`);
     resultUpdateMiddle  = mutateValue(ActionId.UPDATE_PROPERTY, nameState, 'J', 'middle');
     expect(_.get(appState, 'name.middle')).toEqual('J');
@@ -97,7 +97,7 @@ describe('mutate object values', () => {
     });
     test('inserting a property should throw when a container is supplied', () => {
       expect(() => {mutateValue(
-          ActionId.INSERT_PROPERTY, testState.getState() as TestState & StateObject,
+          ActionId.INSERT_PROPERTY, testStore.getState() as TestState & StateObject,
           addressState, 'address'); }).toThrow();
     });
   });
@@ -195,12 +195,12 @@ describe('mutate object values', () => {
     });
     test('delete the nameState from the name container', () => {
       let deleteResult = mutateValue(
-          ActionId.DELETE_STATE_OBJECT, testState.getState() as TestState & StateObject,
+          ActionId.DELETE_STATE_OBJECT, testStore.getState() as TestState & StateObject,
           undefined, 'name');
       expect(deleteResult.oldValue).toBe(nameState);
     });
     test('nameState should be disconnected', () => {
-      expect(testState.getState().name).toBeUndefined();
+      expect(testStore.getState().name).toBeUndefined();
     });
   });
   /**

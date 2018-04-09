@@ -1,6 +1,6 @@
 import { DiffPatcher } from 'jsondiffpatch';
 import * as _ from 'lodash';
-import { State } from './State';
+import { Store } from './State';
 import { MutationError } from './StateMutationCheck';
 
 /**
@@ -18,9 +18,9 @@ const diffPatcher = new DiffPatcher();
 export let onFailureDiff = function<S>(baseline: S, failure: S): string {
   // console.log(`StateMutationCheck failed: `);
   let baselineClone = _.cloneDeep(baseline);
-  State.stripStateObject(baselineClone);
+  Store.stripStateObject(baselineClone);
   let failureClone = _.cloneDeep(failure);
-  State.stripStateObject(failureClone);
+  Store.stripStateObject(failureClone);
   let delta = diffPatcher.diff(baselineClone, failureClone);
   let result = JSON.stringify(delta, null, 4);
   // console.log(result);

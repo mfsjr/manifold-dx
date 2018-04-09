@@ -1,5 +1,5 @@
 import { Action } from '../actions/actions';
-import { State, StateConfigOptions } from './State';
+import { Store, StateConfigOptions } from './State';
 import { ContainerComponent } from '../components/ContainerComponent';
 import { StateMutationCheck } from './StateMutationCheck';
 
@@ -31,7 +31,7 @@ export class ActionProcessor implements ActionProcessorAPI {
   private postProcessors: ActionProcessorFunctionType[] = [];
 
     /* tslint:disable:no-any */
-  constructor(state: State<any>, options: StateConfigOptions) {
+  constructor(state: Store<any>, options: StateConfigOptions) {
     this.mutationCheck = new StateMutationCheck<any>(state);
       /* tslint:enable:no-any */
   }

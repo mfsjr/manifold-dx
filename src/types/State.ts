@@ -35,9 +35,9 @@ export interface StateConfigOptions {
  *
  * A: represents the type (structure) of the app data that the state will be initialized to.
  */
-export class State<A> {
+export class Store<A> {
 
-  private static StateKeys: string[] = State.getStateKeys();
+  private static StateKeys: string[] = Store.getStateKeys();
 
   /** the single store of data for this application */
   private state: StateObject & A;
@@ -52,10 +52,10 @@ export class State<A> {
    */
   public static createState(parent?: StateObject, propName?: string): StateObject {
       let state: {} = {};
-      let parentKey = '_parent';
-      state[parentKey] = parent ? parent : state;
-      let propKey = '_myPropname';
-      state[propKey] = propName ? propName : '';
+      // let parentKey = '_parent';
+      state[`_parent`] = parent ? parent : state;
+      // let propKey = '_myPropname';
+      state[`_myPropname`] = propName ? propName : '';
       return state as StateObject;
   }
 
@@ -103,7 +103,7 @@ export class State<A> {
    * @returns {StateObject & T}
    */
   public static createStateObject<T>(_parent: StateObject, propertyName: string, data: T): StateObject & T {
-      let stateObject = State.createState(_parent, propertyName);
+      let stateObject = Store.createState(_parent, propertyName);
 
       let newStateObject = Object.assign(data, stateObject);
       _parent[propertyName] = newStateObject;
@@ -154,12 +154,12 @@ export class State<A> {
     /* tslint:disable:no-any */
   public static stripStateObject(stateObject: any): any {
       /* tslint:enable:no-any */
-      if (State.isInstanceOfStateObject(stateObject)) {
+      if (Store.isInstanceOfStateObject(stateObject)) {
           delete stateObject._myPropname;
           delete stateObject._parent;
           // let childStateObjects: StateObject[];
           for (let obj in stateObject) {
-              if (State.isInstanceOfStateObject(stateObject[obj])) {
+              if (Store.isInstanceOfStateObject(stateObject[obj])) {
                   this.stripStateObject(stateObject[obj]);
               }
           }
@@ -167,8 +167,9 @@ export class State<A> {
   }
 
   private static getStateKeys(): string[] {
-    let state = State.createState();
-    return Object.keys(state);
+    // let state = State.createState();
+    let appState = new Store({}, {});
+    return Object.keys(appState.getState());
   }
 
   constructor(appData: A, options: StateConfigOptions) {
@@ -176,7 +177,12 @@ export class State<A> {
   }
 
   public reset(appData: A, options: StateConfigOptions): void {
-    this.state = Object.assign(State.createState(), appData);
+    // appData is modified s.t. its type becomes A & StateObject
+    // if appData holds anything in a closure, its preserved by doing the type conversion (and casting) this way
+    appData[`_parent`] = appData;
+    appData[`_myPropname`] = '';
+    this.state = appData as A & StateObject;
+    // this.state = Object.assign(State.createState(), appData);
     this.manager = new Manager(this, options);
     Manager.set(this.state, this.manager);
     let stateMutateChecking = false;

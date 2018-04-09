@@ -1,13 +1,13 @@
-import { createAppTestState, createNameContainer, TestState, NameState } from './testHarness';
+import { createTestStore, createNameContainer, TestState, NameState } from './testHarness';
 import { Name } from './testHarness';
 import * as React from 'react';
 import { ContainerComponent, GenericContainerMappingTypes } from '../src/components/ContainerComponent';
 import { Action, ActionId, StateCrudAction } from '../src/actions/actions';
-import { State, StateObject } from '../src/types/State';
+import { Store, StateObject } from '../src/types/State';
 import { Manager } from '../src/types/Manager';
 import { getMappingCreator } from '../src/actions/actionCreators';
 
-const testState = createAppTestState();
+const testStore = createTestStore();
 
 let name: Name;
 let nameState: NameState;
@@ -40,7 +40,7 @@ export class BowlerContainer extends ContainerComponent<BowlerProps, ScoreCardPr
   nameState: Name & StateObject; // | undefined;
 
   constructor(bowlerProps: BowlerProps) {
-    super(bowlerProps, testState.getState(), undefined, ScoreCardGenerator);
+    super(bowlerProps, testStore.getState(), undefined, ScoreCardGenerator);
     if (!this.appData.name) {
       throw new Error('nameState must be defined!');
     }
@@ -96,15 +96,15 @@ export class BowlerContainer extends ContainerComponent<BowlerProps, ScoreCardPr
 }
 
 let resetTestObjects = () => {
-  // testState.reset(createTestState(), {});
-  testState.reset({name: nameState}, {});
+  // testStore.reset(createTestState(), {});
+  testStore.reset({name: nameState}, {});
   name = {first: 'Matthew', middle: 'F', last: 'Hooper', prefix: 'Mr', bowlingScores: [], addresses: []};
-  // nameState = State.createStateObject<Name>(testState.getState(), 'name', name);
-  nameState = createNameContainer(name, testState.getState(), 'name');
+  // nameState = State.createStateObject<Name>(testStore.getState(), 'name', name);
+  nameState = createNameContainer(name, testStore.getState(), 'name');
   bowlingScores = [111, 121, 131];
   initBowlerProps = { fullName: nameState.first };
   container = new BowlerContainer(initBowlerProps);
-  testState.getManager().getActionProcessorAPI().enableMutationChecking();
+  testStore.getManager().getActionProcessorAPI().enableMutationChecking();
 };
 
 resetTestObjects();
@@ -116,8 +116,8 @@ describe('ContainerComponent instantiation, mount, update, unmount', () => {
     if (!container.nameState) {
       throw new Error('container.nameState is undefined!');
     }
-    let so = testState.getState();
-    let top = State.getTopState(container.nameState);
+    let so = testStore.getState();
+    let top = Store.getTopState(container.nameState);
     if ( so !== top ) {
       throw new Error('app state doesn\'t equal top of nameState');
     }
@@ -138,7 +138,7 @@ describe('ContainerComponent instantiation, mount, update, unmount', () => {
   });
   test('component state should contain bowler component', () => {
     let mappingActions =
-      testState.getManager().getMappingState().getPathMappings(container.getMappingActions()[0].fullPath);
+      testStore.getManager().getMappingState().getPathMappings(container.getMappingActions()[0].fullPath);
     if (!mappingActions || mappingActions.length === 0) {
       throw new Error('mappingActions should be defined but isn\'t');
     }
@@ -147,7 +147,7 @@ describe('ContainerComponent instantiation, mount, update, unmount', () => {
   test('an update action', () => {
     expect(container.average).toBeUndefined();
     let action = new StateCrudAction(ActionId.INSERT_PROPERTY, nameState, 'bowlingScores', bowlingScores);
-    testState.getManager().actionPerform(action);
+    testStore.getManager().actionPerform(action);
     expect(container.average).toBeGreaterThan(100);
   });
   test(
@@ -155,7 +155,7 @@ describe('ContainerComponent instantiation, mount, update, unmount', () => {
       '(array of commentsUI)',
       () => {
     container.componentWillUnmount();
-    expect(testState.getManager().getMappingState().getPathMappings(container.getMappingActions()[0].fullPath))
+    expect(testStore.getManager().getMappingState().getPathMappings(container.getMappingActions()[0].fullPath))
         .not.toContain(container);
   });
 });

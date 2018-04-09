@@ -1,4 +1,4 @@
-import { State, StateObject } from '../src/types/State';
+import { Store, StateObject } from '../src/types/State';
 // import { ArrayKeyGeneratorFn, propertyKeyGenerator } from '../src/actions/actions';
 import { ArrayCrudActionCreator, CrudActionCreator } from '../src/actions/actionCreators';
 import { ArrayKeyGeneratorFn, propertyKeyGenerator } from '../src/actions/actions';
@@ -134,8 +134,8 @@ export function createTestState(): TestState {
  * It appears that Jest's 'runInBand' option forces sequential test execution, but allows parallel execution
  * of test files, so we provide this function so that each test file can use its own state
  *
- * @returns {State<TestState>}
+ * @returns {Store<TestState>}
  */
-export function createAppTestState() {
-  return new State(createTestState(), {});
+export function createTestStore() {
+  return new Store(createTestState(), {});
 }

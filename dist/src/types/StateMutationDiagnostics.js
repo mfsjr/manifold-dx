@@ -17,9 +17,9 @@ var diffPatcher = new jsondiffpatch_1.DiffPatcher();
 exports.onFailureDiff = function (baseline, failure) {
     // console.log(`StateMutationCheck failed: `);
     var baselineClone = _.cloneDeep(baseline);
-    State_1.State.stripStateObject(baselineClone);
+    State_1.Store.stripStateObject(baselineClone);
     var failureClone = _.cloneDeep(failure);
-    State_1.State.stripStateObject(failureClone);
+    State_1.Store.stripStateObject(failureClone);
     var delta = diffPatcher.diff(baselineClone, failureClone);
     var result = JSON.stringify(delta, null, 4);
     // console.log(result);

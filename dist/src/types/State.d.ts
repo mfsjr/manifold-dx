@@ -27,18 +27,18 @@ export interface StateConfigOptions {
  *
  * A: represents the type (structure) of the app data that the state will be initialized to.
  */
-export declare class State<A> {
+export declare class Store<A> {
     private static StateKeys;
     /** the single store of data for this application */
     private state;
     private manager;
     /**
      * Create state as a plain object.
-     * @param parent container for this container, falsey implies this is to be top-level state
-     * @param propName of this container in its parent, ie parent[propName] = this
+     * @param parent container for this container, if undefined it implies this is to be top-level state
+     * @param propertyName of this container in its parent, ie parent[propName] = returnValue (state)
      * @returns {StateObject}
      */
-    static createState(parent?: StateObject, propName?: string): StateObject;
+    static convertToStateObject<T>(initialState: T, parent?: StateObject, propertyName?: string): T & StateObject;
     /**
      * Is the object an StateObject?  Note this is not the same as an instance of
      * the State class.

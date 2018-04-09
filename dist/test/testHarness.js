@@ -90,8 +90,8 @@ exports.createTestState = createTestState;
  *
  * @returns {Store<TestState>}
  */
-function createAppTestState() {
-    return new State_1.State(createTestState(), {});
+function createTestStore() {
+    return new State_1.Store(createTestState(), {});
 }
-exports.createAppTestState = createAppTestState;
+exports.createTestStore = createTestStore;
 //# sourceMappingURL=testHarness.js.map

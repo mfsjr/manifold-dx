@@ -6,20 +6,20 @@ var actions_1 = require("../src/actions/actions");
 var _ = require("lodash");
 var testHarness_1 = require("./testHarness");
 var State_2 = require("../src/types/State");
-var testState = testHarness_1.createAppTestState();
+var testStore = testHarness_1.createTestStore();
 var name;
 var address;
 var nameState;
 var addressState;
 var bowlingScores;
 var resetTestObjects = function () {
-    testState.reset(testHarness_1.createTestState(), {});
+    testStore.reset(testHarness_1.createTestState(), {});
     name = { first: 'Matthew', middle: 'F', last: 'Hooper', prefix: 'Mr', bowlingScores: [], addresses: [] };
-    nameState = State_2.State.createStateObject(testState.getState(), 'name', name);
+    nameState = State_2.Store.createStateObject(testStore.getState(), 'name', name);
     address = { street: '54 Upton Lake Rd', city: 'Clinton Corners', state: 'NY', zip: '12514' };
-    addressState = State_2.State.createStateObject(nameState, 'address', address);
+    addressState = State_2.Store.createStateObject(nameState, 'address', address);
     bowlingScores = [111, 121, 131];
-    testState.getManager().getActionProcessorAPI().enableMutationChecking();
+    testStore.getManager().getActionProcessorAPI().enableMutationChecking();
 };
 /**
  * Let's begin with simple object inserts, updates and deletes
@@ -29,8 +29,8 @@ describe('mutate object values', function () {
     resetTestObjects();
     var resultInsertName;
     test('should insert the name object', function () {
-        resultInsertName = mutations_1.mutateValue(actions_1.ActionId.INSERT_STATE_OBJECT, testState.getState(), nameState, 'me');
-        expect(testState.getState().me).toBe(nameState);
+        resultInsertName = mutations_1.mutateValue(actions_1.ActionId.INSERT_STATE_OBJECT, testStore.getState(), nameState, 'me');
+        expect(testStore.getState().me).toBe(nameState);
         expect(nameState.last).toEqual('Hooper');
     });
     test('return from insert should have oldValue undefined', function () {
@@ -61,11 +61,11 @@ describe('mutate object values', function () {
         });
     });
     // Insert addressState into name container
-    var stateNameContainer = _.get(testState.getState(), 'name');
+    var stateNameContainer = _.get(testStore.getState(), 'name');
     var resultInsertAddress;
     test('name should have an address', function () {
         resultInsertAddress = mutations_1.mutateValue(actions_1.ActionId.INSERT_STATE_OBJECT, stateNameContainer, addressState, 'address');
-        expect(testState.getState().name).toBe(nameState);
+        expect(testStore.getState().name).toBe(nameState);
         expect(nameState.address).toBe(addressState);
         expect(addressState.city).toEqual('Clinton Corners');
     });
@@ -75,7 +75,7 @@ describe('mutate object values', function () {
     // Let's update a name value
     var resultUpdateMiddle;
     test('middle initial should be J', function () {
-        var appState = testState.getState();
+        var appState = testStore.getState();
         // console.log(`appState has name? ${!!appState.name}`);
         resultUpdateMiddle = mutations_1.mutateValue(actions_1.ActionId.UPDATE_PROPERTY, nameState, 'J', 'middle');
         expect(_.get(appState, 'name.middle')).toEqual('J');
@@ -89,7 +89,7 @@ describe('mutate object values', function () {
         });
         test('inserting a property should throw when a container is supplied', function () {
             expect(function () {
-                mutations_1.mutateValue(actions_1.ActionId.INSERT_PROPERTY, testState.getState(), addressState, 'address');
+                mutations_1.mutateValue(actions_1.ActionId.INSERT_PROPERTY, testStore.getState(), addressState, 'address');
             }).toThrow();
         });
     });
@@ -176,11 +176,11 @@ describe('mutate object values', function () {
             expect(json.indexOf('_parent')).toBeGreaterThan(0);
         });
         test('delete the nameState from the name container', function () {
-            var deleteResult = mutations_1.mutateValue(actions_1.ActionId.DELETE_STATE_OBJECT, testState.getState(), undefined, 'name');
+            var deleteResult = mutations_1.mutateValue(actions_1.ActionId.DELETE_STATE_OBJECT, testStore.getState(), undefined, 'name');
             expect(deleteResult.oldValue).toBe(nameState);
         });
         test('nameState should be disconnected', function () {
-            expect(testState.getState().name).toBeUndefined();
+            expect(testStore.getState().name).toBeUndefined();
         });
     });
     /**

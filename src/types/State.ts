@@ -46,17 +46,23 @@ export class Store<A> {
 
   /**
    * Create state as a plain object.
-   * @param parent container for this container, falsey implies this is to be top-level state
-   * @param propName of this container in its parent, ie parent[propName] = this
+   * @param parent container for this container, if undefined it implies this is to be top-level state
+   * @param propertyName of this container in its parent, ie parent[propName] = returnValue (state)
    * @returns {StateObject}
    */
-  public static createState(parent?: StateObject, propName?: string): StateObject {
-      let state: {} = {};
-      // let parentKey = '_parent';
-      state[`_parent`] = parent ? parent : state;
-      // let propKey = '_myPropname';
-      state[`_myPropname`] = propName ? propName : '';
-      return state as StateObject;
+  public static convertToStateObject<T>(initialState: T, parent?: StateObject, propertyName?: string): T & StateObject {
+    if (!_.isPlainObject(initialState)) {
+      throw Error('State objects must be plain objects');
+    }
+    let state = initialState;
+    state[`_parent`] = parent ? parent : state;
+    state[`_myPropname`] = propertyName ? propertyName : '';
+    if (parent && propertyName) {
+      parent[propertyName] = state;
+    } else if (parent || propertyName) {
+      throw Error(`parent and propName should either both be defined or undefined; propName=${propertyName}`);
+    }
+    return state as T & StateObject;
   }
 
   /**
@@ -103,12 +109,8 @@ export class Store<A> {
    * @returns {StateObject & T}
    */
   public static createStateObject<T>(_parent: StateObject, propertyName: string, data: T): StateObject & T {
-      let stateObject = Store.createState(_parent, propertyName);
-
-      let newStateObject = Object.assign(data, stateObject);
-      _parent[propertyName] = newStateObject;
-
-      return newStateObject;
+      let stateObject = Store.convertToStateObject(data, _parent, propertyName);
+      return stateObject;
   }
 
   public static getTopState(stateObject: StateObject): StateObject {

@@ -23,7 +23,7 @@ Ok, what are these so-called "new approaches"?
    can be expressed as a unique key, so deeply nested state graphs 
    have a 'flat' representation.**
    
-   App state is a single store of "state objects", which are mutable plain 
+   App state is held in a "store" of "state objects", which are mutable plain 
    javascript objects.  They contain the immutable data that React 
    uses, or other state objects, so you can have deeply nested state.  
    The Action API's keep it all straight for you.
@@ -106,7 +106,7 @@ built up around it.
 Recent work has centered on:
 - Cleaned up state and api management to make testing easier (and added more unit tests)
 - Handling arrays of state data and component lists in React
-- action-creation API's for ease-of-use 
+- action-creation API's for improved ease-of-use 
 - co-locating accessor methods alongside the StateObjects that they are operating on.
 
 

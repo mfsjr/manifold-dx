@@ -1,5 +1,5 @@
 import { Action } from '../actions/actions';
-import { State, StateConfigOptions } from './State';
+import { Store, StateConfigOptions } from './State';
 import { StateMutationCheck } from './StateMutationCheck';
 export declare type ActionProcessorFunctionType = (actions: Action[]) => Action[];
 export interface ActionProcessors {
@@ -22,7 +22,7 @@ export declare class ActionProcessor implements ActionProcessorAPI {
     protected mutationCheck: StateMutationCheck<any>;
     private preProcessors;
     private postProcessors;
-    constructor(state: State<any>, options: StateConfigOptions);
+    constructor(state: Store<any>, options: StateConfigOptions);
     setMutationCheckOnFailureFunction<T>(newFunction: (baseline: T, source: T) => string): void;
     getMutationCheckOnFailureFunction<T>(): (baseline: T, source: T) => string;
     isMutationCheckingEnabled(): boolean;

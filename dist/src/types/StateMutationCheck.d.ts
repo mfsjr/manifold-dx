@@ -1,5 +1,5 @@
 import { Action } from '../actions/actions';
-import { State } from './State';
+import { Store } from './State';
 export declare class MutationError extends Error {
     constructor(message: string);
 }
@@ -23,7 +23,7 @@ export declare class StateMutationCheck<S> {
     private lastGood;
     private enabled;
     private state;
-    constructor(state: State<S>, onFailure?: (baseline: S, failure: S) => string);
+    constructor(state: Store<S>, onFailure?: (baseline: S, failure: S) => string);
     isEnabled(): boolean;
     enableMutationChecks(): void;
     disableMutationChecks(): void;

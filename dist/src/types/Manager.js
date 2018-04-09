@@ -16,7 +16,7 @@ var Manager = /** @class */ (function () {
         Manager.manager = this;
     }
     Manager.get = function (stateObject) {
-        var topState = State_1.State.getTopState(stateObject);
+        var topState = State_1.Store.getTopState(stateObject);
         var result = Manager.stateManagerMap.get(topState);
         if (!result) {
             var err = "Failed to find manager for stateObject = \n        " + JSON.stringify(stateObject, State_1.JSON_replaceCyclicParent, 4);
@@ -148,7 +148,7 @@ var Manager = /** @class */ (function () {
     };
     Manager.prototype.getFullPath = function (container, propName) {
         var fullPath = propName;
-        var containerIterator = State_1.State.createStateObjectIterator(container);
+        var containerIterator = State_1.Store.createStateObjectIterator(container);
         var iteratorResult = containerIterator.next();
         while (!iteratorResult.done) {
             if (iteratorResult.value._parent !== iteratorResult.value) {

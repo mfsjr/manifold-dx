@@ -69,7 +69,7 @@ exports.mutateArray = mutateArray;
 function mutateValue(actionType, stateObject, value, propertyName) {
     switch (actionType) {
         case actions_1.ActionId.UPDATE_PROPERTY: {
-            var isStateObject = State_1.State.isInstanceOfStateObject(value);
+            var isStateObject = State_1.Store.isInstanceOfStateObject(value);
             throwIf(isStateObject, actions_1.ActionId[actionType] + " action isn't applicable to state objects");
             var oldValue = _.get(stateObject, propertyName);
             actionImmutabilityCheck(actionType, oldValue, value, propertyName);
@@ -77,7 +77,7 @@ function mutateValue(actionType, stateObject, value, propertyName) {
             return { oldValue: oldValue };
         }
         case actions_1.ActionId.INSERT_PROPERTY: {
-            var isStateObject = State_1.State.isInstanceOfStateObject(value);
+            var isStateObject = State_1.Store.isInstanceOfStateObject(value);
             throwIf(isStateObject, actions_1.ActionId[actionType] + " action is not applicable to state objects");
             // only assign if value is not undefined or null
             if (value === undefined || value == null) {
@@ -92,7 +92,7 @@ function mutateValue(actionType, stateObject, value, propertyName) {
             return {};
         }
         case actions_1.ActionId.DELETE_PROPERTY: {
-            var isStateObject = State_1.State.isInstanceOfStateObject(_.get(stateObject, propertyName));
+            var isStateObject = State_1.Store.isInstanceOfStateObject(_.get(stateObject, propertyName));
             throwIf(isStateObject, actions_1.ActionId[actionType] + " action isn''t applicable to state objects");
             // delete performance is improving but still slow, but these are likely to be rare.
             // Let's be rigorous until we can't be (or until VM's address this, and they've started to)
@@ -118,16 +118,16 @@ function mutateValue(actionType, stateObject, value, propertyName) {
             if (!value) {
                 throw new Error('Cannot insert a falsey value, consider using delete instead');
             }
-            State_1.State.createStateObject(stateObject, propertyName, value);
+            State_1.Store.createStateObject(stateObject, propertyName, value);
             actionImmutabilityCheck(actionType, undefined, value, propertyName);
             return {};
         }
         case actions_1.ActionId.DELETE_STATE_OBJECT: {
             var oldValue = _.get(stateObject, propertyName);
-            var isStateObject = State_1.State.isInstanceOfStateObject(oldValue);
+            var isStateObject = State_1.Store.isInstanceOfStateObject(oldValue);
             throwIf(!isStateObject, actions_1.ActionId[actionType] + " action is applicable to state objects; value = " + oldValue);
             var valueStateObject = _.get(stateObject, propertyName);
-            if (State_1.State.isInstanceOfStateObject(valueStateObject)) {
+            if (State_1.Store.isInstanceOfStateObject(valueStateObject)) {
                 actionImmutabilityCheck(actionType, oldValue, value, propertyName);
                 // delete the valueStateObject from the app state graph
                 _.unset(stateObject, propertyName);

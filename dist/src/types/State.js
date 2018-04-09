@@ -10,22 +10,29 @@ var StateMutationDiagnostics_1 = require("./StateMutationDiagnostics");
  *
  * A: represents the type (structure) of the app data that the state will be initialized to.
  */
-var State = /** @class */ (function () {
-    function State(appData, options) {
+var Store = /** @class */ (function () {
+    function Store(appData, options) {
         this.reset(appData, options);
     }
     /**
      * Create state as a plain object.
-     * @param parent container for this container, falsey implies this is to be top-level state
-     * @param propName of this container in its parent, ie parent[propName] = this
+     * @param parent container for this container, if undefined it implies this is to be top-level state
+     * @param propertyName of this container in its parent, ie parent[propName] = returnValue (state)
      * @returns {StateObject}
      */
-    State.createState = function (parent, propName) {
-        var state = {};
-        var parentKey = '_parent';
-        state[parentKey] = parent ? parent : state;
-        var propKey = '_myPropname';
-        state[propKey] = propName ? propName : '';
+    Store.convertToStateObject = function (initialState, parent, propertyName) {
+        if (!_.isPlainObject(initialState)) {
+            throw Error('State objects must be plain objects');
+        }
+        var state = initialState;
+        state["_parent"] = parent ? parent : state;
+        state["_myPropname"] = propertyName ? propertyName : '';
+        if (parent && propertyName) {
+            parent[propertyName] = state;
+        }
+        else if (parent || propertyName) {
+            throw Error("parent and propName should either both be defined or undefined; propName=" + propertyName);
+        }
         return state;
     };
     /**
@@ -39,7 +46,7 @@ var State = /** @class */ (function () {
      * @returns {boolean}
      */
     /* tslint:disable:no-any */
-    State.isInstanceOfStateObject = function (object) {
+    Store.isInstanceOfStateObject = function (object) {
         /* tslint:enable:no-any */
         if (!object) {
             return false;
@@ -69,13 +76,11 @@ var State = /** @class */ (function () {
      * @param {T} data
      * @returns {StateObject & T}
      */
-    State.createStateObject = function (_parent, propertyName, data) {
-        var stateObject = State.createState(_parent, propertyName);
-        var newStateObject = Object.assign(data, stateObject);
-        _parent[propertyName] = newStateObject;
-        return newStateObject;
+    Store.createStateObject = function (_parent, propertyName, data) {
+        var stateObject = Store.convertToStateObject(data, _parent, propertyName);
+        return stateObject;
     };
-    State.getTopState = function (stateObject) {
+    Store.getTopState = function (stateObject) {
         var result = stateObject;
         while (result._parent !== result) {
             result = result._parent;
@@ -83,25 +88,31 @@ var State = /** @class */ (function () {
         return result;
     };
     /* tslint:disable:no-any */
-    State.stripStateObject = function (stateObject) {
+    Store.stripStateObject = function (stateObject) {
         /* tslint:enable:no-any */
-        if (State.isInstanceOfStateObject(stateObject)) {
+        if (Store.isInstanceOfStateObject(stateObject)) {
             delete stateObject._myPropname;
             delete stateObject._parent;
             // let childStateObjects: StateObject[];
             for (var obj in stateObject) {
-                if (State.isInstanceOfStateObject(stateObject[obj])) {
+                if (Store.isInstanceOfStateObject(stateObject[obj])) {
                     this.stripStateObject(stateObject[obj]);
                 }
             }
         }
     };
-    State.getStateKeys = function () {
-        var state = State.createState();
-        return Object.keys(state);
+    Store.getStateKeys = function () {
+        // let state = State.createState();
+        var appState = new Store({}, {});
+        return Object.keys(appState.getState());
     };
-    State.prototype.reset = function (appData, options) {
-        this.state = Object.assign(State.createState(), appData);
+    Store.prototype.reset = function (appData, options) {
+        // appData is modified s.t. its type becomes A & StateObject
+        // if appData holds anything in a closure, its preserved by doing the type conversion (and casting) this way
+        appData["_parent"] = appData;
+        appData["_myPropname"] = '';
+        this.state = appData;
+        // this.state = Object.assign(State.createState(), appData);
         this.manager = new Manager_1.Manager(this, options);
         Manager_1.Manager.set(this.state, this.manager);
         var stateMutateChecking = false;
@@ -116,13 +127,13 @@ var State = /** @class */ (function () {
             this.manager.getActionProcessorAPI().setMutationCheckOnFailureFunction(StateMutationDiagnostics_1.onFailureDiff);
         }
     };
-    State.prototype.getState = function () {
+    Store.prototype.getState = function () {
         return this.state;
     };
-    State.prototype.getManager = function () {
+    Store.prototype.getManager = function () {
         return this.manager;
     };
-    State.StateKeys = State.getStateKeys();
+    Store.StateKeys = Store.getStateKeys();
     /**
      * Iterate through parent containers up to and including the top-level application state.
      *
@@ -141,7 +152,7 @@ var State = /** @class */ (function () {
      * @param {StateObject} stateObject
      * @returns {Iterator<StateObject>}
      */
-    State.createStateObjectIterator = function (stateObject) {
+    Store.createStateObjectIterator = function (stateObject) {
         var currentContainer = stateObject;
         var done = false;
         var next = function () {
@@ -153,9 +164,9 @@ var State = /** @class */ (function () {
         };
         return { next: next };
     };
-    return State;
+    return Store;
 }());
-exports.State = State;
+exports.Store = Store;
 /**
  * This is only used in JSON.stringify, to prevent cyclic errors arising from
  * container._parent === container

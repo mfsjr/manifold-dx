@@ -15,7 +15,7 @@ var testHarness_2 = require("./testHarness");
 var _ = require("lodash");
 var StateMutationDiagnostics_1 = require("../src/types/StateMutationDiagnostics");
 var actionCreators_1 = require("../src/actions/actionCreators");
-var testState = testHarness_1.createAppTestState();
+var testStore = testHarness_1.createTestStore();
 var name;
 var nameState; // Name & StateObject;
 var bowlingScores;
@@ -30,19 +30,19 @@ var address2 = {
     zip: '54321'
 };
 var resetTestObjects = function () {
-    testState.reset(testHarness_1.createTestState(), {});
+    testStore.reset(testHarness_1.createTestState(), {});
     name = { first: 'Matthew', middle: 'F', last: 'Hooper', prefix: 'Mr', bowlingScores: [], addresses: [] };
-    // nameState = State.createStateObject<Name>(testState.getState(), 'name', name);
-    nameState = testHarness_2.createNameContainer(name, testState.getState(), 'name');
+    // nameState = State.createStateObject<Name>(testStore.getState(), 'name', name);
+    nameState = testHarness_2.createNameContainer(name, testStore.getState(), 'name');
     bowlingScores = [111, 121, 131];
     address = { street: '54 Upton Lake Rd', city: 'Clinton Corners', state: 'NY', zip: '12514' };
-    addressState = State_1.State.createStateObject(nameState, 'address', address);
+    addressState = State_1.Store.createStateObject(nameState, 'address', address);
     nameState.address = addressState;
-    testState.getManager().getActionProcessorAPI().enableMutationChecking();
+    testStore.getManager().getActionProcessorAPI().enableMutationChecking();
 };
 describe('Add the name container', function () {
     resetTestObjects();
-    var appState = testState.getState();
+    var appState = testStore.getState();
     var insertNameAction = new actions_1.StateCrudAction(actions_1.ActionId.INSERT_STATE_OBJECT, appState, 'name', nameState);
     // true: console.log(`insertNameAction instanceof Action ${insertNameAction instanceof Action}`);
     test('state should contain the name container', function () {
@@ -153,26 +153,26 @@ describe('Add the name container', function () {
     describe('Verify StateMutationCheck', function () {
         // resetTestObjects();
         test('state should be defined', function () {
-            expect(testState).toBeDefined();
+            expect(testStore).toBeDefined();
         });
         test('initial state mutation checking is true', function () {
-            expect(testState.getManager().getActionProcessorAPI().isMutationCheckingEnabled()).toEqual(true);
+            expect(testStore.getManager().getActionProcessorAPI().isMutationCheckingEnabled()).toEqual(true);
         });
         test('Mutations are not detected when checking is off', function () {
-            testState.getManager().getActionProcessorAPI().disableMutationChecking();
+            testStore.getManager().getActionProcessorAPI().disableMutationChecking();
             var middle = nameState.middle;
             nameState.middle = 'ZAX';
             if (!nameState.bowlingScores) {
                 throw new Error('nameState.bowlingScores should be defined but is falsey');
             }
             var appendScore = new actions_1.ArrayMutateAction(actions_1.ActionId.INSERT_PROPERTY, nameState, 'bowlingScores', nameState.bowlingScores.length, nameState.bowlingScores, 299);
-            expect(function () { testState.getManager().actionPerform(appendScore); }).not.toThrow();
+            expect(function () { testStore.getManager().actionPerform(appendScore); }).not.toThrow();
             // restore the old middle
             nameState.middle = middle;
         });
         test('turn on mutationChecking', function () {
-            testState.getManager().getActionProcessorAPI().enableMutationChecking();
-            expect(testState.getManager().getActionProcessorAPI().isMutationCheckingEnabled()).toBe(true);
+            testStore.getManager().getActionProcessorAPI().enableMutationChecking();
+            expect(testStore.getManager().getActionProcessorAPI().isMutationCheckingEnabled()).toBe(true);
         });
         test('state mutations cause actions to throw when checking is on', function () {
             var middle = nameState.middle;
@@ -181,14 +181,14 @@ describe('Add the name container', function () {
                 throw new Error('nameState.bowlingScores should be defined but is falsey');
             }
             var appendScore = new actions_1.ArrayMutateAction(actions_1.ActionId.INSERT_PROPERTY, nameState, 'bowlingScores', nameState.bowlingScores.length, nameState.bowlingScores, 299);
-            expect(function () { testState.getManager().actionPerform(appendScore); }).toThrow();
+            expect(function () { testStore.getManager().actionPerform(appendScore); }).toThrow();
             // restore the old middle
             nameState.middle = middle;
         });
         test('swapping out the StateMutationCheck onFailure function', function () {
-            testState.getManager().getActionProcessorAPI().setMutationCheckOnFailureFunction(StateMutationDiagnostics_1.onFailureDiff);
-            var fn = testState.getManager().getActionProcessorAPI().getMutationCheckOnFailureFunction();
-            var processors = testState.getManager().getActionProcessorAPI().getProcessorClones();
+            testStore.getManager().getActionProcessorAPI().setMutationCheckOnFailureFunction(StateMutationDiagnostics_1.onFailureDiff);
+            var fn = testStore.getManager().getActionProcessorAPI().getMutationCheckOnFailureFunction();
+            var processors = testStore.getManager().getActionProcessorAPI().getProcessorClones();
             processors.pre.push(testProcessor);
             // expect(fn(processors.pre, processors.post)).toContain('MUTATION');
             // let result = fn(processors.pre, processors.post);
@@ -196,31 +196,31 @@ describe('Add the name container', function () {
         });
         var testProcessor = function (actions) { return actions; };
         test('add processor to preProcess', function () {
-            testState.getManager().getActionProcessorAPI().appendPreProcessor(testProcessor);
-            var processors = testState.getManager().getActionProcessorAPI().getProcessorClones();
+            testStore.getManager().getActionProcessorAPI().appendPreProcessor(testProcessor);
+            var processors = testStore.getManager().getActionProcessorAPI().getProcessorClones();
             expect(processors.pre.indexOf(testProcessor)).toBeGreaterThan(-1);
         });
         test('add processor to postProcess', function () {
-            testState.getManager().getActionProcessorAPI().appendPostProcessor(testProcessor);
-            var processors = testState.getManager().getActionProcessorAPI().getProcessorClones();
+            testStore.getManager().getActionProcessorAPI().appendPostProcessor(testProcessor);
+            var processors = testStore.getManager().getActionProcessorAPI().getProcessorClones();
             expect(processors.post.indexOf(testProcessor)).toBeGreaterThan(-1);
         });
         test('remove processor from preProcess', function () {
-            testState.getManager().getActionProcessorAPI().removePreProcessor(testProcessor);
-            var processors = testState.getManager().getActionProcessorAPI().getProcessorClones();
+            testStore.getManager().getActionProcessorAPI().removePreProcessor(testProcessor);
+            var processors = testStore.getManager().getActionProcessorAPI().getProcessorClones();
             expect(processors.pre.indexOf(testProcessor)).toBe(-1);
         });
         test('remove processor from postProcess', function () {
-            testState.getManager().getActionProcessorAPI().removePostProcessor(testProcessor);
-            var processors = testState.getManager().getActionProcessorAPI().getProcessorClones();
+            testStore.getManager().getActionProcessorAPI().removePostProcessor(testProcessor);
+            var processors = testStore.getManager().getActionProcessorAPI().getProcessorClones();
             expect(processors.post.indexOf(testProcessor)).toBe(-1);
         });
     });
 });
 describe('test stripping StateObject info', function () {
     test('stripping all StateObject properties from the object graph', function () {
-        var stateClone = _.cloneDeep(testState.getState());
-        State_1.State.stripStateObject(stateClone);
+        var stateClone = _.cloneDeep(testStore.getState());
+        State_1.Store.stripStateObject(stateClone);
         expect(stateClone.hasOwnProperty('_parent')).toBe(false);
         expect(stateClone.hasOwnProperty('_myPropname')).toBe(false);
         if (!stateClone.name) {

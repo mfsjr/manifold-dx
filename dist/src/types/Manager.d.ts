@@ -1,4 +1,4 @@
-import { State, StateObject, StateConfigOptions } from './State';
+import { Store, StateObject, StateConfigOptions } from './State';
 import { Action } from '../actions/actions';
 import { MappingState } from './MappingState';
 import { ActionQueue } from './ActionQueue';
@@ -17,16 +17,16 @@ export declare class Manager {
      */
     protected static manager: Manager;
     protected static stateManagerMap: Map<StateObject, Manager>;
-    protected state: State<any>;
+    protected state: Store<any>;
     protected actionQueue: ActionQueue;
     protected mappingState: MappingState;
     protected actionProcessor: ActionProcessor;
     static get(stateObject: StateObject): Manager;
     static set(stateObject: StateObject, manager: Manager): void;
-    constructor(state: State<any>, options: StateConfigOptions);
-    resetManager(state: State<any>, options: StateConfigOptions): void;
+    constructor(state: Store<any>, options: StateConfigOptions);
+    resetManager(state: Store<any>, options: StateConfigOptions): void;
     getActionProcessorAPI(): ActionProcessorAPI;
-    resetActionProcessors(state: State<any>, options: StateConfigOptions): void;
+    resetActionProcessors(state: Store<any>, options: StateConfigOptions): void;
     getActionQueue(): ActionQueue;
     actionUndo(nActions?: number, ..._undoActions: Action[]): number;
     actionRedo(nActions?: number): number;

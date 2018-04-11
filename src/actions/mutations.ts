@@ -1,4 +1,4 @@
-import { ActionId, arrayKeyIndexMap } from './actions';
+import { ActionId, ArrayKeyIndexMap } from './actions';
 import * as _ from 'lodash';
 import { MutationError } from '../types/StateMutationCheck';
 import { StateObject, Store } from '../types/State';
@@ -109,11 +109,11 @@ export function mutateValue<S extends StateObject, K extends keyof S>
       // Let's be rigorous until we can't be (or until VM's address this, and they've started to)
       let oldValue: S[K] = stateObject[propertyName];
       _.unset(stateObject, propertyName);
-      // if oldValue is an array, the array needs to be removed from the arrayKeyIndexMap
+      // if oldValue is an array, the array needs to be removed from the ArrayKeyIndexMap.get()
       if (oldValue instanceof Array) {
-        if (!arrayKeyIndexMap.deleteFromMaps(oldValue)) {
+        if (!ArrayKeyIndexMap.get().deleteFromMaps(oldValue)) {
           let fullPath = Manager.get(stateObject).getFullPath(stateObject, propertyName);
-          let message = `Failed to delete array from arrayKeyIndexMap at ${fullPath}`;
+          let message = `Failed to delete array from ArrayKeyIndexMap.get() at ${fullPath}`;
           /* tslint:disable:no-console */
           console.log(message);
           /* tslint:enable:no-console */

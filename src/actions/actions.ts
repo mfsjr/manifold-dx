@@ -216,14 +216,22 @@ export function propertyKeyGenerator<V>(arrayElement: V, propertyKey: keyof V): 
  *
  * V the generic type of the values held in the array
  */
-export class ArrayKeyIndexMap<V> {
+export class ArrayKeyIndexMap {
+
+  private static instance: ArrayKeyIndexMap;
   /* tslint:disable:no-any */
   protected arrayMapper = new Map<Array<any>, Map<React.Key, number>>();
   protected keyGenMapper = new Map<Array<any>, ArrayKeyGeneratorFn<any>>();
-
   /* tslint:enable:no-any */
 
-  public getOrCreateKeyIndexMap(array: Array<V>, keyGenerator: ArrayKeyGeneratorFn<V>): Map<React.Key, number> {
+  public static get = function() {
+    if (!ArrayKeyIndexMap.instance) {
+      ArrayKeyIndexMap.instance = new ArrayKeyIndexMap();
+    }
+    return ArrayKeyIndexMap.instance;
+  };
+
+  public getOrCreateKeyIndexMap<V>(array: Array<V>, keyGenerator: ArrayKeyGeneratorFn<V>): Map<React.Key, number> {
     let keyIndexMap = this.arrayMapper.get(array);
     if (!keyIndexMap) {
       keyIndexMap = this.populateMaps(array, keyGenerator);
@@ -232,7 +240,7 @@ export class ArrayKeyIndexMap<V> {
     return keyIndexMap;
   }
 
-  public getKeyGeneratorFn(array: Array<V>): ArrayKeyGeneratorFn<V> {
+  public getKeyGeneratorFn<V>(array: Array<V>): ArrayKeyGeneratorFn<V> {
     let result = this.keyGenMapper.get(array);
     if (!result) {
       throw new Error(`Failed to find key gen fn for array`);
@@ -244,7 +252,7 @@ export class ArrayKeyIndexMap<V> {
     return this.arrayMapper.size;
   }
 
-  public get(array: Array<V>): Map<React.Key, number> {
+  public get<V>(array: Array<V>): Map<React.Key, number> {
     let result = this.arrayMapper.get(array);
     if (!result) {
       throw new Error(`Failed to find map for array`);
@@ -252,7 +260,7 @@ export class ArrayKeyIndexMap<V> {
     return result;
   }
 
-  public hasKeyIndexMap(array: Array<V>): boolean {
+  public hasKeyIndexMap<V>(array: Array<V>): boolean {
     return this.arrayMapper.has(array) && this.keyGenMapper.has(array);
   }
 
@@ -262,7 +270,7 @@ export class ArrayKeyIndexMap<V> {
    * @param {ArrayKeyGeneratorFn<V>} keyGenerator
    * @returns {Map<React.Key, number>} the key/index map
    */
-  protected populateMaps(array: Array<V>, keyGenerator: ArrayKeyGeneratorFn<V>): Map<React.Key, number> {
+  protected populateMaps<V>(array: Array<V>, keyGenerator: ArrayKeyGeneratorFn<V>): Map<React.Key, number> {
     this.keyGenMapper.set(array, keyGenerator);
     let map = new Map<React.Key, number>();
     array.forEach((value, index, values) => {
@@ -275,7 +283,7 @@ export class ArrayKeyIndexMap<V> {
     return map;
   }
 
-  public deleteFromMaps(array: Array<V>): boolean {
+  public deleteFromMaps<V>(array: Array<V>): boolean {
     this.keyGenMapper.delete(array);
     return this.arrayMapper.delete(array);
   }
@@ -291,7 +299,7 @@ export class ArrayKeyIndexMap<V> {
  *
  * Note that duplicated keys result in an Error being thrown.
  */
-export const arrayKeyIndexMap = new ArrayKeyIndexMap();
+// export const arrayKeyIndexMap = new ArrayKeyIndexMap();
 
 /**
  *

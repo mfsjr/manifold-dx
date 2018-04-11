@@ -1,6 +1,6 @@
 import { StateObject } from '../';
 import {
-  Action, ActionId, ArrayKeyGeneratorFn, ArrayMutateAction, DispatchType, MappingAction,
+  Action, ActionId, ArrayKeyGeneratorFn, ArrayKeyIndexMap, ArrayMutateAction, DispatchType, MappingAction,
   StateCrudAction
 } from './actions';
 import { ContainerComponent } from '../components/ContainerComponent';
@@ -83,7 +83,7 @@ export class ArrayCrudActionCreator<S extends StateObject, K extends keyof S, V 
 
   private valuesArray: Array<V> & S[K]; // & keyof S[keyof S];
 
-  // private keyGenerator: ArrayKeyGeneratorFn<V>;
+  private keyGenerator: ArrayKeyGeneratorFn<V>;
 
   /**
    * Construct an array crud creator.  We require a somewhat redundant 'valuesArray'
@@ -117,7 +117,7 @@ export class ArrayCrudActionCreator<S extends StateObject, K extends keyof S, V 
       throw Error(`Failed to find array in parent`);
     }
     this.valuesArray = array;
-    // this.keyGenerator = keyGenerator;
+    this.keyGenerator = keyGenerator;
   }
 
   public insert(index: number, value: V): Action {
@@ -125,31 +125,32 @@ export class ArrayCrudActionCreator<S extends StateObject, K extends keyof S, V 
       ActionId.INSERT_PROPERTY, this.parent, this.propertyKey, index, this.valuesArray, value);
   }
 
-  // /**
-  //  * Note that we are finding the index of this from a map (not scanning).
-  //  * We throw if this.valuesArray is not found in arrayKeyIndexMap, likewise if the this.keyIndexMap does not
-  //  * contain the key calculated by this.keyGenerator.
-  //  * @param {V} value
-  //  * @returns {number}
-  //  */
-  // protected getIndexOf(value: V): number {
-  //   let keyIndexMap = arrayKeyIndexMap.getOrCreateKeyIndexMap(this.valuesArray, this.keyGenerator);
-  //   let key = this.keyGenerator(value);
-  //   let index = keyIndexMap.get(key);
-  //   if (!index) {
-  //     throw new Error(`failed to find index in array ${this.propertyKey} for key ${key}`);
-  //   }
-  //   return index;
-  // }
+  /**
+   * Note that we are finding the index of this from a map (not scanning).
+   * We throw if this.valuesArray is not found in arrayKeyIndexMap, likewise if the this.keyIndexMap does not
+   * contain the key calculated by this.keyGenerator.
+   * @param {V} value
+   * @returns {number}
+   */
+  protected getIndexOf(value: V): number {
+    let keyIndexMap = ArrayKeyIndexMap.get().getOrCreateKeyIndexMap(this.valuesArray, this.keyGenerator);
+    let key = this.keyGenerator(value);
+    let index = keyIndexMap.get(key);
+    if (index === undefined) {
+      throw new Error(`failed to find index in array ${this.propertyKey} for key ${key}`);
+    }
+    return index;
+  }
 
-  public update(index: number, value: V): Action {
+  public update(value: V): Action {
+    let index = this.getIndexOf(value);
     return new ArrayMutateAction(
       ActionId.UPDATE_PROPERTY, this.parent, this.propertyKey, index, this.valuesArray, value);
   }
 
-  public remove(index: number): Action {
-    return new ArrayMutateAction(
-      ActionId.DELETE_PROPERTY, this.parent, this.propertyKey, index, this.valuesArray);
+  public remove(value: V): Action {
+    let index = this.getIndexOf(value);
+    return new ArrayMutateAction(ActionId.DELETE_PROPERTY, this.parent, this.propertyKey, index, this.valuesArray);
   }
 }
 

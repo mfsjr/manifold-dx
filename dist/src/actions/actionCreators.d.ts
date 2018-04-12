@@ -42,6 +42,7 @@ export declare class ArrayCrudActionCreator<S extends StateObject, K extends key
     private parent;
     private propertyKey;
     private valuesArray;
+    private keyGenerator;
     /**
      * Construct an array crud creator.  We require a somewhat redundant 'valuesArray'
      * parameter in order to provide TypeScript with a strongly typed object that
@@ -62,8 +63,16 @@ export declare class ArrayCrudActionCreator<S extends StateObject, K extends key
      */
     constructor(parent: S, childArray: Array<V> & S[K], keyGenerator: ArrayKeyGeneratorFn<V>);
     insert(index: number, value: V): Action;
-    update(index: number, value: V): Action;
-    remove(index: number): Action;
+    /**
+     * Note that we are finding the index of this from a map (not scanning).
+     * We throw if this.valuesArray is not found in arrayKeyIndexMap, likewise if the this.keyIndexMap does not
+     * contain the key calculated by this.keyGenerator.
+     * @param {V} value
+     * @returns {number}
+     */
+    protected getIndexOf(value: V): number;
+    update(value: V): Action;
+    remove(value: V): Action;
 }
 /**
  * Interface for api to create mapping actions

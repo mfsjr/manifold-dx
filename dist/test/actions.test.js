@@ -15,6 +15,7 @@ var testHarness_2 = require("./testHarness");
 var _ = require("lodash");
 var StateMutationDiagnostics_1 = require("../src/types/StateMutationDiagnostics");
 var actionCreators_1 = require("../src/actions/actionCreators");
+var src_1 = require("../src");
 var testStore = testHarness_1.createTestStore();
 var name;
 var nameState; // Name & StateObject;
@@ -120,7 +121,7 @@ describe('Add the name container', function () {
         });
     });
     describe('use ActionCreator for array changes in nameState.addresses', function () {
-        // let streetKey: ArrayKeyGeneratorFn<Address> = a => a.street;
+        var arrayKeyIndexMapSize = actions_1.ArrayKeyIndexMap.get().size();
         var streetKeyFn = nameState.addressKeyGen;
         var addrActionCreator = new actionCreators_1.ArrayCrudActionCreator(nameState, nameState.addresses, streetKeyFn);
         test('insert into the addresses array', function () {
@@ -130,24 +131,34 @@ describe('Add the name container', function () {
                 state: 'New York',
                 zip: '12345'
             };
-            var action = new actionCreators_1.ArrayCrudActionCreator(nameState, nameState.addresses, streetKeyFn).insert(0, addr);
+            var action = addrActionCreator.insert(0, addr);
             action.perform();
             expect(nameState.addresses[0]).toEqual(addr);
         });
         test('update an item in the addresses array', function () {
             var updatedAddr = __assign({}, nameState.addresses[0], { zip: '54321' });
-            var action = addrActionCreator.update(0, updatedAddr);
+            var action = addrActionCreator.update(updatedAddr);
             action.perform();
             expect(nameState.addresses[0].zip).toBe('54321');
+            // NOTE: this is a little complicated; we're testing that the size of they arrayKeyIndexMap has increased by
+            // one, since the update will require it to be created for this array.
+            expect(actions_1.ArrayKeyIndexMap.get().size()).toBe(1 + arrayKeyIndexMapSize);
         });
         test('add another address', function () {
             addrActionCreator.insert(1, address2).perform();
             expect(nameState.addresses[1]).toBe(address2);
         });
         test('delete an address', function () {
-            addrActionCreator.remove(0).perform();
+            // addrActionCreator.remove(0).perform();
+            addrActionCreator.remove(nameState.addresses[0]).perform();
             expect(nameState.addresses.length).toBe(1);
             expect(nameState.addresses[0]).toBe(address2);
+        });
+        test('delete \'addresses\' and verify that it is removed from KeyArrayIndexMap', function () {
+            var crudCreator = src_1.getCrudCreator(nameState);
+            crudCreator.remove('addresses').perform();
+            // size of map returns to what it was before anything was done with the array
+            expect(actions_1.ArrayKeyIndexMap.get().size()).toBe(arrayKeyIndexMapSize);
         });
     });
     describe('Verify StateMutationCheck', function () {

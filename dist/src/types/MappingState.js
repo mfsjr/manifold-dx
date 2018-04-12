@@ -4,8 +4,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * Relates application state properties with React components, for the purpose of
  * forcing components to update (ie render).
  *
- * For now, we are not dealing with indexes into arrays, as React should be dealing
- * with that itself.  Can revisit this if necessary.
  */
 var MappingState = /** @class */ (function () {
     function MappingState() {

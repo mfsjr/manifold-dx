@@ -69,7 +69,6 @@ exports.getArrayCrudCreator = getArrayCrudCreator;
  * S is the StateObject which the array is a property of
  */
 var ArrayCrudActionCreator = /** @class */ (function () {
-    // private keyGenerator: ArrayKeyGeneratorFn<V>;
     /**
      * Construct an array crud creator.  We require a somewhat redundant 'valuesArray'
      * parameter in order to provide TypeScript with a strongly typed object that
@@ -102,31 +101,33 @@ var ArrayCrudActionCreator = /** @class */ (function () {
             throw Error("Failed to find array in parent");
         }
         this.valuesArray = array;
-        // this.keyGenerator = keyGenerator;
+        this.keyGenerator = keyGenerator;
     }
     ArrayCrudActionCreator.prototype.insert = function (index, value) {
         return new actions_1.ArrayMutateAction(actions_1.ActionId.INSERT_PROPERTY, this.parent, this.propertyKey, index, this.valuesArray, value);
     };
-    // /**
-    //  * Note that we are finding the index of this from a map (not scanning).
-    //  * We throw if this.valuesArray is not found in arrayKeyIndexMap, likewise if the this.keyIndexMap does not
-    //  * contain the key calculated by this.keyGenerator.
-    //  * @param {V} value
-    //  * @returns {number}
-    //  */
-    // protected getIndexOf(value: V): number {
-    //   let keyIndexMap = arrayKeyIndexMap.getOrCreateKeyIndexMap(this.valuesArray, this.keyGenerator);
-    //   let key = this.keyGenerator(value);
-    //   let index = keyIndexMap.get(key);
-    //   if (!index) {
-    //     throw new Error(`failed to find index in array ${this.propertyKey} for key ${key}`);
-    //   }
-    //   return index;
-    // }
-    ArrayCrudActionCreator.prototype.update = function (index, value) {
+    /**
+     * Note that we are finding the index of this from a map (not scanning).
+     * We throw if this.valuesArray is not found in arrayKeyIndexMap, likewise if the this.keyIndexMap does not
+     * contain the key calculated by this.keyGenerator.
+     * @param {V} value
+     * @returns {number}
+     */
+    ArrayCrudActionCreator.prototype.getIndexOf = function (value) {
+        var keyIndexMap = actions_1.ArrayKeyIndexMap.get().getOrCreateKeyIndexMap(this.valuesArray, this.keyGenerator);
+        var key = this.keyGenerator(value);
+        var index = keyIndexMap.get(key);
+        if (index === undefined) {
+            throw new Error("failed to find index in array " + this.propertyKey + " for key " + key);
+        }
+        return index;
+    };
+    ArrayCrudActionCreator.prototype.update = function (value) {
+        var index = this.getIndexOf(value);
         return new actions_1.ArrayMutateAction(actions_1.ActionId.UPDATE_PROPERTY, this.parent, this.propertyKey, index, this.valuesArray, value);
     };
-    ArrayCrudActionCreator.prototype.remove = function (index) {
+    ArrayCrudActionCreator.prototype.remove = function (value) {
+        var index = this.getIndexOf(value);
         return new actions_1.ArrayMutateAction(actions_1.ActionId.DELETE_PROPERTY, this.parent, this.propertyKey, index, this.valuesArray);
     };
     return ArrayCrudActionCreator;

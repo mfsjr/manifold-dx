@@ -99,22 +99,24 @@ export declare function propertyKeyGenerator<V>(arrayElement: V, propertyKey: ke
  *
  * V the generic type of the values held in the array
  */
-export declare class ArrayKeyIndexMap<V> {
+export declare class ArrayKeyIndexMap {
+    private static instance;
     protected arrayMapper: Map<any[], Map<string | number, number>>;
     protected keyGenMapper: Map<any[], ArrayKeyGeneratorFn<any>>;
-    getOrCreateKeyIndexMap(array: Array<V>, keyGenerator: ArrayKeyGeneratorFn<V>): Map<React.Key, number>;
-    getKeyGeneratorFn(array: Array<V>): ArrayKeyGeneratorFn<V>;
+    static get: () => ArrayKeyIndexMap;
+    getOrCreateKeyIndexMap<V>(array: Array<V>, keyGenerator: ArrayKeyGeneratorFn<V>): Map<React.Key, number>;
+    getKeyGeneratorFn<V>(array: Array<V>): ArrayKeyGeneratorFn<V>;
     size(): number;
-    get(array: Array<V>): Map<React.Key, number>;
-    hasKeyIndexMap(array: Array<V>): boolean;
+    get<V>(array: Array<V>): Map<React.Key, number>;
+    hasKeyIndexMap<V>(array: Array<V>): boolean;
     /**
      * Creates the key index map, then inserts into it and the keyGenMapper
      * @param {Array<V>} array
      * @param {ArrayKeyGeneratorFn<V>} keyGenerator
      * @returns {Map<React.Key, number>} the key/index map
      */
-    protected populateMaps(array: Array<V>, keyGenerator: ArrayKeyGeneratorFn<V>): Map<React.Key, number>;
-    deleteFromMaps(array: Array<V>): boolean;
+    protected populateMaps<V>(array: Array<V>, keyGenerator: ArrayKeyGeneratorFn<V>): Map<React.Key, number>;
+    deleteFromMaps<V>(array: Array<V>): boolean;
 }
 /**
  * Standalone data structure: for each array in state, maps React list keys to array indexes.
@@ -126,7 +128,6 @@ export declare class ArrayKeyIndexMap<V> {
  *
  * Note that duplicated keys result in an Error being thrown.
  */
-export declare const arrayKeyIndexMap: ArrayKeyIndexMap<{}>;
 /**
  *
  */

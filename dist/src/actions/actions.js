@@ -192,7 +192,6 @@ var ArrayKeyIndexMap = /** @class */ (function () {
         this.arrayMapper = new Map();
         this.keyGenMapper = new Map();
     }
-    /* tslint:enable:no-any */
     ArrayKeyIndexMap.prototype.getOrCreateKeyIndexMap = function (array, keyGenerator) {
         var keyIndexMap = this.arrayMapper.get(array);
         if (!keyIndexMap) {
@@ -243,6 +242,13 @@ var ArrayKeyIndexMap = /** @class */ (function () {
         this.keyGenMapper.delete(array);
         return this.arrayMapper.delete(array);
     };
+    /* tslint:enable:no-any */
+    ArrayKeyIndexMap.get = function () {
+        if (!ArrayKeyIndexMap.instance) {
+            ArrayKeyIndexMap.instance = new ArrayKeyIndexMap();
+        }
+        return ArrayKeyIndexMap.instance;
+    };
     return ArrayKeyIndexMap;
 }());
 exports.ArrayKeyIndexMap = ArrayKeyIndexMap;
@@ -256,7 +262,7 @@ exports.ArrayKeyIndexMap = ArrayKeyIndexMap;
  *
  * Note that duplicated keys result in an Error being thrown.
  */
-exports.arrayKeyIndexMap = new ArrayKeyIndexMap();
+// export const arrayKeyIndexMap = new ArrayKeyIndexMap();
 /**
  *
  */

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { ReactElement, ReactNode, SFC } from 'react';
-import { Action, DispatchType, StateCrudAction, MappingAction, StateAction } from '../actions/actions';
+import { Action, DispatchType, StateCrudAction, MappingAction, StateAction, ActionId } from '../actions/actions';
 import * as _ from 'lodash';
 import { Manager } from '../types/Manager';
 import { StateObject } from '../types/State';
@@ -10,13 +10,14 @@ import { ArrayMutateAction } from '../';
 export type ComponentGenerator<P> = (props: P) => React.Component<P, any>;
 /* tslint:enable:no-any */
 
-export type Renderer<P> = ComponentGenerator<P> | SFC<P>;
+// unused: export type Renderer<P> = ComponentGenerator<P> | SFC<P>;
 
 /**
  *
- * A React.Component designed to function as a container/controller.
+ * A higher-order React.Component designed to function as a container/controller (constructor takes a component
+ * and creates another component from it).
  *
- * It contains a react component, which performs the actual rendering
+ * It wraps a react component, which performs the actual rendering
  * and the view usually contains all the markup and styling.  There is
  * typically no markup or styling in this container.
  *
@@ -181,7 +182,13 @@ export abstract class ContainerComponent<CP, VP, A extends StateObject>
             if (action instanceof StateCrudAction) {
               this.viewProps[mapping.targetPropName] = action.value;
             } else if (action instanceof ArrayMutateAction) {
-              this.viewProps[mapping.targetPropName] = action.valuesArray;
+              // if we are mutating the list element, we only want to change that index
+              // otherwise its an insert/delete and we want to update the whole array
+              if (action.type === ActionId.UPDATE_PROPERTY) {
+                this.viewProps[mapping.targetPropName][action.index] = action.valuesArray[action.index];
+              } else {
+                this.viewProps[mapping.targetPropName] = action.valuesArray;
+              }
             }
 
           });
@@ -220,6 +227,7 @@ export abstract class ContainerComponent<CP, VP, A extends StateObject>
     this.updateViewPropsUsingMappings(executedActions);
     this.dispatchUsingMappings(executedActions);
     this.updateViewProps(executedActions);
+    // our state has changed, force a render
     this.forceUpdate();
   }
 

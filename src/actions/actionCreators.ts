@@ -79,7 +79,7 @@ export function getArrayCrudCreator<S extends StateObject, K extends keyof S, V 
  */
 export class ArrayCrudActionCreator<S extends StateObject, K extends keyof S, V extends Object> {
   private parent: S;
-  private propertyKey: keyof S;
+  private propertyKey: K;
 
   private valuesArray: Array<V> & S[K]; // & keyof S[keyof S];
 
@@ -107,22 +107,19 @@ export class ArrayCrudActionCreator<S extends StateObject, K extends keyof S, V 
     this.parent = parent;
     /* tslint:disable:no-any */
     let array: any = childArray;
+    let propKey: K | undefined;
     for (let key in parent) {
-      if (array === parent[key]) {
-        this.propertyKey = key;
+      if (array === parent[key] && array instanceof Array) {
+        propKey = key as K;
       }
     }
     /* tslint:enable:no-any */
-    if (!this.propertyKey) {
+    if (!propKey) {
       throw Error(`Failed to find array in parent`);
     }
+    this.propertyKey = propKey;
     this.valuesArray = array;
     this.keyGenerator = keyGenerator;
-  }
-
-  public insert(index: number, value: V): Action {
-    return new ArrayMutateAction(
-      ActionId.INSERT_PROPERTY, this.parent, this.propertyKey, index, this.valuesArray, value);
   }
 
   /**
@@ -142,6 +139,16 @@ export class ArrayCrudActionCreator<S extends StateObject, K extends keyof S, V 
     return index;
   }
 
+  public insert(index: number, value: V): Action {
+    let newArray: Array<V> & S[K] = this.valuesArray.slice(0);
+    newArray.splice(index, 0, value);
+    ArrayKeyIndexMap.get().deleteFromMaps(this.valuesArray);
+    this.valuesArray = newArray;
+    return new StateCrudAction(ActionId.UPDATE_PROPERTY, this.parent, this.propertyKey, newArray);
+    // return new ArrayMutateAction(
+    //   ActionId.INSERT_PROPERTY, this.parent, this.propertyKey, index, this.valuesArray, value);
+  }
+
   public update(value: V): Action {
     let index = this.getIndexOf(value);
     return new ArrayMutateAction(
@@ -150,7 +157,17 @@ export class ArrayCrudActionCreator<S extends StateObject, K extends keyof S, V 
 
   public remove(value: V): Action {
     let index = this.getIndexOf(value);
-    return new ArrayMutateAction(ActionId.DELETE_PROPERTY, this.parent, this.propertyKey, index, this.valuesArray);
+    let newArray: Array<V> & S[K] = this.valuesArray.slice(0);
+    newArray.splice(index, 1);
+
+    let result = new StateCrudAction(ActionId.UPDATE_PROPERTY, this.parent, this.propertyKey, newArray);
+    result.postHook = () => {
+      ArrayKeyIndexMap.get().deleteFromMaps(this.valuesArray);
+      this.valuesArray = newArray;
+    };
+    return result;
+    // let index = this.getIndexOf(value);
+    // return new ArrayMutateAction(ActionId.DELETE_PROPERTY, this.parent, this.propertyKey, index, this.valuesArray);
   }
 }
 

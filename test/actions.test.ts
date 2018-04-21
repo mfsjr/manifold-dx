@@ -10,7 +10,7 @@ import { ActionProcessorFunctionType } from '../src/types/ActionProcessor';
 import * as _ from 'lodash';
 import { onFailureDiff } from '../src/types/StateMutationDiagnostics';
 import { ArrayCrudActionCreator, CrudActionCreator } from '../src/actions/actionCreators';
-import { getCrudCreator } from '../src';
+// import { getCrudCreator } from '../src';
 
 const testStore = createTestStore();
 let name: Name;
@@ -46,7 +46,7 @@ describe('Add the name container', () => {
   // true: console.log(`insertNameAction instanceof Action ${insertNameAction instanceof Action}`);
   test('state should contain the name container', () => {
 
-    insertNameAction.perform();
+    testStore.getManager().actionPerform(insertNameAction);
     expect(appState.name).toBe(nameState);
     expect(nameState.middle).toEqual('F');
   });
@@ -58,7 +58,7 @@ describe('Add the name container', () => {
     let updateMiddleAction = new StateCrudAction(ActionId.UPDATE_PROPERTY, nameState, 'middle', 'J');
     test('middle initial should be "J"', () => {
       // let appState = state.getState();
-      updateMiddleAction.perform();
+      testStore.getManager().actionPerform(updateMiddleAction);
       // expect(appState.name).toBe(nameState);
       expect(nameState.middle).toEqual('J');
     });
@@ -71,14 +71,15 @@ describe('Add the name container', () => {
     let prefixValue = nameState.prefix;
     let deletePrefixAction = new StateCrudAction(ActionId.DELETE_PROPERTY, nameState, 'prefix', '');
     test('Delete the prefix property', () => {
-      deletePrefixAction.perform();
+      testStore.getManager().actionPerform(deletePrefixAction);
       expect(nameState.prefix).toBeUndefined();
     });
     test('oldValue should be ' + prefixValue, () => {
       expect(deletePrefixAction.oldValue).toEqual(prefixValue);
     });
     test('Restore the name prefix by "undo" action', () => {
-      deletePrefixAction.undo();
+      // deletePrefixAction.undo();
+      testStore.getManager().actionUndo(1);
       expect(nameState.prefix).toEqual(prefixValue);
     });
   });
@@ -86,7 +87,8 @@ describe('Add the name container', () => {
   describe('Array related actions', () => {
     test('bowling scores should be present', () => {
       let bowlingAction = new StateCrudAction(ActionId.UPDATE_PROPERTY, nameState, 'bowlingScores', bowlingScores);
-      bowlingAction.perform();
+      // testStore.getManager().actionPerform(bowlingAction);
+      bowlingAction.process();
       expect(nameState.bowlingScores).toBe(bowlingScores);
       expect(bowlingScores[0]).toBe(111);
     });
@@ -95,7 +97,7 @@ describe('Add the name container', () => {
           ActionId.UPDATE_PROPERTY, nameState, 'bowlingScores',
           0, nameState.bowlingScores, 101);
       expect(updateAction.index).toBe(0);
-      updateAction.perform();
+      testStore.getManager().actionPerform(updateAction);
       expect(bowlingScores[0]).toBe(101);
     });
   });
@@ -107,22 +109,23 @@ describe('Add the name container', () => {
     // let updateAction = new StateCrudAction(ActionId.UPDATE_PROPERTY, nameState, 'last', 'Doe');
     test('crudCreator update', () => {
       let updateAction = crudCreator.update('last', 'Doe');
-      updateAction.perform();
+      testStore.getManager().actionPerform(updateAction);
       expect(nameState.last).toBe('Doe');
       // restore the last name, note the action is performed inline
-      crudCreator.update('last', last).perform();
+      let updateLast = crudCreator.update('last', last);
+      testStore.getManager().actionPerform(updateLast);
       expect(nameState.last).toBe(last);
     });
     test('crudCreator insert', () => {
       expect(nameState.suffix).toBeUndefined();
       let insertAction = crudCreator.insert('suffix', 'Jr');
-      insertAction.perform();
+      testStore.getManager().actionPerform(insertAction);
       expect(nameState.suffix).toBe('Jr');
 
     });
     test('crudCreator remove (delete)', () => {
       let removeAction = crudCreator.remove('suffix');
-      removeAction.perform();
+      testStore.getManager().actionPerform(removeAction);
       expect(nameState.suffix).toBeUndefined();
     });
   });
@@ -140,37 +143,51 @@ describe('Add the name container', () => {
       };
 
       let action = addrActionCreator.insert(0, addr);
-      action.perform();
+      // action.perform();
+      testStore.getManager().actionPerform(action);
 
       expect(nameState.addresses[0]).toEqual(addr);
     });
     test('update an item in the addresses array', () => {
       let updatedAddr: Address = {...nameState.addresses[0], zip: '54321'};
       let action = addrActionCreator.update(updatedAddr);
-      action.perform();
+      testStore.getManager().actionPerform(action);
       expect(nameState.addresses[0].zip).toBe('54321');
       // NOTE: this is a little complicated; we're testing that the size of they arrayKeyIndexMap has increased by
       // one, since the update will require it to be created for this array.
       expect(ArrayKeyIndexMap.get().size()).toBe(1 + arrayKeyIndexMapSize);
     });
+    test('addresses is in KeyArrayIndexMap', () => {
+      let before = ArrayKeyIndexMap.get().get(nameState.addresses);
+      expect(before).toBeDefined();
+    });
     test('add another address', () => {
-      addrActionCreator.insert(1, address2).perform();
+      let action = addrActionCreator.insert(1, address2);
+      testStore.getManager().actionPerform(action);
       expect(nameState.addresses[1]).toBe(address2);
     });
     test('delete an address', () => {
       // addrActionCreator.remove(0).perform();
 
-      addrActionCreator.remove(nameState.addresses[0]).perform();
+      let removeAction = addrActionCreator.remove(nameState.addresses[0]);
+      testStore.getManager().actionPerform(removeAction);
+
       expect(nameState.addresses.length).toBe(1);
       expect(nameState.addresses[0]).toBe(address2);
     });
-
-    test('delete \'addresses\' and verify that it is removed from KeyArrayIndexMap', () => {
-      let crudCreator = getCrudCreator(nameState);
-      crudCreator.remove('addresses').perform();
-      // size of map returns to what it was before anything was done with the array
+    test('expect that deleting an address removes the array from KeyArrayIndexMap', () => {
       expect(ArrayKeyIndexMap.get().size()).toBe(arrayKeyIndexMapSize);
     });
+
+    // test('delete \'addresses\' and verify that it is removed from KeyArrayIndexMap', () => {
+    //   let crudCreator = getCrudCreator(nameState);
+    //   crudCreator.remove('addresses').perform();
+    //   let after = ArrayKeyIndexMap.get().get(nameState.addresses);
+    //   expect(after).toBeUndefined();
+    //
+    //   // size of map returns to what it was before anything was done with the array
+    //   // expect(ArrayKeyIndexMap.get().size()).toBe(arrayKeyIndexMapSize);
+    // });
   });
 
   describe('Verify StateMutationCheck', () => {
@@ -336,12 +353,3 @@ describe('tests for ArrayKeyIndexMap', () => {
   });
 
 });
-
-// describe('Tests for array action creator for array mutations', () => {
-//   let actionCreator = new ArrayCrudActionCreator(nameState, name.addresses, nameState._accessors.addressKeyFn);
-//   actionCreator.insert(0, address).perform();
-//   test('address was inserted', () => {
-//     expect(name.addresses[0]).toBe(address);
-//   });
-//
-// });

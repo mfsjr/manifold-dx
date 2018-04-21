@@ -1,10 +1,5 @@
 import { GenericMappingAction } from '../actions/actions';
 
-/**
- * Mapping actions require specific generic types, but common data structures need to hold 'any'
- */
-/* tslint:disable:no-any */
-/* tslint:enable:no-any */
 
 /**
  * Path strings map to values defined by this type, which can refer to simple properties having
@@ -41,24 +36,24 @@ export class MappingState {
     }
   }
 
-  // /**
-  //  * This doesn't seem supportable, since it requires arrays to be remapped any time their
-  //  * values change.  Better to rely on immutability and pure components
-  //  * @param {string} path
-  //  * @param {React.Key} key
-  //  * @returns {GenericMappingAction[] | undefined}
-  //  */
-  // getArrayMappingActions(path: string, key: React.Key ): GenericMappingAction[] | undefined {
-  //   let pathResults = this.pathMappings.get(path);
-  //   if (!pathResults) {
-  //     return undefined;
-  //   }
-  //   if (pathResults instanceof Map) {
-  //     return pathResults.get(key);
-  //   } else {
-  //     throw new Error(`pathResults from ${path} expected to be instanceof Map`);
-  //   }
-  // }
+  /**
+   * This doesn't seem supportable, since it requires arrays to be remapped any time their
+   * values change.  Better to rely on immutability and pure components
+   * @param {string} path
+   * @param {React.Key} key
+   * @returns {GenericMappingAction[] | undefined}
+   */
+  getArrayMappingActions(path: string, key: React.Key ): GenericMappingAction[] | undefined {
+    let pathResults = this.pathMappings.get(path);
+    if (!pathResults) {
+      return undefined;
+    }
+    if (pathResults instanceof Map) {
+      return pathResults.get(key);
+    } else {
+      throw new Error(`pathResults from ${path} expected to be instanceof Map`);
+    }
+  }
 
   public getPathMappings(propFullPath: string): GenericMappingAction[] | undefined {
     return this.getMappingActions(propFullPath);

@@ -27,19 +27,43 @@ export type DispatchType = (action: StateCrudAction<any, any>) => void;
 /* tslint:enable:no-any */
 
 export abstract class Action {
+
+  /**
+   * Optional action to be performed after the execution of the action,
+   * see {@link ActionProcessor}
+   */
+  public postHook?: () => void;
   type: ActionId;
   mutated: boolean = false;
   pristine: boolean = true;
 
+  /**
+   * Performs the mutation on the action, called by the {@link Manager}, and should only be called by it, with
+   * the possible exception of testing.
+   *
+   * @param {Action} action
+   */
+  public static perform(action: Action): void {
+    action.performMutation();
+  }
+
+  /**
+   * Undo the mutation on the action.  This is only called by the {@link Manager} and should never be called directly.
+   * @param {Action} action
+   */
+  public static undo(action: Action): void {
+    action.undoMutation();
+  }
+
   protected abstract mutate(perform: boolean): void;
-  
+
   public abstract clone(): Action;
 
   constructor(actionType: ActionId) {
     this.type = actionType;
   }
 
-  perform(): void {
+  protected performMutation(): void {
     this.mutate(true);
   }
 
@@ -63,9 +87,10 @@ export abstract class Action {
     return undoAction;
   }
 
-  undo(): void {
+  protected undoMutation(): void {
     this.mutate(false);
   }
+
     /* tslint:disable:no-any */
   public containersToRender(containersBeingRendered: ContainerComponent<any, any, any>[]): void { return; }
     /* tslint:enable:no-any */
@@ -85,12 +110,19 @@ export abstract class StateAction<S extends StateObject, K extends keyof S> exte
     this.mappingActions = from.mappingActions;
   }
 
-    constructor(actionType: ActionId, _parent: S, _propertyName: K) {
+  constructor(actionType: ActionId, _parent: S, _propertyName: K) {
     super(actionType);
     this.parent = _parent;
     this.propertyName = _propertyName;
   }
 
+  /**
+   * Process the action.  A convenience method that calls Manager.get().actionPerform, which is the correct
+   * way to process an action or an array of actions.
+   */
+  public process(): void {
+    Manager.get(this.parent).actionPerform(this);
+  }
   /* tslint:disable:no-any */
   public containersToRender(containersBeingRendered: ContainerComponent<any, any, any>[]): void {
     /* tslint:enable:no-any */
@@ -376,7 +408,7 @@ export class ArrayMutateAction
  * provide a function or functions that are executed after the mapping is performed
  * but before anything is rendered (e.g., to transform other property data).
  *
- * The functionality provided here is analogous to, but not the same as,
+ * The functionality provided here is analogous to, but works very differently from,
  * Redux's mapStateToProps/Dispatch.
  *
  * S: type of the parent state
@@ -468,15 +500,15 @@ export class MappingAction
   }
 
   // on componentDidMount
-  perform() {
+  performMutation() {
     this.mutate(true);
   }
   // on componentWillUnmount
-  undo() {
+  undoMutation() {
     this.mutate(false);
   }
   redo() {
-    this.perform();
+    this.performMutation();
   }
 }
 

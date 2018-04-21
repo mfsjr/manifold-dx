@@ -2,7 +2,7 @@ import { Store, StateObject, StateConfigOptions, JSON_replaceCyclicParent } from
 import { Action } from '../actions/actions';
 import { MappingState } from './MappingState';
 import { createActionQueue, ActionQueue } from './ActionQueue';
-import { ActionProcessor, ActionProcessorAPI } from './ActionProcessor';
+import { ActionProcessor } from './ActionProcessor';
 
 /**
  * Manages state, contains no references to app-specific data, which is handled in the
@@ -59,7 +59,7 @@ export class Manager {
     this.resetActionProcessors(state, options);
   }
 
-  public getActionProcessorAPI(): ActionProcessorAPI {
+  public getActionProcessorAPI(): ActionProcessor {
     return this.actionProcessor;
   }
 
@@ -87,7 +87,8 @@ export class Manager {
     });
     actions = this.actionProcessor.preProcess(actions);
     actions.forEach((action) => {
-      action.undo();
+      Action.undo(action);
+      // action.undo();
       this.actionQueue.incrementCurrentIndex(-1);
     });
     actions = this.actionProcessor.postProcess(actions);
@@ -103,7 +104,8 @@ export class Manager {
     });
     actions = this.actionProcessor.preProcess(actions);
     actions.forEach((action) => {
-      action.perform();
+      Action.perform(action);
+      // action.perform();
       this.actionQueue.incrementCurrentIndex(1);
     });
     actions = this.actionProcessor.postProcess(actions);
@@ -118,7 +120,8 @@ export class Manager {
     });
     actions = this.actionProcessor.preProcess(actions);
     actions.forEach((action) => {
-      action.perform();
+      Action.perform(action);
+      // action.perform();
       this.actionQueue.push(action);
     });
     actions = this.actionProcessor.postProcess(actions);
@@ -135,7 +138,8 @@ export class Manager {
     let undoActions = this.actionQueue.lastActions(lastN).reverse();
     undoActions.forEach(action => {
       // annotateActionInState(action);
-      action.undo();
+      Action.undo(action);
+      // action.undo();
       // decrement the actionQueue's current index by the actual number of actions undone
       this.actionQueue.incrementCurrentIndex(-undoActions.length);
     });
@@ -151,7 +155,7 @@ export class Manager {
     let redoActions = this.actionQueue.nextActions(nextN);
     redoActions.forEach(action => {
       // annotateActionInState(action);
-      action.perform();
+      Action.perform(action);
       // increment the actionQueue's currentIndex by the actual number of actions redone
       this.actionQueue.incrementCurrentIndex(redoActions.length);
     });

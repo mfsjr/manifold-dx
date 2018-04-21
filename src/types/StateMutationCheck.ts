@@ -10,7 +10,8 @@ export class MutationError extends Error {
 
 /**
  * Default implementation for lightweight state mutation warnings, meaning that
- * libraries that do diagnostics are not loaded.
+ * libraries that do diagnostics are not loaded.  To be used only in PROD, non-PROD
+ * environments should be using StateMutationDiagnostics "onFailureDiff".
  *
  * @param {S} baseline
  * @param {S} failure
@@ -76,7 +77,7 @@ export class StateMutationCheck<S> {
     return actions;
   }
 
-  public preActionTestState(actions: Action[]): Action[] {
+  public preActionStateCheck(actions: Action[]): Action[] {
     this.check(this.state.getState());
     return actions;
   }

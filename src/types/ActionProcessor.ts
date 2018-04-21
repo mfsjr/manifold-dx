@@ -76,7 +76,7 @@ export class ActionProcessor implements ActionProcessorAPI {
   public preProcess(actions: Action[]): Action[] {
     actions = this.process(actions, this.preProcessors);
     if (this.mutationCheck.isEnabled()) {
-      this.mutationCheck.preActionTestState(actions);
+      this.mutationCheck.preActionStateCheck(actions);
     }
     return actions;
   }
@@ -86,6 +86,11 @@ export class ActionProcessor implements ActionProcessorAPI {
     if (this.mutationCheck.isEnabled()) {
       this.mutationCheck.postActionCopyState(actions);
     }
+    actions.forEach((action) => {
+      if (action.postHook) {
+        action.postHook();
+      }
+    });
     this.renderer(actions);
     return this.process(actions, this.postProcessors);
   }

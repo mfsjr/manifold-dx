@@ -48,6 +48,12 @@ export class ActionProcessor implements ActionProcessorAPI {
     return this.mutationCheck.isEnabled();
   }
 
+  /**
+   * This is where mutation checking is enabled, and is where the first snapshot is taken.
+   *
+   * BE CAREFUL to call this after any state initialization (done by means other than actions),
+   * as it will cause mutation errors!
+   */
   public enableMutationChecking(): void {
     this.mutationCheck.enableMutationChecks();
   }

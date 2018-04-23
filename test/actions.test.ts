@@ -36,6 +36,8 @@ let resetTestObjects = () => {
   address = {street: '54 Upton Lake Rd', city: 'Clinton Corners', state: 'NY', zip: '12514'};
   addressState = Store.createStateObject<Address>(nameState, 'address', address);
   nameState.address = addressState;
+  // NOTE: do this after setting up the store's initial state, this is where the snapshot is taken
+  // if you init state after calling this you will get mutation errors!
   testStore.getManager().getActionProcessorAPI().enableMutationChecking();
 };
 

@@ -104,6 +104,8 @@ let resetTestObjects = () => {
   bowlingScores = [111, 121, 131];
   initBowlerProps = { fullName: nameState.first };
   container = new BowlerContainer(initBowlerProps);
+  // NOTE: do this after setting up the store's initial state, this is where the snapshot is taken
+  // if you init state after calling this you will get mutation errors!
   testStore.getManager().getActionProcessorAPI().enableMutationChecking();
 };
 
@@ -136,7 +138,7 @@ describe('ContainerComponent instantiation, mount, update, unmount', () => {
   test('action mapping should have fullpath', () => {
     expect(container.getMappingActions()[0].fullPath).toEqual('name.first');
   });
-  test('component state should contain bowler component', () => {
+  test('mapping state should contain bowler component', () => {
     let mappingActions =
       testStore.getManager().getMappingState().getPathMappings(container.getMappingActions()[0].fullPath);
     if (!mappingActions || mappingActions.length === 0) {

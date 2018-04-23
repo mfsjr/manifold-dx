@@ -16,10 +16,14 @@ let resetTestObjects = (): TestStateObjects => {
   testStore.reset(createTestState(), {});
   let name: Name = {first: 'Matthew', middle: 'F', last: 'Hooper', prefix: 'Mr', bowlingScores: [], addresses: []};
   let address: Address = {street: '54 Upton Lake Rd', city: 'Clinton Corners', state: 'NY', zip: '12514'};
-  testStore.getManager().getActionProcessorAPI().enableMutationChecking();
   // let x = State.createStateObject<Name>(testStore.getState(), 'name', name);
   let x = createNameContainer(name, testStore.getState(), 'name');
   let y = Store.createStateObject<Address>(x, 'address', address);
+
+  // NOTE: do this after setting up the store's initial state, this is where the snapshot is taken
+  // if you init state after calling this you will get mutation errors!
+  testStore.getManager().getActionProcessorAPI().enableMutationChecking();
+
   let z = [111, 121, 131];
   return {
     nameState: x,
@@ -201,7 +205,8 @@ describe('Get the full path of properties in state objects, usable by lodash "ge
     // }
     expect(appState.name).toBe(nameState);
     let insertScoresAction = new StateCrudAction(ActionId.INSERT_PROPERTY, nameState, 'bowlingScores', bowlingScores);
-    insertScoresAction.performMutation();
+    insertScoresAction.process();
+    // Action.perform(insertScoresAction);
     let fullPath = testStore.getManager().getFullPath(nameState, 'bowlingScores[0]');
     expect(fullPath).toEqual('name.bowlingScores[0]');
     expect(_.get(appState, fullPath)).toBe(bowlingScores[0]);

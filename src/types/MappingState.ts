@@ -97,18 +97,84 @@ export class MappingState {
   /**
    *
    * @param {string} _fullPath the key where the component may be found
-   * @param {React.Component} container to be removed
+   * @param {React.Component} _container to be removed
    * @returns {number} index at which the component was removed, -1 if not found
    */
-  public removePathMapping(_fullPath: string, container: GenericMappingAction, key?: React.Key): number {
-    let containers: GenericMappingAction[] | undefined = this.getPathMappings(_fullPath);
+  public removePathMapping(_fullPath: string, _container: GenericMappingAction, key?: React.Key): number {
+    let containers = this.getPathMappings(_fullPath);
     if (containers) {
-      let index = containers.indexOf(container);
-      if (index > -1) {
-        containers.splice(index, 1);
+      if (!key) {
+        let index = containers.indexOf(_container);
+        if (index > -1) {
+          containers.splice(index, 1);
+        }
+        return containers.length;
+      } else {
+        if (!(containers instanceof Map)) {
+          throw Error(`Trying to remove key from object that is not a Map, at path ${_fullPath}`);
+        }
+        let keyMap: Map<React.Key, GenericMappingAction[]> = containers;
+        let list: GenericMappingAction[] | undefined = keyMap.get(key);
+        if (list) {
+          let index = list.indexOf(_container);
+          if (index > -1) {
+            list.splice(index, 1);
+            return list.length;
+          }
+        }
       }
-      return containers.length;
     }
     return -1;
+  }
+
+  /**
+   * If a state object is removed it will not be mapped directly, but it may have many child properties that are.
+   *
+   * So, this method iterates through all of the path keys, and deletes any that are children of the state path,
+   * i.e., paths that begin with the state path.
+   *
+   * @param {string} statePath
+   */
+  public removeStatePath(statePath: string) {
+    let iterator = this.pathMappings.keys();
+    let key = iterator.next();
+    let keys: Array<string> = [];
+    while ( !key.done ) {
+      keys.push(key.value);
+      key = iterator.next();
+    }
+    if (keys.length > 0) {
+      let subPaths: Array<string> = [];
+      keys.forEach((value) => {
+        if (value.startsWith(statePath)) {
+          subPaths.push(value);
+        }
+      });
+      subPaths.forEach(value => {
+        this.pathMappings.delete(value);
+      });
+    }
+  }
+
+  /**
+   * Remove the entire path (and key if present) from the mapping state.
+   *
+   * @param {string} propPath
+   * @param {React.Key} key
+   * @returns {boolean}
+   */
+  public removePath(propPath: string, key?: React.Key): boolean {
+    let result = this.pathMappings.get(propPath);
+    if (!result) {
+      return false;
+    }
+    if (result instanceof Array) {
+      return this.pathMappings.delete(propPath);
+    }
+    if (!key || !(result instanceof Map)) {
+      throw Error(`Type error trying to remove a key from a map at path ${propPath}`);
+    }
+    let keyMap: Map<React.Key, GenericMappingAction[]> = result;
+    return keyMap.delete(key);
   }
 }

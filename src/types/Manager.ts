@@ -112,7 +112,7 @@ export class Manager {
     return actions.length;
   }
 
-  public actionPerform(...actions: Action[]): number {
+  public actionProcess(...actions: Action[]): number {
     actions.forEach((action) => {
       if (!action.pristine) {
         throw new Error('you can only perform actions for new/original/pristine actions');

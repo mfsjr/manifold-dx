@@ -4,6 +4,7 @@ import { ArrayCrudActionCreator, CrudActionCreator } from '../src/actions/action
 import { ArrayKeyGeneratorFn, propertyKeyGenerator } from '../src/actions/actions';
 
 export interface Address {
+  id: number;
   street: string;
   city: string;
   state: string;

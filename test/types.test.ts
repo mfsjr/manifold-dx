@@ -15,7 +15,7 @@ const testStore = createTestStore();
 let resetTestObjects = (): TestStateObjects => {
   testStore.reset(createTestState(), {});
   let name: Name = {first: 'Matthew', middle: 'F', last: 'Hooper', prefix: 'Mr', bowlingScores: [], addresses: []};
-  let address: Address = {street: '54 Upton Lake Rd', city: 'Clinton Corners', state: 'NY', zip: '12514'};
+  let address: Address = {id: 1, street: '54 Upton Lake Rd', city: 'Clinton Corners', state: 'NY', zip: '12514'};
   // let x = State.createStateObject<Name>(testStore.getState(), 'name', name);
   let x = createNameContainer(name, testStore.getState(), 'name');
   let y = Store.createStateObject<Address>(x, 'address', address);
@@ -245,7 +245,7 @@ describe('Test perform/undo/redo actions marking the app state, mutating, and th
 
   test('perform the update middle action', () => {
     testStore.reset(createTestState(), {});
-    let updateMiddleResult = testStore.getManager().actionPerform(updateMiddleAction);
+    let updateMiddleResult = testStore.getManager().actionProcess(updateMiddleAction);
     expect(updateMiddleResult).toBe(1);
   });
 
@@ -285,7 +285,7 @@ describe('Test perform/undo/redo actions marking the app state, mutating, and th
 
   test('insert name container', () => {
     let insertName = new StateCrudAction(ActionId.INSERT_STATE_OBJECT, testStore.getState(), 'name', nameState);
-    testStore.getManager().actionPerform(insertName);
+    testStore.getManager().actionProcess(insertName);
     expect(testStore.getState().name).toBeDefined();
   });
 });

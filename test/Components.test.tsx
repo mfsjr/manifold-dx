@@ -1,4 +1,4 @@
-import { createTestStore, createNameContainer, TestState, NameState } from './testHarness';
+import { createTestStore, createNameContainer, TestState, NameState, Address } from './testHarness';
 import { Name } from './testHarness';
 import * as React from 'react';
 import { ContainerComponent, GenericContainerMappingTypes } from '../src/components/ContainerComponent';
@@ -6,6 +6,8 @@ import { Action, ActionId, StateCrudAction } from '../src/actions/actions';
 import { Store, StateObject } from '../src/types/State';
 import { Manager } from '../src/types/Manager';
 import { getMappingCreator } from '../src/actions/actionCreators';
+import { getArrayCrudCreator } from '../src';
+import { MappingState } from '../src/types/MappingState';
 
 const testStore = createTestStore();
 
@@ -26,7 +28,23 @@ export interface ScoreCardProps {
   state: string;
   scores: number[];
   calcAverage: () => number;
+  addresses?: Array<Address>;
 }
+
+let addr1: Address = {
+  id: 1,
+  street: '3401 Walnut',
+  city: 'Philadelphia',
+  state: 'PA',
+  zip: '19104'
+};
+let addr2: Address = {
+  id: 2,
+  street: '11 Genung Court',
+  city: 'Hopewell',
+  state: 'New York',
+  zip: '19532'
+};
 
 const ScoreCardGenerator = function(props: ScoreCardProps): React.Component<ScoreCardProps> {
   return new React.Component<ScoreCardProps>(props);
@@ -112,6 +130,9 @@ let resetTestObjects = () => {
 resetTestObjects();
 
 describe('ContainerComponent instantiation, mount, update, unmount', () => {
+  let addrKeyGen = (_address: Address) => _address.street;
+  let addressesActionCreator = getArrayCrudCreator(nameState, nameState.addresses, addrKeyGen);
+  // let mappingActionCreator = getMappingCreator(nameState, container);
   // placeholder
   test('after mounting, the component state should have something in it', () => {
     container.componentDidMount();
@@ -149,8 +170,16 @@ describe('ContainerComponent instantiation, mount, update, unmount', () => {
   test('an update action', () => {
     expect(container.average).toBeUndefined();
     let action = new StateCrudAction(ActionId.INSERT_PROPERTY, nameState, 'bowlingScores', bowlingScores);
-    testStore.getManager().actionPerform(action);
+    testStore.getManager().actionProcess(action);
     expect(container.average).toBeGreaterThan(100);
+  });
+  test('add to the addresses', () => {
+    addressesActionCreator.insert(0, addr1).process();
+    expect(nameState.addresses[0].street).toBe(addr1.street);
+  });
+  test('append to the addresses', () => {
+    addressesActionCreator.append(addr2).process();
+    expect(nameState.addresses[1].state).toBe(addr2.state);
   });
   test(
       'unmount should result in bowler being removed from the still-present component state mapping value ' +
@@ -159,5 +188,63 @@ describe('ContainerComponent instantiation, mount, update, unmount', () => {
     container.componentWillUnmount();
     expect(testStore.getManager().getMappingState().getPathMappings(container.getMappingActions()[0].fullPath))
         .not.toContain(container);
+  });
+});
+
+describe('Standalone tests for instance of MappingState', () => {
+  let mappingState = new MappingState();
+  // other tests have already captured api's for simple properties, so concentrate on array/React.Key api's
+  let addressesMappings = mappingState.getOrCreatePathMappings('addresses');
+  test('addresses returns addressesMappings', () => {
+    expect(mappingState.getPathMappings('addresses')).toBe(addressesMappings);
+
+  });
+  test('addressesMappings to be an Array', () => {
+    expect(addressesMappings instanceof Array).toBeTruthy();
+  });
+
+  let addr1Mappings = mappingState.getOrCreatePathMappings('addresses', 1);
+  test('addr1Mappings to be an array', () => {
+    expect(addr1Mappings instanceof Array).toBeTruthy();
+  });
+
+  test('translating from property to array should leave addressesMappings unchanged', () => {
+    let newAddressesMappings = mappingState.getPathMappings('addresses');
+    expect(newAddressesMappings instanceof Array).toBeTruthy();
+    expect(addressesMappings).toBe(newAddressesMappings);
+  });
+
+  test('remove path mapping from an array index', () => {
+    let mappingActions = container.getMappingActions();
+    mappingActions.forEach(action => addr1Mappings.push(action));
+
+    let mappings = mappingState.getPathMappings('addresses', 1);
+    expect(mappings).toBeDefined();
+    let n = mappingState.removePathMapping('addresses', container.getMappingActions()[0], 1);
+    expect(n).toBe(1);
+  });
+
+  test('removing actions (above) should leave the same arrays in mappings', () => {
+    let mappings = mappingState.getPathMappings('addresses', 1);
+    expect(addr1Mappings).toBe(mappings);
+  });
+
+  test('remove entire paths', () => {
+    let n = mappingState.removePath('addresses');
+    // we expect there to be one entry for every element in the array, plus one for the array itself
+    expect(n).toBe(addr1Mappings.length + 1);
+    // now add them back and restore the variables we're using for testing
+    mappingState.getOrCreatePathMappings('addresses');
+    mappingState.getOrCreatePathMappings('addresses', 1);
+    let mappingActions = container.getMappingActions();
+    mappingActions.forEach(action => addr1Mappings.push(action));
+    addr1Mappings = mappingActions;
+  });
+
+  test('removing state paths, ie path prefixes' , () => {
+    mappingState.getOrCreatePathMappings('address');
+    let n = mappingState.removeStatePath('address');
+    // both 'address' and 'addresses' should be removed by the 'address' path prefix / state path
+    expect(n === 2).toBeTruthy();
   });
 });

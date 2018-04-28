@@ -1,6 +1,12 @@
 import { GenericMappingAction } from '../actions/actions';
 
 /**
+ * Array maps hold all the mappings associated with an array, including the array itself.
+ * Children of the array are reference with React.Key's, and the mapping for the array
+ * is referred to by the null key, so the value for the null key should always exist.
+ */
+export type ArrayMap = Map<React.Key | null, GenericMappingAction[]>;
+/**
  * This class is called after state is updated, by using the path to the state that was updated
  * and getting the components that have been mapped to that path.
  *
@@ -10,7 +16,7 @@ import { GenericMappingAction } from '../actions/actions';
  * Paths can also be used along with React.Keys, which are used to identify elements in lists,
  * so that unique elements in lists can be identified for rendering.
  */
-export type PathMappingValue = GenericMappingAction[] | Map<React.Key, GenericMappingAction[]>;
+export type PathMappingValue = GenericMappingAction[] | ArrayMap;
 
 /**
  * Relates application state properties with React components, for the purpose of
@@ -35,96 +41,95 @@ export class MappingState {
     }
     if (pathResults instanceof Array) {
       return pathResults;
-    } else if (pathResults instanceof Map && key) {
-      return pathResults.get(key);
-      // throw Error(`pathResults from ${path} expected to be instanceof Array`);
+    } else if (pathResults instanceof Map) {
+      let _key = key ? key : null;
+      return pathResults.get(_key);
     }
-    throw Error(`pathResults from ${path} expected to be instanceof Array, or a Map with a key`);
+
+    throw Error(`pathResults from ${path} expected to be instanceof Array, or a Map`);
   }
 
-  // /**
-  //  * This doesn't seem supportable, since it requires arrays to be remapped any time their
-  //  * values change.  Better to rely on immutability and pure components
-  //  * @param {string} path
-  //  * @param {React.Key} key
-  //  * @returns {GenericMappingAction[] | undefined}
-  //  */
-  // getArrayMappingActions(path: string, key: React.Key ): GenericMappingAction[] | undefined {
-  //   let pathResults = this.pathMappings.get(path);
-  //   if (!pathResults) {
-  //     return undefined;
-  //   }
-  //   if (pathResults instanceof Map) {
-  //     return pathResults.get(key);
-  //   } else {
-  //     throw new Error(`pathResults from ${path} expected to be instanceof Map`);
-  //   }
-  // }
-
-  // public getPathMappings(propFullPath: string): GenericMappingAction[] | undefined {
-  //   return this.getMappingActions(propFullPath);
-  // }
-
   public getOrCreatePathMappings(propFullPath: string, key?: React.Key): GenericMappingAction[] {
-    let result = this.getPathMappings(propFullPath);
+    let result = this.getPathMappings(propFullPath, key);
     if (!key) {
       if (!result) {
         result = [];
         this.pathMappings.set(propFullPath, result);
       }
       return result;
-    } else {
-      let keyMap: Map<React.Key, GenericMappingAction[]>;
+    } else { // key is defined, we will be returning the results from a nested map, converting from an array if needed
+      let keyMap: ArrayMap;
       if (!result) {
-        keyMap = new Map<React.Key, GenericMappingAction[]>();
-        result = undefined;
+        keyMap = new Map<React.Key | null, GenericMappingAction[]>();
+        result = [];
+        this.pathMappings.set(propFullPath, keyMap);
+        keyMap.set(key, result);
       } else {
-        if (result instanceof Map) {
+        // result has been defined, and we have a key, the property will have to be an array, our storage must be a map
+        if (result instanceof Array) {
+          keyMap = new Map<React.Key | null, GenericMappingAction[]>();
+          keyMap.set(null, result);
+          this.pathMappings.set(propFullPath, keyMap);
+          result = [];
+          keyMap.set(key, result);
+        } else { // the only other object that we put here is a map
           keyMap = result;
           result = keyMap.get(key);
-        } else {
-          throw new Error(`Found an object other than a Map at path ${propFullPath}`);
+          if (!result) {
+            result = [];
+            keyMap.set(key, result);
+          }
         }
-      }
-      if (!result) {
-        result = [];
-        keyMap.set(key, result);
       }
       return result;
     }
   }
 
   /**
+   * If genericMappingAction is undefined, remove all mappings for the path.
+   * If key is defined, its assumed the path is mapped to an array
    *
-   * @param {string} _fullPath the key where the component may be found
-   * @param {React.Component} _container to be removed
-   * @returns {number} index at which the component was removed, -1 if not found
+   * @param {string} _fullPath
+   * @param {GenericMappingAction | undefined} genericMappingAction
+   * @param {React.Key} key
+   * @returns {number}
    */
-  public removePathMapping(_fullPath: string, _container: GenericMappingAction, key?: React.Key): number {
-    let containers = this.getPathMappings(_fullPath);
+  public removePathMapping(
+            _fullPath: string,
+            genericMappingAction: GenericMappingAction | undefined,
+            key?: React.Key): number {
+    let containers = this.getPathMappings(_fullPath, key);
     if (containers) {
       if (!key) {
-        let index = containers.indexOf(_container);
-        if (index > -1) {
-          containers.splice(index, 1);
-        }
-        return containers.length;
-      } else {
-        if (!(containers instanceof Map)) {
-          throw Error(`Trying to remove key from object that is not a Map, at path ${_fullPath}`);
-        }
-        let keyMap: Map<React.Key, GenericMappingAction[]> = containers;
-        let list: GenericMappingAction[] | undefined = keyMap.get(key);
-        if (list) {
-          let index = list.indexOf(_container);
+        if (genericMappingAction) {
+          let index = containers.indexOf(genericMappingAction);
           if (index > -1) {
-            list.splice(index, 1);
-            return list.length;
+            containers.splice(index, 1);
+            return 1;
+          }
+          return 0;
+        } else {
+          this.pathMappings.delete(_fullPath);
+          return containers.length;
+        }
+      } else {
+        if (containers && containers.length > 0) {
+          if (genericMappingAction) {
+            let index = containers.indexOf(genericMappingAction);
+            if (index > -1) {
+              containers.splice(index, 1);
+              return 1;
+            }
+          } else {
+            if (!this.pathMappings.delete(_fullPath)) {
+              throw new Error(`Failed to delete all mapping actions in the map at ${_fullPath}`);
+            }
+            return containers.length;
           }
         }
       }
     }
-    return -1;
+    return 0;
   }
 
   /**
@@ -134,8 +139,9 @@ export class MappingState {
    * i.e., paths that begin with the state path.
    *
    * @param {string} statePath
+   * @return {number} # of path entries removed
    */
-  public removeStatePath(statePath: string) {
+  public removeStatePath(statePath: string): number {
     let iterator = this.pathMappings.keys();
     let key = iterator.next();
     let keys: Array<string> = [];
@@ -153,7 +159,9 @@ export class MappingState {
       subPaths.forEach(value => {
         this.pathMappings.delete(value);
       });
+      return subPaths.length;
     }
+    return 0;
   }
 
   /**
@@ -163,18 +171,33 @@ export class MappingState {
    * @param {React.Key} key
    * @returns {boolean}
    */
-  public removePath(propPath: string, key?: React.Key): boolean {
+  public removePath(propPath: string, key?: React.Key): number {
     let result = this.pathMappings.get(propPath);
     if (!result) {
-      return false;
+      return 0;
     }
     if (result instanceof Array) {
-      return this.pathMappings.delete(propPath);
+      if (!this.pathMappings.delete(propPath)) {
+        throw new Error(`Failed to delete ${propPath}`);
+      }
+      return 1;
     }
-    if (!key || !(result instanceof Map)) {
-      throw Error(`Type error trying to remove a key from a map at path ${propPath}`);
+    // if (!key || !(result instanceof Map)) {
+    //   throw Error(`Type error trying to remove a key from a map at path ${propPath}`);
+    // }
+    let keyMap: ArrayMap = result;
+    if (key) {
+      if (!keyMap.delete(key)) {
+        throw new Error(`Failed to delete key ${key} at propPath ${propPath}`);
+      }
+    } else {
+      if (!this.pathMappings.delete(propPath)) {
+        throw new Error(`failed to delete array at path ${propPath}`);
+      }
+      // return the number of entries in the deleted map
+      return keyMap.size;
     }
-    let keyMap: Map<React.Key, GenericMappingAction[]> = result;
-    return keyMap.delete(key);
+    return 1;
+    // return keyMap.delete(key) ? 1 : throw new Error('a');
   }
 }

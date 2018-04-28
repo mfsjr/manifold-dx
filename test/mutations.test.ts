@@ -18,7 +18,7 @@ let resetTestObjects = () => {
   testStore.reset(createTestState(), {});
   name = {first: 'Matthew', middle: 'F', last: 'Hooper', prefix: 'Mr', bowlingScores: [], addresses: []};
   nameState = Store.createStateObject<Name>(testStore.getState() as TestState & StateObject, 'name', name);
-  address = {street: '54 Upton Lake Rd', city: 'Clinton Corners', state: 'NY', zip: '12514'};
+  address = {id: 1, street: '54 Upton Lake Rd', city: 'Clinton Corners', state: 'NY', zip: '12514'};
   addressState = Store.createStateObject<Address>(nameState, 'address', address);
   bowlingScores = [111, 121, 131];
   // NOTE: do this after setting up the store's initial state, this is where the snapshot is taken

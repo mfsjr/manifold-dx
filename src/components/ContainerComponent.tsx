@@ -201,7 +201,7 @@ export abstract class ContainerComponent<CP, VP, A extends StateObject>
   componentDidMount() {
     // subscribe
     this.mappingActions = this.mappingActions ? this.mappingActions : this.createMappingActions();
-    Manager.get(this.appData).actionPerform(...this.mappingActions);
+    Manager.get(this.appData).actionProcess(...this.mappingActions);
   }
 
   componentWillUnmount() {

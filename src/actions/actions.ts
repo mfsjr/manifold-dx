@@ -59,6 +59,8 @@ export abstract class Action {
 
   public abstract clone(): Action;
 
+  public abstract process(): void;
+
   constructor(actionType: ActionId) {
     this.type = actionType;
   }
@@ -121,7 +123,7 @@ export abstract class StateAction<S extends StateObject, K extends keyof S> exte
    * way to process an action or an array of actions.
    */
   public process(): void {
-    Manager.get(this.parent).actionPerform(this);
+    Manager.get(this.parent).actionProcess(this);
   }
   /* tslint:disable:no-any */
   public containersToRender(containersBeingRendered: ContainerComponent<any, any, any>[]): void {
@@ -246,7 +248,7 @@ export function propertyKeyGenerator<V>(arrayElement: V, propertyKey: keyof V): 
  * a map of type Map<React.Key, number>, which relates React's unique keys to the index
  * which holds the array element.
  *
- * V the generic type of the values held in the array
+ * V the generic type of the values held in the array, eg, Array<V>
  */
 export class ArrayKeyIndexMap {
 

@@ -20,6 +20,7 @@ let address: Address;
 let addressState: Address & StateObject;
 let addressKeyFn = (addr: Address) => { return addr.street; };
 let address2: Address = {
+  id: 1,
   street: '123 Mockingbird Lane',
   city: 'Springfield',
   state: 'Massachusetts',
@@ -33,7 +34,7 @@ let resetTestObjects = () => {
   // nameState = State.createStateObject<Name>(testStore.getState(), 'name', name);
   nameState = createNameContainer(name, testStore.getState(), 'name');
   bowlingScores = [111, 121, 131];
-  address = {street: '54 Upton Lake Rd', city: 'Clinton Corners', state: 'NY', zip: '12514'};
+  address = {id: 2, street: '54 Upton Lake Rd', city: 'Clinton Corners', state: 'NY', zip: '12514'};
   addressState = Store.createStateObject<Address>(nameState, 'address', address);
   nameState.address = addressState;
   // NOTE: do this after setting up the store's initial state, this is where the snapshot is taken
@@ -48,7 +49,7 @@ describe('Add the name container', () => {
   // true: console.log(`insertNameAction instanceof Action ${insertNameAction instanceof Action}`);
   test('state should contain the name container', () => {
 
-    testStore.getManager().actionPerform(insertNameAction);
+    testStore.getManager().actionProcess(insertNameAction);
     expect(appState.name).toBe(nameState);
     expect(nameState.middle).toEqual('F');
   });
@@ -60,7 +61,7 @@ describe('Add the name container', () => {
     let updateMiddleAction = new StateCrudAction(ActionId.UPDATE_PROPERTY, nameState, 'middle', 'J');
     test('middle initial should be "J"', () => {
       // let appState = state.getState();
-      testStore.getManager().actionPerform(updateMiddleAction);
+      testStore.getManager().actionProcess(updateMiddleAction);
       // expect(appState.name).toBe(nameState);
       expect(nameState.middle).toEqual('J');
     });
@@ -73,7 +74,7 @@ describe('Add the name container', () => {
     let prefixValue = nameState.prefix;
     let deletePrefixAction = new StateCrudAction(ActionId.DELETE_PROPERTY, nameState, 'prefix', '');
     test('Delete the prefix property', () => {
-      testStore.getManager().actionPerform(deletePrefixAction);
+      testStore.getManager().actionProcess(deletePrefixAction);
       expect(nameState.prefix).toBeUndefined();
     });
     test('oldValue should be ' + prefixValue, () => {
@@ -99,7 +100,7 @@ describe('Add the name container', () => {
           ActionId.UPDATE_PROPERTY, nameState, 'bowlingScores',
           0, nameState.bowlingScores, 101);
       expect(updateAction.index).toBe(0);
-      testStore.getManager().actionPerform(updateAction);
+      testStore.getManager().actionProcess(updateAction);
       expect(bowlingScores[0]).toBe(101);
     });
   });
@@ -111,23 +112,23 @@ describe('Add the name container', () => {
     // let updateAction = new StateCrudAction(ActionId.UPDATE_PROPERTY, nameState, 'last', 'Doe');
     test('crudCreator update', () => {
       let updateAction = crudCreator.update('last', 'Doe');
-      testStore.getManager().actionPerform(updateAction);
+      testStore.getManager().actionProcess(updateAction);
       expect(nameState.last).toBe('Doe');
       // restore the last name, note the action is performed inline
       let updateLast = crudCreator.update('last', last);
-      testStore.getManager().actionPerform(updateLast);
+      testStore.getManager().actionProcess(updateLast);
       expect(nameState.last).toBe(last);
     });
     test('crudCreator insert', () => {
       expect(nameState.suffix).toBeUndefined();
       let insertAction = crudCreator.insert('suffix', 'Jr');
-      testStore.getManager().actionPerform(insertAction);
+      testStore.getManager().actionProcess(insertAction);
       expect(nameState.suffix).toBe('Jr');
 
     });
     test('crudCreator remove (delete)', () => {
       let removeAction = crudCreator.remove('suffix');
-      testStore.getManager().actionPerform(removeAction);
+      testStore.getManager().actionProcess(removeAction);
       expect(nameState.suffix).toBeUndefined();
     });
   });
@@ -138,6 +139,7 @@ describe('Add the name container', () => {
     let addrActionCreator = new ArrayCrudActionCreator(nameState, nameState.addresses, streetKeyFn);
     test('insert into the addresses array', () => {
       let addr: Address = {
+        id: 3,
         street: '6 Lily Pond Lane',
         city: 'Katonah',
         state: 'New York',
@@ -146,14 +148,14 @@ describe('Add the name container', () => {
 
       let action = addrActionCreator.insert(0, addr);
       // action.perform();
-      testStore.getManager().actionPerform(action);
+      testStore.getManager().actionProcess(action);
 
       expect(nameState.addresses[0]).toEqual(addr);
     });
     test('update an item in the addresses array', () => {
       let updatedAddr: Address = {...nameState.addresses[0], zip: '54321'};
       let action = addrActionCreator.update(updatedAddr);
-      testStore.getManager().actionPerform(action);
+      testStore.getManager().actionProcess(action);
       expect(nameState.addresses[0].zip).toBe('54321');
       // NOTE: this is a little complicated; we're testing that the size of they arrayKeyIndexMap has increased by
       // one, since the update will require it to be created for this array.
@@ -165,14 +167,14 @@ describe('Add the name container', () => {
     });
     test('add another address', () => {
       let action = addrActionCreator.insert(1, address2);
-      testStore.getManager().actionPerform(action);
+      testStore.getManager().actionProcess(action);
       expect(nameState.addresses[1]).toBe(address2);
     });
     test('delete an address', () => {
       // addrActionCreator.remove(0).perform();
 
       let removeAction = addrActionCreator.remove(nameState.addresses[0]);
-      testStore.getManager().actionPerform(removeAction);
+      testStore.getManager().actionProcess(removeAction);
 
       expect(nameState.addresses.length).toBe(1);
       expect(nameState.addresses[0]).toBe(address2);
@@ -212,7 +214,7 @@ describe('Add the name container', () => {
       let appendScore = new ArrayMutateAction(
           ActionId.INSERT_PROPERTY, nameState, 'bowlingScores',
           nameState.bowlingScores.length, nameState.bowlingScores, 299);
-      expect(() => {testStore.getManager().actionPerform(appendScore); }).not.toThrow();
+      expect(() => {testStore.getManager().actionProcess(appendScore); }).not.toThrow();
 
       // restore the old middle
       nameState.middle = middle;
@@ -233,7 +235,7 @@ describe('Add the name container', () => {
       let appendScore = new ArrayMutateAction(
           ActionId.INSERT_PROPERTY, nameState, 'bowlingScores',
           nameState.bowlingScores.length, nameState.bowlingScores, 299);
-      expect(() => {testStore.getManager().actionPerform(appendScore); }).toThrow();
+      expect(() => {testStore.getManager().actionProcess(appendScore); }).toThrow();
 
       // restore the old middle
       nameState.middle = middle;

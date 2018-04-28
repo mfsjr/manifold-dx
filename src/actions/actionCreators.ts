@@ -139,6 +139,10 @@ export class ArrayCrudActionCreator<S extends StateObject, K extends keyof S, V 
     return index;
   }
 
+  public append(value: V): Action {
+    return this.insert(this.valuesArray.length, value);
+  }
+
   public insert(index: number, value: V): Action {
     let newArray: Array<V> & S[K] = this.valuesArray.slice(0);
     newArray.splice(index, 0, value);

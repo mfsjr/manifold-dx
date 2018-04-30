@@ -46,9 +46,57 @@ let addr2: Address = {
   zip: '19532'
 };
 
+export interface AddressProps extends Address { }
+
 const ScoreCardGenerator = function(props: ScoreCardProps): React.Component<ScoreCardProps> {
   return new React.Component<ScoreCardProps>(props);
 };
+
+export function addressRowSfc(addressProps: AddressProps): React.ReactElement<AddressProps> {
+  // React.Children.forEach(props.children, (child, index) => {
+  //   if (child) {
+  //     if (typeof child !== 'string' && typeof child !== 'number') {
+  //       child.props.modifyBook = props.modifyBook;
+  //     } else {
+  //       throw new Error('Children of the row should not be ReactText!!!');
+  //     }
+  //   }
+  // });
+  return (
+    <div>
+      <div>
+        {addressProps.street}
+      </div>
+      <div>
+        {addressProps.city} {addressProps.state} {addressProps.zip}
+      </div>
+    </div>
+  );
+}
+
+/**
+ * This child container is deliberately over-engineered since we want to test the behavior of a more likely
+ * "real-world" example.
+ */
+export class AddressContainer extends ContainerComponent<AddressProps, AddressProps, TestState & StateObject> {
+  address: Address;
+
+  constructor(addressProps: AddressProps) {
+    super(addressProps, testStore.getState(), addressRowSfc);
+  }
+
+  /**
+   * Note that in the case of array/list child containers,
+   * @returns {GenericContainerMappingTypes<AddressProps, AddressProps, TestState & StateObject>[]}
+   */
+  createMappingActions(): GenericContainerMappingTypes<AddressProps, AddressProps, TestState & StateObject>[] {
+    return this.mappingActions;
+  }
+
+  createViewProps(): AddressProps {
+    return this.address;
+  }
+}
 
 export class BowlerContainer extends ContainerComponent<BowlerProps, ScoreCardProps, TestState & StateObject> {
 

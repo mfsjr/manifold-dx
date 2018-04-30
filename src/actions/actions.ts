@@ -433,12 +433,29 @@ export class MappingAction
   targetPropName: TP;
   dispatches: DispatchType[];
 
+  index: number;
+
   protected assignProps(from:  MappingAction<S, K, CP, VP, TP, A>) {
     super.assignProps(from);
     this.component = from.component;
     this.fullPath = from.fullPath;
     this.targetPropName = from.targetPropName;
     this.dispatches = from.dispatches;
+    this.index = from.index;
+  }
+  // Create a child of an array mapping, where the state of the array at an index is mapped to a container
+  // Generics related to the child containers are different than the parent's: {CPA, VPA, TPA}
+  // this may be the place where we should be populating ArrayKeyIndexMap
+  public createArrayItemMapping<CPA, VPA, TPA extends keyof VPA>
+    (elementContainer: ContainerComponent<CPA, VPA, A>, elementTargetProp: TPA, _index: number):
+    MappingAction<S, K, CPA, VPA, TPA, A> {
+    if (this.parent[this.propertyName] instanceof Array) {
+      let mappingAction = new MappingAction(this.parent, this.propertyName, elementContainer, elementTargetProp);
+      mappingAction.index = _index;
+      return mappingAction;
+    } else {
+      throw new Error(`Can't create an array item mapping without an array at path ${this.targetPropName}`);
+    }
   }
 
   public clone(): MappingAction<S, K, CP, VP, TP, A> {

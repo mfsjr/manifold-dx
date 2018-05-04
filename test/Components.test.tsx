@@ -141,26 +141,6 @@ export class BowlerContainer extends ContainerComponent<BowlerProps, ScoreCardPr
     return new React.Component(viewProps);
   }
 
-  // public createChildAddressMapping<S extends StateObject, K extends keyof S, V, CPA, VPA, TPA extends keyof VPA>
-  //   (stateObject: S, key: K & Array<V>,
-  //    elementContainer: ContainerComponent<CPA, VPA, TestState & StateObject>,
-  //    targetPropKey: TPA): MappingAction<S, K, CPA, VPA, TPA, TestState & StateObject> {
-  //   return getMappingCreator(stateObject, elementContainer).(key, targetPropKey).createArrayItemMapping();
-  // }
-
-  // TODO: figure out this generic nightmare, so that it can be called; BUT WHERE CAN IT BE CALLED FROM!!!
-  // if it can be called by elementContainers, then it allows them to create mapping actions to themselves
-  // Remember the point of writing this function is so that devs do not have to props with nightmare generics
-  // public createChildAddressMapping<K extends keyof Name & StateObject, V, CPA, VPA, TPA extends keyof VPA>
-  //   (arrayKey: K & Array<V>,
-  //    elementContainer: ContainerComponent<CPA, VPA, TestState & StateObject>,
-  //    targetPropKey: TPA)
-  // : MappingAction<Name & StateObject, K, CPA, VPA, TPA, TestState & StateObject> {
-  //   return getMappingCreator(this.nameState, elementContainer)
-  //     .createMappingAction(arrayKey, targetPropKey)
-  //     .createArrayItemMapping();
-  // }
-
   appendToMappingActions(actions: GenericContainerMappingTypes<BowlerProps, ScoreCardProps, TestState & StateObject>[])
     : void {
     let nameStateMapper = getMappingCreator(this.nameState, this);

@@ -102,7 +102,7 @@ export abstract class StateAction<S extends StateObject, K extends keyof S> exte
   parent: S;
   propertyName: K;
   /* tslint:disable:no-any */
-  mappingActions: GenericMappingAction[];
+  mappingActions: AnyMappingAction[];
   /* tslint:enable:no-any */
 
   protected assignProps(from: StateAction<S, K>) {
@@ -258,7 +258,7 @@ export class ArrayKeyIndexMap {
   protected keyGenMapper = new Map<Array<any>, ArrayKeyGeneratorFn<any>>();
   /* tslint:enable:no-any */
 
-  public static get = function() {
+  public static get = function(): ArrayKeyIndexMap {
     if (!ArrayKeyIndexMap.instance) {
       ArrayKeyIndexMap.instance = new ArrayKeyIndexMap();
     }
@@ -405,6 +405,12 @@ export class ArrayMutateAction
   }
 }
 
+// export class Tester<E> {
+//   value: E;
+// }
+//
+// let tester = new Tester<undefined>();
+
 /**
  * Define a mapping between a state property and a component property, and optionally
  * provide a function or functions that are executed after the mapping is performed
@@ -420,11 +426,12 @@ export class ArrayMutateAction
  * VP: view prop type
  * TP: a particular key of VP
  * A: application state
+ * E: array element type, if the property type is an array
  */
 
 export class MappingAction
-      <S extends StateObject, K extends keyof S, CP, VP, TP extends keyof VP, A extends StateObject>
-      extends StateAction<S, K> {
+  <S extends StateObject, K extends keyof S, CP, VP, TP extends keyof VP, A extends StateObject, E, KE extends keyof E>
+  extends StateAction<S, K> {
 
   /* tslint:disable:no-any */
   component: ContainerComponent<CP, VP, A>;
@@ -433,10 +440,11 @@ export class MappingAction
   targetPropName: TP;
   dispatches: DispatchType[];
 
-  // initialize to an invalid index, indicating this is not referring to an array element
+  // arrayElement?: E;
   index: number = -1;
+  elementPropName?: KE;
 
-  protected assignProps(from:  MappingAction<S, K, CP, VP, TP, A>) {
+  protected assignProps(from:  MappingAction<S, K, CP, VP, TP, A, E, KE>) {
     super.assignProps(from);
     this.component = from.component;
     this.fullPath = from.fullPath;
@@ -444,25 +452,9 @@ export class MappingAction
     this.dispatches = from.dispatches;
     this.index = from.index;
   }
-  // TODO: remove(?)
-  // Create a child of an array mapping, where the state of the array at an index is mapped to a container
-  // Generics related to the child containers are different than the parent's: {CPA, VPA, TPA}
-  // this may be the place where we should be populating ArrayKeyIndexMap
-  public createArrayItemMapping<CPA, VPA, TPA extends keyof VPA>
-    (elementContainer: ContainerComponent<CPA, VPA, A>, elementTargetProp: TPA, _index: number):
-    MappingAction<S, K, CPA, VPA, TPA, A> {
-    if (this.parent[this.propertyName] instanceof Array) {
-      let mappingAction = new MappingAction(this.parent, this.propertyName, elementContainer, elementTargetProp);
-      mappingAction.index = _index;
-      elementContainer.setArrayChildMappingAction(mappingAction);
-      return mappingAction;
-    } else {
-      throw new Error(`Can't create an array item mapping without an array at path ${this.targetPropName}`);
-    }
-  }
 
-  public clone(): MappingAction<S, K, CP, VP, TP, A> {
-    let copy = new MappingAction(
+  public clone(): MappingAction<S, K, CP, VP, TP, A, E, KE> {
+    let copy = new MappingAction<S, K, CP, VP, TP, A, E, KE>(
         this.parent,
         this.propertyName,
         this.component,
@@ -505,6 +497,20 @@ export class MappingAction
     return this.targetPropName;
   }
 
+  // are we updating by array element or array element property? assume the latter
+  // does this.index = propArray[index]?  seems like it has to, paging could be implemented by
+  // making propArray a window on the 'real' array
+  public setIndex(_index: number, propArray: S[K] & Array<E>, keyGen: ArrayKeyGeneratorFn<E>, elemPropName: KE): void {
+    // initialize the map using current state values
+    ArrayKeyIndexMap.get().getOrCreateKeyIndexMap(propArray, keyGen);
+    this.elementPropName = elemPropName;
+    this.index = _index;
+  }
+
+  public getIndex(): number {
+    return this.index;
+  }
+
   /**
    * Map this property/component pair to the applications ContainerState, or if false, unmap it.
    * @param {boolean} perform
@@ -535,5 +541,5 @@ export class MappingAction
 }
 
 /* tslint:disable:no-any */
-export type GenericMappingAction = MappingAction<any, any, any, any, any, any>;
+export type AnyMappingAction = MappingAction<any, any, any, any, any, any, any, any>;
 /* tslint:enable:no-any */

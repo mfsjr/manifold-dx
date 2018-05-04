@@ -7,7 +7,7 @@ import {
   MappingAction,
   StateAction,
   ActionId,
-  GenericMappingAction
+  AnyMappingAction
 } from '../actions/actions';
 import * as _ from 'lodash';
 import { Manager } from '../types/Manager';
@@ -143,9 +143,9 @@ export abstract class ContainerComponent<CP, VP, A extends StateObject>
    *
    * The action is passed into the {@link appendToMappingActions} and executed once.
    *
-   * @param {GenericMappingAction} action
+   * @param {AnyMappingAction} action
    */
-  public setArrayChildMappingAction(action: GenericMappingAction): void {
+  public setArrayChildMappingAction(action: AnyMappingAction): void {
     if (action.index < 0) {
       throw new Error(`This method only accepts mappings to array elements at path ${action.fullPath}`);
     }

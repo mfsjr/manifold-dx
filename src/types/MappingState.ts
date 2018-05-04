@@ -1,11 +1,15 @@
-import { GenericMappingAction } from '../actions/actions';
+import { AnyMappingAction } from '../actions/actions';
 
+export interface KeyProp {
+  reactKey: React.Key;
+  prop: string;
+}
 /**
  * Array maps hold all the mappings associated with an array, including the array itself.
  * Children of the array are reference with React.Key's, and the mapping for the array
  * is referred to by the null key, so the value for the null key should always exist.
  */
-export type ArrayMap = Map<React.Key | null, GenericMappingAction[]>;
+export type ArrayMap = Map<React.Key | null, AnyMappingAction[]>;
 /**
  * This class is called after state is updated, by using the path to the state that was updated
  * and getting the components that have been mapped to that path.
@@ -16,7 +20,7 @@ export type ArrayMap = Map<React.Key | null, GenericMappingAction[]>;
  * Paths can also be used along with React.Keys, which are used to identify elements in lists,
  * so that unique elements in lists can be identified for rendering.
  */
-export type PathMappingValue = GenericMappingAction[] | ArrayMap;
+export type PathMappingValue = AnyMappingAction[] | ArrayMap;
 
 /**
  * Relates application state properties with React components, for the purpose of
@@ -34,7 +38,7 @@ export class MappingState {
     return this.pathMappings.size;
   }
 
-  public getPathMappings(path: string, key?: React.Key): GenericMappingAction[] | undefined {
+  public getPathMappings(path: string, key?: React.Key): AnyMappingAction[] | undefined {
     let pathResults = this.pathMappings.get(path);
     if (!pathResults) {
       return undefined;
@@ -49,7 +53,7 @@ export class MappingState {
     throw Error(`pathResults from ${path} expected to be instanceof Array, or a Map`);
   }
 
-  public getOrCreatePathMappings(propFullPath: string, key?: React.Key): GenericMappingAction[] {
+  public getOrCreatePathMappings(propFullPath: string, key?: React.Key): AnyMappingAction[] {
     let result = this.getPathMappings(propFullPath, key);
     if (!key) {
       if (!result) {
@@ -60,14 +64,14 @@ export class MappingState {
     } else { // key is defined, we will be returning the results from a nested map, converting from an array if needed
       let keyMap: ArrayMap;
       if (!result) {
-        keyMap = new Map<React.Key | null, GenericMappingAction[]>();
+        keyMap = new Map<React.Key | null, AnyMappingAction[]>();
         result = [];
         this.pathMappings.set(propFullPath, keyMap);
         keyMap.set(key, result);
       } else {
         // result has been defined, and we have a key, the property will have to be an array, our storage must be a map
         if (result instanceof Array) {
-          keyMap = new Map<React.Key | null, GenericMappingAction[]>();
+          keyMap = new Map<React.Key | null, AnyMappingAction[]>();
           keyMap.set(null, result);
           this.pathMappings.set(propFullPath, keyMap);
           result = [];
@@ -90,13 +94,13 @@ export class MappingState {
    * If key is defined, its assumed the path is mapped to an array
    *
    * @param {string} _fullPath
-   * @param {GenericMappingAction | undefined} genericMappingAction
+   * @param {AnyMappingAction | undefined} genericMappingAction
    * @param {React.Key} key
    * @returns {number}
    */
   public removePathMapping(
             _fullPath: string,
-            genericMappingAction: GenericMappingAction | undefined,
+            genericMappingAction: AnyMappingAction | undefined,
             key?: React.Key): number {
     let containers = this.getPathMappings(_fullPath, key);
     if (containers) {

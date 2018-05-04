@@ -1,6 +1,14 @@
 import * as React from 'react';
 import { ReactElement, ReactNode, SFC } from 'react';
-import { Action, DispatchType, StateCrudAction, MappingAction, StateAction, ActionId } from '../actions/actions';
+import {
+  Action,
+  DispatchType,
+  StateCrudAction,
+  MappingAction,
+  StateAction,
+  ActionId,
+  GenericMappingAction
+} from '../actions/actions';
 import * as _ from 'lodash';
 import { Manager } from '../types/Manager';
 import { StateObject } from '../types/State';
@@ -47,7 +55,7 @@ export abstract class ContainerComponent<CP, VP, A extends StateObject>
   protected viewComponent: React.Component<VP, any>;
     /* tslint:enable:no-any */
 
-  protected mappingActions: GenericContainerMappingTypes<CP, VP, A>[];
+  protected mappingActions: GenericContainerMappingTypes<CP, VP, A>[] = [];
 
   /**
    * Convenience method
@@ -121,15 +129,28 @@ export abstract class ContainerComponent<CP, VP, A extends StateObject>
   }
 
   /**
-   * Create mappings from your application state to {@link viewProps}.  This method is
-   * analogous to Redux's 'mapStateToProps' method.  The framework uses these mappings to
-   * forceUpdate this component when state changes occur.
+   * Append mappings to the provided array, so that the container will be notified of state changes affecting its props.
    *
-   * Implementations of this method are called once, to populate the stateMappingActions array.
+   * Implementations of this method are called once when the container is mounted.
    *
    * @returns {GenericContainerMappingTypes<CP, VP, A>[]} the array of mappings for a container
    */
-  abstract createMappingActions(): GenericContainerMappingTypes<CP, VP, A>[];
+  protected abstract appendToMappingActions(mappingActions: GenericContainerMappingTypes<CP, VP, A>[]): void;
+
+  /**
+   * This method is intended to pre-populate the {@link mappingActions} with mapping from an array element to a
+   * container.
+   *
+   * The action is passed into the {@link appendToMappingActions} and executed once.
+   *
+   * @param {GenericMappingAction} action
+   */
+  public setArrayChildMappingAction(action: GenericMappingAction): void {
+    if (action.index < 0) {
+      throw new Error(`This method only accepts mappings to array elements at path ${action.fullPath}`);
+    }
+    this.mappingActions.push(action);
+  }
 
   /**
    * Create default view properties, used to initialize {@link viewProps} and passed
@@ -200,7 +221,9 @@ export abstract class ContainerComponent<CP, VP, A extends StateObject>
   // TODO: change this to componentWillMount?
   componentDidMount() {
     // subscribe
-    this.mappingActions = this.mappingActions ? this.mappingActions : this.createMappingActions();
+    this.appendToMappingActions(this.mappingActions);
+    // this.mappingActions = this.mappingActions.concat(this.appendMappingActions());
+    // this.mappingActions = this.mappingActions ? this.mappingActions : this.createMappingActions();
     Manager.get(this.appData).actionProcess(...this.mappingActions);
   }
 

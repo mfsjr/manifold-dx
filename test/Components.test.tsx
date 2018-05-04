@@ -89,8 +89,9 @@ export class AddressContainer extends ContainerComponent<AddressProps, AddressPr
    * Note that in the case of array/list child containers,
    * @returns {GenericContainerMappingTypes<AddressProps, AddressProps, TestState & StateObject>[]}
    */
-  createMappingActions(): GenericContainerMappingTypes<AddressProps, AddressProps, TestState & StateObject>[] {
-    return this.mappingActions;
+  appendToMappingActions(actions: GenericContainerMappingTypes<AddressProps, AddressProps, TestState & StateObject>[])
+    : void {
+    // return this.mappingActions;
   }
 
   createViewProps(): AddressProps {
@@ -111,6 +112,7 @@ export class BowlerContainer extends ContainerComponent<BowlerProps, ScoreCardPr
       throw new Error('nameState must be defined!');
     }
     this.nameState = this.appData.name;
+    // this.addressesMapper = getMappingCreator(this.nameState, this).createMappingAction('addresses', 'addresses');
   }
 
   public createViewProps(): ScoreCardProps {
@@ -139,12 +141,54 @@ export class BowlerContainer extends ContainerComponent<BowlerProps, ScoreCardPr
     return new React.Component(viewProps);
   }
 
-  createMappingActions(): GenericContainerMappingTypes<BowlerProps, ScoreCardProps, TestState & StateObject>[] {
+  // public createChildAddressMapping<S extends StateObject, K extends keyof S, V, CPA, VPA, TPA extends keyof VPA>
+  //   (stateObject: S, key: K & Array<V>,
+  //    elementContainer: ContainerComponent<CPA, VPA, TestState & StateObject>,
+  //    targetPropKey: TPA): MappingAction<S, K, CPA, VPA, TPA, TestState & StateObject> {
+  //   return getMappingCreator(stateObject, elementContainer).(key, targetPropKey).createArrayItemMapping();
+  // }
+
+  // TODO: figure out this generic nightmare, so that it can be called; BUT WHERE CAN IT BE CALLED FROM!!!
+  // if it can be called by elementContainers, then it allows them to create mapping actions to themselves
+  // Remember the point of writing this function is so that devs do not have to props with nightmare generics
+  // public createChildAddressMapping<K extends keyof Name & StateObject, V, CPA, VPA, TPA extends keyof VPA>
+  //   (arrayKey: K & Array<V>,
+  //    elementContainer: ContainerComponent<CPA, VPA, TestState & StateObject>,
+  //    targetPropKey: TPA)
+  // : MappingAction<Name & StateObject, K, CPA, VPA, TPA, TestState & StateObject> {
+  //   return getMappingCreator(this.nameState, elementContainer)
+  //     .createMappingAction(arrayKey, targetPropKey)
+  //     .createArrayItemMapping();
+  // }
+
+  appendToMappingActions(actions: GenericContainerMappingTypes<BowlerProps, ScoreCardProps, TestState & StateObject>[])
+    : void {
     let nameStateMapper = getMappingCreator(this.nameState, this);
-    return [
-      nameStateMapper.createMappingAction('first', 'fullName'),
-      nameStateMapper.createMappingAction('bowlingScores', 'scores', this.calcAverage.bind(this))
-    ];
+
+    actions.push( nameStateMapper.createMappingAction('first', 'fullName') );
+    actions.push( nameStateMapper.createMappingAction(
+      'bowlingScores',
+      'scores',
+      this.calcAverage.bind(this)) );
+    let addressesMapper = nameStateMapper.createMappingAction('addresses', 'addresses');
+    actions.push( addressesMapper );
+  }
+
+  /**
+   * This is unrelated to any of the container's mapping internals, is simply being used for standalone testing.
+   *
+   * @returns {GenericContainerMappingTypes<BowlerProps, ScoreCardProps, TestState & StateObject>[]}
+   */
+  generateMappingActions(): GenericContainerMappingTypes<BowlerProps, ScoreCardProps, TestState & StateObject>[] {
+    let nameStateMapper = getMappingCreator(this.nameState, this);
+    let actions: GenericContainerMappingTypes<BowlerProps, ScoreCardProps, TestState & StateObject>[] = [];
+    actions.push( nameStateMapper.createMappingAction('first', 'fullName') );
+    actions.push( nameStateMapper.createMappingAction(
+      'bowlingScores',
+      'scores',
+      this.calcAverage.bind(this)) );
+
+    return actions;
   }
 
   public updateViewProps(executedActions: Action[]) {
@@ -243,8 +287,11 @@ describe('Standalone tests for instance of MappingState', () => {
   let mappingState = new MappingState();
   // other tests have already captured api's for simple properties, so concentrate on array/React.Key api's
   let addressesMappings = mappingState.getOrCreatePathMappings('addresses');
+  let mappingActions = container.generateMappingActions();
+
   test('addresses returns addressesMappings', () => {
     expect(mappingState.getPathMappings('addresses')).toBe(addressesMappings);
+    expect(mappingActions.length > 0).toBeTruthy();
 
   });
   test('addressesMappings to be an Array', () => {
@@ -263,12 +310,12 @@ describe('Standalone tests for instance of MappingState', () => {
   });
 
   test('remove path mapping from an array index', () => {
-    let mappingActions = container.getMappingActions();
+    // let mappingActions = container.getMappingActions();
     mappingActions.forEach(action => addr1Mappings.push(action));
 
     let mappings = mappingState.getPathMappings('addresses', 1);
     expect(mappings).toBeDefined();
-    let n = mappingState.removePathMapping('addresses', container.getMappingActions()[0], 1);
+    let n = mappingState.removePathMapping('addresses', mappingActions[0], 1);
     expect(n).toBe(1);
   });
 
@@ -284,7 +331,7 @@ describe('Standalone tests for instance of MappingState', () => {
     // now add them back and restore the variables we're using for testing
     mappingState.getOrCreatePathMappings('addresses');
     mappingState.getOrCreatePathMappings('addresses', 1);
-    let mappingActions = container.getMappingActions();
+    // let mappingActions = container.getMappingActions();
     mappingActions.forEach(action => addr1Mappings.push(action));
     addr1Mappings = mappingActions;
   });
@@ -296,3 +343,9 @@ describe('Standalone tests for instance of MappingState', () => {
     expect(n === 2).toBeTruthy();
   });
 });
+
+// describe('Verify that array element containers are rendered via createArrayItemMapping', () => {
+//   test('initial conditions meet our expections', () => {
+//     let n = container.getMappingActions();
+//   });
+// });

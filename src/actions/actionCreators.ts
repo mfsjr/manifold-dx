@@ -200,5 +200,14 @@ export function getMappingCreator<S extends StateObject, A extends StateObject, 
     return new MappingAction(_parent, _propKey, _component, targetPropKey, ...dispatches);
   };
 
-  return { createMappingAction: _createMappingAction };
+  // // TODO: create a clean api for users to pass parameters with index
+  // let _createArrayElementMappingAction = function<V, K extends keyof S, TP extends keyof VP>
+  // (_propKey: K, _index: number, targetPropKey: TP, ...dispatches: DispatchType[])
+  // : MappingAction<S, K, CP, VP, TP, A> {
+  //   return new MappingAction(_parent, _propKey, _component, targetPropKey, ...dispatches);
+  // };
+
+  return {
+    createMappingAction: _createMappingAction,
+  };
 }

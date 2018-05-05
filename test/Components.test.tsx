@@ -2,7 +2,7 @@ import { createTestStore, createNameContainer, TestState, NameState, Address } f
 import { Name } from './testHarness';
 import * as React from 'react';
 import { ContainerComponent, GenericContainerMappingTypes } from '../src/components/ContainerComponent';
-import { Action, ActionId, StateCrudAction } from '../src/actions/actions';
+import { Action, ActionId, ArrayKeyIndexMap, StateCrudAction } from '../src/actions/actions';
 import { Store, StateObject } from '../src/types/State';
 import { Manager } from '../src/types/Manager';
 import { getMappingCreator } from '../src/actions/actionCreators';
@@ -46,7 +46,9 @@ let addr2: Address = {
   zip: '19532'
 };
 
-export interface AddressProps extends Address { }
+export interface AddressProps {
+  address: Address;
+}
 
 const ScoreCardGenerator = function(props: ScoreCardProps): React.Component<ScoreCardProps> {
   return new React.Component<ScoreCardProps>(props);
@@ -65,10 +67,10 @@ export function addressRowSfc(addressProps: AddressProps): React.ReactElement<Ad
   return (
     <div>
       <div>
-        {addressProps.street}
+        {addressProps.address.street}
       </div>
       <div>
-        {addressProps.city} {addressProps.state} {addressProps.zip}
+        {addressProps.address.city} {addressProps.address.state} {addressProps.address.zip}
       </div>
     </div>
   );
@@ -95,7 +97,7 @@ export class AddressContainer extends ContainerComponent<AddressProps, AddressPr
   }
 
   createViewProps(): AddressProps {
-    return this.address;
+    return {address: this.address};
   }
 }
 
@@ -252,6 +254,26 @@ describe('ContainerComponent instantiation, mount, update, unmount', () => {
   test('append to the addresses', () => {
     addressesActionCreator.append(addr2).process();
     expect(nameState.addresses[1].state).toBe(addr2.state);
+  });
+  test(`Create a mapping action to an array index`, () => {
+    let addressesContainer = new AddressContainer({address: addr1});
+    let addressesMappingActionCreator = getMappingCreator(nameState, addressesContainer);
+    let addressMappingAction = addressesMappingActionCreator
+      .createMappingAction('addresses', 'address');
+    let keyGen = (address: Address) => address.id;
+    addressMappingAction.setArrayElement(0, nameState.addresses, keyGen);
+    // verify that we have an entry in ArrayKeyIndexMap
+    let map = ArrayKeyIndexMap.get().get(nameState.addresses);
+    expect(map).toBeTruthy();
+    expect(map.size).toBe(nameState.addresses.length);
+    let manager = Manager.get(nameState);
+    let fullpath = manager.getFullPath(nameState, 'addresses');
+    let key = keyGen(addr1);
+    let mapping = Manager.get(nameState).getMappingState().getPathMappings(fullpath, key);
+    if (!mapping || mapping.length === 0) {
+      throw new Error(`expecting mappings to be defined at ${fullpath} with key ${key}`);
+    }
+    expect(mapping[0].fullPath).toBe(fullpath);
   });
   test(
       'unmount should result in bowler being removed from the still-present component state mapping value ' +

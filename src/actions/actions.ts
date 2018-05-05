@@ -430,7 +430,7 @@ export class ArrayMutateAction
  */
 
 export class MappingAction
-  <S extends StateObject, K extends keyof S, CP, VP, TP extends keyof VP, A extends StateObject, E, KE extends keyof E>
+  <S extends StateObject, K extends keyof S, CP, VP, TP extends keyof VP, A extends StateObject, E>
   extends StateAction<S, K> {
 
   /* tslint:disable:no-any */
@@ -440,11 +440,10 @@ export class MappingAction
   targetPropName: TP;
   dispatches: DispatchType[];
 
-  // arrayElement?: E;
+  //
   index: number = -1;
-  elementPropName?: KE;
 
-  protected assignProps(from:  MappingAction<S, K, CP, VP, TP, A, E, KE>) {
+  protected assignProps(from:  MappingAction<S, K, CP, VP, TP, A, E>) {
     super.assignProps(from);
     this.component = from.component;
     this.fullPath = from.fullPath;
@@ -453,8 +452,8 @@ export class MappingAction
     this.index = from.index;
   }
 
-  public clone(): MappingAction<S, K, CP, VP, TP, A, E, KE> {
-    let copy = new MappingAction<S, K, CP, VP, TP, A, E, KE>(
+  public clone(): MappingAction<S, K, CP, VP, TP, A, E> {
+    let copy = new MappingAction<S, K, CP, VP, TP, A, E>(
         this.parent,
         this.propertyName,
         this.component,
@@ -497,13 +496,23 @@ export class MappingAction
     return this.targetPropName;
   }
 
-  // are we updating by array element or array element property? assume the latter
-  // does this.index = propArray[index]?  seems like it has to, paging could be implemented by
-  // making propArray a window on the 'real' array
-  public setIndex(_index: number, propArray: S[K] & Array<E>, keyGen: ArrayKeyGeneratorFn<E>, elemPropName: KE): void {
+  /**
+   * Map this component to an array element object, e.g., a row of data.  We are mapping the index of the
+   * state array and the container, while populating the ArrayKeyIndexMap (maps React.Key to index).
+   *
+   * Note that this method will throw if the index is invalid or refers to an undefined value in the array.
+   *
+   * @param {number} _index
+   * @param {S[K] & Array<E>} propArray
+   * @param {ArrayKeyGeneratorFn<E>} keyGen
+   */
+  public setArrayElement(_index: number, propArray: S[K] & Array<E>, keyGen: ArrayKeyGeneratorFn<E>): void {
+    if (propArray.length < _index || propArray.length < 0 || !propArray[_index]) {
+      let fullpath = Manager.get(this.parent).getFullPath(this.parent, this.propertyName);
+      throw new Error(`Can't map to an undefined array index ${_index} at ${fullpath}`);
+    }
     // initialize the map using current state values
     ArrayKeyIndexMap.get().getOrCreateKeyIndexMap(propArray, keyGen);
-    this.elementPropName = elemPropName;
     this.index = _index;
   }
 
@@ -541,5 +550,5 @@ export class MappingAction
 }
 
 /* tslint:disable:no-any */
-export type AnyMappingAction = MappingAction<any, any, any, any, any, any, any, any>;
+export type AnyMappingAction = MappingAction<any, any, any, any, any, any, any>;
 /* tslint:enable:no-any */

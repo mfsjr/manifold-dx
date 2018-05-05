@@ -72,8 +72,9 @@ export abstract class ContainerComponent<CP, VP, A extends StateObject>
 
   public getMappingActions() { return this.mappingActions; }
 
-  createMappingAction<S extends StateObject, K extends keyof S, TP extends keyof VP>
-  (parentState: S, _propKey: K, targetPropKey: TP, ...dispatches: DispatchType[]): MappingAction<S, K, CP, VP, TP, A> {
+  createMappingAction<S extends StateObject, K extends keyof S, TP extends keyof VP, V>
+  (parentState: S, _propKey: K, targetPropKey: TP, ...dispatches: DispatchType[])
+    : MappingAction<S, K, CP, VP, TP, A, V> {
     return new MappingAction(parentState, _propKey, this, targetPropKey, ...dispatches);
   }
 
@@ -114,9 +115,9 @@ export abstract class ContainerComponent<CP, VP, A extends StateObject>
     }
   }
 
-  public createMapping<S extends StateObject, K extends keyof S, TP extends keyof VP>
+  public createMapping<S extends StateObject, K extends keyof S, TP extends keyof VP, V>
           (stateObject: S, stateObjectProperty: K, targetViewProp: TP, ...dispatches: DispatchType[])
-          : MappingAction<S, K, CP, VP, TP, A> {
+          : MappingAction<S, K, CP, VP, TP, A, V> {
     return new MappingAction(stateObject, stateObjectProperty, this, targetViewProp, ...dispatches);
   }
 
@@ -273,9 +274,8 @@ export abstract class ContainerComponent<CP, VP, A extends StateObject>
     }
     throw new Error('Neither SFC nor React.Component is available for rendering');
   }
-
 }
 
 /* tslint:disable:no-any */
-export type GenericContainerMappingTypes<CP, VP, A extends StateObject> = MappingAction<any, any, CP, VP, any, A>;
+export type GenericContainerMappingTypes<CP, VP, A extends StateObject> = MappingAction<any, any, CP, VP, any, A, any>;
 /* tslint:enable:no-any */

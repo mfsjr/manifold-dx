@@ -442,6 +442,8 @@ export class MappingAction
 
   //
   index: number = -1;
+  keyGen?: ArrayKeyGeneratorFn<E>;
+  propArray?: Array<E>;
 
   protected assignProps(from:  MappingAction<S, K, CP, VP, TP, A, E>) {
     super.assignProps(from);
@@ -503,17 +505,25 @@ export class MappingAction
    * Note that this method will throw if the index is invalid or refers to an undefined value in the array.
    *
    * @param {number} _index
-   * @param {S[K] & Array<E>} propArray
-   * @param {ArrayKeyGeneratorFn<E>} keyGen
+   * @param {S[K] & Array<E>} _propArray
+   * @param {ArrayKeyGeneratorFn<E>} _keyGen
    */
-  public setArrayElement(_index: number, propArray: S[K] & Array<E>, keyGen: ArrayKeyGeneratorFn<E>): void {
-    if (propArray.length < _index || propArray.length < 0 || !propArray[_index]) {
+  public setArrayElement(_index: number, _propArray: S[K] & Array<E>, _keyGen: ArrayKeyGeneratorFn<E>)
+    : MappingAction<S, K, CP, VP, TP, A, E> {
+    if (this.index > -1 || this.keyGen || this.propArray) {
+      // this can be done once and only once, or we throw
+      throw new Error(`attempting to reset array ${this.propertyName} at index = ${_index}`);
+    }
+    if (_propArray.length < _index || _propArray.length < 0 || !_propArray[_index]) {
       let fullpath = Manager.get(this.parent).getFullPath(this.parent, this.propertyName);
       throw new Error(`Can't map to an undefined array index ${_index} at ${fullpath}`);
     }
     // initialize the map using current state values
-    ArrayKeyIndexMap.get().getOrCreateKeyIndexMap(propArray, keyGen);
+    ArrayKeyIndexMap.get().getOrCreateKeyIndexMap(_propArray, _keyGen);
     this.index = _index;
+    this.keyGen = _keyGen;
+    this.propArray = _propArray;
+    return this;
   }
 
   public getIndex(): number {
@@ -528,8 +538,10 @@ export class MappingAction
     this.pristine = false;
 
     if (perform) {
-      // would need this to attempt to get list element components: let isArray = this.getValue() instanceof Array;
-      let components = Manager.get(this.parent).getMappingState().getOrCreatePathMappings(this.fullPath);
+      // If this action refers to an element at an array index, compute the key
+      let key = (this.propArray && this.keyGen && this.index > -1)
+        ? this.keyGen(this.propArray[this.index]) : undefined;
+      let components = Manager.get(this.parent).getMappingState().getOrCreatePathMappings(this.fullPath, key);
       components.push(this);
     } else {
       Manager.get(this.parent).getMappingState().removePathMapping(this.fullPath, this);

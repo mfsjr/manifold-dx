@@ -177,10 +177,39 @@ export class ArrayCrudActionCreator<S extends StateObject, K extends keyof S, V 
 
 /**
  * Interface for api to create mapping actions
+ * A is the main Application state
+ * CP is the container properties
+ * VP is the view / presenter properties
  */
 export interface MappingCreator<S extends StateObject, A extends StateObject, CP, VP> {
-  createMappingAction<K extends keyof S, TP extends keyof VP>
-  (_propKey: K, targetPropKey: TP, ...dispatches: DispatchType[]): MappingAction<S, K, CP, VP, TP, A>;
+  /**
+   *
+   * @param {K} _propKey, the name of the property being mapped
+   * @param {TP} targetPropKey, the target property in the view properties (VP)
+   * @param {DispatchType} dispatches, methods to be executed after the property has been changed
+   * @returns {MappingAction<S extends StateObject, K extends keyof S, CP, VP, TP extends keyof VP,
+   * A extends StateObject, V>}
+   */
+  createMappingAction<K extends keyof S, TP extends keyof VP, V>
+  (_propKey: K, targetPropKey: TP, ...dispatches: DispatchType[]): MappingAction<S, K, CP, VP, TP, A, V>;
+  createArrayIndexMappingAction<K extends keyof S, TP extends keyof VP, V>
+
+  /**
+   *
+   * @param {Array<V> & S[K]} childArray, the array property of the parent that we are indexing into
+   * @param {number} index
+   * @param {ArrayKeyGeneratorFn<V>} keyGen, the function that generates the key as a function of the array element
+   * @param {TP} targetPropKey, the target property in the view properties (VP)
+   * @param {DispatchType} dispatches, methods to be executed after the property has been changed
+   * @returns {MappingAction<S extends StateObject, K extends keyof S, CP, VP, TP extends keyof VP,
+   * A extends StateObject, V>}
+   */
+  (childArray: Array<V> & S[K],
+   index: number,
+   keyGen: ArrayKeyGeneratorFn<V>,
+   targetPropKey: TP,
+   ...dispatches: DispatchType[])
+    : MappingAction<S, K, CP, VP, TP, A, V>;
 }
 
 /**
@@ -195,19 +224,39 @@ export function getMappingCreator<S extends StateObject, A extends StateObject, 
   (_parent: S, _component: ContainerComponent<CP, VP, A>)
   : MappingCreator<S, A, CP, VP> {
 
-  let _createMappingAction = function<K extends keyof S, TP extends keyof VP>
-    (_propKey: K, targetPropKey: TP, ...dispatches: DispatchType[]): MappingAction<S, K, CP, VP, TP, A> {
+  let createMappingAction = function<K extends keyof S, TP extends keyof VP, V>
+    (_propKey: K, targetPropKey: TP, ...dispatches: DispatchType[]): MappingAction<S, K, CP, VP, TP, A, V> {
     return new MappingAction(_parent, _propKey, _component, targetPropKey, ...dispatches);
   };
 
-  // // TODO: create a clean api for users to pass parameters with index
-  // let _createArrayElementMappingAction = function<V, K extends keyof S, TP extends keyof VP>
-  // (_propKey: K, _index: number, targetPropKey: TP, ...dispatches: DispatchType[])
-  // : MappingAction<S, K, CP, VP, TP, A> {
-  //   return new MappingAction(_parent, _propKey, _component, targetPropKey, ...dispatches);
-  // };
+  let createArrayIndexMappingAction = function<K extends keyof S, TP extends keyof VP, V>
+  (childArray: Array<V> & S[K],
+   index: number,
+   keyGen: ArrayKeyGeneratorFn<V>,
+   targetPropKey: TP,
+   ...dispatches: DispatchType[])
+      : MappingAction<S, K, CP, VP, TP, A, V> {
+    // this.parent = parent;
+    /* tslint:disable:no-any */
+    let array: Array<V> = childArray;
+    let propKey: K | undefined;
+    for (let key in parent) {
+      if (array === parent[key] && array instanceof Array) {
+        propKey = key as K;
+      }
+    }
+    /* tslint:enable:no-any */
+    if (!propKey) {
+      throw Error(`Failed to find array in parent`);
+    }
+    let mappingAction = new MappingAction(_parent, propKey, _component, targetPropKey, ...dispatches);
+    mappingAction.setArrayElement(index, childArray, keyGen);
+    // not really sure why casting is needed here, all types have been enumerated in signatures
+    return mappingAction as MappingAction<S, K, CP, VP, TP, A, V>;
+  };
 
   return {
-    createMappingAction: _createMappingAction,
+    createMappingAction: createMappingAction,
+    createArrayIndexMappingAction: createArrayIndexMappingAction
   };
 }

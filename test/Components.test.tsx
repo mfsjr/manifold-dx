@@ -2,7 +2,7 @@ import { createTestStore, createNameContainer, TestState, NameState, Address } f
 import { Name } from './testHarness';
 import * as React from 'react';
 import { ContainerComponent, GenericContainerMappingTypes } from '../src/components/ContainerComponent';
-import { Action, ActionId, ArrayKeyIndexMap, StateCrudAction } from '../src/actions/actions';
+import { Action, ActionId, AnyMappingAction, ArrayKeyIndexMap, StateCrudAction } from '../src/actions/actions';
 import { Store, StateObject } from '../src/types/State';
 import { Manager } from '../src/types/Manager';
 import { getMappingCreator } from '../src/actions/actionCreators';
@@ -256,24 +256,39 @@ describe('ContainerComponent instantiation, mount, update, unmount', () => {
     expect(nameState.addresses[1].state).toBe(addr2.state);
   });
   test(`Create a mapping action to an array index`, () => {
-    let addressesContainer = new AddressContainer({address: addr1});
-    let addressesMappingActionCreator = getMappingCreator(nameState, addressesContainer);
-    let addressMappingAction = addressesMappingActionCreator
-      .createMappingAction('addresses', 'address');
+    let addr1Container = new AddressContainer({address: addr1});
+    let addr1MappingAction = getMappingCreator(nameState, addr1Container).createMappingAction('addresses', 'address');
     let keyGen = (address: Address) => address.id;
-    addressMappingAction.setArrayElement(0, nameState.addresses, keyGen);
+
+    // TODO: replace next line with a call to addressesMappingActionCreator.createArrayIndexMappingAction, which
+    //  will call setArrayElement, and when executed, it will create an entry in the MappingState
+    addr1MappingAction.setArrayElement(0, nameState.addresses, keyGen);
     // verify that we have an entry in ArrayKeyIndexMap
     let map = ArrayKeyIndexMap.get().get(nameState.addresses);
     expect(map).toBeTruthy();
     expect(map.size).toBe(nameState.addresses.length);
+    // execute the action
+    addr1MappingAction.process();
     let manager = Manager.get(nameState);
     let fullpath = manager.getFullPath(nameState, 'addresses');
     let key = keyGen(addr1);
     let mapping = Manager.get(nameState).getMappingState().getPathMappings(fullpath, key);
-    if (!mapping || mapping.length === 0) {
-      throw new Error(`expecting mappings to be defined at ${fullpath} with key ${key}`);
-    }
-    expect(mapping[0].fullPath).toBe(fullpath);
+
+    // 'mapping' is possibly undefined, so cast it and then test it
+    mapping = mapping as AnyMappingAction[];
+    expect(mapping).toBeDefined();
+    expect(mapping.length).toBeGreaterThan(0);
+    // if (!mapping || mapping.length === 0) {
+    //   throw new Error(`expecting mappings to be defined at ${fullpath} with key ${key}`);
+    // }
+    expect(mapping[mapping.length - 1].fullPath).toBe(fullpath);
+    expect(mapping[mapping.length - 1].component).toBe(addr1Container);
+
+    let addr2Container = new AddressContainer({address: addr2});
+    // TODO: consider changing getMappingCreator s.t. it takes only StateObject, its methods take ContainerComponents,
+    // so that we only need to make one creator per array
+    let addr2MappingAction = getMappingCreator(nameState, addr2Container).createMappingAction('addresses', 'address');
+    addr2MappingAction.setArrayElement(1, nameState.addresses, keyGen);
   });
   test(
       'unmount should result in bowler being removed from the still-present component state mapping value ' +

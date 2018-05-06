@@ -537,14 +537,13 @@ export class MappingAction
   protected mutate(perform: boolean = true): void {
     this.pristine = false;
 
+    // If this action refers to an element at an array index, compute the key
+    let key = (this.propArray && this.keyGen && this.index > -1) ? this.keyGen(this.propArray[this.index]) : undefined;
     if (perform) {
-      // If this action refers to an element at an array index, compute the key
-      let key = (this.propArray && this.keyGen && this.index > -1)
-        ? this.keyGen(this.propArray[this.index]) : undefined;
       let components = Manager.get(this.parent).getMappingState().getOrCreatePathMappings(this.fullPath, key);
       components.push(this);
     } else {
-      Manager.get(this.parent).getMappingState().removePathMapping(this.fullPath, this);
+      Manager.get(this.parent).getMappingState().removePathMapping(this.fullPath, this, key);
     }
   }
 

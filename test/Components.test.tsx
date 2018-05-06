@@ -5,7 +5,7 @@ import { ContainerComponent, GenericContainerMappingTypes } from '../src/compone
 import { Action, ActionId, AnyMappingAction, ArrayKeyIndexMap, StateCrudAction } from '../src/actions/actions';
 import { Store, StateObject } from '../src/types/State';
 import { Manager } from '../src/types/Manager';
-import { ArrayMappingCreatorOptions, getMappingCreator, getMappingCreator2 } from '../src/actions/actionCreators';
+import { getMappingCreator } from '../src/actions/actionCreators';
 import { getArrayCrudCreator } from '../src';
 import { MappingState } from '../src/types/MappingState';
 
@@ -145,15 +145,14 @@ export class BowlerContainer extends ContainerComponent<BowlerProps, ScoreCardPr
 
   appendToMappingActions(actions: GenericContainerMappingTypes<BowlerProps, ScoreCardProps, TestState & StateObject>[])
     : void {
-    let nameStateMapper = getMappingCreator(this.nameState, this);
-
-    actions.push( nameStateMapper.createMappingAction('first', 'fullName') );
-    actions.push( nameStateMapper.createMappingAction(
-      'bowlingScores',
-      'scores',
-      this.calcAverage.bind(this)) );
-    let addressesMapper = nameStateMapper.createMappingAction('addresses', 'addresses');
-    actions.push( addressesMapper );
+    let nameStateMapper = getMappingCreator(this.nameState, 'first');
+    let bowlingMapper = getMappingCreator(this.nameState, 'bowlingScores');
+    actions.push( nameStateMapper.createPropertyMappingAction(this, 'fullName') );
+    actions.push( bowlingMapper.createPropertyMappingAction(this, 'scores', this.calcAverage.bind(this)) );
+    let addressesMapper = getMappingCreator(this.nameState, 'addresses');
+    actions.push(addressesMapper.createPropertyMappingAction(this, 'addresses'));
+    // let addressesMapper = nameStateMapper.createMappingAction('addresses', 'addresses');
+    // actions.push( addressesMapper );
   }
 
   /**
@@ -162,14 +161,18 @@ export class BowlerContainer extends ContainerComponent<BowlerProps, ScoreCardPr
    * @returns {GenericContainerMappingTypes<BowlerProps, ScoreCardProps, TestState & StateObject>[]}
    */
   generateMappingActions(): GenericContainerMappingTypes<BowlerProps, ScoreCardProps, TestState & StateObject>[] {
-    let nameStateMapper = getMappingCreator(this.nameState, this);
     let actions: GenericContainerMappingTypes<BowlerProps, ScoreCardProps, TestState & StateObject>[] = [];
-    actions.push( nameStateMapper.createMappingAction('first', 'fullName') );
-    actions.push( nameStateMapper.createMappingAction(
-      'bowlingScores',
-      'scores',
-      this.calcAverage.bind(this)) );
+    // let nameStateMapper = getMappingCreator(this.nameState, this);
+    // actions.push( nameStateMapper.createMappingAction('first', 'fullName') );
+    // actions.push( nameStateMapper.createMappingAction(
+    //   'bowlingScores',
+    //   'scores',
+    //   this.calcAverage.bind(this)) );
 
+    let nameStateMapper = getMappingCreator(this.nameState, 'first');
+    let bowlingMapper = getMappingCreator(this.nameState, 'bowlingScores');
+    actions.push( nameStateMapper.createPropertyMappingAction(this, 'fullName') );
+    actions.push( bowlingMapper.createPropertyMappingAction(this, 'scores', this.calcAverage.bind(this)) );
     return actions;
   }
 
@@ -257,12 +260,13 @@ describe('ContainerComponent instantiation, mount, update, unmount', () => {
   });
   test(`Create a mapping action to an array index`, () => {
     let addr1Container = new AddressContainer({address: addr1});
-    let addr1MappingAction = getMappingCreator(nameState, addr1Container).createMappingAction('addresses', 'address');
     let keyGen = (address: Address) => address.id;
+    // let addr1MappingAction = getMappingCreator(nameState, addr1Container)
+    // .createMappingAction('addresses', 'address');
+    let addressesOptions = {keyGen: keyGen, array: nameState.addresses};
+    let addr1MappingAction = getMappingCreator(nameState, 'addresses', addressesOptions)
+      .createArrayIndexMappingAction(0, addr1Container, 'address');
 
-    // TODO: replace next line with a call to addressesMappingActionCreator.createArrayIndexMappingAction, which
-    //  will call setArrayElement, and when executed, it will create an entry in the MappingState
-    addr1MappingAction.setArrayElement(0, nameState.addresses, keyGen);
     // verify that we have an entry in ArrayKeyIndexMap
     let map = ArrayKeyIndexMap.get().get(nameState.addresses);
     expect(map).toBeTruthy();
@@ -285,8 +289,7 @@ describe('ContainerComponent instantiation, mount, update, unmount', () => {
     expect(mapping1[mapping1.length - 1].component).toBe(addr1Container);
 
     let addr2Container = new AddressContainer({address: addr2});
-    let addressesOptions = {keyGen: keyGen, array: nameState.addresses};
-    let addr2MappingAction = getMappingCreator2(nameState, 'addresses', addressesOptions)
+    let addr2MappingAction = getMappingCreator(nameState, 'addresses', addressesOptions)
       .createArrayIndexMappingAction(1, addr2Container, 'address');
     addr2MappingAction.process();
     let key2 = keyGen(addr2);

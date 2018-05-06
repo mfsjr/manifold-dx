@@ -260,3 +260,97 @@ export function getMappingCreator<S extends StateObject, A extends StateObject, 
     createArrayIndexMappingAction: createArrayIndexMappingAction
   };
 }
+
+export interface MappingCreator2<S extends StateObject, A extends StateObject, CP, VP> {
+  /**
+   *
+   * @param {K} _propKey, the name of the property being mapped
+   * @param {TP} targetPropKey, the target property in the view properties (VP)
+   * @param {DispatchType} dispatches, methods to be executed after the property has been changed
+   * @returns {MappingAction<S extends StateObject, K extends keyof S, CP, VP, TP extends keyof VP,
+   * A extends StateObject, V>}
+   */
+  createPropertyMappingAction<K extends keyof S, TP extends keyof VP, E>
+  (_component: ContainerComponent<CP, VP, A>, targetPropKey: TP, ...dispatches: DispatchType[])
+    : MappingAction<S, K, CP, VP, TP, A, E>;
+
+  /**
+   *
+   * @param {Array<V> & S[K]} childArray, the array property of the parent that we are indexing into
+   * @param {number} index
+   * @param {ArrayKeyGeneratorFn<V>} keyGen, the function that generates the key as a function of the array element
+   * @param {TP} targetPropKey, the target property in the view properties (VP)
+   * @param {DispatchType} dispatches, methods to be executed after the property has been changed
+   * @returns {MappingAction<S extends StateObject, K extends keyof S, CP, VP, TP extends keyof VP,
+   * A extends StateObject, V>}
+   */
+  createArrayIndexMappingAction<K extends keyof S, TP extends keyof VP, E>
+  (
+   index: number,
+   _component: ContainerComponent<CP, VP, A>,
+   targetPropKey: TP,
+   ...dispatches: DispatchType[])
+    : MappingAction<S, K, CP, VP, TP, A, E>;
+}
+
+export interface ArrayMappingCreatorOptions<S extends StateObject, K extends keyof S, E> {
+  keyGen: ArrayKeyGeneratorFn<E>;
+  array: Array<E> & S[K];
+}
+
+// TODO: problem here is that we are using the same generic defn of
+export function getMappingCreator2<S extends StateObject, K extends keyof S, A extends StateObject, E>
+(_parent: S, _propKey: K, arrayOptions?: ArrayMappingCreatorOptions<S, K, E>) {
+
+  // if (arrayOptions) {
+  //   let array: Array<E> = arrayOptions.array;
+  //   let propKey: K | undefined;
+  //   for (let key in parent) {
+  //     if (array === parent[key] && array instanceof Array) {
+  //       propKey = key as K;
+  //     }
+  //   }
+  //   if (!propKey) {
+  //     throw Error(`Failed to find array in parent`);
+  //   }
+  // }
+
+  let createPropertyMappingAction = function<CP, VP, TP extends keyof VP>
+  (_component: ContainerComponent<CP, VP, A>, targetPropKey: TP, ...dispatches: DispatchType[])
+  : MappingAction<S, K, CP, VP, TP, A, E> {
+    return new MappingAction(_parent, _propKey, _component, targetPropKey, ...dispatches);
+  };
+
+  let createArrayIndexMappingAction = function<CP, VP, TP extends keyof VP>
+  (
+    index: number,
+    _component: ContainerComponent<CP, VP, A>,
+    targetPropKey: TP,
+    ...dispatches: DispatchType[]
+  )
+      : MappingAction<S, K, CP, VP, TP, A, E> {
+
+    let mappingAction = new MappingAction(_parent, _propKey, _component, targetPropKey, ...dispatches);
+    if (!arrayOptions) {
+      throw new Error(`Can't invoke this method without arrayOptions!`);
+    }
+    let array = arrayOptions.array;
+    let propKey: K | undefined;
+    for (let key in _parent) {
+      if (array === _parent[key] && array instanceof Array) {
+        propKey = key as K;
+      }
+    }
+    if (!propKey) {
+      throw Error(`Failed to find array in parent`);
+    }
+
+    let result = mappingAction.setArrayElement(index, arrayOptions.array, arrayOptions.keyGen);
+    return result as MappingAction<S, K, CP, VP, TP, A, E>;
+  };
+
+  return {
+    createPropertyMappingAction,
+    createArrayIndexMappingAction
+  };
+}

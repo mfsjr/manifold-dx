@@ -153,8 +153,12 @@ export class Store<A> {
       return {next: next};
   };
 
+  /**
+   * The intention here is to strip the state object down to a simple object, or optionally go even
+   * further and remove all functions so that it is pure data.
+   */
     /* tslint:disable:no-any */
-  public static stripStateObject(stateObject: any): any {
+  public static stripStateObject(stateObject: any, includingFunctions?: boolean): any {
       /* tslint:enable:no-any */
       if (Store.isInstanceOfStateObject(stateObject)) {
           delete stateObject._myPropname;
@@ -163,6 +167,10 @@ export class Store<A> {
           for (let obj in stateObject) {
               if (Store.isInstanceOfStateObject(stateObject[obj])) {
                   this.stripStateObject(stateObject[obj]);
+              } else {
+                if (includingFunctions && typeof stateObject[obj] === 'function') {
+                  delete stateObject[obj];
+                }
               }
           }
       }

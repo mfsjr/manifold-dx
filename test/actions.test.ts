@@ -278,7 +278,9 @@ describe('test stripping StateObject info', () => {
 
   test('stripping all StateObject properties from the object graph', () => {
     let stateClone = _.cloneDeep(testStore.getState());
+    stateClone.helper = () => 'Help';
     Store.stripStateObject(stateClone);
+    expect(stateClone.helper).toBeDefined();
     expect(stateClone.hasOwnProperty('_parent')).toBe(false);
     expect(stateClone.hasOwnProperty('_myPropname')).toBe(false);
     if (!stateClone.name) {
@@ -291,6 +293,11 @@ describe('test stripping StateObject info', () => {
     }
     expect(stateClone.name.address.hasOwnProperty('_myPropname')).toBe(false);
     expect(stateClone.name.address.hasOwnProperty('_parent')).toBe(false);
+
+    stateClone = _.cloneDeep(testStore.getState());
+    stateClone.helper = () => 'Help';
+    Store.stripStateObject(stateClone, true);
+    expect(stateClone.helper).toBeUndefined();
   });
 });
 

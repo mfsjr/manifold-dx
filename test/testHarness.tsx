@@ -122,6 +122,7 @@ export interface TestState {
   me?: Name & StateObject;
   address?: Address & StateObject;
   appName?: string;
+  helper?: () => string;
 }
 
 export function createTestState(): TestState {

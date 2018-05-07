@@ -55,7 +55,7 @@ export abstract class ContainerComponent<CP, VP, A extends StateObject>
   protected viewComponent: React.Component<VP, any>;
     /* tslint:enable:no-any */
 
-  protected mappingActions: GenericContainerMappingTypes<CP, VP, A>[] = [];
+  protected mappingActions: AnyMappingAction[] = [];
 
   /**
    * Convenience method
@@ -134,9 +134,9 @@ export abstract class ContainerComponent<CP, VP, A extends StateObject>
    *
    * Implementations of this method are called once when the container is mounted.
    *
-   * @returns {GenericContainerMappingTypes<CP, VP, A>[]} the array of mappings for a container
+   * @returns {AnyMappingAction[]} the array of mappings for a container
    */
-  protected abstract appendToMappingActions(mappingActions: GenericContainerMappingTypes<CP, VP, A>[]): void;
+  protected abstract appendToMappingActions(mappingActions: AnyMappingAction[]): void;
 
   /**
    * This method is intended to pre-populate the {@link mappingActions} with mapping from an array element to a
@@ -233,7 +233,7 @@ export abstract class ContainerComponent<CP, VP, A extends StateObject>
 
       // unsubscribe from stateMappingActions, we need to undo these specific actions
         /* tslint:disable:no-any */
-      let unmappingActions: GenericContainerMappingTypes<CP, VP, A>[] = [];
+      let unmappingActions: AnyMappingAction[] = [];
         /* tslint:enable:no-any */
       this.mappingActions.forEach((action) => {
         let unmappingAction = action.clone();
@@ -277,5 +277,6 @@ export abstract class ContainerComponent<CP, VP, A extends StateObject>
 }
 
 /* tslint:disable:no-any */
-export type GenericContainerMappingTypes<CP, VP, A extends StateObject> = MappingAction<any, any, CP, VP, any, A, any>;
+// export type GenericContainerMappingTypes<CP, VP, A extends StateObject>
+// = MappingAction<any, any, CP, VP, any, A, any>;
 /* tslint:enable:no-any */

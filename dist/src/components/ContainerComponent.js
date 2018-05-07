@@ -228,5 +228,8 @@ var ContainerComponent = /** @class */ (function (_super) {
     return ContainerComponent;
 }(React.Component));
 exports.ContainerComponent = ContainerComponent;
+/* tslint:disable:no-any */
+// export type GenericContainerMappingTypes<CP, VP, A extends StateObject>
+// = MappingAction<any, any, CP, VP, any, A, any>;
 /* tslint:enable:no-any */
 //# sourceMappingURL=ContainerComponent.js.map

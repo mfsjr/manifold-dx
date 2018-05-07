@@ -128,9 +128,6 @@ export function createTestState(): TestState {
   return {};
 }
 
-// In a normal application, we would want to create a single state object like this:
-// export const testState = new State(createTestState(), {});
-
 /**
  * It appears that Jest's 'runInBand' option forces sequential test execution, but allows parallel execution
  * of test files, so we provide this function so that each test file can use its own state

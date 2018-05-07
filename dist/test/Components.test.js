@@ -137,12 +137,6 @@ var BowlerContainer = /** @class */ (function (_super) {
      */
     BowlerContainer.prototype.generateMappingActions = function () {
         var actions = [];
-        // let nameStateMapper = getMappingCreator(this.nameState, this);
-        // actions.push( nameStateMapper.createMappingAction('first', 'fullName') );
-        // actions.push( nameStateMapper.createMappingAction(
-        //   'bowlingScores',
-        //   'scores',
-        //   this.calcAverage.bind(this)) );
         var nameStateMapper = actionCreators_1.getMappingCreator(this.nameState, 'first');
         var bowlingMapper = actionCreators_1.getMappingCreator(this.nameState, 'bowlingScores');
         actions.push(nameStateMapper.createPropertyMappingAction(this, 'fullName'));

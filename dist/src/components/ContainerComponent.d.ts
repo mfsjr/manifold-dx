@@ -29,7 +29,7 @@ export declare abstract class ContainerComponent<CP, VP, A extends StateObject> 
      * An instance of a React.Component class created by the {@link ComponentGenerator} passed into the constructor.
      */
     protected viewComponent: React.Component<VP, any>;
-    protected mappingActions: GenericContainerMappingTypes<CP, VP, A>[];
+    protected mappingActions: AnyMappingAction[];
     /**
      * Convenience method
      * @param {Array<T>} oldArray
@@ -38,7 +38,7 @@ export declare abstract class ContainerComponent<CP, VP, A extends StateObject> 
      * @returns {Array<T>}
      */
     static newArray<T>(oldArray: Array<T>, index: number, newElement: T): Array<T>;
-    getMappingActions(): MappingAction<any, any, CP, VP, any, A, any>[];
+    getMappingActions(): MappingAction<any, any, any, any, any, any, any>[];
     createMappingAction<S extends StateObject, K extends keyof S, TP extends keyof VP, V>(parentState: S, _propKey: K, targetPropKey: TP, ...dispatches: DispatchType[]): MappingAction<S, K, CP, VP, TP, A, V>;
     /**
      * There are two types of views this can create.  The preferred way is with
@@ -63,9 +63,9 @@ export declare abstract class ContainerComponent<CP, VP, A extends StateObject> 
      *
      * Implementations of this method are called once when the container is mounted.
      *
-     * @returns {GenericContainerMappingTypes<CP, VP, A>[]} the array of mappings for a container
+     * @returns {AnyMappingAction[]} the array of mappings for a container
      */
-    protected abstract appendToMappingActions(mappingActions: GenericContainerMappingTypes<CP, VP, A>[]): void;
+    protected abstract appendToMappingActions(mappingActions: AnyMappingAction[]): void;
     /**
      * This method is intended to pre-populate the {@link mappingActions} with mapping from an array element to a
      * container.
@@ -107,4 +107,3 @@ export declare abstract class ContainerComponent<CP, VP, A extends StateObject> 
     handleChange(executedActions: Action[]): void;
     render(): ReactNode;
 }
-export declare type GenericContainerMappingTypes<CP, VP, A extends StateObject> = MappingAction<any, any, CP, VP, any, A, any>;

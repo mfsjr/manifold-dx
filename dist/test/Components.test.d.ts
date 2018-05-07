@@ -2,8 +2,8 @@
 import { TestState, Address } from './testHarness';
 import { Name } from './testHarness';
 import * as React from 'react';
-import { ContainerComponent, GenericContainerMappingTypes } from '../src/components/ContainerComponent';
-import { Action, StateCrudAction } from '../src/actions/actions';
+import { ContainerComponent } from '../src/components/ContainerComponent';
+import { Action, AnyMappingAction, StateCrudAction } from '../src/actions/actions';
 import { StateObject } from '../src/types/State';
 export interface BowlerProps {
     fullName: string;
@@ -32,7 +32,7 @@ export declare class AddressContainer extends ContainerComponent<AddressProps, A
      * Note that in the case of array/list child containers,
      * @returns {GenericContainerMappingTypes<AddressProps, AddressProps, TestState & StateObject>[]}
      */
-    appendToMappingActions(actions: GenericContainerMappingTypes<AddressProps, AddressProps, TestState & StateObject>[]): void;
+    appendToMappingActions(actions: AnyMappingAction[]): void;
     createViewProps(): AddressProps;
 }
 export declare class BowlerContainer extends ContainerComponent<BowlerProps, ScoreCardProps, TestState & StateObject> {
@@ -41,13 +41,13 @@ export declare class BowlerContainer extends ContainerComponent<BowlerProps, Sco
     constructor(bowlerProps: BowlerProps);
     createViewProps(): ScoreCardProps;
     createView(viewProps: ScoreCardProps): React.Component<ScoreCardProps, {}, any>;
-    appendToMappingActions(actions: GenericContainerMappingTypes<BowlerProps, ScoreCardProps, TestState & StateObject>[]): void;
+    appendToMappingActions(actions: AnyMappingAction[]): void;
     /**
      * This is unrelated to any of the container's mapping internals, is simply being used for standalone testing.
      *
      * @returns {GenericContainerMappingTypes<BowlerProps, ScoreCardProps, TestState & StateObject>[]}
      */
-    generateMappingActions(): GenericContainerMappingTypes<BowlerProps, ScoreCardProps, TestState & StateObject>[];
+    generateMappingActions(): AnyMappingAction[];
     updateViewProps(executedActions: Action[]): void;
     calcAverage(action: StateCrudAction<any, any>): void;
 }

@@ -1,7 +1,7 @@
 import { createTestStore, createNameContainer, TestState, NameState, Address } from './testHarness';
 import { Name } from './testHarness';
 import * as React from 'react';
-import { ContainerComponent, GenericContainerMappingTypes } from '../src/components/ContainerComponent';
+import { ContainerComponent } from '../src/components/ContainerComponent';
 import { Action, ActionId, AnyMappingAction, ArrayKeyIndexMap, StateCrudAction } from '../src/actions/actions';
 import { Store, StateObject } from '../src/types/State';
 import { Manager } from '../src/types/Manager';
@@ -91,7 +91,7 @@ export class AddressContainer extends ContainerComponent<AddressProps, AddressPr
    * Note that in the case of array/list child containers,
    * @returns {GenericContainerMappingTypes<AddressProps, AddressProps, TestState & StateObject>[]}
    */
-  appendToMappingActions(actions: GenericContainerMappingTypes<AddressProps, AddressProps, TestState & StateObject>[])
+  appendToMappingActions(actions: AnyMappingAction[])
     : void {
     // return this.mappingActions;
   }
@@ -143,7 +143,7 @@ export class BowlerContainer extends ContainerComponent<BowlerProps, ScoreCardPr
     return new React.Component(viewProps);
   }
 
-  appendToMappingActions(actions: GenericContainerMappingTypes<BowlerProps, ScoreCardProps, TestState & StateObject>[])
+  appendToMappingActions(actions: AnyMappingAction[])
     : void {
     let nameStateMapper = getMappingCreator(this.nameState, 'first');
     let bowlingMapper = getMappingCreator(this.nameState, 'bowlingScores');
@@ -160,15 +160,8 @@ export class BowlerContainer extends ContainerComponent<BowlerProps, ScoreCardPr
    *
    * @returns {GenericContainerMappingTypes<BowlerProps, ScoreCardProps, TestState & StateObject>[]}
    */
-  generateMappingActions(): GenericContainerMappingTypes<BowlerProps, ScoreCardProps, TestState & StateObject>[] {
-    let actions: GenericContainerMappingTypes<BowlerProps, ScoreCardProps, TestState & StateObject>[] = [];
-    // let nameStateMapper = getMappingCreator(this.nameState, this);
-    // actions.push( nameStateMapper.createMappingAction('first', 'fullName') );
-    // actions.push( nameStateMapper.createMappingAction(
-    //   'bowlingScores',
-    //   'scores',
-    //   this.calcAverage.bind(this)) );
-
+  generateMappingActions(): AnyMappingAction[] {
+    let actions: AnyMappingAction[] = [];
     let nameStateMapper = getMappingCreator(this.nameState, 'first');
     let bowlingMapper = getMappingCreator(this.nameState, 'bowlingScores');
     actions.push( nameStateMapper.createPropertyMappingAction(this, 'fullName') );

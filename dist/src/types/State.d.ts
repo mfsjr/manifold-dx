@@ -85,7 +85,11 @@ export declare class Store<A> {
      * @returns {Iterator<StateObject>}
      */
     static createStateObjectIterator: (stateObject: StateObject) => Iterator<StateObject>;
-    static stripStateObject(stateObject: any): any;
+    /**
+     * The intention here is to strip the state object down to a simple object, or optionally go even
+     * further and remove all functions so that it is pure data.
+     */
+    static stripStateObject(stateObject: any, includingFunctions?: boolean): any;
     private static getStateKeys();
     constructor(appData: A, options: StateConfigOptions);
     reset(appData: A, options: StateConfigOptions): void;

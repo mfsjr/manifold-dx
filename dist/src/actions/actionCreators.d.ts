@@ -46,7 +46,7 @@ export declare class ArrayCrudActionCreator<S extends StateObject, K extends key
     /**
      * Construct an array crud creator.  We require a somewhat redundant 'valuesArray'
      * parameter in order to provide TypeScript with a strongly typed object that
-     * we can use in conjunction with a typeguard so that we the property value is an
+     * we can use in conjunction with a typeguard so that the array element's property is an
      * appropriately typed value.
      *
      * There may be some TS experts out there who know how to do this, but this appears
@@ -72,7 +72,7 @@ export declare class ArrayCrudActionCreator<S extends StateObject, K extends key
     protected getIndexOf(value: V): number;
     append(value: V): Action;
     insert(index: number, value: V): Action;
-    update(value: V): Action;
+    update(oldValue: V, newValue: V): Action;
     remove(value: V): Action;
 }
 export interface ArrayMappingCreatorOptions<S extends StateObject, K extends keyof S, E> {

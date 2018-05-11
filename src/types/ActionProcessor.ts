@@ -1,6 +1,6 @@
 import { Action } from '../actions/actions';
 import { Store, StateConfigOptions } from './State';
-import { ContainerComponent } from '../components/ContainerComponent';
+import { AnyContainerComponent } from '../components/ContainerComponent';
 import { StateMutationCheck } from './StateMutationCheck';
 
 export type ActionProcessorFunctionType = (actions: Action[]) => Action[];
@@ -29,6 +29,8 @@ export class ActionProcessor implements ActionProcessorAPI {
     /* tslint:enable:no-any */
   private preProcessors: ActionProcessorFunctionType[] = [];
   private postProcessors: ActionProcessorFunctionType[] = [];
+
+  private updatedComponents: AnyContainerComponent[];
 
     /* tslint:disable:no-any */
   constructor(state: Store<any>, options: StateConfigOptions) {
@@ -63,20 +65,25 @@ export class ActionProcessor implements ActionProcessorAPI {
   }
 
   protected renderer(actions: Action[]): Action[] {
-      /* tslint:disable:no-any */
-    let updatedComponents: ContainerComponent<any, any, any>[] = [];
-      /* tslint:enable:no-any */
+    this.updatedComponents = [];
+    let uc = this.updatedComponents;
     actions.forEach(function (action: Action) {
-      action.containersToRender(updatedComponents);
+      action.containersToRender(uc);
     });
-    if (updatedComponents.length > 0) {
-        /* tslint:disable:no-any */
-      updatedComponents.forEach(function (container: ContainerComponent<any, any, any>) {
-          /* tslint:enable:no-any */
+    if (this.updatedComponents.length > 0) {
+      this.updatedComponents.forEach(function (container: AnyContainerComponent) {
         container.handleChange(actions);
       });
     }
     return actions;
+  }
+
+  /**
+   * Return an array of the last ContainerComponents that were updated and rendered, see {@link renderer}.
+   * @returns {AnyContainerComponent[]}
+   */
+  public getUpdatedComponents(): AnyContainerComponent[] {
+    return this.updatedComponents;
   }
 
   public preProcess(actions: Action[]): Action[] {

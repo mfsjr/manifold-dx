@@ -163,7 +163,7 @@ var ContainerComponent = /** @class */ (function (_super) {
                             // if we are mutating the list element, we only want to change that index
                             // otherwise its an insert/delete and we want to update the whole array
                             if (action.type === actions_1.ActionId.UPDATE_PROPERTY) {
-                                _this.viewProps[mapping.targetPropName][action.index] = action.valuesArray[action.index];
+                                _this.viewProps[mapping.targetPropName] = action.value;
                             }
                             else {
                                 _this.viewProps[mapping.targetPropName] = action.valuesArray;
@@ -228,7 +228,6 @@ var ContainerComponent = /** @class */ (function (_super) {
     return ContainerComponent;
 }(React.Component));
 exports.ContainerComponent = ContainerComponent;
-/* tslint:disable:no-any */
 // export type GenericContainerMappingTypes<CP, VP, A extends StateObject>
 // = MappingAction<any, any, CP, VP, any, A, any>;
 /* tslint:enable:no-any */

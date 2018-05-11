@@ -87,8 +87,12 @@ var Store = /** @class */ (function () {
         }
         return result;
     };
+    /**
+     * The intention here is to strip the state object down to a simple object, or optionally go even
+     * further and remove all functions so that it is pure data.
+     */
     /* tslint:disable:no-any */
-    Store.stripStateObject = function (stateObject) {
+    Store.stripStateObject = function (stateObject, includingFunctions) {
         /* tslint:enable:no-any */
         if (Store.isInstanceOfStateObject(stateObject)) {
             delete stateObject._myPropname;
@@ -97,6 +101,11 @@ var Store = /** @class */ (function () {
             for (var obj in stateObject) {
                 if (Store.isInstanceOfStateObject(stateObject[obj])) {
                     this.stripStateObject(stateObject[obj]);
+                }
+                else {
+                    if (includingFunctions && typeof stateObject[obj] === 'function') {
+                        delete stateObject[obj];
+                    }
                 }
             }
         }

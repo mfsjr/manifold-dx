@@ -9,6 +9,14 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
+var __assign = (this && this.__assign) || Object.assign || function(t) {
+    for (var s, i = 1, n = arguments.length; i < n; i++) {
+        s = arguments[i];
+        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+            t[p] = s[p];
+    }
+    return t;
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 var testHarness_1 = require("./testHarness");
 var React = require("react");
@@ -171,8 +179,9 @@ var resetTestObjects = function () {
 };
 resetTestObjects();
 describe('ContainerComponent instantiation, mount, update, unmount', function () {
-    var addrKeyGen = function (_address) { return _address.street; };
+    var addrKeyGen = function (_address) { return _address.id; };
     var addressesActionCreator = src_1.getArrayCrudCreator(nameState, nameState.addresses, addrKeyGen);
+    var address1Container;
     // let mappingActionCreator = getMappingCreator(nameState, container);
     // placeholder
     test('after mounting, the component state should have something in it', function () {
@@ -222,6 +231,7 @@ describe('ContainerComponent instantiation, mount, update, unmount', function ()
     });
     test("Create a mapping action to an array index", function () {
         var addr1Container = new AddressContainer({ address: addr1 });
+        address1Container = addr1Container;
         var keyGen = function (address) { return address.id; };
         // let addr1MappingAction = getMappingCreator(nameState, addr1Container)
         // .createMappingAction('addresses', 'address');
@@ -259,6 +269,17 @@ describe('ContainerComponent instantiation, mount, update, unmount', function ()
         expect(mapping2.length).toBeGreaterThan(0);
         expect(mapping2[mapping2.length - 1].fullPath).toBe(fullpath);
         expect(mapping2[mapping2.length - 1].component).toBe(addr2Container);
+        // mapping1 should be unchanged
+        var mapping1a = Manager_1.Manager.get(nameState).getMappingState().getPathMappings(fullpath, key1);
+        expect(mapping1 === mapping1a).toBeTruthy();
+    });
+    test('updating the state array index value should update address1Container', function () {
+        var newAddr1 = __assign({}, addr1);
+        newAddr1.street = '16 Genung Ct';
+        addressesActionCreator.update(addr1, newAddr1).process();
+        var updatedContainers = Manager_1.Manager.get(nameState).getActionProcessorAPI().getUpdatedComponents();
+        expect(updatedContainers.length).toBeGreaterThan(0);
+        expect(updatedContainers.indexOf(address1Container)).toBeGreaterThan(-1);
     });
     test('unmount should result in bowler being removed from the still-present component state mapping value ' +
         '(array of commentsUI)', function () {
@@ -316,6 +337,23 @@ describe('Standalone tests for instance of MappingState', function () {
         var n = mappingState.removeStatePath('address');
         // both 'address' and 'addresses' should be removed by the 'address' path prefix / state path
         expect(n === 2).toBeTruthy();
+    });
+    test('Map to an index array without mapping to the array itself', function () {
+        // mappingState = new MappingState();
+        var addressesMapping = mappingState.getPathMappings('addresses');
+        expect(addressesMapping).toBeUndefined();
+        var addr1Mapping = mappingState.getOrCreatePathMappings('addresses', 1);
+        expect(addr1Mapping).toBeDefined();
+        // this should still be undefined
+        addressesMapping = mappingState.getPathMappings('addresses');
+        expect(addressesMapping).toBeUndefined();
+    });
+    test('Mapping the array after mapping an index of it', function () {
+        var addressesMapping = mappingState.getOrCreatePathMappings('addresses');
+        expect(addressesMapping).toBeDefined();
+        // the previously mapped index should still be there
+        var addr1Mapping = mappingState.getPathMappings('addresses', 1);
+        expect(addr1Mapping).toBeDefined();
     });
 });
 // describe('Verify that array element containers are rendered via createArrayItemMapping', () => {

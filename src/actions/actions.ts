@@ -1,5 +1,5 @@
 import { mutateArray, mutateValue } from './mutations';
-import { ContainerComponent } from '../components/ContainerComponent';
+import { AnyContainerComponent, ContainerComponent } from '../components/ContainerComponent';
 import { StateObject } from '../types/State';
 import { Manager } from '../types/Manager';
 
@@ -93,17 +93,13 @@ export abstract class Action {
     this.mutate(false);
   }
 
-    /* tslint:disable:no-any */
-  public containersToRender(containersBeingRendered: ContainerComponent<any, any, any>[]): void { return; }
-    /* tslint:enable:no-any */
+  public containersToRender(containersBeingRendered: AnyContainerComponent[]): void { return; }
 }
 
 export abstract class StateAction<S extends StateObject, K extends keyof S> extends Action {
   parent: S;
   propertyName: K;
-  /* tslint:disable:no-any */
   mappingActions: AnyMappingAction[];
-  /* tslint:enable:no-any */
 
   protected assignProps(from: StateAction<S, K>) {
     super.assignProps(from);
@@ -125,11 +121,24 @@ export abstract class StateAction<S extends StateObject, K extends keyof S> exte
   public process(): void {
     Manager.get(this.parent).actionProcess(this);
   }
-  /* tslint:disable:no-any */
-  public containersToRender(containersBeingRendered: ContainerComponent<any, any, any>[]): void {
-    /* tslint:enable:no-any */
+  public containersToRender(containersBeingRendered: AnyContainerComponent[]): void {
     let fullPath = Manager.get(this.parent).getFullPath(this.parent, this.propertyName);
     let mappingActions = Manager.get(this.parent).getMappingState().getPathMappings(fullPath);
+    this.concatContainersFromMappingActions(containersBeingRendered, mappingActions);
+    // if (mappingActions) {
+    //   let containers = mappingActions.map((mapping) => mapping.component);
+    //   containers.forEach((container) => {
+    //     if (containersBeingRendered.indexOf(container) < 0) {
+    //       containersBeingRendered.push(container);
+    //     }
+    //   });
+    // }
+  }
+  
+  protected concatContainersFromMappingActions(
+    containersBeingRendered: AnyContainerComponent[],
+    mappingActions?: AnyMappingAction[]
+  ): void {
     if (mappingActions) {
       let containers = mappingActions.map((mapping) => mapping.component);
       containers.forEach((container) => {
@@ -208,9 +217,7 @@ export class StateCrudAction<S extends StateObject, K extends keyof S> extends S
  * ... can use this function (since they have to be the same).
  *
  */
-/* tslint:disable:no-any */
 export type ArrayKeyGeneratorFn<V> = (arrayElement: V, index?: number, array?: Array<V>) => React.Key;
-/* tslint:enable:no-any */
 
 /**
  * The name of this function is intended to convey the fact that it uses a property of the array
@@ -348,6 +355,7 @@ export class ArrayMutateAction
   // ms: changed from optional to required, since arrays are simple properties that must be explicitly inserted
   valuesArray: Array<V> & S[K];
   index: number;
+  keyGen: ArrayKeyGeneratorFn<V>;
 
   protected assignProps(from: ArrayMutateAction<S, K, V>) {
     super.assignProps(from);
@@ -356,6 +364,7 @@ export class ArrayMutateAction
     this.value = from.value;
     this.valuesArray = from.valuesArray;
     this.index = from.index;
+    this.keyGen = from.keyGen;
   }
 
   public clone(): ArrayMutateAction<S, K, V> {
@@ -364,6 +373,7 @@ export class ArrayMutateAction
         this.propertyName,
         this.index,
         this.valuesArray,
+        this.keyGen,
         this.value);
 
     return copy;
@@ -371,18 +381,27 @@ export class ArrayMutateAction
 
   // TODO: restrict the set of ActionId's here to regular property insert/update/delete
   constructor(actionType: ActionId, _parent: S, _propertyName: K, _index: number,
-              valuesArray: Array<V> & S[K], _value?: V) {
+              valuesArray: Array<V> & S[K], _keyGen: ArrayKeyGeneratorFn<V>, _value?: V) {
     super(actionType, _parent, _propertyName);
-    // let prop = _parent[_propertyName];
-    // if ( prop instanceof Array) {
-    //   this.valuesArray = prop;
-    // } else {
-    //   throw new Error(`parent property is not an array!`);
-    // }
 
     this.index = _index;
     this.value = _value;
     this.valuesArray = valuesArray;
+    this.keyGen = _keyGen;
+  }
+
+  public containersToRender(containersBeingRendered: AnyContainerComponent[])
+    : void {
+    if (this.index > -1) {
+      let fullpath = Manager.get(this.parent).getFullPath(this.parent, this.propertyName);
+      // super.concatContainersFromMappingActions(containersBeingRendered);
+      // // super.containersToRender(containersBeingRendered, arrayOptions);
+      let key = this.keyGen(this.valuesArray[this.index]);
+      let mappingActions = Manager.get(this.parent).getMappingState().getPathMappings(fullpath, key);
+      this.concatContainersFromMappingActions(containersBeingRendered, mappingActions);
+    } else {
+      super.containersToRender(containersBeingRendered);
+    }
   }
 
   protected mutate(perform: boolean = true): void {
@@ -404,12 +423,6 @@ export class ArrayMutateAction
     }
   }
 }
-
-// export class Tester<E> {
-//   value: E;
-// }
-//
-// let tester = new Tester<undefined>();
 
 /**
  * Define a mapping between a state property and a component property, and optionally
@@ -433,9 +446,7 @@ export class MappingAction
   <S extends StateObject, K extends keyof S, CP, VP, TP extends keyof VP, A extends StateObject, E>
   extends StateAction<S, K> {
 
-  /* tslint:disable:no-any */
   component: ContainerComponent<CP, VP, A>;
-  /* tslint:enable:no-any */
   fullPath: string;
   targetPropName: TP;
   dispatches: DispatchType[];

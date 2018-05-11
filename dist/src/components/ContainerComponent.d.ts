@@ -107,3 +107,4 @@ export declare abstract class ContainerComponent<CP, VP, A extends StateObject> 
     handleChange(executedActions: Action[]): void;
     render(): ReactNode;
 }
+export declare type AnyContainerComponent = ContainerComponent<any, any, any>;

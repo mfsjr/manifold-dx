@@ -37,11 +37,20 @@ var MappingState = /** @class */ (function () {
                 result = [];
                 this.pathMappings.set(propFullPath, result);
             }
+            else if (result instanceof Map) {
+                var ra = result.get(null);
+                if (!ra) {
+                    ra = [];
+                    result.set(null, ra);
+                }
+                return ra;
+            }
             return result;
         }
         else {
-            var keyMap = void 0;
-            if (!result) {
+            var keyMap = this.pathMappings.get(propFullPath);
+            // TODO: clean up the types, return the same keymap for different key values (don't recreate the map)
+            if (!keyMap) {
                 keyMap = new Map();
                 result = [];
                 this.pathMappings.set(propFullPath, keyMap);
@@ -49,7 +58,8 @@ var MappingState = /** @class */ (function () {
             }
             else {
                 // result has been defined, and we have a key, the property will have to be an array, our storage must be a map
-                if (result instanceof Array) {
+                if (keyMap instanceof Array) {
+                    result = keyMap;
                     keyMap = new Map();
                     keyMap.set(null, result);
                     this.pathMappings.set(propFullPath, keyMap);
@@ -57,7 +67,10 @@ var MappingState = /** @class */ (function () {
                     keyMap.set(key, result);
                 }
                 else {
-                    keyMap = result;
+                    if (!(keyMap instanceof Map)) {
+                        throw new Error("keyMap should be a Map");
+                    }
+                    // keyMap = result;
                     result = keyMap.get(key);
                     if (!result) {
                         result = [];

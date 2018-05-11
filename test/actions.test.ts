@@ -96,9 +96,10 @@ describe('Add the name container', () => {
       expect(bowlingScores[0]).toBe(111);
     });
     test('array index notation should work', () => {
+      let keyGen = (score: number) => score;
       let updateAction = new ArrayMutateAction(
           ActionId.UPDATE_PROPERTY, nameState, 'bowlingScores',
-          0, nameState.bowlingScores, 101);
+          0, nameState.bowlingScores, keyGen, 101);
       expect(updateAction.index).toBe(0);
       testStore.getManager().actionProcess(updateAction);
       expect(bowlingScores[0]).toBe(101);
@@ -154,7 +155,7 @@ describe('Add the name container', () => {
     });
     test('update an item in the addresses array', () => {
       let updatedAddr: Address = {...nameState.addresses[0], zip: '54321'};
-      let action = addrActionCreator.update(updatedAddr);
+      let action = addrActionCreator.update(nameState.addresses[0], updatedAddr);
       testStore.getManager().actionProcess(action);
       expect(nameState.addresses[0].zip).toBe('54321');
       // NOTE: this is a little complicated; we're testing that the size of they arrayKeyIndexMap has increased by
@@ -210,10 +211,10 @@ describe('Add the name container', () => {
       if (!nameState.bowlingScores) {
         throw new Error('nameState.bowlingScores should be defined but is falsey');
       }
-
+      let keyGen = (score: number) => score;
       let appendScore = new ArrayMutateAction(
           ActionId.INSERT_PROPERTY, nameState, 'bowlingScores',
-          nameState.bowlingScores.length, nameState.bowlingScores, 299);
+          nameState.bowlingScores.length, nameState.bowlingScores, keyGen, 299);
       expect(() => {testStore.getManager().actionProcess(appendScore); }).not.toThrow();
 
       // restore the old middle
@@ -231,10 +232,10 @@ describe('Add the name container', () => {
       if (!nameState.bowlingScores) {
         throw new Error('nameState.bowlingScores should be defined but is falsey');
       }
-
+      let keyGen = (score: number) => score;
       let appendScore = new ArrayMutateAction(
           ActionId.INSERT_PROPERTY, nameState, 'bowlingScores',
-          nameState.bowlingScores.length, nameState.bowlingScores, 299);
+          nameState.bowlingScores.length, nameState.bowlingScores, keyGen, 299);
       expect(() => {testStore.getManager().actionProcess(appendScore); }).toThrow();
 
       // restore the old middle

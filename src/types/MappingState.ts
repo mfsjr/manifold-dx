@@ -59,25 +59,38 @@ export class MappingState {
       if (!result) {
         result = [];
         this.pathMappings.set(propFullPath, result);
+      } else if (result instanceof Map) {
+        let ra = result.get(null);
+        if (!ra) {
+          ra = [];
+          result.set(null, ra);
+        }
+        return ra;
       }
       return result;
     } else { // key is defined, we will be returning the results from a nested map, converting from an array if needed
-      let keyMap: ArrayMap;
-      if (!result) {
+      let keyMap = this.pathMappings.get(propFullPath);
+      // TODO: clean up the types, return the same keymap for different key values (don't recreate the map)
+      if (!keyMap) {
         keyMap = new Map<React.Key | null, AnyMappingAction[]>();
         result = [];
         this.pathMappings.set(propFullPath, keyMap);
         keyMap.set(key, result);
       } else {
         // result has been defined, and we have a key, the property will have to be an array, our storage must be a map
-        if (result instanceof Array) {
+        if (keyMap instanceof Array) {
+          result = keyMap;
           keyMap = new Map<React.Key | null, AnyMappingAction[]>();
+
           keyMap.set(null, result);
           this.pathMappings.set(propFullPath, keyMap);
           result = [];
           keyMap.set(key, result);
         } else { // the only other object that we put here is a map
-          keyMap = result;
+          if ( !(keyMap instanceof Map) ) {
+            throw new Error(`keyMap should be a Map`);
+          }
+          // keyMap = result;
           result = keyMap.get(key);
           if (!result) {
             result = [];

@@ -72,7 +72,7 @@ var ArrayCrudActionCreator = /** @class */ (function () {
     /**
      * Construct an array crud creator.  We require a somewhat redundant 'valuesArray'
      * parameter in order to provide TypeScript with a strongly typed object that
-     * we can use in conjunction with a typeguard so that we the property value is an
+     * we can use in conjunction with a typeguard so that the array element's property is an
      * appropriately typed value.
      *
      * There may be some TS experts out there who know how to do this, but this appears
@@ -129,13 +129,14 @@ var ArrayCrudActionCreator = /** @class */ (function () {
         newArray.splice(index, 0, value);
         actions_1.ArrayKeyIndexMap.get().deleteFromMaps(this.valuesArray);
         this.valuesArray = newArray;
+        actions_1.ArrayKeyIndexMap.get().getOrCreateKeyIndexMap(this.valuesArray, this.keyGenerator);
         return new actions_1.StateCrudAction(actions_1.ActionId.UPDATE_PROPERTY, this.parent, this.propertyKey, newArray);
         // return new ArrayMutateAction(
         //   ActionId.INSERT_PROPERTY, this.parent, this.propertyKey, index, this.valuesArray, value);
     };
-    ArrayCrudActionCreator.prototype.update = function (value) {
-        var index = this.getIndexOf(value);
-        return new actions_1.ArrayMutateAction(actions_1.ActionId.UPDATE_PROPERTY, this.parent, this.propertyKey, index, this.valuesArray, value);
+    ArrayCrudActionCreator.prototype.update = function (oldValue, newValue) {
+        var index = this.getIndexOf(oldValue);
+        return new actions_1.ArrayMutateAction(actions_1.ActionId.UPDATE_PROPERTY, this.parent, this.propertyKey, index, this.valuesArray, this.keyGenerator, newValue);
     };
     ArrayCrudActionCreator.prototype.remove = function (value) {
         var _this = this;
@@ -155,6 +156,15 @@ var ArrayCrudActionCreator = /** @class */ (function () {
 }());
 exports.ArrayCrudActionCreator = ArrayCrudActionCreator;
 function getMappingCreator(_parent, _propKey, arrayOptions) {
+    /**
+     * Create a MappingAction from the state defined by this creator, to the component and its view / target property.
+     *
+     * @param {ContainerComponent<CP, VP, A extends StateObject>} _component
+     * @param {TP} targetPropKey
+     * @param {DispatchType} dispatches
+     * @returns {MappingAction<S extends StateObject, K extends keyof S, CP, VP, TP extends keyof VP,
+     * A extends StateObject, E>}
+     */
     var createPropertyMappingAction = function (_component, targetPropKey) {
         var dispatches = [];
         for (var _i = 2; _i < arguments.length; _i++) {

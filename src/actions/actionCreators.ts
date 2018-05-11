@@ -88,7 +88,7 @@ export class ArrayCrudActionCreator<S extends StateObject, K extends keyof S, V 
   /**
    * Construct an array crud creator.  We require a somewhat redundant 'valuesArray'
    * parameter in order to provide TypeScript with a strongly typed object that
-   * we can use in conjunction with a typeguard so that we the property value is an
+   * we can use in conjunction with a typeguard so that the array element's property is an
    * appropriately typed value.
    *
    * There may be some TS experts out there who know how to do this, but this appears
@@ -148,15 +148,16 @@ export class ArrayCrudActionCreator<S extends StateObject, K extends keyof S, V 
     newArray.splice(index, 0, value);
     ArrayKeyIndexMap.get().deleteFromMaps(this.valuesArray);
     this.valuesArray = newArray;
+    ArrayKeyIndexMap.get().getOrCreateKeyIndexMap(this.valuesArray, this.keyGenerator);
     return new StateCrudAction(ActionId.UPDATE_PROPERTY, this.parent, this.propertyKey, newArray);
     // return new ArrayMutateAction(
     //   ActionId.INSERT_PROPERTY, this.parent, this.propertyKey, index, this.valuesArray, value);
   }
 
-  public update(value: V): Action {
-    let index = this.getIndexOf(value);
+  public update(oldValue: V, newValue: V): Action {
+    let index = this.getIndexOf(oldValue);
     return new ArrayMutateAction(
-      ActionId.UPDATE_PROPERTY, this.parent, this.propertyKey, index, this.valuesArray, value);
+      ActionId.UPDATE_PROPERTY, this.parent, this.propertyKey, index, this.valuesArray, this.keyGenerator, newValue);
   }
 
   public remove(value: V): Action {
@@ -183,6 +184,15 @@ export interface ArrayMappingCreatorOptions<S extends StateObject, K extends key
 export function getMappingCreator<S extends StateObject, K extends keyof S, A extends StateObject, E>
 (_parent: S, _propKey: K, arrayOptions?: ArrayMappingCreatorOptions<S, K, E>) {
 
+  /**
+   * Create a MappingAction from the state defined by this creator, to the component and its view / target property.
+   *
+   * @param {ContainerComponent<CP, VP, A extends StateObject>} _component
+   * @param {TP} targetPropKey
+   * @param {DispatchType} dispatches
+   * @returns {MappingAction<S extends StateObject, K extends keyof S, CP, VP, TP extends keyof VP,
+   * A extends StateObject, E>}
+   */
   let createPropertyMappingAction = function<CP, VP, TP extends keyof VP>
   (_component: ContainerComponent<CP, VP, A>, targetPropKey: TP, ...dispatches: DispatchType[])
   : MappingAction<S, K, CP, VP, TP, A, E> {

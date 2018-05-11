@@ -111,10 +111,12 @@ describe('Iterating through parents', function () {
 //
 // });
 describe('Test the actionQueue', function () {
+    // TODO: rework array examples using scores; this keyGen fn sucks, because the whole example sucks (primitive array)
+    var keyGen = function (score) { return score; };
     var actionQueue = ActionQueue_1.createActionQueue(3);
     var updateMiddleAction = new actions_1.StateCrudAction(actions_1.ActionId.UPDATE_PROPERTY, nameState, 'middle', 'J');
     var insertScoresAction = new actions_1.StateCrudAction(actions_1.ActionId.INSERT_PROPERTY, nameState, 'bowlingScores', bowlingScores);
-    var appendScoreAction = new actions_1.ArrayMutateAction(actions_1.ActionId.INSERT_PROPERTY, nameState, 'bowlingScores', 3, nameState.bowlingScores, 141);
+    var appendScoreAction = new actions_1.ArrayMutateAction(actions_1.ActionId.INSERT_PROPERTY, nameState, 'bowlingScores', 3, nameState.bowlingScores, keyGen, 141);
     var deletePrefixAction = new actions_1.StateCrudAction(actions_1.ActionId.DELETE_PROPERTY, nameState, 'prefix', '');
     test('the currentIndex should equal the length after an action is added', function () {
         actionQueue.push(updateMiddleAction);

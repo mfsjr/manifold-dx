@@ -94,7 +94,8 @@ describe('Add the name container', function () {
             expect(bowlingScores[0]).toBe(111);
         });
         test('array index notation should work', function () {
-            var updateAction = new actions_1.ArrayMutateAction(actions_1.ActionId.UPDATE_PROPERTY, nameState, 'bowlingScores', 0, nameState.bowlingScores, 101);
+            var keyGen = function (score) { return score; };
+            var updateAction = new actions_1.ArrayMutateAction(actions_1.ActionId.UPDATE_PROPERTY, nameState, 'bowlingScores', 0, nameState.bowlingScores, keyGen, 101);
             expect(updateAction.index).toBe(0);
             testStore.getManager().actionProcess(updateAction);
             expect(bowlingScores[0]).toBe(101);
@@ -145,7 +146,7 @@ describe('Add the name container', function () {
         });
         test('update an item in the addresses array', function () {
             var updatedAddr = __assign({}, nameState.addresses[0], { zip: '54321' });
-            var action = addrActionCreator.update(updatedAddr);
+            var action = addrActionCreator.update(nameState.addresses[0], updatedAddr);
             testStore.getManager().actionProcess(action);
             expect(nameState.addresses[0].zip).toBe('54321');
             // NOTE: this is a little complicated; we're testing that the size of they arrayKeyIndexMap has increased by
@@ -196,7 +197,8 @@ describe('Add the name container', function () {
             if (!nameState.bowlingScores) {
                 throw new Error('nameState.bowlingScores should be defined but is falsey');
             }
-            var appendScore = new actions_1.ArrayMutateAction(actions_1.ActionId.INSERT_PROPERTY, nameState, 'bowlingScores', nameState.bowlingScores.length, nameState.bowlingScores, 299);
+            var keyGen = function (score) { return score; };
+            var appendScore = new actions_1.ArrayMutateAction(actions_1.ActionId.INSERT_PROPERTY, nameState, 'bowlingScores', nameState.bowlingScores.length, nameState.bowlingScores, keyGen, 299);
             expect(function () { testStore.getManager().actionProcess(appendScore); }).not.toThrow();
             // restore the old middle
             nameState.middle = middle;
@@ -211,7 +213,8 @@ describe('Add the name container', function () {
             if (!nameState.bowlingScores) {
                 throw new Error('nameState.bowlingScores should be defined but is falsey');
             }
-            var appendScore = new actions_1.ArrayMutateAction(actions_1.ActionId.INSERT_PROPERTY, nameState, 'bowlingScores', nameState.bowlingScores.length, nameState.bowlingScores, 299);
+            var keyGen = function (score) { return score; };
+            var appendScore = new actions_1.ArrayMutateAction(actions_1.ActionId.INSERT_PROPERTY, nameState, 'bowlingScores', nameState.bowlingScores.length, nameState.bowlingScores, keyGen, 299);
             expect(function () { testStore.getManager().actionProcess(appendScore); }).toThrow();
             // restore the old middle
             nameState.middle = middle;
@@ -251,7 +254,9 @@ describe('Add the name container', function () {
 describe('test stripping StateObject info', function () {
     test('stripping all StateObject properties from the object graph', function () {
         var stateClone = _.cloneDeep(testStore.getState());
+        stateClone.helper = function () { return 'Help'; };
         State_1.Store.stripStateObject(stateClone);
+        expect(stateClone.helper).toBeDefined();
         expect(stateClone.hasOwnProperty('_parent')).toBe(false);
         expect(stateClone.hasOwnProperty('_myPropname')).toBe(false);
         if (!stateClone.name) {
@@ -264,6 +269,10 @@ describe('test stripping StateObject info', function () {
         }
         expect(stateClone.name.address.hasOwnProperty('_myPropname')).toBe(false);
         expect(stateClone.name.address.hasOwnProperty('_parent')).toBe(false);
+        stateClone = _.cloneDeep(testStore.getState());
+        stateClone.helper = function () { return 'Help'; };
+        State_1.Store.stripStateObject(stateClone, true);
+        expect(stateClone.helper).toBeUndefined();
     });
 });
 describe('tests for ArrayKeyIndexMap', function () {

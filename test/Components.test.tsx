@@ -200,8 +200,9 @@ let resetTestObjects = () => {
 resetTestObjects();
 
 describe('ContainerComponent instantiation, mount, update, unmount', () => {
-  let addrKeyGen = (_address: Address) => _address.street;
+  let addrKeyGen = (_address: Address) => _address.id;
   let addressesActionCreator = getArrayCrudCreator(nameState, nameState.addresses, addrKeyGen);
+  let address1Container: AddressContainer;
   // let mappingActionCreator = getMappingCreator(nameState, container);
   // placeholder
   test('after mounting, the component state should have something in it', () => {
@@ -253,6 +254,7 @@ describe('ContainerComponent instantiation, mount, update, unmount', () => {
   });
   test(`Create a mapping action to an array index`, () => {
     let addr1Container = new AddressContainer({address: addr1});
+    address1Container = addr1Container;
     let keyGen = (address: Address) => address.id;
     // let addr1MappingAction = getMappingCreator(nameState, addr1Container)
     // .createMappingAction('addresses', 'address');
@@ -294,6 +296,18 @@ describe('ContainerComponent instantiation, mount, update, unmount', () => {
     expect(mapping2.length).toBeGreaterThan(0);
     expect(mapping2[mapping2.length - 1].fullPath).toBe(fullpath);
     expect(mapping2[mapping2.length - 1].component).toBe(addr2Container);
+
+    // mapping1 should be unchanged
+    let mapping1a = Manager.get(nameState).getMappingState().getPathMappings(fullpath, key1);
+    expect(mapping1 === mapping1a).toBeTruthy();
+  });
+  test('updating the state array index value should update address1Container', () => {
+    let newAddr1 = {...addr1};
+    newAddr1.street = '16 Genung Ct';
+    addressesActionCreator.update(addr1, newAddr1).process();
+    let updatedContainers = Manager.get(nameState).getActionProcessorAPI().getUpdatedComponents();
+    expect(updatedContainers.length).toBeGreaterThan(0);
+    expect(updatedContainers.indexOf(address1Container)).toBeGreaterThan(-1);
   });
   test(
       'unmount should result in bowler being removed from the still-present component state mapping value ' +
@@ -363,6 +377,29 @@ describe('Standalone tests for instance of MappingState', () => {
     let n = mappingState.removeStatePath('address');
     // both 'address' and 'addresses' should be removed by the 'address' path prefix / state path
     expect(n === 2).toBeTruthy();
+  });
+
+  test('Map to an index array without mapping to the array itself', () => {
+    // mappingState = new MappingState();
+    let addressesMapping = mappingState.getPathMappings('addresses');
+    expect(addressesMapping).toBeUndefined();
+
+    let addr1Mapping = mappingState.getOrCreatePathMappings('addresses', 1);
+    expect(addr1Mapping).toBeDefined();
+
+    // this should still be undefined
+    addressesMapping = mappingState.getPathMappings('addresses');
+    expect(addressesMapping).toBeUndefined();
+
+  });
+
+  test('Mapping the array after mapping an index of it', () => {
+    let addressesMapping = mappingState.getOrCreatePathMappings('addresses');
+    expect(addressesMapping).toBeDefined();
+
+    // the previously mapped index should still be there
+    let addr1Mapping = mappingState.getPathMappings('addresses', 1);
+    expect(addr1Mapping).toBeDefined();
   });
 });
 

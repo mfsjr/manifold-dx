@@ -134,11 +134,13 @@ describe('Iterating through parents', () => {
 // });
 
 describe('Test the actionQueue', () => {
+  // TODO: rework array examples using scores; this keyGen fn sucks, because the whole example sucks (primitive array)
+  let keyGen = (score: number) => score;
   let actionQueue: ActionQueue = createActionQueue(3);
   let updateMiddleAction = new StateCrudAction(ActionId.UPDATE_PROPERTY, nameState, 'middle', 'J');
   let insertScoresAction = new StateCrudAction(ActionId.INSERT_PROPERTY, nameState, 'bowlingScores', bowlingScores);
   let appendScoreAction = new ArrayMutateAction(
-      ActionId.INSERT_PROPERTY, nameState, 'bowlingScores', 3,  nameState.bowlingScores, 141);
+      ActionId.INSERT_PROPERTY, nameState, 'bowlingScores', 3,  nameState.bowlingScores, keyGen, 141);
   let deletePrefixAction = new StateCrudAction(ActionId.DELETE_PROPERTY, nameState, 'prefix', '');
   test('the currentIndex should equal the length after an action is added', () => {
     actionQueue.push(updateMiddleAction);

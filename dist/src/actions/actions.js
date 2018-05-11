@@ -78,7 +78,6 @@ var Action = /** @class */ (function () {
     Action.prototype.undoMutation = function () {
         this.mutate(false);
     };
-    /* tslint:disable:no-any */
     Action.prototype.containersToRender = function (containersBeingRendered) { return; };
     return Action;
 }());
@@ -91,7 +90,6 @@ var StateAction = /** @class */ (function (_super) {
         _this.propertyName = _propertyName;
         return _this;
     }
-    /* tslint:enable:no-any */
     StateAction.prototype.assignProps = function (from) {
         _super.prototype.assignProps.call(this, from);
         this.parent = from.parent;
@@ -105,11 +103,20 @@ var StateAction = /** @class */ (function (_super) {
     StateAction.prototype.process = function () {
         Manager_1.Manager.get(this.parent).actionProcess(this);
     };
-    /* tslint:disable:no-any */
     StateAction.prototype.containersToRender = function (containersBeingRendered) {
-        /* tslint:enable:no-any */
         var fullPath = Manager_1.Manager.get(this.parent).getFullPath(this.parent, this.propertyName);
         var mappingActions = Manager_1.Manager.get(this.parent).getMappingState().getPathMappings(fullPath);
+        this.concatContainersFromMappingActions(containersBeingRendered, mappingActions);
+        // if (mappingActions) {
+        //   let containers = mappingActions.map((mapping) => mapping.component);
+        //   containers.forEach((container) => {
+        //     if (containersBeingRendered.indexOf(container) < 0) {
+        //       containersBeingRendered.push(container);
+        //     }
+        //   });
+        // }
+    };
+    StateAction.prototype.concatContainersFromMappingActions = function (containersBeingRendered, mappingActions) {
         if (mappingActions) {
             var containers = mappingActions.map(function (mapping) { return mapping.component; });
             containers.forEach(function (container) {
@@ -170,7 +177,6 @@ var StateCrudAction = /** @class */ (function (_super) {
     return StateCrudAction;
 }(StateAction));
 exports.StateCrudAction = StateCrudAction;
-/* tslint:enable:no-any */
 /**
  * The name of this function is intended to convey the fact that it uses a property of the array
  * object type to use as the key.
@@ -292,17 +298,12 @@ exports.ArrayKeyIndexMap = ArrayKeyIndexMap;
 var ArrayMutateAction = /** @class */ (function (_super) {
     __extends(ArrayMutateAction, _super);
     // TODO: restrict the set of ActionId's here to regular property insert/update/delete
-    function ArrayMutateAction(actionType, _parent, _propertyName, _index, valuesArray, _value) {
+    function ArrayMutateAction(actionType, _parent, _propertyName, _index, valuesArray, _keyGen, _value) {
         var _this = _super.call(this, actionType, _parent, _propertyName) || this;
-        // let prop = _parent[_propertyName];
-        // if ( prop instanceof Array) {
-        //   this.valuesArray = prop;
-        // } else {
-        //   throw new Error(`parent property is not an array!`);
-        // }
         _this.index = _index;
         _this.value = _value;
         _this.valuesArray = valuesArray;
+        _this.keyGen = _keyGen;
         return _this;
     }
     ArrayMutateAction.prototype.assignProps = function (from) {
@@ -312,10 +313,24 @@ var ArrayMutateAction = /** @class */ (function (_super) {
         this.value = from.value;
         this.valuesArray = from.valuesArray;
         this.index = from.index;
+        this.keyGen = from.keyGen;
     };
     ArrayMutateAction.prototype.clone = function () {
-        var copy = new ArrayMutateAction(this.type, this.parent, this.propertyName, this.index, this.valuesArray, this.value);
+        var copy = new ArrayMutateAction(this.type, this.parent, this.propertyName, this.index, this.valuesArray, this.keyGen, this.value);
         return copy;
+    };
+    ArrayMutateAction.prototype.containersToRender = function (containersBeingRendered) {
+        if (this.index > -1) {
+            var fullpath = Manager_1.Manager.get(this.parent).getFullPath(this.parent, this.propertyName);
+            // super.concatContainersFromMappingActions(containersBeingRendered);
+            // // super.containersToRender(containersBeingRendered, arrayOptions);
+            var key = this.keyGen(this.valuesArray[this.index]);
+            var mappingActions = Manager_1.Manager.get(this.parent).getMappingState().getPathMappings(fullpath, key);
+            this.concatContainersFromMappingActions(containersBeingRendered, mappingActions);
+        }
+        else {
+            _super.prototype.containersToRender.call(this, containersBeingRendered);
+        }
     };
     ArrayMutateAction.prototype.mutate = function (perform) {
         if (perform === void 0) { perform = true; }
@@ -338,11 +353,6 @@ var ArrayMutateAction = /** @class */ (function (_super) {
     return ArrayMutateAction;
 }(StateAction));
 exports.ArrayMutateAction = ArrayMutateAction;
-// export class Tester<E> {
-//   value: E;
-// }
-//
-// let tester = new Tester<undefined>();
 /**
  * Define a mapping between a state property and a component property, and optionally
  * provide a function or functions that are executed after the mapping is performed

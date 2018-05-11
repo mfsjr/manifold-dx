@@ -32,20 +32,24 @@ var ActionProcessor = /** @class */ (function () {
         this.mutationCheck.disableMutationChecks();
     };
     ActionProcessor.prototype.renderer = function (actions) {
-        /* tslint:disable:no-any */
-        var updatedComponents = [];
-        /* tslint:enable:no-any */
+        this.updatedComponents = [];
+        var uc = this.updatedComponents;
         actions.forEach(function (action) {
-            action.containersToRender(updatedComponents);
+            action.containersToRender(uc);
         });
-        if (updatedComponents.length > 0) {
-            /* tslint:disable:no-any */
-            updatedComponents.forEach(function (container) {
-                /* tslint:enable:no-any */
+        if (this.updatedComponents.length > 0) {
+            this.updatedComponents.forEach(function (container) {
                 container.handleChange(actions);
             });
         }
         return actions;
+    };
+    /**
+     * Return an array of the last ContainerComponents that were updated and rendered, see {@link renderer}.
+     * @returns {AnyContainerComponent[]}
+     */
+    ActionProcessor.prototype.getUpdatedComponents = function () {
+        return this.updatedComponents;
     };
     ActionProcessor.prototype.preProcess = function (actions) {
         actions = this.process(actions, this.preProcessors);

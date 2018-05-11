@@ -1,5 +1,5 @@
 /// <reference types="react" />
-import { ContainerComponent } from '../components/ContainerComponent';
+import { AnyContainerComponent, ContainerComponent } from '../components/ContainerComponent';
 import { StateObject } from '../types/State';
 /**
  * ActionId's for calling api's that change state.
@@ -49,7 +49,7 @@ export declare abstract class Action {
     protected assignProps(from: Action): void;
     getUndoAction(): ActionId;
     protected undoMutation(): void;
-    containersToRender(containersBeingRendered: ContainerComponent<any, any, any>[]): void;
+    containersToRender(containersBeingRendered: AnyContainerComponent[]): void;
 }
 export declare abstract class StateAction<S extends StateObject, K extends keyof S> extends Action {
     parent: S;
@@ -62,7 +62,8 @@ export declare abstract class StateAction<S extends StateObject, K extends keyof
      * way to process an action or an array of actions.
      */
     process(): void;
-    containersToRender(containersBeingRendered: ContainerComponent<any, any, any>[]): void;
+    containersToRender(containersBeingRendered: AnyContainerComponent[]): void;
+    protected concatContainersFromMappingActions(containersBeingRendered: AnyContainerComponent[], mappingActions?: AnyMappingAction[]): void;
 }
 export declare type GenericStateCrudAction = StateCrudAction<any, any>;
 /**
@@ -162,9 +163,11 @@ export declare class ArrayMutateAction<S extends StateObject, K extends keyof S,
     value: V | undefined;
     valuesArray: Array<V> & S[K];
     index: number;
+    keyGen: ArrayKeyGeneratorFn<V>;
     protected assignProps(from: ArrayMutateAction<S, K, V>): void;
     clone(): ArrayMutateAction<S, K, V>;
-    constructor(actionType: ActionId, _parent: S, _propertyName: K, _index: number, valuesArray: Array<V> & S[K], _value?: V);
+    constructor(actionType: ActionId, _parent: S, _propertyName: K, _index: number, valuesArray: Array<V> & S[K], _keyGen: ArrayKeyGeneratorFn<V>, _value?: V);
+    containersToRender(containersBeingRendered: AnyContainerComponent[]): void;
     protected mutate(perform?: boolean): void;
 }
 /**

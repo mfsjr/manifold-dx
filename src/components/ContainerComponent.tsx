@@ -207,7 +207,7 @@ export abstract class ContainerComponent<CP, VP, A extends StateObject>
               // if we are mutating the list element, we only want to change that index
               // otherwise its an insert/delete and we want to update the whole array
               if (action.type === ActionId.UPDATE_PROPERTY) {
-                this.viewProps[mapping.targetPropName][action.index] = action.valuesArray[action.index];
+                this.viewProps[mapping.targetPropName] = action.value;
               } else {
                 this.viewProps[mapping.targetPropName] = action.valuesArray;
               }
@@ -277,6 +277,7 @@ export abstract class ContainerComponent<CP, VP, A extends StateObject>
 }
 
 /* tslint:disable:no-any */
+export type AnyContainerComponent = ContainerComponent<any, any, any>;
 // export type GenericContainerMappingTypes<CP, VP, A extends StateObject>
 // = MappingAction<any, any, CP, VP, any, A, any>;
 /* tslint:enable:no-any */

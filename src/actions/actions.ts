@@ -410,7 +410,8 @@ export class ArrayMutateAction
     let actionId = perform ? this.type : this.getUndoAction();
 
     let fullpath = Manager.get(this.parent).getFullPath(this.parent, this.propertyName);
-    this.mappingActions = Manager.get(this.parent).getMappingState().getPathMappings(fullpath) || [];
+    let key = this.keyGen && this.index > -1 ? this.keyGen(this.valuesArray[this.index]) : undefined;
+    this.mappingActions = Manager.get(this.parent).getMappingState().getPathMappings(fullpath, key) || [];
 
     this.mutateResult = mutateArray(actionId, this.parent, this.valuesArray, this.value, this.propertyName, this.index);
     if (perform) {

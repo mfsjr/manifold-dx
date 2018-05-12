@@ -196,20 +196,21 @@ export abstract class ContainerComponent<CP, VP, A extends StateObject>
    * which is invoked by the framework.
    */
   protected updateViewPropsUsingMappings(executedActions: Action[]): void {
+    let _viewProps = this.viewProps;
     executedActions.forEach((action) => {
       if (action instanceof StateAction) {
         let mappingActions = action.mappingActions;
         if (mappingActions && mappingActions.length) {
           mappingActions.forEach((mapping) => {
             if (action instanceof StateCrudAction) {
-              this.viewProps[mapping.targetPropName] = action.value;
+              _viewProps[mapping.targetPropName] = action.value;
             } else if (action instanceof ArrayMutateAction) {
               // if we are mutating the list element, we only want to change that index
               // otherwise its an insert/delete and we want to update the whole array
               if (action.type === ActionId.UPDATE_PROPERTY) {
-                this.viewProps[mapping.targetPropName] = action.value;
+                _viewProps[mapping.targetPropName] = action.value;
               } else {
-                this.viewProps[mapping.targetPropName] = action.valuesArray;
+                _viewProps[mapping.targetPropName] = action.valuesArray;
               }
             }
 

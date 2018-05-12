@@ -301,14 +301,25 @@ describe('ContainerComponent instantiation, mount, update, unmount', () => {
     let mapping1a = Manager.get(nameState).getMappingState().getPathMappings(fullpath, key1);
     expect(mapping1 === mapping1a).toBeTruthy();
   });
-  test('updating the state array index value should update address1Container', () => {
+  test('updating the state array index value should update address1Container and its properties', () => {
     let newAddr1 = {...addr1};
     newAddr1.street = '16 Genung Ct';
     addressesActionCreator.update(addr1, newAddr1).process();
     let updatedContainers = Manager.get(nameState).getActionProcessorAPI().getUpdatedComponents();
+    // check that our container is among those that were updated
     expect(updatedContainers.length).toBeGreaterThan(0);
     expect(updatedContainers.indexOf(address1Container)).toBeGreaterThan(-1);
+    // verify that state was updated
+    expect(nameState.addresses[0].street).toBe(newAddr1.street);
+    // verify that the prop that was mapped from the state was also updated
+    expect(address1Container.viewProps.address).toBe(newAddr1);
   });
+  test('inserting a new element into index 0 should', () => {
+
+  });
+  // test('deleting an element from the addresses array re-maps the array and its containers', () => {
+  //   //
+  // });
   test(
       'unmount should result in bowler being removed from the still-present component state mapping value ' +
       '(array of commentsUI)',

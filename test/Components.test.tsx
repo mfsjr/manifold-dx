@@ -38,6 +38,9 @@ let addr1: Address = {
   state: 'PA',
   zip: '19104'
 };
+
+let newAddr1 = {...addr1};
+
 let addr2: Address = {
   id: 2,
   street: '11 Genung Court',
@@ -245,7 +248,7 @@ describe('ContainerComponent instantiation, mount, update, unmount', () => {
     expect(container.average).toBeGreaterThan(100);
   });
   test('add to the addresses', () => {
-    addressesActionCreator.insert(0, addr1).process();
+    addressesActionCreator.insert(0, addr1).forEach(action => action.process());
     expect(nameState.addresses[0].street).toBe(addr1.street);
   });
   test('append to the addresses', () => {
@@ -306,9 +309,10 @@ describe('ContainerComponent instantiation, mount, update, unmount', () => {
     expect(mapping1 === mapping1a).toBeTruthy();
   });
   test('updating the state array index value should update address1Container and its properties', () => {
-    let newAddr1 = {...addr1};
     newAddr1.street = '16 Genung Ct';
+    expect(address1Container.viewProps[`addresses`]).toBeUndefined();
     addressesActionCreator.update(addr1, newAddr1).process();
+    expect(address1Container.viewProps[`addresses`]).toBeUndefined();
     let updatedContainers = Manager.get(nameState).getActionProcessorAPI().getUpdatedComponents();
     // check that our container is among those that were updated
     expect(updatedContainers.length).toBeGreaterThan(0);
@@ -317,10 +321,29 @@ describe('ContainerComponent instantiation, mount, update, unmount', () => {
     expect(nameState.addresses[0].street).toBe(newAddr1.street);
     // verify that the prop that was mapped from the state was also updated
     expect(address1Container.viewProps.address).toBe(newAddr1);
+    // addr1 = newAddr1;
   });
-  // test('inserting a new element into index 0 should', () => {
-  //
-  // });
+  test('inserting a new element into index 0 should result in container remapping props to state', () => {
+    expect(nameState.addresses[0].street).toBe(newAddr1.street);
+    // all containers that have been mapped should have their props updated to reflect the new state array insert
+    let addr0: Address = {
+      id: 0,
+      street: '13 Lily Pond Lane',
+      city: 'Katonah',
+      state: 'NY',
+      zip: '21039'
+    };
+    let insertActions = addressesActionCreator.insert(0, addr0);
+    Manager.get(nameState).actionProcess(...insertActions);
+
+    // verify that state was updated
+    expect(nameState.addresses[0].street).toBe(addr0.street);
+    expect(nameState.addresses[1].street).toBe(newAddr1.street);
+    // verify that the prop that was mapped from the state was also updated
+    // expect(address1Container.viewProps[`addresses`]).toBeUndefined();
+    expect(address1Container.viewProps.address).toBe(addr0);
+
+  });
   // test('deleting an element from the addresses array re-maps the array and its containers', () => {
   //   //
   // });

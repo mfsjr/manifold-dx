@@ -149,7 +149,7 @@ describe('Add the name container', () => {
 
       let action = addrActionCreator.insert(0, addr);
       // action.perform();
-      testStore.getManager().actionProcess(action);
+      testStore.getManager().actionProcess(...action);
 
       expect(nameState.addresses[0]).toEqual(addr);
     });
@@ -168,7 +168,7 @@ describe('Add the name container', () => {
     });
     test('add another address', () => {
       let action = addrActionCreator.insert(1, address2);
-      testStore.getManager().actionProcess(action);
+      testStore.getManager().actionProcess(...action);
       expect(nameState.addresses[1]).toBe(address2);
     });
     test('delete an address', () => {

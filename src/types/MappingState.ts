@@ -42,7 +42,7 @@ export class MappingState {
     if (pathResults instanceof Array) {
       return pathResults;
     } else if (pathResults instanceof Map) {
-      let _key = index ? index : null;
+      let _key = index !== undefined ? index : null;
       return pathResults.get(_key);
     }
 
@@ -51,7 +51,7 @@ export class MappingState {
 
   public getOrCreatePathMappings(propFullPath: string, index?: number): AnyMappingAction[] {
     let result = this.getPathMappings(propFullPath, index);
-    if (!index) {
+    if (index === undefined) {
       if (!result) {
         result = [];
         this.pathMappings.set(propFullPath, result);
@@ -113,7 +113,7 @@ export class MappingState {
             _index?: number): number {
     let containers = this.getPathMappings(_fullPath, _index);
     if (containers) {
-      if (!_index) {
+      if (_index === undefined) {
         if (genericMappingAction) {
           let index = containers.indexOf(genericMappingAction);
           if (index > -1) {
@@ -199,7 +199,7 @@ export class MappingState {
     //   throw Error(`Type error trying to remove a key from a map at path ${propPath}`);
     // }
     let keyMap: ArrayMap = result;
-    if (index) {
+    if (index !== undefined) {
       if (!keyMap.delete(index)) {
         throw new Error(`Failed to delete key ${index} at propPath ${propPath}`);
       }

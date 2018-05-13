@@ -400,6 +400,13 @@ export class ArrayMutateAction
       let _index = this.index > -1 ? this.index : undefined;
       let mappingActions = Manager.get(this.parent).getMappingState().getPathMappings(fullpath, _index);
       this.concatContainersFromMappingActions(containersBeingRendered, mappingActions);
+      if (_index !== undefined && (this.type === ActionId.INSERT_PROPERTY || this.type === ActionId.DELETE_PROPERTY) ) {
+        // we need to get all containers for array elements above the index
+        for (let i = 1 + _index; i < this.valuesArray.length; i++) {
+          mappingActions = Manager.get(this.parent).getMappingState().getPathMappings(fullpath, i);
+          this.concatContainersFromMappingActions(containersBeingRendered, mappingActions);
+        }
+      }
     } else {
       super.containersToRender(containersBeingRendered);
     }

@@ -1,7 +1,7 @@
 import { ActionId, ArrayKeyIndexMap } from './actions';
 import * as _ from 'lodash';
 import { MutationError } from '../types/StateMutationCheck';
-import { StateObject, Store } from '../types/State';
+import { JSON_replaceCyclicParent, StateObject, Store } from '../types/State';
 import { Manager } from '../types/Manager';
 
 /* tslint:disable:no-any */
@@ -26,9 +26,11 @@ let actionImmutabilityCheck = function(actionId: ActionId, oldValue: any, newVal
                                        propertyName: any, index?: number) {
   /* tslint:enable:no-any */
   if (oldValue === newValue) {
-    let message = `Action immutability violated: ${ActionId[actionId]}: 
-      mutation in property '${propertyName}', oldValue=${oldValue}, newValue=${newValue}`;
-    message = index ? `${message} at index=${index}` : message;
+    let oldJson = JSON.stringify(oldValue, JSON_replaceCyclicParent, 4);
+    let newJson = JSON.stringify(newValue, JSON_replaceCyclicParent, 4);
+    let message = `Action immutability violated (${ActionId[actionId]})  
+      mutation in property '${propertyName}', oldValue=${oldJson}, newValue=${newJson}`;
+    message = index !== undefined ? `at index=${index}, ${message} ` : message;
     throw new MutationError(message);
   }
 };

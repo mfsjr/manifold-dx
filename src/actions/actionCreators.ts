@@ -140,11 +140,11 @@ export class ArrayCrudActionCreator<S extends StateObject, K extends keyof S, V 
   }
 
   public append(value: V): Action {
-    return this.insert(this.valuesArray.length, value);
+    return this.insert(this.valuesArray.length, value)[0];
   }
 
   /**
-   * Recreate the entire array and update the array property.
+   * Insert into the StateObject's array, and return an array of actions for each element above the insertion.
    *
    * Mapping actions will remain unchanged, but the value of all the mapped state, and container view properties will
    * be updated.
@@ -157,15 +157,51 @@ export class ArrayCrudActionCreator<S extends StateObject, K extends keyof S, V 
    * @param {V} value
    * @returns {Action}
    */
-  public insert(index: number, value: V): Action {
-    let newArray: Array<V> & S[K] = this.valuesArray.slice(0);
-    newArray.splice(index, 0, value);
-    ArrayKeyIndexMap.get().deleteFromMaps(this.valuesArray);
-    this.valuesArray = newArray;
-    ArrayKeyIndexMap.get().getOrCreateKeyIndexMap(this.valuesArray, this.keyGenerator);
-    return new StateCrudAction(ActionId.UPDATE_PROPERTY, this.parent, this.propertyKey, newArray);
+  public insert(index: number, value: V): Action[] {
+    // TODO: get rid of slice (new array), use only splice (mutation), return an array of actions for updating indexes
+    // let newArray: Array<V> & S[K] = this.valuesArray.slice(0);
+    // newArray.splice(index, 0, value);
+    // ArrayKeyIndexMap.get().deleteFromMaps(this.valuesArray);
+    // this.valuesArray = newArray;
+    // ArrayKeyIndexMap.get().getOrCreateKeyIndexMap(this.valuesArray, this.keyGenerator);
+    // return new StateCrudAction(ActionId.UPDATE_PROPERTY, this.parent, this.propertyKey, newArray);
+
+    // TODO: ? what would devs expect, an insert that updates containers automatically, or a generated list of actions?
+    let actions: Array<Action> = [
+      new ArrayMutateAction(
+        ActionId.INSERT_PROPERTY, this.parent, this.propertyKey, index, this.valuesArray, this.keyGenerator, value)
+    ];
+
+    // for (let i = 1 + index; i < this.valuesArray.length; i++) {
+    //   actions.push( new ArrayMutateAction(
+    //     ActionId.UPDATE_PROPERTY, this.parent, this.propertyKey, i,
+    //     this.valuesArray, this.keyGenerator, this.valuesArray[i - 1]
+    //   ));
+    // }
+
+    // // update at index with the new value
+    // let actions: Array<Action> = [
+    //   new ArrayMutateAction(
+    //     ActionId.UPDATE_PROPERTY, this.parent, this.propertyKey, index, this.valuesArray, this.keyGenerator, value)
+    // ];
+    //
+    // // shift each existing value up one
+    // for (let i = 1 + index; i < this.valuesArray.length - 1; i++) {
+    //   actions.push( new ArrayMutateAction(
+    //     ActionId.UPDATE_PROPERTY, this.parent, this.propertyKey, i,
+    //     this.valuesArray, this.keyGenerator, this.valuesArray[i - 1]
+    //   ));
+    // }
+    // // insert the last value at the end of the list
+    // actions.push( new ArrayMutateAction(
+    //   ActionId.INSERT_PROPERTY, this.parent, this.propertyKey, this.valuesArray.length,
+    //   this.valuesArray, this.keyGenerator, this.valuesArray[this.valuesArray.length - 1])
+    // );
+
+    return actions;
+    // this.valuesArray.splice(index, 0, value);
     // return new ArrayMutateAction(
-    //   ActionId.INSERT_PROPERTY, this.parent, this.propertyKey, index, this.valuesArray, value);
+    //   ActionId.INSERT_PROPERTY, this.parent, this.propertyKey, index, this.valuesArray, this.keyGenerator, value);
   }
 
   public update(oldValue: V, newValue: V): Action {

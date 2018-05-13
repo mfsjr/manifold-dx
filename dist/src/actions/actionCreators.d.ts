@@ -62,17 +62,9 @@ export declare class ArrayCrudActionCreator<S extends StateObject, K extends key
      * @param {ArrayKeyGeneratorFn} keyGenerator
      */
     constructor(parent: S, childArray: Array<V> & S[K], keyGenerator: ArrayKeyGeneratorFn<V>);
-    /**
-     * Note that we are finding the index of this from a map (not scanning).
-     * We throw if this.valuesArray is not found in arrayKeyIndexMap, likewise if the this.keyIndexMap does not
-     * contain the key calculated by this.keyGenerator.
-     * @param {V} value
-     * @returns {number}
-     */
-    protected getIndexOf(value: V): number;
     append(value: V): Action;
     /**
-     * Recreate the entire array and update the array property.
+     * Insert into the StateObject's array, and return an array of actions for each element above the insertion.
      *
      * Mapping actions will remain unchanged, but the value of all the mapped state, and container view properties will
      * be updated.
@@ -85,9 +77,9 @@ export declare class ArrayCrudActionCreator<S extends StateObject, K extends key
      * @param {V} value
      * @returns {Action}
      */
-    insert(index: number, value: V): Action;
-    update(oldValue: V, newValue: V): Action;
-    remove(value: V): Action;
+    insert(index: number, value: V): Action[];
+    update(index: number, newValue: V): Action;
+    remove(index: number): Action;
 }
 export interface ArrayMappingCreatorOptions<S extends StateObject, K extends keyof S, E> {
     keyGen: ArrayKeyGeneratorFn<E>;

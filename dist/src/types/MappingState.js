@@ -25,14 +25,14 @@ var MappingState = /** @class */ (function () {
             return pathResults;
         }
         else if (pathResults instanceof Map) {
-            var _key = index ? index : null;
+            var _key = index !== undefined ? index : null;
             return pathResults.get(_key);
         }
         throw Error("pathResults from " + path + " expected to be instanceof Array, or a Map");
     };
     MappingState.prototype.getOrCreatePathMappings = function (propFullPath, index) {
         var result = this.getPathMappings(propFullPath, index);
-        if (!index) {
+        if (index === undefined) {
             if (!result) {
                 result = [];
                 this.pathMappings.set(propFullPath, result);
@@ -93,7 +93,7 @@ var MappingState = /** @class */ (function () {
     MappingState.prototype.removePathMapping = function (_fullPath, genericMappingAction, _index) {
         var containers = this.getPathMappings(_fullPath, _index);
         if (containers) {
-            if (!_index) {
+            if (_index === undefined) {
                 if (genericMappingAction) {
                     var index = containers.indexOf(genericMappingAction);
                     if (index > -1) {
@@ -181,7 +181,7 @@ var MappingState = /** @class */ (function () {
         //   throw Error(`Type error trying to remove a key from a map at path ${propPath}`);
         // }
         var keyMap = result;
-        if (index) {
+        if (index !== undefined) {
             if (!keyMap.delete(index)) {
                 throw new Error("Failed to delete key " + index + " at propPath " + propPath);
             }

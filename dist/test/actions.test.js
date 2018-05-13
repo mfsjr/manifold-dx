@@ -22,7 +22,7 @@ var nameState; // Name & StateObject;
 var bowlingScores;
 var address;
 var addressState;
-var addressKeyFn = function (addr) { return addr.street; };
+// let addressKeyFn = (addr: Address) => { return addr.street; };
 var address2 = {
     id: 1,
     street: '123 Mockingbird Lane',
@@ -128,7 +128,7 @@ describe('Add the name container', function () {
         });
     });
     describe('use ActionCreator for array changes in nameState.addresses', function () {
-        var arrayKeyIndexMapSize = actions_1.ArrayKeyIndexMap.get().size();
+        // let arrayKeyIndexMapSize = ArrayKeyIndexMap.get().size();
         var streetKeyFn = nameState.addressKeyGen;
         var addrActionCreator = new actionCreators_1.ArrayCrudActionCreator(nameState, nameState.addresses, streetKeyFn);
         test('insert into the addresses array', function () {
@@ -141,37 +141,39 @@ describe('Add the name container', function () {
             };
             var action = addrActionCreator.insert(0, addr);
             // action.perform();
-            testStore.getManager().actionProcess(action);
+            (_a = testStore.getManager()).actionProcess.apply(_a, action);
             expect(nameState.addresses[0]).toEqual(addr);
+            var _a;
         });
         test('update an item in the addresses array', function () {
             var updatedAddr = __assign({}, nameState.addresses[0], { zip: '54321' });
-            var action = addrActionCreator.update(nameState.addresses[0], updatedAddr);
+            var action = addrActionCreator.update(0, updatedAddr);
             testStore.getManager().actionProcess(action);
             expect(nameState.addresses[0].zip).toBe('54321');
             // NOTE: this is a little complicated; we're testing that the size of they arrayKeyIndexMap has increased by
             // one, since the update will require it to be created for this array.
-            expect(actions_1.ArrayKeyIndexMap.get().size()).toBe(1 + arrayKeyIndexMapSize);
+            // expect(ArrayKeyIndexMap.get().size()).toBe(1 + arrayKeyIndexMapSize);
         });
-        test('addresses is in KeyArrayIndexMap', function () {
-            var before = actions_1.ArrayKeyIndexMap.get().get(nameState.addresses);
-            expect(before).toBeDefined();
-        });
+        // test('addresses is in KeyArrayIndexMap', () => {
+        //   let before = ArrayKeyIndexMap.get().get(nameState.addresses);
+        //   expect(before).toBeDefined();
+        // });
         test('add another address', function () {
             var action = addrActionCreator.insert(1, address2);
-            testStore.getManager().actionProcess(action);
+            (_a = testStore.getManager()).actionProcess.apply(_a, action);
             expect(nameState.addresses[1]).toBe(address2);
+            var _a;
         });
         test('delete an address', function () {
             // addrActionCreator.remove(0).perform();
-            var removeAction = addrActionCreator.remove(nameState.addresses[0]);
+            var removeAction = addrActionCreator.remove(0);
             testStore.getManager().actionProcess(removeAction);
             expect(nameState.addresses.length).toBe(1);
             expect(nameState.addresses[0]).toBe(address2);
         });
-        test('expect that deleting an address removes the array from KeyArrayIndexMap', function () {
-            expect(actions_1.ArrayKeyIndexMap.get().size()).toBe(arrayKeyIndexMapSize);
-        });
+        // test('expect that deleting an address from the array leaves the array in the map', () => {
+        //   expect(ArrayKeyIndexMap.get().size()).toBe(1 + arrayKeyIndexMapSize);
+        // });
         // test('delete \'addresses\' and verify that it is removed from KeyArrayIndexMap', () => {
         //   let crudCreator = getCrudCreator(nameState);
         //   crudCreator.remove('addresses').perform();
@@ -275,55 +277,67 @@ describe('test stripping StateObject info', function () {
         expect(stateClone.helper).toBeUndefined();
     });
 });
-describe('tests for ArrayKeyIndexMap', function () {
-    var addresses = [address];
-    var names = [name];
-    var nameKeyFn = function (n) { return n.last + ", " + n.first + " " + n.middle; };
-    var maps = new actions_1.ArrayKeyIndexMap();
-    test('we should have one array in the map of maps', function () {
-        maps.getOrCreateKeyIndexMap(addresses, addressKeyFn);
-        expect(maps.size()).toBe(1);
-    });
-    test('we should have two arrays in the map of maps', function () {
-        maps.getOrCreateKeyIndexMap(names, nameKeyFn);
-        expect(maps.size()).toBe(2);
-    });
-    test('address key index map', function () {
-        var keyIndexMap = maps.get(addresses);
-        expect(keyIndexMap.get(address.street)).toBe(0);
-    });
-    test('delete addresses', function () {
-        maps.deleteFromMaps(addresses);
-        expect(maps.size()).toBe(1);
-    });
-    addresses = [
-        address,
-        address2
-    ];
-    test('put addresses back in', function () {
-        maps.getOrCreateKeyIndexMap(addresses, addressKeyFn);
-        expect(maps.get(addresses).get(addresses[1].street)).toBe(1);
-    });
-    test('has key', function () {
-        expect(maps.hasKeyIndexMap(names)).toBe(true);
-    });
-    test('index functionality for names', function () {
-        var nameKey = nameKeyFn(names[0]);
-        expect(maps.get(names).get(nameKey)).toBe(0);
-    });
-    test('get key gen fn', function () {
-        var keyGen = maps.getKeyGeneratorFn(addresses);
-        expect(keyGen(address2)).toBe(address2.street);
-    });
-    test('exception should be thrown when creating an entry for an array where duplicate keys exist', function () {
-        maps.deleteFromMaps(addresses);
-        expect(maps.size()).toBe(1);
-        addresses = [
-            address,
-            address2,
-            address2
-        ];
-        expect(function () { return maps.getOrCreateKeyIndexMap(addresses, addressKeyFn); }).toThrow();
-    });
-});
+// describe('tests for ArrayKeyIndexMap', () => {
+//   let addresses: Array<Address> = [address];
+//
+//   let names: Array<Name> = [name];
+//   let nameKeyFn = (n: Name) => {return `${n.last}, ${n.first} ${n.middle}`; };
+//   let maps = new ArrayKeyIndexMap();
+//
+//   test('we should have one array in the map of maps', () => {
+//     maps.getOrCreateKeyIndexMap(addresses, addressKeyFn);
+//     expect(maps.size()).toBe(1);
+//   });
+//
+//   test('we should have two arrays in the map of maps', () => {
+//     maps.getOrCreateKeyIndexMap(names, nameKeyFn);
+//     expect(maps.size()).toBe(2);
+//   });
+//
+//   test('address key index map', () => {
+//     let keyIndexMap = maps.get(addresses);
+//     expect(keyIndexMap.get(address.street)).toBe(0);
+//   });
+//
+//   test('delete addresses', () => {
+//     maps.deleteFromMaps(addresses);
+//     expect(maps.size()).toBe(1);
+//   });
+//
+//   addresses = [
+//     address,
+//     address2
+//   ];
+//
+//   test('put addresses back in', () => {
+//     maps.getOrCreateKeyIndexMap(addresses, addressKeyFn);
+//     expect(maps.get(addresses).get(addresses[1].street)).toBe(1);
+//   });
+//
+//   test('has key', () => {
+//     expect(maps.hasKeyIndexMap(names)).toBe(true);
+//   });
+//
+//   test('index functionality for names', () => {
+//     let nameKey = nameKeyFn(names[0]);
+//     expect(maps.get(names).get(nameKey)).toBe(0);
+//   });
+//
+//   test('get key gen fn', () => {
+//     let keyGen = maps.getKeyGeneratorFn(addresses);
+//     expect(keyGen(address2)).toBe(address2.street);
+//   });
+//
+//   test('exception should be thrown when creating an entry for an array where duplicate keys exist', () => {
+//     maps.deleteFromMaps(addresses);
+//     expect(maps.size()).toBe(1);
+//     addresses = [
+//       address,
+//       address2,
+//       address2
+//     ];
+//     expect(() => maps.getOrCreateKeyIndexMap(addresses, addressKeyFn)).toThrow();
+//   });
+//
+// });
 //# sourceMappingURL=actions.test.js.map

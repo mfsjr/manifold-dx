@@ -162,7 +162,7 @@ var ContainerComponent = /** @class */ (function (_super) {
                         else if (action instanceof _1.ArrayMutateAction) {
                             // if we are mutating the list element, we only want to change that index
                             // otherwise its an insert/delete and we want to update the whole array
-                            if (action.type === actions_1.ActionId.UPDATE_PROPERTY) {
+                            if (mapping.index !== undefined) {
                                 _viewProps[mapping.targetPropName] = action.value;
                             }
                             else {

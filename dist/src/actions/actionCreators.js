@@ -105,27 +105,27 @@ var ArrayCrudActionCreator = /** @class */ (function () {
         this.valuesArray = array;
         this.keyGenerator = keyGenerator;
     }
-    /**
-     * Note that we are finding the index of this from a map (not scanning).
-     * We throw if this.valuesArray is not found in arrayKeyIndexMap, likewise if the this.keyIndexMap does not
-     * contain the key calculated by this.keyGenerator.
-     * @param {V} value
-     * @returns {number}
-     */
-    ArrayCrudActionCreator.prototype.getIndexOf = function (value) {
-        var keyIndexMap = actions_1.ArrayKeyIndexMap.get().getOrCreateKeyIndexMap(this.valuesArray, this.keyGenerator);
-        var key = this.keyGenerator(value);
-        var index = keyIndexMap.get(key);
-        if (index === undefined) {
-            throw new Error("failed to find index in array " + this.propertyKey + " for key " + key);
-        }
-        return index;
-    };
+    // /**
+    //  * Note that we are finding the index of this from a map (not scanning).
+    //  * We throw if this.valuesArray is not found in arrayKeyIndexMap, likewise if the this.keyIndexMap does not
+    //  * contain the key calculated by this.keyGenerator.
+    //  * @param {V} value
+    //  * @returns {number}
+    //  */
+    // protected getIndexOf(value: V): number {
+    //   let keyIndexMap = ArrayKeyIndexMap.get().getOrCreateKeyIndexMap(this.valuesArray, this.keyGenerator);
+    //   let key = this.keyGenerator(value);
+    //   let index = keyIndexMap.get(key);
+    //   if (index === undefined) {
+    //     throw new Error(`failed to find index in array ${this.propertyKey} for key ${key}`);
+    //   }
+    //   return index;
+    // }
     ArrayCrudActionCreator.prototype.append = function (value) {
-        return this.insert(this.valuesArray.length, value);
+        return this.insert(this.valuesArray.length, value)[0];
     };
     /**
-     * Recreate the entire array and update the array property.
+     * Insert into the StateObject's array, and return an array of actions for each element above the insertion.
      *
      * Mapping actions will remain unchanged, but the value of all the mapped state, and container view properties will
      * be updated.
@@ -139,32 +139,60 @@ var ArrayCrudActionCreator = /** @class */ (function () {
      * @returns {Action}
      */
     ArrayCrudActionCreator.prototype.insert = function (index, value) {
-        var newArray = this.valuesArray.slice(0);
-        newArray.splice(index, 0, value);
-        actions_1.ArrayKeyIndexMap.get().deleteFromMaps(this.valuesArray);
-        this.valuesArray = newArray;
-        actions_1.ArrayKeyIndexMap.get().getOrCreateKeyIndexMap(this.valuesArray, this.keyGenerator);
-        return new actions_1.StateCrudAction(actions_1.ActionId.UPDATE_PROPERTY, this.parent, this.propertyKey, newArray);
+        // TODO: get rid of slice (new array), use only splice (mutation), return an array of actions for updating indexes
+        // let newArray: Array<V> & S[K] = this.valuesArray.slice(0);
+        // newArray.splice(index, 0, value);
+        // ArrayKeyIndexMap.get().deleteFromMaps(this.valuesArray);
+        // this.valuesArray = newArray;
+        // ArrayKeyIndexMap.get().getOrCreateKeyIndexMap(this.valuesArray, this.keyGenerator);
+        // return new StateCrudAction(ActionId.UPDATE_PROPERTY, this.parent, this.propertyKey, newArray);
+        // TODO: ? what would devs expect, an insert that updates containers automatically, or a generated list of actions?
+        var actions = [
+            new actions_1.ArrayMutateAction(actions_1.ActionId.INSERT_PROPERTY, this.parent, this.propertyKey, index, this.valuesArray, this.keyGenerator, value)
+        ];
+        // for (let i = 1 + index; i < this.valuesArray.length; i++) {
+        //   actions.push( new ArrayMutateAction(
+        //     ActionId.UPDATE_PROPERTY, this.parent, this.propertyKey, i,
+        //     this.valuesArray, this.keyGenerator, this.valuesArray[i - 1]
+        //   ));
+        // }
+        // // update at index with the new value
+        // let actions: Array<Action> = [
+        //   new ArrayMutateAction(
+        //     ActionId.UPDATE_PROPERTY, this.parent, this.propertyKey, index, this.valuesArray, this.keyGenerator, value)
+        // ];
+        //
+        // // shift each existing value up one
+        // for (let i = 1 + index; i < this.valuesArray.length - 1; i++) {
+        //   actions.push( new ArrayMutateAction(
+        //     ActionId.UPDATE_PROPERTY, this.parent, this.propertyKey, i,
+        //     this.valuesArray, this.keyGenerator, this.valuesArray[i - 1]
+        //   ));
+        // }
+        // // insert the last value at the end of the list
+        // actions.push( new ArrayMutateAction(
+        //   ActionId.INSERT_PROPERTY, this.parent, this.propertyKey, this.valuesArray.length,
+        //   this.valuesArray, this.keyGenerator, this.valuesArray[this.valuesArray.length - 1])
+        // );
+        return actions;
+        // this.valuesArray.splice(index, 0, value);
         // return new ArrayMutateAction(
-        //   ActionId.INSERT_PROPERTY, this.parent, this.propertyKey, index, this.valuesArray, value);
+        //   ActionId.INSERT_PROPERTY, this.parent, this.propertyKey, index, this.valuesArray, this.keyGenerator, value);
     };
-    ArrayCrudActionCreator.prototype.update = function (oldValue, newValue) {
-        var index = this.getIndexOf(oldValue);
+    ArrayCrudActionCreator.prototype.update = function (index, newValue) {
+        // let index = this.getIndexOf(oldValue);
         return new actions_1.ArrayMutateAction(actions_1.ActionId.UPDATE_PROPERTY, this.parent, this.propertyKey, index, this.valuesArray, this.keyGenerator, newValue);
     };
-    ArrayCrudActionCreator.prototype.remove = function (value) {
-        var _this = this;
-        var index = this.getIndexOf(value);
-        var newArray = this.valuesArray.slice(0);
-        newArray.splice(index, 1);
-        var result = new actions_1.StateCrudAction(actions_1.ActionId.UPDATE_PROPERTY, this.parent, this.propertyKey, newArray);
-        result.postHook = function () {
-            actions_1.ArrayKeyIndexMap.get().deleteFromMaps(_this.valuesArray);
-            _this.valuesArray = newArray;
-        };
-        return result;
+    ArrayCrudActionCreator.prototype.remove = function (index) {
+        // let value: V = this.valuesArray[index];
         // let index = this.getIndexOf(value);
-        // return new ArrayMutateAction(ActionId.DELETE_PROPERTY, this.parent, this.propertyKey, index, this.valuesArray);
+        var result = new actions_1.ArrayMutateAction(actions_1.ActionId.DELETE_PROPERTY, this.parent, this.propertyKey, index, this.valuesArray, this.keyGenerator, undefined);
+        // result.postHook = () => {
+        //   let map = ArrayKeyIndexMap.get().get(this.valuesArray);
+        //   let key = this.keyGenerator(value);
+        //   map.delete(key);
+        // };
+        return result;
     };
     return ArrayCrudActionCreator;
 }());

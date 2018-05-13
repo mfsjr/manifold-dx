@@ -113,36 +113,6 @@ export declare type ArrayKeyGeneratorFn<V> = (arrayElement: V, index?: number, a
  */
 export declare function propertyKeyGenerator<V>(arrayElement: V, propertyKey: keyof V): React.Key;
 /**
- * React requires 'key' data elements for list rendering, and we need to keep track of
- * what indexes are associated with keys, for the purposes of modifying array state, since
- * the mutate array api's require array indexes.
- *
- * This class holds mappings for all the arrays in the app state, and for each will return
- * a map of type Map<React.Key, number>, which relates React's unique keys to the index
- * which holds the array element.
- *
- * V the generic type of the values held in the array, eg, Array<V>
- */
-export declare class ArrayKeyIndexMap {
-    private static instance;
-    protected arrayMapper: Map<any[], Map<string | number, number>>;
-    protected keyGenMapper: Map<any[], ArrayKeyGeneratorFn<any>>;
-    static get: () => ArrayKeyIndexMap;
-    getOrCreateKeyIndexMap<V>(array: Array<V>, keyGenerator: ArrayKeyGeneratorFn<V>): Map<React.Key, number>;
-    getKeyGeneratorFn<V>(array: Array<V>): ArrayKeyGeneratorFn<V>;
-    size(): number;
-    get<V>(array: Array<V>): Map<React.Key, number>;
-    hasKeyIndexMap<V>(array: Array<V>): boolean;
-    /**
-     * Creates the key index map, then inserts into it and the keyGenMapper
-     * @param {Array<V>} array
-     * @param {ArrayKeyGeneratorFn<V>} keyGenerator
-     * @returns {Map<React.Key, number>} the key/index map
-     */
-    protected populateMaps<V>(array: Array<V>, keyGenerator: ArrayKeyGeneratorFn<V>): Map<React.Key, number>;
-    deleteFromMaps<V>(array: Array<V>): boolean;
-}
-/**
  * Standalone data structure: for each array in state, maps React list keys to array indexes.
  *
  * - singleton created at startup

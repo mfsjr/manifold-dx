@@ -40,6 +40,7 @@ var addr1 = {
     state: 'PA',
     zip: '19104'
 };
+var newAddr1 = __assign({}, addr1);
 var addr2 = {
     id: 2,
     street: '11 Genung Court',
@@ -222,7 +223,7 @@ describe('ContainerComponent instantiation, mount, update, unmount', function ()
         expect(container.average).toBeGreaterThan(100);
     });
     test('add to the addresses', function () {
-        addressesActionCreator.insert(0, addr1).process();
+        addressesActionCreator.insert(0, addr1).forEach(function (action) { return action.process(); });
         expect(nameState.addresses[0].street).toBe(addr1.street);
     });
     test('append to the addresses', function () {
@@ -239,15 +240,15 @@ describe('ContainerComponent instantiation, mount, update, unmount', function ()
         var addr1MappingAction = actionCreators_1.getMappingCreator(nameState, 'addresses', addressesOptions)
             .createArrayIndexMappingAction(0, addr1Container, 'address');
         // verify that we have an entry in ArrayKeyIndexMap
-        var map = actions_1.ArrayKeyIndexMap.get().get(nameState.addresses);
-        expect(map).toBeTruthy();
-        expect(map.size).toBe(nameState.addresses.length);
+        // let map = ArrayKeyIndexMap.get().get(nameState.addresses);
+        // expect(map).toBeTruthy();
+        // expect(map.size).toBe(nameState.addresses.length);
         // execute the action
         addr1MappingAction.process();
         var manager = Manager_1.Manager.get(nameState);
         var fullpath = manager.getFullPath(nameState, 'addresses');
         // let key1 = keyGen(addr1);
-        var index1 = actions_1.ArrayKeyIndexMap.get().get(nameState.addresses).get(keyGen(addr1));
+        var index1 = 0; // ArrayKeyIndexMap.get().get(nameState.addresses).get(keyGen(addr1));
         var mapping1 = Manager_1.Manager.get(nameState).getMappingState().getPathMappings(fullpath, index1);
         // 'mapping' is possibly undefined, so cast it and then test it
         mapping1 = mapping1;
@@ -264,7 +265,7 @@ describe('ContainerComponent instantiation, mount, update, unmount', function ()
         addr2MappingAction.process();
         // verify that the ArrayKeyIndexMap is holding a reference from the key for addr2 to the index, which can
         // be used to get the path mappings from MappingState.
-        var index2 = actions_1.ArrayKeyIndexMap.get().get(nameState.addresses).get(keyGen(addr2));
+        var index2 = 1; // ArrayKeyIndexMap.get().get(nameState.addresses).get(keyGen(addr2));
         var mapping2 = Manager_1.Manager.get(nameState).getMappingState().getPathMappings(fullpath, index2);
         // 'mapping' is possibly undefined, so cast it and then test it
         mapping2 = mapping2;
@@ -277,9 +278,10 @@ describe('ContainerComponent instantiation, mount, update, unmount', function ()
         expect(mapping1 === mapping1a).toBeTruthy();
     });
     test('updating the state array index value should update address1Container and its properties', function () {
-        var newAddr1 = __assign({}, addr1);
         newAddr1.street = '16 Genung Ct';
-        addressesActionCreator.update(addr1, newAddr1).process();
+        expect(address1Container.viewProps["addresses"]).toBeUndefined();
+        addressesActionCreator.update(0, newAddr1).process();
+        expect(address1Container.viewProps["addresses"]).toBeUndefined();
         var updatedContainers = Manager_1.Manager.get(nameState).getActionProcessorAPI().getUpdatedComponents();
         // check that our container is among those that were updated
         expect(updatedContainers.length).toBeGreaterThan(0);
@@ -288,10 +290,31 @@ describe('ContainerComponent instantiation, mount, update, unmount', function ()
         expect(nameState.addresses[0].street).toBe(newAddr1.street);
         // verify that the prop that was mapped from the state was also updated
         expect(address1Container.viewProps.address).toBe(newAddr1);
+        // addr1 = newAddr1;
     });
-    // test('inserting a new element into index 0 should', () => {
-    //
-    // });
+    test('inserting a new element into index 0 should result in container remapping props to state', function () {
+        expect(nameState.addresses[0].street).toBe(newAddr1.street);
+        // all containers that have been mapped should have their props updated to reflect the new state array insert
+        var addr0 = {
+            id: 0,
+            street: '13 Lily Pond Lane',
+            city: 'Katonah',
+            state: 'NY',
+            zip: '21039'
+        };
+        var insertActions = addressesActionCreator.insert(0, addr0);
+        (_a = Manager_1.Manager.get(nameState)).actionProcess.apply(_a, insertActions);
+        // verify that state was updated
+        expect(nameState.addresses[0].street).toBe(addr0.street);
+        expect(nameState.addresses[1].street).toBe(newAddr1.street);
+        // verify that the prop that was mapped from the state was also updated
+        // expect(address1Container.viewProps[`addresses`]).toBeUndefined();
+        expect(address1Container.viewProps.address).toBe(addr0);
+        var deleteAction = addressesActionCreator.remove(0);
+        deleteAction.process();
+        expect(nameState.addresses[0].street).toBe(newAddr1.street);
+        var _a;
+    });
     // test('deleting an element from the addresses array re-maps the array and its containers', () => {
     //   //
     // });

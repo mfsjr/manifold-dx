@@ -1,6 +1,6 @@
 import { StateObject } from '../';
 import {
-  Action, ActionId, ArrayKeyGeneratorFn, ArrayKeyIndexMap, ArrayMutateAction, DispatchType, MappingAction,
+  Action, ActionId, ArrayKeyGeneratorFn, ArrayMutateAction, DispatchType, MappingAction,
   StateCrudAction
 } from './actions';
 import { ContainerComponent } from '../components/ContainerComponent';
@@ -122,22 +122,22 @@ export class ArrayCrudActionCreator<S extends StateObject, K extends keyof S, V 
     this.keyGenerator = keyGenerator;
   }
 
-  /**
-   * Note that we are finding the index of this from a map (not scanning).
-   * We throw if this.valuesArray is not found in arrayKeyIndexMap, likewise if the this.keyIndexMap does not
-   * contain the key calculated by this.keyGenerator.
-   * @param {V} value
-   * @returns {number}
-   */
-  protected getIndexOf(value: V): number {
-    let keyIndexMap = ArrayKeyIndexMap.get().getOrCreateKeyIndexMap(this.valuesArray, this.keyGenerator);
-    let key = this.keyGenerator(value);
-    let index = keyIndexMap.get(key);
-    if (index === undefined) {
-      throw new Error(`failed to find index in array ${this.propertyKey} for key ${key}`);
-    }
-    return index;
-  }
+  // /**
+  //  * Note that we are finding the index of this from a map (not scanning).
+  //  * We throw if this.valuesArray is not found in arrayKeyIndexMap, likewise if the this.keyIndexMap does not
+  //  * contain the key calculated by this.keyGenerator.
+  //  * @param {V} value
+  //  * @returns {number}
+  //  */
+  // protected getIndexOf(value: V): number {
+  //   let keyIndexMap = ArrayKeyIndexMap.get().getOrCreateKeyIndexMap(this.valuesArray, this.keyGenerator);
+  //   let key = this.keyGenerator(value);
+  //   let index = keyIndexMap.get(key);
+  //   if (index === undefined) {
+  //     throw new Error(`failed to find index in array ${this.propertyKey} for key ${key}`);
+  //   }
+  //   return index;
+  // }
 
   public append(value: V): Action {
     return this.insert(this.valuesArray.length, value)[0];
@@ -204,25 +204,26 @@ export class ArrayCrudActionCreator<S extends StateObject, K extends keyof S, V 
     //   ActionId.INSERT_PROPERTY, this.parent, this.propertyKey, index, this.valuesArray, this.keyGenerator, value);
   }
 
-  public update(oldValue: V, newValue: V): Action {
-    let index = this.getIndexOf(oldValue);
+  public update(index: number, newValue: V): Action {
+    // let index = this.getIndexOf(oldValue);
     return new ArrayMutateAction(
       ActionId.UPDATE_PROPERTY, this.parent, this.propertyKey, index, this.valuesArray, this.keyGenerator, newValue);
   }
 
-  public remove(value: V): Action {
-    let index = this.getIndexOf(value);
-    let newArray: Array<V> & S[K] = this.valuesArray.slice(0);
-    newArray.splice(index, 1);
-
-    let result = new StateCrudAction(ActionId.UPDATE_PROPERTY, this.parent, this.propertyKey, newArray);
-    result.postHook = () => {
-      ArrayKeyIndexMap.get().deleteFromMaps(this.valuesArray);
-      this.valuesArray = newArray;
-    };
-    return result;
+  public remove(index: number): Action {
+    // let value: V = this.valuesArray[index];
     // let index = this.getIndexOf(value);
-    // return new ArrayMutateAction(ActionId.DELETE_PROPERTY, this.parent, this.propertyKey, index, this.valuesArray);
+    let result = new ArrayMutateAction(
+      ActionId.DELETE_PROPERTY, this.parent, this.propertyKey, index, this.valuesArray,
+      this.keyGenerator, undefined);
+
+    // result.postHook = () => {
+    //   let map = ArrayKeyIndexMap.get().get(this.valuesArray);
+    //   let key = this.keyGenerator(value);
+    //   map.delete(key);
+    // };
+
+    return result;
   }
 }
 

@@ -246,89 +246,89 @@ export function propertyKeyGenerator<V>(arrayElement: V, propertyKey: keyof V): 
   throw new Error(message);
 }
 
-/**
- * React requires 'key' data elements for list rendering, and we need to keep track of
- * what indexes are associated with keys, for the purposes of modifying array state, since
- * the mutate array api's require array indexes.
- *
- * This class holds mappings for all the arrays in the app state, and for each will return
- * a map of type Map<React.Key, number>, which relates React's unique keys to the index
- * which holds the array element.
- *
- * V the generic type of the values held in the array, eg, Array<V>
- */
-export class ArrayKeyIndexMap {
-
-  private static instance: ArrayKeyIndexMap;
-  /* tslint:disable:no-any */
-  protected arrayMapper = new Map<Array<any>, Map<React.Key, number>>();
-  protected keyGenMapper = new Map<Array<any>, ArrayKeyGeneratorFn<any>>();
-  /* tslint:enable:no-any */
-
-  public static get = function(): ArrayKeyIndexMap {
-    if (!ArrayKeyIndexMap.instance) {
-      ArrayKeyIndexMap.instance = new ArrayKeyIndexMap();
-    }
-    return ArrayKeyIndexMap.instance;
-  };
-
-  public getOrCreateKeyIndexMap<V>(array: Array<V>, keyGenerator: ArrayKeyGeneratorFn<V>): Map<React.Key, number> {
-    let keyIndexMap = this.arrayMapper.get(array);
-    if (!keyIndexMap) {
-      keyIndexMap = this.populateMaps(array, keyGenerator);
-      this.arrayMapper.set(array, keyIndexMap);
-    }
-    return keyIndexMap;
-  }
-
-  public getKeyGeneratorFn<V>(array: Array<V>): ArrayKeyGeneratorFn<V> {
-    let result = this.keyGenMapper.get(array);
-    if (!result) {
-      throw new Error(`Failed to find key gen fn for array`);
-    }
-    return result;
-  }
-
-  public size(): number {
-    return this.arrayMapper.size;
-  }
-
-  public get<V>(array: Array<V>): Map<React.Key, number> {
-    let result = this.arrayMapper.get(array);
-    if (!result) {
-      throw new Error(`Failed to find map for array`);
-    }
-    return result;
-  }
-
-  public hasKeyIndexMap<V>(array: Array<V>): boolean {
-    return this.arrayMapper.has(array) && this.keyGenMapper.has(array);
-  }
-
-  /**
-   * Creates the key index map, then inserts into it and the keyGenMapper
-   * @param {Array<V>} array
-   * @param {ArrayKeyGeneratorFn<V>} keyGenerator
-   * @returns {Map<React.Key, number>} the key/index map
-   */
-  protected populateMaps<V>(array: Array<V>, keyGenerator: ArrayKeyGeneratorFn<V>): Map<React.Key, number> {
-    this.keyGenMapper.set(array, keyGenerator);
-    let map = new Map<React.Key, number>();
-    array.forEach((value, index, values) => {
-      let reactKey = keyGenerator(value, index, values);
-      if (map.has(reactKey)) {
-        throw new Error(`Duplicate React key calculated at index ${index}, key=${reactKey}`);
-      }
-      map.set(reactKey, index);
-    });
-    return map;
-  }
-
-  public deleteFromMaps<V>(array: Array<V>): boolean {
-    this.keyGenMapper.delete(array);
-    return this.arrayMapper.delete(array);
-  }
-}
+// /**
+//  * React requires 'key' data elements for list rendering, and we need to keep track of
+//  * what indexes are associated with keys, for the purposes of modifying array state, since
+//  * the mutate array api's require array indexes.
+//  *
+//  * This class holds mappings for all the arrays in the app state, and for each will return
+//  * a map of type Map<React.Key, number>, which relates React's unique keys to the index
+//  * which holds the array element.
+//  *
+//  * V the generic type of the values held in the array, eg, Array<V>
+//  */
+// export class ArrayKeyIndexMap {
+//
+//   private static instance: ArrayKeyIndexMap;
+//   /* tslint:disable:no-any */
+//   protected arrayMapper = new Map<Array<any>, Map<React.Key, number>>();
+//   protected keyGenMapper = new Map<Array<any>, ArrayKeyGeneratorFn<any>>();
+//   /* tslint:enable:no-any */
+//
+//   public static get = function(): ArrayKeyIndexMap {
+//     if (!ArrayKeyIndexMap.instance) {
+//       ArrayKeyIndexMap.instance = new ArrayKeyIndexMap();
+//     }
+//     return ArrayKeyIndexMap.instance;
+//   };
+//
+//   public getOrCreateKeyIndexMap<V>(array: Array<V>, keyGenerator: ArrayKeyGeneratorFn<V>): Map<React.Key, number> {
+//     let keyIndexMap = this.arrayMapper.get(array);
+//     if (!keyIndexMap) {
+//       keyIndexMap = this.populateMaps(array, keyGenerator);
+//       this.arrayMapper.set(array, keyIndexMap);
+//     }
+//     return keyIndexMap;
+//   }
+//
+//   public getKeyGeneratorFn<V>(array: Array<V>): ArrayKeyGeneratorFn<V> {
+//     let result = this.keyGenMapper.get(array);
+//     if (!result) {
+//       throw new Error(`Failed to find key gen fn for array`);
+//     }
+//     return result;
+//   }
+//
+//   public size(): number {
+//     return this.arrayMapper.size;
+//   }
+//
+//   public get<V>(array: Array<V>): Map<React.Key, number> {
+//     let result = this.arrayMapper.get(array);
+//     if (!result) {
+//       throw new Error(`Failed to find map for array`);
+//     }
+//     return result;
+//   }
+//
+//   public hasKeyIndexMap<V>(array: Array<V>): boolean {
+//     return this.arrayMapper.has(array) && this.keyGenMapper.has(array);
+//   }
+//
+//   /**
+//    * Creates the key index map, then inserts into it and the keyGenMapper
+//    * @param {Array<V>} array
+//    * @param {ArrayKeyGeneratorFn<V>} keyGenerator
+//    * @returns {Map<React.Key, number>} the key/index map
+//    */
+//   protected populateMaps<V>(array: Array<V>, keyGenerator: ArrayKeyGeneratorFn<V>): Map<React.Key, number> {
+//     this.keyGenMapper.set(array, keyGenerator);
+//     let map = new Map<React.Key, number>();
+//     array.forEach((value, index, values) => {
+//       let reactKey = keyGenerator(value, index, values);
+//       if (map.has(reactKey)) {
+//         throw new Error(`Duplicate React key calculated at index ${index}, key=${reactKey}`);
+//       }
+//       map.set(reactKey, index);
+//     });
+//     return map;
+//   }
+//
+//   public deleteFromMaps<V>(array: Array<V>): boolean {
+//     this.keyGenMapper.delete(array);
+//     return this.arrayMapper.delete(array);
+//   }
+// }
 
 /**
  * Standalone data structure: for each array in state, maps React list keys to array indexes.
@@ -541,7 +541,7 @@ export class MappingAction
       throw new Error(`Can't map to an undefined array index ${_index} at ${fullpath}`);
     }
     // initialize the map using current state values
-    ArrayKeyIndexMap.get().getOrCreateKeyIndexMap(_propArray, _keyGen);
+    // ArrayKeyIndexMap.get().getOrCreateKeyIndexMap(_propArray, _keyGen);
     this.index = _index;
     this.keyGen = _keyGen;
     this.propArray = _propArray;

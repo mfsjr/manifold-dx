@@ -2,7 +2,7 @@ import { createTestStore, createNameContainer, TestState, NameState, Address } f
 import { Name } from './testHarness';
 import * as React from 'react';
 import { ContainerComponent } from '../src/components/ContainerComponent';
-import { Action, ActionId, AnyMappingAction, ArrayKeyIndexMap, StateCrudAction } from '../src/actions/actions';
+import { Action, ActionId, AnyMappingAction, StateCrudAction } from '../src/actions/actions';
 import { Store, StateObject } from '../src/types/State';
 import { Manager } from '../src/types/Manager';
 import { getMappingCreator } from '../src/actions/actionCreators';
@@ -266,15 +266,15 @@ describe('ContainerComponent instantiation, mount, update, unmount', () => {
       .createArrayIndexMappingAction(0, addr1Container, 'address');
 
     // verify that we have an entry in ArrayKeyIndexMap
-    let map = ArrayKeyIndexMap.get().get(nameState.addresses);
-    expect(map).toBeTruthy();
-    expect(map.size).toBe(nameState.addresses.length);
+    // let map = ArrayKeyIndexMap.get().get(nameState.addresses);
+    // expect(map).toBeTruthy();
+    // expect(map.size).toBe(nameState.addresses.length);
     // execute the action
     addr1MappingAction.process();
     let manager = Manager.get(nameState);
     let fullpath = manager.getFullPath(nameState, 'addresses');
     // let key1 = keyGen(addr1);
-    let index1 = ArrayKeyIndexMap.get().get(nameState.addresses).get(keyGen(addr1));
+    let index1 = 0; // ArrayKeyIndexMap.get().get(nameState.addresses).get(keyGen(addr1));
     let mapping1 = Manager.get(nameState).getMappingState().getPathMappings(fullpath, index1);
 
     // 'mapping' is possibly undefined, so cast it and then test it
@@ -294,7 +294,7 @@ describe('ContainerComponent instantiation, mount, update, unmount', () => {
 
     // verify that the ArrayKeyIndexMap is holding a reference from the key for addr2 to the index, which can
     // be used to get the path mappings from MappingState.
-    let index2 = ArrayKeyIndexMap.get().get(nameState.addresses).get(keyGen(addr2));
+    let index2 = 1; // ArrayKeyIndexMap.get().get(nameState.addresses).get(keyGen(addr2));
     let mapping2 = Manager.get(nameState).getMappingState().getPathMappings(fullpath, index2);
 
     // 'mapping' is possibly undefined, so cast it and then test it
@@ -311,7 +311,7 @@ describe('ContainerComponent instantiation, mount, update, unmount', () => {
   test('updating the state array index value should update address1Container and its properties', () => {
     newAddr1.street = '16 Genung Ct';
     expect(address1Container.viewProps[`addresses`]).toBeUndefined();
-    addressesActionCreator.update(addr1, newAddr1).process();
+    addressesActionCreator.update(0, newAddr1).process();
     expect(address1Container.viewProps[`addresses`]).toBeUndefined();
     let updatedContainers = Manager.get(nameState).getActionProcessorAPI().getUpdatedComponents();
     // check that our container is among those that were updated
@@ -342,6 +342,11 @@ describe('ContainerComponent instantiation, mount, update, unmount', () => {
     // verify that the prop that was mapped from the state was also updated
     // expect(address1Container.viewProps[`addresses`]).toBeUndefined();
     expect(address1Container.viewProps.address).toBe(addr0);
+
+    let deleteAction = addressesActionCreator.remove(0);
+    deleteAction.process();
+
+    expect(nameState.addresses[0].street).toBe(newAddr1.street);
 
   });
   // test('deleting an element from the addresses array re-maps the array and its containers', () => {

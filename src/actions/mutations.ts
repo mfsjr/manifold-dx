@@ -1,8 +1,7 @@
-import { ActionId, ArrayKeyIndexMap } from './actions';
+import { ActionId } from './actions';
 import * as _ from 'lodash';
 import { MutationError } from '../types/StateMutationCheck';
 import { JSON_replaceCyclicParent, StateObject, Store } from '../types/State';
-import { Manager } from '../types/Manager';
 
 /* tslint:disable:no-any */
 let validateArrayIndex = function(actionType: ActionId, ra: Array<any>, index: number,  propertyName: string) {
@@ -111,17 +110,6 @@ export function mutateValue<S extends StateObject, K extends keyof S>
       // Let's be rigorous until we can't be (or until VM's address this, and they've started to)
       let oldValue: S[K] = stateObject[propertyName];
       _.unset(stateObject, propertyName);
-      // if oldValue is an array, the array needs to be removed from the ArrayKeyIndexMap.get()
-      if (oldValue instanceof Array) {
-        if (!ArrayKeyIndexMap.get().deleteFromMaps(oldValue)) {
-          let fullPath = Manager.get(stateObject).getFullPath(stateObject, propertyName);
-          let message = `Failed to delete array from ArrayKeyIndexMap.get() at ${fullPath}`;
-          /* tslint:disable:no-console */
-          console.log(message);
-          /* tslint:enable:no-console */
-          // throw Error(message);
-        }
-      }
       // TODO: is this really necessary?
       actionImmutabilityCheck(actionType, oldValue, value, propertyName);
 

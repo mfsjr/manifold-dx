@@ -6,7 +6,6 @@ import {
   StateCrudAction,
   MappingAction,
   StateAction,
-  ActionId,
   AnyMappingAction
 } from '../actions/actions';
 import * as _ from 'lodash';
@@ -207,7 +206,7 @@ export abstract class ContainerComponent<CP, VP, A extends StateObject>
             } else if (action instanceof ArrayMutateAction) {
               // if we are mutating the list element, we only want to change that index
               // otherwise its an insert/delete and we want to update the whole array
-              if (action.type === ActionId.UPDATE_PROPERTY) {
+              if ( mapping.index !== undefined ) {
                 _viewProps[mapping.targetPropName] = action.value;
               } else {
                 _viewProps[mapping.targetPropName] = action.valuesArray;

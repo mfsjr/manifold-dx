@@ -270,8 +270,9 @@ describe('ContainerComponent instantiation, mount, update, unmount', () => {
     addr1MappingAction.process();
     let manager = Manager.get(nameState);
     let fullpath = manager.getFullPath(nameState, 'addresses');
-    let key1 = keyGen(addr1);
-    let mapping1 = Manager.get(nameState).getMappingState().getPathMappings(fullpath, key1);
+    // let key1 = keyGen(addr1);
+    let index1 = ArrayKeyIndexMap.get().get(nameState.addresses).get(keyGen(addr1));
+    let mapping1 = Manager.get(nameState).getMappingState().getPathMappings(fullpath, index1);
 
     // 'mapping' is possibly undefined, so cast it and then test it
     mapping1 = mapping1 as AnyMappingAction[];
@@ -287,8 +288,11 @@ describe('ContainerComponent instantiation, mount, update, unmount', () => {
     let addr2MappingAction = getMappingCreator(nameState, 'addresses', addressesOptions)
       .createArrayIndexMappingAction(1, addr2Container, 'address');
     addr2MappingAction.process();
-    let key2 = keyGen(addr2);
-    let mapping2 = Manager.get(nameState).getMappingState().getPathMappings(fullpath, key2);
+
+    // verify that the ArrayKeyIndexMap is holding a reference from the key for addr2 to the index, which can
+    // be used to get the path mappings from MappingState.
+    let index2 = ArrayKeyIndexMap.get().get(nameState.addresses).get(keyGen(addr2));
+    let mapping2 = Manager.get(nameState).getMappingState().getPathMappings(fullpath, index2);
 
     // 'mapping' is possibly undefined, so cast it and then test it
     mapping2 = mapping2 as AnyMappingAction[];
@@ -298,7 +302,7 @@ describe('ContainerComponent instantiation, mount, update, unmount', () => {
     expect(mapping2[mapping2.length - 1].component).toBe(addr2Container);
 
     // mapping1 should be unchanged
-    let mapping1a = Manager.get(nameState).getMappingState().getPathMappings(fullpath, key1);
+    let mapping1a = Manager.get(nameState).getMappingState().getPathMappings(fullpath, index1);
     expect(mapping1 === mapping1a).toBeTruthy();
   });
   test('updating the state array index value should update address1Container and its properties', () => {
@@ -314,9 +318,9 @@ describe('ContainerComponent instantiation, mount, update, unmount', () => {
     // verify that the prop that was mapped from the state was also updated
     expect(address1Container.viewProps.address).toBe(newAddr1);
   });
-  test('inserting a new element into index 0 should', () => {
-
-  });
+  // test('inserting a new element into index 0 should', () => {
+  //
+  // });
   // test('deleting an element from the addresses array re-maps the array and its containers', () => {
   //   //
   // });
@@ -405,6 +409,7 @@ describe('Standalone tests for instance of MappingState', () => {
   });
 
   test('Mapping the array after mapping an index of it', () => {
+    // a somewhat atypical sequence of doing things, but something that should be doable
     let addressesMapping = mappingState.getOrCreatePathMappings('addresses');
     expect(addressesMapping).toBeDefined();
 

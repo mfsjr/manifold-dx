@@ -1,15 +1,10 @@
-/// <reference types="react" />
 import { AnyMappingAction } from '../actions/actions';
-export interface KeyProp {
-    reactKey: React.Key;
-    prop: string;
-}
 /**
  * Array maps hold all the mappings associated with an array, including the array itself.
- * Children of the array are reference with React.Key's, and the mapping for the array
+ * Children of the array are reference with number's, and the mapping for the array
  * is referred to by the null key, so the value for the null key should always exist.
  */
-export declare type ArrayMap = Map<React.Key | null, AnyMappingAction[]>;
+export declare type ArrayMap = Map<number | null, AnyMappingAction[]>;
 /**
  * This class is called after state is updated, by using the path to the state that was updated
  * and getting the components that have been mapped to that path.
@@ -17,7 +12,7 @@ export declare type ArrayMap = Map<React.Key | null, AnyMappingAction[]>;
  * Path strings map to values defined by this type, which can refer to simple properties having
  * a list of React components that they update.
  *
- * Paths can also be used along with React.Keys, which are used to identify elements in lists,
+ * Paths can also be used along with numbers, which are used to identify elements in lists,
  * so that unique elements in lists can be identified for rendering.
  */
 export declare type PathMappingValue = AnyMappingAction[] | ArrayMap;
@@ -33,18 +28,18 @@ export declare class MappingState {
      * @returns {number}
      */
     getSize(): number;
-    getPathMappings(path: string, key?: React.Key): AnyMappingAction[] | undefined;
-    getOrCreatePathMappings(propFullPath: string, key?: React.Key): AnyMappingAction[];
+    getPathMappings(path: string, index?: number): AnyMappingAction[] | undefined;
+    getOrCreatePathMappings(propFullPath: string, index?: number): AnyMappingAction[];
     /**
      * If genericMappingAction is undefined, remove all mappings for the path.
      * If key is defined, its assumed the path is mapped to an array
      *
      * @param {string} _fullPath
      * @param {AnyMappingAction | undefined} genericMappingAction
-     * @param {React.Key} key
+     * @param {number} _index
      * @returns {number}
      */
-    removePathMapping(_fullPath: string, genericMappingAction: AnyMappingAction | undefined, key?: React.Key): number;
+    removePathMapping(_fullPath: string, genericMappingAction: AnyMappingAction | undefined, _index?: number): number;
     /**
      * If a state object is removed it will not be mapped directly, but it may have many child properties that are.
      *
@@ -59,8 +54,8 @@ export declare class MappingState {
      * Remove the entire path (and key if present) from the mapping state.
      *
      * @param {string} propPath
-     * @param {React.Key} key
+     * @param {number} index
      * @returns {boolean}
      */
-    removePath(propPath: string, key?: React.Key): number;
+    removePath(propPath: string, index?: number): number;
 }

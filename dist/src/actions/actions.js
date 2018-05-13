@@ -324,8 +324,9 @@ var ArrayMutateAction = /** @class */ (function (_super) {
             var fullpath = Manager_1.Manager.get(this.parent).getFullPath(this.parent, this.propertyName);
             // super.concatContainersFromMappingActions(containersBeingRendered);
             // // super.containersToRender(containersBeingRendered, arrayOptions);
-            var key = this.keyGen(this.valuesArray[this.index]);
-            var mappingActions = Manager_1.Manager.get(this.parent).getMappingState().getPathMappings(fullpath, key);
+            // let key = this.keyGen(this.valuesArray[this.index]);
+            var _index = this.index > -1 ? this.index : undefined;
+            var mappingActions = Manager_1.Manager.get(this.parent).getMappingState().getPathMappings(fullpath, _index);
             this.concatContainersFromMappingActions(containersBeingRendered, mappingActions);
         }
         else {
@@ -338,7 +339,9 @@ var ArrayMutateAction = /** @class */ (function (_super) {
         // annotateActionInState(this);
         var actionId = perform ? this.type : this.getUndoAction();
         var fullpath = Manager_1.Manager.get(this.parent).getFullPath(this.parent, this.propertyName);
-        this.mappingActions = Manager_1.Manager.get(this.parent).getMappingState().getPathMappings(fullpath) || [];
+        // let key = this.keyGen && this.index > -1 ? this.keyGen(this.valuesArray[this.index]) : undefined;
+        // NOTE that index is of type number, required, not possibly undefined or null
+        this.mappingActions = Manager_1.Manager.get(this.parent).getMappingState().getPathMappings(fullpath, this.index) || [];
         this.mutateResult = mutations_1.mutateArray(actionId, this.parent, this.valuesArray, this.value, this.propertyName, this.index);
         if (perform) {
             this.oldValue = this.mutateResult ? this.mutateResult.oldValue : undefined;
@@ -455,13 +458,15 @@ var MappingAction = /** @class */ (function (_super) {
         if (perform === void 0) { perform = true; }
         this.pristine = false;
         // If this action refers to an element at an array index, compute the key
-        var key = (this.propArray && this.keyGen && this.index > -1) ? this.keyGen(this.propArray[this.index]) : undefined;
+        // let key = (this.propArray && this.keyGen && this.index > -1) ?
+        // this.keyGen(this.propArray[this.index]) : undefined;
+        var _index = this.index > -1 ? this.index : undefined;
         if (perform) {
-            var components = Manager_1.Manager.get(this.parent).getMappingState().getOrCreatePathMappings(this.fullPath, key);
+            var components = Manager_1.Manager.get(this.parent).getMappingState().getOrCreatePathMappings(this.fullPath, _index);
             components.push(this);
         }
         else {
-            Manager_1.Manager.get(this.parent).getMappingState().removePathMapping(this.fullPath, this, key);
+            Manager_1.Manager.get(this.parent).getMappingState().removePathMapping(this.fullPath, this, _index);
         }
     };
     // on componentDidMount

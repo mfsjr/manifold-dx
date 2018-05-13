@@ -16,7 +16,7 @@ var MappingState = /** @class */ (function () {
     MappingState.prototype.getSize = function () {
         return this.pathMappings.size;
     };
-    MappingState.prototype.getPathMappings = function (path, key) {
+    MappingState.prototype.getPathMappings = function (path, index) {
         var pathResults = this.pathMappings.get(path);
         if (!pathResults) {
             return undefined;
@@ -25,14 +25,14 @@ var MappingState = /** @class */ (function () {
             return pathResults;
         }
         else if (pathResults instanceof Map) {
-            var _key = key ? key : null;
+            var _key = index ? index : null;
             return pathResults.get(_key);
         }
         throw Error("pathResults from " + path + " expected to be instanceof Array, or a Map");
     };
-    MappingState.prototype.getOrCreatePathMappings = function (propFullPath, key) {
-        var result = this.getPathMappings(propFullPath, key);
-        if (!key) {
+    MappingState.prototype.getOrCreatePathMappings = function (propFullPath, index) {
+        var result = this.getPathMappings(propFullPath, index);
+        if (!index) {
             if (!result) {
                 result = [];
                 this.pathMappings.set(propFullPath, result);
@@ -54,7 +54,7 @@ var MappingState = /** @class */ (function () {
                 keyMap = new Map();
                 result = [];
                 this.pathMappings.set(propFullPath, keyMap);
-                keyMap.set(key, result);
+                keyMap.set(index, result);
             }
             else {
                 // result has been defined, and we have a key, the property will have to be an array, our storage must be a map
@@ -64,17 +64,17 @@ var MappingState = /** @class */ (function () {
                     keyMap.set(null, result);
                     this.pathMappings.set(propFullPath, keyMap);
                     result = [];
-                    keyMap.set(key, result);
+                    keyMap.set(index, result);
                 }
                 else {
                     if (!(keyMap instanceof Map)) {
                         throw new Error("keyMap should be a Map");
                     }
                     // keyMap = result;
-                    result = keyMap.get(key);
+                    result = keyMap.get(index);
                     if (!result) {
                         result = [];
-                        keyMap.set(key, result);
+                        keyMap.set(index, result);
                     }
                 }
             }
@@ -87,13 +87,13 @@ var MappingState = /** @class */ (function () {
      *
      * @param {string} _fullPath
      * @param {AnyMappingAction | undefined} genericMappingAction
-     * @param {React.Key} key
+     * @param {number} _index
      * @returns {number}
      */
-    MappingState.prototype.removePathMapping = function (_fullPath, genericMappingAction, key) {
-        var containers = this.getPathMappings(_fullPath, key);
+    MappingState.prototype.removePathMapping = function (_fullPath, genericMappingAction, _index) {
+        var containers = this.getPathMappings(_fullPath, _index);
         if (containers) {
-            if (!key) {
+            if (!_index) {
                 if (genericMappingAction) {
                     var index = containers.indexOf(genericMappingAction);
                     if (index > -1) {
@@ -163,10 +163,10 @@ var MappingState = /** @class */ (function () {
      * Remove the entire path (and key if present) from the mapping state.
      *
      * @param {string} propPath
-     * @param {React.Key} key
+     * @param {number} index
      * @returns {boolean}
      */
-    MappingState.prototype.removePath = function (propPath, key) {
+    MappingState.prototype.removePath = function (propPath, index) {
         var result = this.pathMappings.get(propPath);
         if (!result) {
             return 0;
@@ -181,9 +181,9 @@ var MappingState = /** @class */ (function () {
         //   throw Error(`Type error trying to remove a key from a map at path ${propPath}`);
         // }
         var keyMap = result;
-        if (key) {
-            if (!keyMap.delete(key)) {
-                throw new Error("Failed to delete key " + key + " at propPath " + propPath);
+        if (index) {
+            if (!keyMap.delete(index)) {
+                throw new Error("Failed to delete key " + index + " at propPath " + propPath);
             }
         }
         else {

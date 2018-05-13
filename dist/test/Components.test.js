@@ -246,8 +246,9 @@ describe('ContainerComponent instantiation, mount, update, unmount', function ()
         addr1MappingAction.process();
         var manager = Manager_1.Manager.get(nameState);
         var fullpath = manager.getFullPath(nameState, 'addresses');
-        var key1 = keyGen(addr1);
-        var mapping1 = Manager_1.Manager.get(nameState).getMappingState().getPathMappings(fullpath, key1);
+        // let key1 = keyGen(addr1);
+        var index1 = actions_1.ArrayKeyIndexMap.get().get(nameState.addresses).get(keyGen(addr1));
+        var mapping1 = Manager_1.Manager.get(nameState).getMappingState().getPathMappings(fullpath, index1);
         // 'mapping' is possibly undefined, so cast it and then test it
         mapping1 = mapping1;
         expect(mapping1).toBeDefined();
@@ -261,8 +262,10 @@ describe('ContainerComponent instantiation, mount, update, unmount', function ()
         var addr2MappingAction = actionCreators_1.getMappingCreator(nameState, 'addresses', addressesOptions)
             .createArrayIndexMappingAction(1, addr2Container, 'address');
         addr2MappingAction.process();
-        var key2 = keyGen(addr2);
-        var mapping2 = Manager_1.Manager.get(nameState).getMappingState().getPathMappings(fullpath, key2);
+        // verify that the ArrayKeyIndexMap is holding a reference from the key for addr2 to the index, which can
+        // be used to get the path mappings from MappingState.
+        var index2 = actions_1.ArrayKeyIndexMap.get().get(nameState.addresses).get(keyGen(addr2));
+        var mapping2 = Manager_1.Manager.get(nameState).getMappingState().getPathMappings(fullpath, index2);
         // 'mapping' is possibly undefined, so cast it and then test it
         mapping2 = mapping2;
         expect(mapping2).toBeDefined();
@@ -270,17 +273,28 @@ describe('ContainerComponent instantiation, mount, update, unmount', function ()
         expect(mapping2[mapping2.length - 1].fullPath).toBe(fullpath);
         expect(mapping2[mapping2.length - 1].component).toBe(addr2Container);
         // mapping1 should be unchanged
-        var mapping1a = Manager_1.Manager.get(nameState).getMappingState().getPathMappings(fullpath, key1);
+        var mapping1a = Manager_1.Manager.get(nameState).getMappingState().getPathMappings(fullpath, index1);
         expect(mapping1 === mapping1a).toBeTruthy();
     });
-    test('updating the state array index value should update address1Container', function () {
+    test('updating the state array index value should update address1Container and its properties', function () {
         var newAddr1 = __assign({}, addr1);
         newAddr1.street = '16 Genung Ct';
         addressesActionCreator.update(addr1, newAddr1).process();
         var updatedContainers = Manager_1.Manager.get(nameState).getActionProcessorAPI().getUpdatedComponents();
+        // check that our container is among those that were updated
         expect(updatedContainers.length).toBeGreaterThan(0);
         expect(updatedContainers.indexOf(address1Container)).toBeGreaterThan(-1);
+        // verify that state was updated
+        expect(nameState.addresses[0].street).toBe(newAddr1.street);
+        // verify that the prop that was mapped from the state was also updated
+        expect(address1Container.viewProps.address).toBe(newAddr1);
     });
+    // test('inserting a new element into index 0 should', () => {
+    //
+    // });
+    // test('deleting an element from the addresses array re-maps the array and its containers', () => {
+    //   //
+    // });
     test('unmount should result in bowler being removed from the still-present component state mapping value ' +
         '(array of commentsUI)', function () {
         container.componentWillUnmount();
@@ -349,6 +363,7 @@ describe('Standalone tests for instance of MappingState', function () {
         expect(addressesMapping).toBeUndefined();
     });
     test('Mapping the array after mapping an index of it', function () {
+        // a somewhat atypical sequence of doing things, but something that should be doable
         var addressesMapping = mappingState.getOrCreatePathMappings('addresses');
         expect(addressesMapping).toBeDefined();
         // the previously mapped index should still be there

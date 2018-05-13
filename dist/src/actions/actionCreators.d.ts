@@ -71,6 +71,20 @@ export declare class ArrayCrudActionCreator<S extends StateObject, K extends key
      */
     protected getIndexOf(value: V): number;
     append(value: V): Action;
+    /**
+     * Recreate the entire array and update the array property.
+     *
+     * Mapping actions will remain unchanged, but the value of all the mapped state, and container view properties will
+     * be updated.
+     *
+     * If the additional object at the end of the array is to be shown, an additional mapping action would have to be
+     * performed, a {@link ContainerComponent} would be required, etc.
+     *
+     *
+     * @param {number} index
+     * @param {V} value
+     * @returns {Action}
+     */
     insert(index: number, value: V): Action;
     update(oldValue: V, newValue: V): Action;
     remove(value: V): Action;

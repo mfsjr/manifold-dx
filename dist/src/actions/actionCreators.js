@@ -124,6 +124,20 @@ var ArrayCrudActionCreator = /** @class */ (function () {
     ArrayCrudActionCreator.prototype.append = function (value) {
         return this.insert(this.valuesArray.length, value);
     };
+    /**
+     * Recreate the entire array and update the array property.
+     *
+     * Mapping actions will remain unchanged, but the value of all the mapped state, and container view properties will
+     * be updated.
+     *
+     * If the additional object at the end of the array is to be shown, an additional mapping action would have to be
+     * performed, a {@link ContainerComponent} would be required, etc.
+     *
+     *
+     * @param {number} index
+     * @param {V} value
+     * @returns {Action}
+     */
     ArrayCrudActionCreator.prototype.insert = function (index, value) {
         var newArray = this.valuesArray.slice(0);
         newArray.splice(index, 0, value);

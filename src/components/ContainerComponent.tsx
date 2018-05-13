@@ -224,26 +224,19 @@ export abstract class ContainerComponent<CP, VP, A extends StateObject>
   componentDidMount() {
     // subscribe
     this.appendToMappingActions(this.mappingActions);
-    // this.mappingActions = this.mappingActions.concat(this.appendMappingActions());
-    // this.mappingActions = this.mappingActions ? this.mappingActions : this.createMappingActions();
     Manager.get(this.appData).actionProcess(...this.mappingActions);
   }
 
   componentWillUnmount() {
     if (this.mappingActions) {
-
       // unsubscribe from stateMappingActions, we need to undo these specific actions
-        /* tslint:disable:no-any */
       let unmappingActions: AnyMappingAction[] = [];
-        /* tslint:enable:no-any */
       this.mappingActions.forEach((action) => {
         let unmappingAction = action.clone();
         unmappingAction.pristine = true;
         unmappingAction.type = action.getUndoAction();
         unmappingActions.push(unmappingAction);
-
       });
-
       Manager.get(this.appData).actionUndo(0, ...unmappingActions);
     }
   }

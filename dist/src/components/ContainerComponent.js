@@ -150,23 +150,23 @@ var ContainerComponent = /** @class */ (function (_super) {
      * which is invoked by the framework.
      */
     ContainerComponent.prototype.updateViewPropsUsingMappings = function (executedActions) {
-        var _this = this;
+        var _viewProps = this.viewProps;
         executedActions.forEach(function (action) {
             if (action instanceof actions_1.StateAction) {
                 var mappingActions = action.mappingActions;
                 if (mappingActions && mappingActions.length) {
                     mappingActions.forEach(function (mapping) {
                         if (action instanceof actions_1.StateCrudAction) {
-                            _this.viewProps[mapping.targetPropName] = action.value;
+                            _viewProps[mapping.targetPropName] = action.value;
                         }
                         else if (action instanceof _1.ArrayMutateAction) {
                             // if we are mutating the list element, we only want to change that index
                             // otherwise its an insert/delete and we want to update the whole array
                             if (action.type === actions_1.ActionId.UPDATE_PROPERTY) {
-                                _this.viewProps[mapping.targetPropName] = action.value;
+                                _viewProps[mapping.targetPropName] = action.value;
                             }
                             else {
-                                _this.viewProps[mapping.targetPropName] = action.valuesArray;
+                                _viewProps[mapping.targetPropName] = action.valuesArray;
                             }
                         }
                     });
@@ -178,17 +178,13 @@ var ContainerComponent = /** @class */ (function (_super) {
     ContainerComponent.prototype.componentDidMount = function () {
         // subscribe
         this.appendToMappingActions(this.mappingActions);
-        // this.mappingActions = this.mappingActions.concat(this.appendMappingActions());
-        // this.mappingActions = this.mappingActions ? this.mappingActions : this.createMappingActions();
         (_a = Manager_1.Manager.get(this.appData)).actionProcess.apply(_a, this.mappingActions);
         var _a;
     };
     ContainerComponent.prototype.componentWillUnmount = function () {
         if (this.mappingActions) {
             // unsubscribe from stateMappingActions, we need to undo these specific actions
-            /* tslint:disable:no-any */
             var unmappingActions_1 = [];
-            /* tslint:enable:no-any */
             this.mappingActions.forEach(function (action) {
                 var unmappingAction = action.clone();
                 unmappingAction.pristine = true;

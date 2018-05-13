@@ -1,15 +1,11 @@
 import { AnyMappingAction } from '../actions/actions';
 
-export interface KeyProp {
-  reactKey: React.Key;
-  prop: string;
-}
 /**
  * Array maps hold all the mappings associated with an array, including the array itself.
- * Children of the array are reference with React.Key's, and the mapping for the array
+ * Children of the array are reference with number's, and the mapping for the array
  * is referred to by the null key, so the value for the null key should always exist.
  */
-export type ArrayMap = Map<React.Key | null, AnyMappingAction[]>;
+export type ArrayMap = Map<number | null, AnyMappingAction[]>;
 /**
  * This class is called after state is updated, by using the path to the state that was updated
  * and getting the components that have been mapped to that path.
@@ -17,7 +13,7 @@ export type ArrayMap = Map<React.Key | null, AnyMappingAction[]>;
  * Path strings map to values defined by this type, which can refer to simple properties having
  * a list of React components that they update.
  *
- * Paths can also be used along with React.Keys, which are used to identify elements in lists,
+ * Paths can also be used along with numbers, which are used to identify elements in lists,
  * so that unique elements in lists can be identified for rendering.
  */
 export type PathMappingValue = AnyMappingAction[] | ArrayMap;
@@ -38,7 +34,7 @@ export class MappingState {
     return this.pathMappings.size;
   }
 
-  public getPathMappings(path: string, key?: React.Key): AnyMappingAction[] | undefined {
+  public getPathMappings(path: string, index?: number): AnyMappingAction[] | undefined {
     let pathResults = this.pathMappings.get(path);
     if (!pathResults) {
       return undefined;
@@ -46,16 +42,16 @@ export class MappingState {
     if (pathResults instanceof Array) {
       return pathResults;
     } else if (pathResults instanceof Map) {
-      let _key = key ? key : null;
+      let _key = index ? index : null;
       return pathResults.get(_key);
     }
 
     throw Error(`pathResults from ${path} expected to be instanceof Array, or a Map`);
   }
 
-  public getOrCreatePathMappings(propFullPath: string, key?: React.Key): AnyMappingAction[] {
-    let result = this.getPathMappings(propFullPath, key);
-    if (!key) {
+  public getOrCreatePathMappings(propFullPath: string, index?: number): AnyMappingAction[] {
+    let result = this.getPathMappings(propFullPath, index);
+    if (!index) {
       if (!result) {
         result = [];
         this.pathMappings.set(propFullPath, result);
@@ -72,29 +68,29 @@ export class MappingState {
       let keyMap = this.pathMappings.get(propFullPath);
       // TODO: clean up the types, return the same keymap for different key values (don't recreate the map)
       if (!keyMap) {
-        keyMap = new Map<React.Key | null, AnyMappingAction[]>();
+        keyMap = new Map<number | null, AnyMappingAction[]>();
         result = [];
         this.pathMappings.set(propFullPath, keyMap);
-        keyMap.set(key, result);
+        keyMap.set(index, result);
       } else {
         // result has been defined, and we have a key, the property will have to be an array, our storage must be a map
         if (keyMap instanceof Array) {
           result = keyMap;
-          keyMap = new Map<React.Key | null, AnyMappingAction[]>();
+          keyMap = new Map<number | null, AnyMappingAction[]>();
 
           keyMap.set(null, result);
           this.pathMappings.set(propFullPath, keyMap);
           result = [];
-          keyMap.set(key, result);
+          keyMap.set(index, result);
         } else { // the only other object that we put here is a map
           if ( !(keyMap instanceof Map) ) {
             throw new Error(`keyMap should be a Map`);
           }
           // keyMap = result;
-          result = keyMap.get(key);
+          result = keyMap.get(index);
           if (!result) {
             result = [];
-            keyMap.set(key, result);
+            keyMap.set(index, result);
           }
         }
       }
@@ -108,16 +104,16 @@ export class MappingState {
    *
    * @param {string} _fullPath
    * @param {AnyMappingAction | undefined} genericMappingAction
-   * @param {React.Key} key
+   * @param {number} _index
    * @returns {number}
    */
   public removePathMapping(
             _fullPath: string,
             genericMappingAction: AnyMappingAction | undefined,
-            key?: React.Key): number {
-    let containers = this.getPathMappings(_fullPath, key);
+            _index?: number): number {
+    let containers = this.getPathMappings(_fullPath, _index);
     if (containers) {
-      if (!key) {
+      if (!_index) {
         if (genericMappingAction) {
           let index = containers.indexOf(genericMappingAction);
           if (index > -1) {
@@ -185,10 +181,10 @@ export class MappingState {
    * Remove the entire path (and key if present) from the mapping state.
    *
    * @param {string} propPath
-   * @param {React.Key} key
+   * @param {number} index
    * @returns {boolean}
    */
-  public removePath(propPath: string, key?: React.Key): number {
+  public removePath(propPath: string, index?: number): number {
     let result = this.pathMappings.get(propPath);
     if (!result) {
       return 0;
@@ -203,9 +199,9 @@ export class MappingState {
     //   throw Error(`Type error trying to remove a key from a map at path ${propPath}`);
     // }
     let keyMap: ArrayMap = result;
-    if (key) {
-      if (!keyMap.delete(key)) {
-        throw new Error(`Failed to delete key ${key} at propPath ${propPath}`);
+    if (index) {
+      if (!keyMap.delete(index)) {
+        throw new Error(`Failed to delete key ${index} at propPath ${propPath}`);
       }
     } else {
       if (!this.pathMappings.delete(propPath)) {

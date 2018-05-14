@@ -77,8 +77,10 @@ exports.addressRowSfc = addressRowSfc;
  */
 var AddressContainer = /** @class */ (function (_super) {
     __extends(AddressContainer, _super);
-    function AddressContainer(addressProps) {
-        return _super.call(this, addressProps, testStore.getState(), addressRowSfc) || this;
+    function AddressContainer(addressProps, _displayName) {
+        var _this = _super.call(this, addressProps, testStore.getState(), addressRowSfc) || this;
+        _this.displayName = _displayName;
+        return _this;
     }
     /**
      * Note that in the case of array/list child containers,
@@ -183,6 +185,7 @@ describe('ContainerComponent instantiation, mount, update, unmount', function ()
     var addrKeyGen = function (_address) { return _address.id; };
     var addressesActionCreator = src_1.getArrayCrudCreator(nameState, nameState.addresses, addrKeyGen);
     var address1Container;
+    var address2Container;
     // let mappingActionCreator = getMappingCreator(nameState, container);
     // placeholder
     test('after mounting, the component state should have something in it', function () {
@@ -231,7 +234,7 @@ describe('ContainerComponent instantiation, mount, update, unmount', function ()
         expect(nameState.addresses[1].state).toBe(addr2.state);
     });
     test("Create a mapping action to an array index", function () {
-        var addr1Container = new AddressContainer({ address: addr1 });
+        var addr1Container = new AddressContainer({ address: addr1 }, 'addr1Container');
         address1Container = addr1Container;
         var keyGen = function (address) { return address.id; };
         // let addr1MappingAction = getMappingCreator(nameState, addr1Container)
@@ -239,34 +242,22 @@ describe('ContainerComponent instantiation, mount, update, unmount', function ()
         var addressesOptions = { keyGen: keyGen, array: nameState.addresses };
         var addr1MappingAction = actionCreators_1.getMappingCreator(nameState, 'addresses', addressesOptions)
             .createArrayIndexMappingAction(0, addr1Container, 'address');
-        // verify that we have an entry in ArrayKeyIndexMap
-        // let map = ArrayKeyIndexMap.get().get(nameState.addresses);
-        // expect(map).toBeTruthy();
-        // expect(map.size).toBe(nameState.addresses.length);
-        // execute the action
         addr1MappingAction.process();
         var manager = Manager_1.Manager.get(nameState);
         var fullpath = manager.getFullPath(nameState, 'addresses');
-        // let key1 = keyGen(addr1);
-        var index1 = 0; // ArrayKeyIndexMap.get().get(nameState.addresses).get(keyGen(addr1));
-        var mapping1 = Manager_1.Manager.get(nameState).getMappingState().getPathMappings(fullpath, index1);
+        var mapping1 = Manager_1.Manager.get(nameState).getMappingState().getPathMappings(fullpath, 0);
         // 'mapping' is possibly undefined, so cast it and then test it
         mapping1 = mapping1;
         expect(mapping1).toBeDefined();
         expect(mapping1.length).toBeGreaterThan(0);
-        // if (!mapping || mapping.length === 0) {
-        //   throw new Error(`expecting mappings to be defined at ${fullpath} with key ${key}`);
-        // }
         expect(mapping1[mapping1.length - 1].fullPath).toBe(fullpath);
         expect(mapping1[mapping1.length - 1].component).toBe(addr1Container);
-        var addr2Container = new AddressContainer({ address: addr2 });
+        var addr2Container = new AddressContainer({ address: addr2 }, 'addr2Container');
+        address2Container = addr2Container;
         var addr2MappingAction = actionCreators_1.getMappingCreator(nameState, 'addresses', addressesOptions)
             .createArrayIndexMappingAction(1, addr2Container, 'address');
         addr2MappingAction.process();
-        // verify that the ArrayKeyIndexMap is holding a reference from the key for addr2 to the index, which can
-        // be used to get the path mappings from MappingState.
-        var index2 = 1; // ArrayKeyIndexMap.get().get(nameState.addresses).get(keyGen(addr2));
-        var mapping2 = Manager_1.Manager.get(nameState).getMappingState().getPathMappings(fullpath, index2);
+        var mapping2 = Manager_1.Manager.get(nameState).getMappingState().getPathMappings(fullpath, 1);
         // 'mapping' is possibly undefined, so cast it and then test it
         mapping2 = mapping2;
         expect(mapping2).toBeDefined();
@@ -274,7 +265,7 @@ describe('ContainerComponent instantiation, mount, update, unmount', function ()
         expect(mapping2[mapping2.length - 1].fullPath).toBe(fullpath);
         expect(mapping2[mapping2.length - 1].component).toBe(addr2Container);
         // mapping1 should be unchanged
-        var mapping1a = Manager_1.Manager.get(nameState).getMappingState().getPathMappings(fullpath, index1);
+        var mapping1a = Manager_1.Manager.get(nameState).getMappingState().getPathMappings(fullpath, 0);
         expect(mapping1 === mapping1a).toBeTruthy();
     });
     test('updating the state array index value should update address1Container and its properties', function () {
@@ -282,15 +273,9 @@ describe('ContainerComponent instantiation, mount, update, unmount', function ()
         expect(address1Container.viewProps["addresses"]).toBeUndefined();
         addressesActionCreator.update(0, newAddr1).process();
         expect(address1Container.viewProps["addresses"]).toBeUndefined();
-        var updatedContainers = Manager_1.Manager.get(nameState).getActionProcessorAPI().getUpdatedComponents();
-        // check that our container is among those that were updated
-        expect(updatedContainers.length).toBeGreaterThan(0);
-        expect(updatedContainers.indexOf(address1Container)).toBeGreaterThan(-1);
-        // verify that state was updated
         expect(nameState.addresses[0].street).toBe(newAddr1.street);
         // verify that the prop that was mapped from the state was also updated
         expect(address1Container.viewProps.address).toBe(newAddr1);
-        // addr1 = newAddr1;
     });
     test('inserting a new element into index 0 should result in container remapping props to state', function () {
         expect(nameState.addresses[0].street).toBe(newAddr1.street);
@@ -310,14 +295,20 @@ describe('ContainerComponent instantiation, mount, update, unmount', function ()
         // verify that the prop that was mapped from the state was also updated
         // expect(address1Container.viewProps[`addresses`]).toBeUndefined();
         expect(address1Container.viewProps.address).toBe(addr0);
-        var deleteAction = addressesActionCreator.remove(0);
-        deleteAction.process();
-        expect(nameState.addresses[0].street).toBe(newAddr1.street);
+        expect(address2Container.viewProps.address).toBe(newAddr1);
         var _a;
     });
-    // test('deleting an element from the addresses array re-maps the array and its containers', () => {
-    //   //
-    // });
+    test('deleting an element from the addresses array re-maps the array and its containers', function () {
+        expect(nameState.addresses[1].street).toBe(newAddr1.street);
+        expect(nameState.addresses[2].street).toBe(addr2.street);
+        //
+        var deleteActions = addressesActionCreator.remove(0);
+        (_a = Manager_1.Manager.get(nameState)).actionProcess.apply(_a, deleteActions);
+        expect(nameState.addresses[0].street).toBe(newAddr1.street);
+        expect(address1Container.viewProps.address).toBe(newAddr1);
+        expect(address2Container.viewProps.address).toBe(addr2);
+        var _a;
+    });
     test('unmount should result in bowler being removed from the still-present component state mapping value ' +
         '(array of commentsUI)', function () {
         container.componentWillUnmount();
@@ -394,9 +385,4 @@ describe('Standalone tests for instance of MappingState', function () {
         expect(addr1Mapping).toBeDefined();
     });
 });
-// describe('Verify that array element containers are rendered via createArrayItemMapping', () => {
-//   test('initial conditions meet our expections', () => {
-//     let n = container.getMappingActions();
-//   });
-// });
 //# sourceMappingURL=Components.test.js.map

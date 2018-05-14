@@ -79,7 +79,7 @@ export declare class ArrayCrudActionCreator<S extends StateObject, K extends key
      */
     insert(index: number, value: V): Action[];
     update(index: number, newValue: V): Action;
-    remove(index: number): Action;
+    remove(index: number): Action[];
 }
 export interface ArrayMappingCreatorOptions<S extends StateObject, K extends keyof S, E> {
     keyGen: ArrayKeyGeneratorFn<E>;

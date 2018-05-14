@@ -63,6 +63,9 @@ function mutateArray(actionType, stateObject, values, value, propertyName, index
             var subArray = values.splice(index, 1);
             return { oldValue: subArray[0] };
         }
+        case actions_1.ActionId.NULL: {
+            return { oldValue: values[index] };
+        }
         default: throw new Error("mutateArray: unhandled actionType=" + actionType);
     }
 }

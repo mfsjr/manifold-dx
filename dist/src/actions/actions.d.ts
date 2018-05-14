@@ -11,6 +11,12 @@ import { StateObject } from '../types/State';
  * one another since they need to have refs to parents set/unset.
  */
 export declare enum ActionId {
+    /**
+     * NULL is the only action that doesn't mutate anything, but the action will be processed just like any
+     * other action, the net effect being that containers that depend on properties of actions with type = NULL
+     * will have their viewProps reloaded.  Used for special cases where a single action can change multiple
+     * pieces of state, eg an array insertion or deletion.
+     */
     NULL = 0,
     INSERT_STATE_OBJECT = 1,
     DELETE_STATE_OBJECT = 2,
@@ -83,14 +89,10 @@ export declare class StateCrudAction<S extends StateObject, K extends keyof S> e
     protected mutate(perform?: boolean): void;
 }
 /**
- * Functions like this are necessary to create mappings between React keys and StateObject array indexes, as
- * in ArrayKeyIndexMap below.
+ * Functions like this are necessary to create mappings between React keys array indexes
  *
- * These functions should be created in StateObject's _accessors, so that both
- * 1. invocations of ArrayKeyIndexMap's getKeyIndexMap, and...
- * 2. ArrayMutateAction's constructor's 'index' argument
- * ... can use this function (since they have to be the same).
- *
+ * Its probably a good idea to co-locate these methods in StateObjects next to the arrays they apply to,
+ * in order to make sure there's one and only one definition.
  */
 export declare type ArrayKeyGeneratorFn<V> = (arrayElement: V, index?: number, array?: Array<V>) => React.Key;
 /**
@@ -121,9 +123,6 @@ export declare function propertyKeyGenerator<V>(arrayElement: V, propertyKey: ke
  * - deleted upon StateCrudAction array delete
  *
  * Note that duplicated keys result in an Error being thrown.
- */
-/**
- *
  */
 export declare class ArrayMutateAction<S extends StateObject, K extends keyof S, V> extends StateAction<S, K> {
     mutateResult?: {
@@ -181,8 +180,7 @@ export declare class MappingAction<S extends StateObject, K extends keyof S, CP,
     getValue(): S[K];
     getTargetPropName(): keyof VP;
     /**
-     * Map this component to an array element object, e.g., a row of data.  We are mapping the index of the
-     * state array and the container, while populating the ArrayKeyIndexMap (maps React.Key to index).
+     * Map this component to an array element object, e.g., a row of data.
      *
      * Note that this method will throw if the index is invalid or refers to an undefined value in the array.
      *

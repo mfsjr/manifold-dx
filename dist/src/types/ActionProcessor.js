@@ -31,17 +31,31 @@ var ActionProcessor = /** @class */ (function () {
     ActionProcessor.prototype.disableMutationChecking = function () {
         this.mutationCheck.disableMutationChecks();
     };
+    // protected renderer(actions: Action[]): Action[] {
+    //   this.updatedComponents = [];
+    //   actions.forEach((action: Action) =>
+    //     action.containersToRender(this.updatedComponents) );
+    //   if (this.updatedComponents.length > 0) {
+    //     this.updatedComponents.forEach( (container: AnyContainerComponent) =>
+    //       container.handleChange(actions));
+    //   }
+    //   return actions;
+    // }
     ActionProcessor.prototype.renderer = function (actions) {
+        var _this = this;
         this.updatedComponents = [];
-        var uc = this.updatedComponents;
         actions.forEach(function (action) {
+            var uc = [];
             action.containersToRender(uc);
+            if (uc.length > 0) {
+                uc.forEach(function (container) { return container.handleChange([action]); });
+            }
+            _this.updatedComponents.concat(uc);
         });
-        if (this.updatedComponents.length > 0) {
-            this.updatedComponents.forEach(function (container) {
-                container.handleChange(actions);
-            });
-        }
+        // if (this.updatedComponents.length > 0) {
+        //   this.updatedComponents.forEach( (container: AnyContainerComponent) =>
+        //     container.handleChange(actions));
+        // }
         return actions;
     };
     /**

@@ -27,7 +27,8 @@ export declare function addressRowSfc(addressProps: AddressProps): React.ReactEl
  */
 export declare class AddressContainer extends ContainerComponent<AddressProps, AddressProps, TestState & StateObject> {
     address: Address;
-    constructor(addressProps: AddressProps);
+    displayName: string;
+    constructor(addressProps: AddressProps, _displayName: string);
     /**
      * Note that in the case of array/list child containers,
      * @returns {GenericContainerMappingTypes<AddressProps, AddressProps, TestState & StateObject>[]}

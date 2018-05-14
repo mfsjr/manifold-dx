@@ -23,6 +23,12 @@ var Manager_1 = require("../types/Manager");
  */
 var ActionId;
 (function (ActionId) {
+    /**
+     * NULL is the only action that doesn't mutate anything, but the action will be processed just like any
+     * other action, the net effect being that containers that depend on properties of actions with type = NULL
+     * will have their viewProps reloaded.  Used for special cases where a single action can change multiple
+     * pieces of state, eg an array insertion or deletion.
+     */
     ActionId[ActionId["NULL"] = 0] = "NULL";
     ActionId[ActionId["INSERT_STATE_OBJECT"] = 1] = "INSERT_STATE_OBJECT";
     ActionId[ActionId["DELETE_STATE_OBJECT"] = 2] = "DELETE_STATE_OBJECT";
@@ -204,89 +210,6 @@ function propertyKeyGenerator(arrayElement, propertyKey) {
     throw new Error(message);
 }
 exports.propertyKeyGenerator = propertyKeyGenerator;
-// /**
-//  * React requires 'key' data elements for list rendering, and we need to keep track of
-//  * what indexes are associated with keys, for the purposes of modifying array state, since
-//  * the mutate array api's require array indexes.
-//  *
-//  * This class holds mappings for all the arrays in the app state, and for each will return
-//  * a map of type Map<React.Key, number>, which relates React's unique keys to the index
-//  * which holds the array element.
-//  *
-//  * V the generic type of the values held in the array, eg, Array<V>
-//  */
-// export class ArrayKeyIndexMap {
-//
-//   private static instance: ArrayKeyIndexMap;
-//   /* tslint:disable:no-any */
-//   protected arrayMapper = new Map<Array<any>, Map<React.Key, number>>();
-//   protected keyGenMapper = new Map<Array<any>, ArrayKeyGeneratorFn<any>>();
-//   /* tslint:enable:no-any */
-//
-//   public static get = function(): ArrayKeyIndexMap {
-//     if (!ArrayKeyIndexMap.instance) {
-//       ArrayKeyIndexMap.instance = new ArrayKeyIndexMap();
-//     }
-//     return ArrayKeyIndexMap.instance;
-//   };
-//
-//   public getOrCreateKeyIndexMap<V>(array: Array<V>, keyGenerator: ArrayKeyGeneratorFn<V>): Map<React.Key, number> {
-//     let keyIndexMap = this.arrayMapper.get(array);
-//     if (!keyIndexMap) {
-//       keyIndexMap = this.populateMaps(array, keyGenerator);
-//       this.arrayMapper.set(array, keyIndexMap);
-//     }
-//     return keyIndexMap;
-//   }
-//
-//   public getKeyGeneratorFn<V>(array: Array<V>): ArrayKeyGeneratorFn<V> {
-//     let result = this.keyGenMapper.get(array);
-//     if (!result) {
-//       throw new Error(`Failed to find key gen fn for array`);
-//     }
-//     return result;
-//   }
-//
-//   public size(): number {
-//     return this.arrayMapper.size;
-//   }
-//
-//   public get<V>(array: Array<V>): Map<React.Key, number> {
-//     let result = this.arrayMapper.get(array);
-//     if (!result) {
-//       throw new Error(`Failed to find map for array`);
-//     }
-//     return result;
-//   }
-//
-//   public hasKeyIndexMap<V>(array: Array<V>): boolean {
-//     return this.arrayMapper.has(array) && this.keyGenMapper.has(array);
-//   }
-//
-//   /**
-//    * Creates the key index map, then inserts into it and the keyGenMapper
-//    * @param {Array<V>} array
-//    * @param {ArrayKeyGeneratorFn<V>} keyGenerator
-//    * @returns {Map<React.Key, number>} the key/index map
-//    */
-//   protected populateMaps<V>(array: Array<V>, keyGenerator: ArrayKeyGeneratorFn<V>): Map<React.Key, number> {
-//     this.keyGenMapper.set(array, keyGenerator);
-//     let map = new Map<React.Key, number>();
-//     array.forEach((value, index, values) => {
-//       let reactKey = keyGenerator(value, index, values);
-//       if (map.has(reactKey)) {
-//         throw new Error(`Duplicate React key calculated at index ${index}, key=${reactKey}`);
-//       }
-//       map.set(reactKey, index);
-//     });
-//     return map;
-//   }
-//
-//   public deleteFromMaps<V>(array: Array<V>): boolean {
-//     this.keyGenMapper.delete(array);
-//     return this.arrayMapper.delete(array);
-//   }
-// }
 /**
  * Standalone data structure: for each array in state, maps React list keys to array indexes.
  *
@@ -296,10 +219,6 @@ exports.propertyKeyGenerator = propertyKeyGenerator;
  * - deleted upon StateCrudAction array delete
  *
  * Note that duplicated keys result in an Error being thrown.
- */
-// export const arrayKeyIndexMap = new ArrayKeyIndexMap();
-/**
- *
  */
 var ArrayMutateAction = /** @class */ (function (_super) {
     __extends(ArrayMutateAction, _super);
@@ -325,6 +244,8 @@ var ArrayMutateAction = /** @class */ (function (_super) {
         var copy = new ArrayMutateAction(this.type, this.parent, this.propertyName, this.index, this.valuesArray, this.keyGen, this.value);
         return copy;
     };
+    // Attempts to solve the problem of updating array actions for inserts/deletes above the index where it occurs.
+    // This just doesn't work since container's viewProps get updated by using array actions' indexes and child values
     ArrayMutateAction.prototype.containersToRender = function (containersBeingRendered) {
         if (this.index > -1) {
             var fullpath = Manager_1.Manager.get(this.parent).getFullPath(this.parent, this.propertyName);
@@ -334,13 +255,14 @@ var ArrayMutateAction = /** @class */ (function (_super) {
             var _index = this.index > -1 ? this.index : undefined;
             var mappingActions = Manager_1.Manager.get(this.parent).getMappingState().getPathMappings(fullpath, _index);
             this.concatContainersFromMappingActions(containersBeingRendered, mappingActions);
-            if (_index !== undefined && (this.type === ActionId.INSERT_PROPERTY || this.type === ActionId.DELETE_PROPERTY)) {
-                // we need to get all containers for array elements above the index
-                for (var i = 1 + _index; i < this.valuesArray.length; i++) {
-                    mappingActions = Manager_1.Manager.get(this.parent).getMappingState().getPathMappings(fullpath, i);
-                    this.concatContainersFromMappingActions(containersBeingRendered, mappingActions);
-                }
-            }
+            // if (_index !== undefined &&
+            // (this.type === ActionId.INSERT_PROPERTY || this.type === ActionId.DELETE_PROPERTY) ) {
+            //   // we need to get all containers for array elements above the index
+            //   for (let i = 1 + _index; i < this.valuesArray.length; i++) {
+            //     mappingActions = Manager.get(this.parent).getMappingState().getPathMappings(fullpath, i);
+            //     this.concatContainersFromMappingActions(containersBeingRendered, mappingActions);
+            //   }
+            // }
         }
         else {
             _super.prototype.containersToRender.call(this, containersBeingRendered);
@@ -435,8 +357,7 @@ var MappingAction = /** @class */ (function (_super) {
         return this.targetPropName;
     };
     /**
-     * Map this component to an array element object, e.g., a row of data.  We are mapping the index of the
-     * state array and the container, while populating the ArrayKeyIndexMap (maps React.Key to index).
+     * Map this component to an array element object, e.g., a row of data.
      *
      * Note that this method will throw if the index is invalid or refers to an undefined value in the array.
      *
@@ -453,8 +374,6 @@ var MappingAction = /** @class */ (function (_super) {
             var fullpath = Manager_1.Manager.get(this.parent).getFullPath(this.parent, this.propertyName);
             throw new Error("Can't map to an undefined array index " + _index + " at " + fullpath);
         }
-        // initialize the map using current state values
-        // ArrayKeyIndexMap.get().getOrCreateKeyIndexMap(_propArray, _keyGen);
         this.index = _index;
         this.keyGen = _keyGen;
         this.propArray = _propArray;

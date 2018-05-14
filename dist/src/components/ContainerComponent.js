@@ -151,6 +151,7 @@ var ContainerComponent = /** @class */ (function (_super) {
      */
     ContainerComponent.prototype.updateViewPropsUsingMappings = function (executedActions) {
         var _viewProps = this.viewProps;
+        // let _displayName = this[`displayName`];
         executedActions.forEach(function (action) {
             if (action instanceof actions_1.StateAction) {
                 var mappingActions = action.mappingActions;

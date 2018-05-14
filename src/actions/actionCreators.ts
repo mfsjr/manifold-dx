@@ -122,23 +122,6 @@ export class ArrayCrudActionCreator<S extends StateObject, K extends keyof S, V 
     this.keyGenerator = keyGenerator;
   }
 
-  // /**
-  //  * Note that we are finding the index of this from a map (not scanning).
-  //  * We throw if this.valuesArray is not found in arrayKeyIndexMap, likewise if the this.keyIndexMap does not
-  //  * contain the key calculated by this.keyGenerator.
-  //  * @param {V} value
-  //  * @returns {number}
-  //  */
-  // protected getIndexOf(value: V): number {
-  //   let keyIndexMap = ArrayKeyIndexMap.get().getOrCreateKeyIndexMap(this.valuesArray, this.keyGenerator);
-  //   let key = this.keyGenerator(value);
-  //   let index = keyIndexMap.get(key);
-  //   if (index === undefined) {
-  //     throw new Error(`failed to find index in array ${this.propertyKey} for key ${key}`);
-  //   }
-  //   return index;
-  // }
-
   public append(value: V): Action {
     return this.insert(this.valuesArray.length, value)[0];
   }
@@ -158,50 +141,19 @@ export class ArrayCrudActionCreator<S extends StateObject, K extends keyof S, V 
    * @returns {Action}
    */
   public insert(index: number, value: V): Action[] {
-    // TODO: get rid of slice (new array), use only splice (mutation), return an array of actions for updating indexes
-    // let newArray: Array<V> & S[K] = this.valuesArray.slice(0);
-    // newArray.splice(index, 0, value);
-    // ArrayKeyIndexMap.get().deleteFromMaps(this.valuesArray);
-    // this.valuesArray = newArray;
-    // ArrayKeyIndexMap.get().getOrCreateKeyIndexMap(this.valuesArray, this.keyGenerator);
-    // return new StateCrudAction(ActionId.UPDATE_PROPERTY, this.parent, this.propertyKey, newArray);
-
-    // TODO: ? what would devs expect, an insert that updates containers automatically, or a generated list of actions?
     let actions: Array<Action> = [
       new ArrayMutateAction(
         ActionId.INSERT_PROPERTY, this.parent, this.propertyKey, index, this.valuesArray, this.keyGenerator, value)
     ];
-
-    // for (let i = 1 + index; i < this.valuesArray.length; i++) {
-    //   actions.push( new ArrayMutateAction(
-    //     ActionId.UPDATE_PROPERTY, this.parent, this.propertyKey, i,
-    //     this.valuesArray, this.keyGenerator, this.valuesArray[i - 1]
-    //   ));
-    // }
-
-    // // update at index with the new value
-    // let actions: Array<Action> = [
-    //   new ArrayMutateAction(
-    //     ActionId.UPDATE_PROPERTY, this.parent, this.propertyKey, index, this.valuesArray, this.keyGenerator, value)
-    // ];
-    //
-    // // shift each existing value up one
-    // for (let i = 1 + index; i < this.valuesArray.length - 1; i++) {
-    //   actions.push( new ArrayMutateAction(
-    //     ActionId.UPDATE_PROPERTY, this.parent, this.propertyKey, i,
-    //     this.valuesArray, this.keyGenerator, this.valuesArray[i - 1]
-    //   ));
-    // }
-    // // insert the last value at the end of the list
-    // actions.push( new ArrayMutateAction(
-    //   ActionId.INSERT_PROPERTY, this.parent, this.propertyKey, this.valuesArray.length,
-    //   this.valuesArray, this.keyGenerator, this.valuesArray[this.valuesArray.length - 1])
-    // );
+    // the preceding action mutates every element > index, so dispatch NULL actions that refresh their components
+    for (let i = 1 + index; i < this.valuesArray.length; i++ ) {
+      let _value = this.valuesArray[i - 1];
+      let action = new ArrayMutateAction(ActionId.NULL, this.parent, this.propertyKey,
+                                         i, this.valuesArray, this.keyGenerator, _value);
+      actions.push(action);
+    }
 
     return actions;
-    // this.valuesArray.splice(index, 0, value);
-    // return new ArrayMutateAction(
-    //   ActionId.INSERT_PROPERTY, this.parent, this.propertyKey, index, this.valuesArray, this.keyGenerator, value);
   }
 
   public update(index: number, newValue: V): Action {
@@ -210,20 +162,18 @@ export class ArrayCrudActionCreator<S extends StateObject, K extends keyof S, V 
       ActionId.UPDATE_PROPERTY, this.parent, this.propertyKey, index, this.valuesArray, this.keyGenerator, newValue);
   }
 
-  public remove(index: number): Action {
-    // let value: V = this.valuesArray[index];
-    // let index = this.getIndexOf(value);
-    let result = new ArrayMutateAction(
+  public remove(index: number): Action[] {
+    let newValue: V = index + 1 < this.valuesArray.length ? this.valuesArray[index + 1] : undefined;
+    let action = new ArrayMutateAction(
       ActionId.DELETE_PROPERTY, this.parent, this.propertyKey, index, this.valuesArray,
-      this.keyGenerator, undefined);
+      this.keyGenerator, newValue);
 
-    // result.postHook = () => {
-    //   let map = ArrayKeyIndexMap.get().get(this.valuesArray);
-    //   let key = this.keyGenerator(value);
-    //   map.delete(key);
-    // };
-
-    return result;
+    let actions = [action];
+    for (let i: number = 1 + index; i < this.valuesArray.length - 1; i++ ) {
+      actions.push(new ArrayMutateAction(ActionId.NULL, this.parent, this.propertyKey, i, this.valuesArray,
+                                         this.keyGenerator, this.valuesArray[i + 1]));
+    }
+    return actions;
   }
 }
 

@@ -269,25 +269,15 @@ describe('ContainerComponent instantiation, mount, update, unmount', () => {
     let addr1MappingAction = getMappingCreator(nameState, 'addresses', addressesOptions)
       .createArrayIndexMappingAction(0, addr1Container, 'address');
 
-    // verify that we have an entry in ArrayKeyIndexMap
-    // let map = ArrayKeyIndexMap.get().get(nameState.addresses);
-    // expect(map).toBeTruthy();
-    // expect(map.size).toBe(nameState.addresses.length);
-    // execute the action
     addr1MappingAction.process();
     let manager = Manager.get(nameState);
     let fullpath = manager.getFullPath(nameState, 'addresses');
-    // let key1 = keyGen(addr1);
-    let index1 = 0; // ArrayKeyIndexMap.get().get(nameState.addresses).get(keyGen(addr1));
-    let mapping1 = Manager.get(nameState).getMappingState().getPathMappings(fullpath, index1);
+    let mapping1 = Manager.get(nameState).getMappingState().getPathMappings(fullpath, 0);
 
     // 'mapping' is possibly undefined, so cast it and then test it
     mapping1 = mapping1 as AnyMappingAction[];
     expect(mapping1).toBeDefined();
     expect(mapping1.length).toBeGreaterThan(0);
-    // if (!mapping || mapping.length === 0) {
-    //   throw new Error(`expecting mappings to be defined at ${fullpath} with key ${key}`);
-    // }
     expect(mapping1[mapping1.length - 1].fullPath).toBe(fullpath);
     expect(mapping1[mapping1.length - 1].component).toBe(addr1Container);
 
@@ -297,10 +287,7 @@ describe('ContainerComponent instantiation, mount, update, unmount', () => {
       .createArrayIndexMappingAction(1, addr2Container, 'address');
     addr2MappingAction.process();
 
-    // verify that the ArrayKeyIndexMap is holding a reference from the key for addr2 to the index, which can
-    // be used to get the path mappings from MappingState.
-    let index2 = 1; // ArrayKeyIndexMap.get().get(nameState.addresses).get(keyGen(addr2));
-    let mapping2 = Manager.get(nameState).getMappingState().getPathMappings(fullpath, index2);
+    let mapping2 = Manager.get(nameState).getMappingState().getPathMappings(fullpath, 1);
 
     // 'mapping' is possibly undefined, so cast it and then test it
     mapping2 = mapping2 as AnyMappingAction[];
@@ -310,7 +297,7 @@ describe('ContainerComponent instantiation, mount, update, unmount', () => {
     expect(mapping2[mapping2.length - 1].component).toBe(addr2Container);
 
     // mapping1 should be unchanged
-    let mapping1a = Manager.get(nameState).getMappingState().getPathMappings(fullpath, index1);
+    let mapping1a = Manager.get(nameState).getMappingState().getPathMappings(fullpath, 0);
     expect(mapping1 === mapping1a).toBeTruthy();
   });
   test('updating the state array index value should update address1Container and its properties', () => {
@@ -318,16 +305,9 @@ describe('ContainerComponent instantiation, mount, update, unmount', () => {
     expect(address1Container.viewProps[`addresses`]).toBeUndefined();
     addressesActionCreator.update(0, newAddr1).process();
     expect(address1Container.viewProps[`addresses`]).toBeUndefined();
-//    let updatedContainers = Manager.get(nameState).getActionProcessorAPI().getUpdatedComponents();
-    // check that our container is among those that were updated
-
-    // expect(updatedContainers.length).toBeGreaterThan(0);
-    // expect(updatedContainers.indexOf(address1Container)).toBeGreaterThan(-1);
-    // verify that state was updated
     expect(nameState.addresses[0].street).toBe(newAddr1.street);
     // verify that the prop that was mapped from the state was also updated
     expect(address1Container.viewProps.address).toBe(newAddr1);
-    // addr1 = newAddr1;
   });
   test('inserting a new element into index 0 should result in container remapping props to state', () => {
     expect(nameState.addresses[0].street).toBe(newAddr1.street);
@@ -360,11 +340,7 @@ describe('ContainerComponent instantiation, mount, update, unmount', () => {
 
     expect(nameState.addresses[0].street).toBe(newAddr1.street);
     expect(address1Container.viewProps.address).toBe(newAddr1);
-    // PROBLEM: ArrayMutateAction containersToRender appears to be finding mappingAction with index=1, which should
-    // imply rendering ContainerComponent [1], but that container's viewProps are not being updated
     expect(address2Container.viewProps.address).toBe(addr2);
-    // expect(nameState.addresses[0].street).toBe(address1Container.viewProps.street);
-
   });
   test(
       'unmount should result in bowler being removed from the still-present component state mapping value ' +
@@ -460,9 +436,3 @@ describe('Standalone tests for instance of MappingState', () => {
     expect(addr1Mapping).toBeDefined();
   });
 });
-
-// describe('Verify that array element containers are rendered via createArrayItemMapping', () => {
-//   test('initial conditions meet our expections', () => {
-//     let n = container.getMappingActions();
-//   });
-// });

@@ -196,6 +196,7 @@ export abstract class ContainerComponent<CP, VP, A extends StateObject>
    */
   protected updateViewPropsUsingMappings(executedActions: Action[]): void {
     let _viewProps = this.viewProps;
+    // let _displayName = this[`displayName`];
     executedActions.forEach((action) => {
       if (action instanceof StateAction) {
         let mappingActions = action.mappingActions;

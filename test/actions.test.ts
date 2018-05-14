@@ -175,7 +175,7 @@ describe('Add the name container', () => {
       // addrActionCreator.remove(0).perform();
 
       let removeAction = addrActionCreator.remove(0);
-      testStore.getManager().actionProcess(removeAction);
+      testStore.getManager().actionProcess(...removeAction);
 
       expect(nameState.addresses.length).toBe(1);
       expect(nameState.addresses[0]).toBe(address2);

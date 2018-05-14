@@ -71,6 +71,9 @@ export function mutateArray<S extends StateObject, K extends keyof S, V>
       let subArray = values.splice(index, 1);
       return {oldValue: subArray[0]};
     }
+    case ActionId.NULL: {
+      return { oldValue: values[index] };
+    }
     default: throw new Error(`mutateArray: unhandled actionType=${actionType}`);
   }
 }

@@ -86,8 +86,11 @@ export function addressRowSfc(addressProps: AddressProps): React.ReactElement<Ad
 export class AddressContainer extends ContainerComponent<AddressProps, AddressProps, TestState & StateObject> {
   address: Address;
 
-  constructor(addressProps: AddressProps) {
+  public displayName: string;
+
+  constructor(addressProps: AddressProps, _displayName: string) {
     super(addressProps, testStore.getState(), addressRowSfc);
+    this.displayName = _displayName;
   }
 
   /**
@@ -206,6 +209,7 @@ describe('ContainerComponent instantiation, mount, update, unmount', () => {
   let addrKeyGen = (_address: Address) => _address.id;
   let addressesActionCreator = getArrayCrudCreator(nameState, nameState.addresses, addrKeyGen);
   let address1Container: AddressContainer;
+  let address2Container: AddressContainer;
   // let mappingActionCreator = getMappingCreator(nameState, container);
   // placeholder
   test('after mounting, the component state should have something in it', () => {
@@ -256,7 +260,7 @@ describe('ContainerComponent instantiation, mount, update, unmount', () => {
     expect(nameState.addresses[1].state).toBe(addr2.state);
   });
   test(`Create a mapping action to an array index`, () => {
-    let addr1Container = new AddressContainer({address: addr1});
+    let addr1Container = new AddressContainer({address: addr1}, 'addr1Container');
     address1Container = addr1Container;
     let keyGen = (address: Address) => address.id;
     // let addr1MappingAction = getMappingCreator(nameState, addr1Container)
@@ -287,7 +291,8 @@ describe('ContainerComponent instantiation, mount, update, unmount', () => {
     expect(mapping1[mapping1.length - 1].fullPath).toBe(fullpath);
     expect(mapping1[mapping1.length - 1].component).toBe(addr1Container);
 
-    let addr2Container = new AddressContainer({address: addr2});
+    let addr2Container = new AddressContainer({address: addr2}, 'addr2Container');
+    address2Container = addr2Container;
     let addr2MappingAction = getMappingCreator(nameState, 'addresses', addressesOptions)
       .createArrayIndexMappingAction(1, addr2Container, 'address');
     addr2MappingAction.process();
@@ -313,10 +318,11 @@ describe('ContainerComponent instantiation, mount, update, unmount', () => {
     expect(address1Container.viewProps[`addresses`]).toBeUndefined();
     addressesActionCreator.update(0, newAddr1).process();
     expect(address1Container.viewProps[`addresses`]).toBeUndefined();
-    let updatedContainers = Manager.get(nameState).getActionProcessorAPI().getUpdatedComponents();
+//    let updatedContainers = Manager.get(nameState).getActionProcessorAPI().getUpdatedComponents();
     // check that our container is among those that were updated
-    expect(updatedContainers.length).toBeGreaterThan(0);
-    expect(updatedContainers.indexOf(address1Container)).toBeGreaterThan(-1);
+
+    // expect(updatedContainers.length).toBeGreaterThan(0);
+    // expect(updatedContainers.indexOf(address1Container)).toBeGreaterThan(-1);
     // verify that state was updated
     expect(nameState.addresses[0].street).toBe(newAddr1.street);
     // verify that the prop that was mapped from the state was also updated
@@ -342,16 +348,24 @@ describe('ContainerComponent instantiation, mount, update, unmount', () => {
     // verify that the prop that was mapped from the state was also updated
     // expect(address1Container.viewProps[`addresses`]).toBeUndefined();
     expect(address1Container.viewProps.address).toBe(addr0);
-
-    let deleteAction = addressesActionCreator.remove(0);
-    deleteAction.process();
-
-    expect(nameState.addresses[0].street).toBe(newAddr1.street);
+    expect(address2Container.viewProps.address).toBe(newAddr1);
 
   });
-  // test('deleting an element from the addresses array re-maps the array and its containers', () => {
-  //   //
-  // });
+  test('deleting an element from the addresses array re-maps the array and its containers', () => {
+    expect(nameState.addresses[1].street).toBe(newAddr1.street);
+    expect(nameState.addresses[2].street).toBe(addr2.street);
+    //
+    let deleteActions = addressesActionCreator.remove(0);
+    Manager.get(nameState).actionProcess(...deleteActions);
+
+    expect(nameState.addresses[0].street).toBe(newAddr1.street);
+    expect(address1Container.viewProps.address).toBe(newAddr1);
+    // PROBLEM: ArrayMutateAction containersToRender appears to be finding mappingAction with index=1, which should
+    // imply rendering ContainerComponent [1], but that container's viewProps are not being updated
+    expect(address2Container.viewProps.address).toBe(addr2);
+    // expect(nameState.addresses[0].street).toBe(address1Container.viewProps.street);
+
+  });
   test(
       'unmount should result in bowler being removed from the still-present component state mapping value ' +
       '(array of commentsUI)',

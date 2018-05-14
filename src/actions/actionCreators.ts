@@ -167,41 +167,20 @@ export class ArrayCrudActionCreator<S extends StateObject, K extends keyof S, V 
     // return new StateCrudAction(ActionId.UPDATE_PROPERTY, this.parent, this.propertyKey, newArray);
 
     // TODO: ? what would devs expect, an insert that updates containers automatically, or a generated list of actions?
+    // Since this is an 'action creator', creating a sequence of actions should be ok, esp since devs can debug them
     let actions: Array<Action> = [
       new ArrayMutateAction(
         ActionId.INSERT_PROPERTY, this.parent, this.propertyKey, index, this.valuesArray, this.keyGenerator, value)
     ];
-
-    // for (let i = 1 + index; i < this.valuesArray.length; i++) {
-    //   actions.push( new ArrayMutateAction(
-    //     ActionId.UPDATE_PROPERTY, this.parent, this.propertyKey, i,
-    //     this.valuesArray, this.keyGenerator, this.valuesArray[i - 1]
-    //   ));
-    // }
-
-    // // update at index with the new value
-    // let actions: Array<Action> = [
-    //   new ArrayMutateAction(
-    //     ActionId.UPDATE_PROPERTY, this.parent, this.propertyKey, index, this.valuesArray, this.keyGenerator, value)
-    // ];
-    //
-    // // shift each existing value up one
-    // for (let i = 1 + index; i < this.valuesArray.length - 1; i++) {
-    //   actions.push( new ArrayMutateAction(
-    //     ActionId.UPDATE_PROPERTY, this.parent, this.propertyKey, i,
-    //     this.valuesArray, this.keyGenerator, this.valuesArray[i - 1]
-    //   ));
-    // }
-    // // insert the last value at the end of the list
-    // actions.push( new ArrayMutateAction(
-    //   ActionId.INSERT_PROPERTY, this.parent, this.propertyKey, this.valuesArray.length,
-    //   this.valuesArray, this.keyGenerator, this.valuesArray[this.valuesArray.length - 1])
-    // );
+    // the preceding action mutates every element > index, so dispatch actions that refresh their components
+    for (let i = 1 + index; i < this.valuesArray.length; i++ ) {
+      let _value = this.valuesArray[i - 1];
+      let action = new ArrayMutateAction(ActionId.NULL, this.parent, this.propertyKey,
+                                         i, this.valuesArray, this.keyGenerator, _value);
+      actions.push(action);
+    }
 
     return actions;
-    // this.valuesArray.splice(index, 0, value);
-    // return new ArrayMutateAction(
-    //   ActionId.INSERT_PROPERTY, this.parent, this.propertyKey, index, this.valuesArray, this.keyGenerator, value);
   }
 
   public update(index: number, newValue: V): Action {
@@ -210,20 +189,18 @@ export class ArrayCrudActionCreator<S extends StateObject, K extends keyof S, V 
       ActionId.UPDATE_PROPERTY, this.parent, this.propertyKey, index, this.valuesArray, this.keyGenerator, newValue);
   }
 
-  public remove(index: number): Action {
-    // let value: V = this.valuesArray[index];
-    // let index = this.getIndexOf(value);
-    let result = new ArrayMutateAction(
+  public remove(index: number): Action[] {
+    let newValue: V = index + 1 < this.valuesArray.length ? this.valuesArray[index + 1] : undefined;
+    let action = new ArrayMutateAction(
       ActionId.DELETE_PROPERTY, this.parent, this.propertyKey, index, this.valuesArray,
-      this.keyGenerator, undefined);
+      this.keyGenerator, newValue);
 
-    // result.postHook = () => {
-    //   let map = ArrayKeyIndexMap.get().get(this.valuesArray);
-    //   let key = this.keyGenerator(value);
-    //   map.delete(key);
-    // };
-
-    return result;
+    let actions = [action];
+    for (let i: number = 1 + index; i < this.valuesArray.length - 1; i++ ) {
+      actions.push(new ArrayMutateAction(ActionId.NULL, this.parent, this.propertyKey, i, this.valuesArray,
+                                         this.keyGenerator, this.valuesArray[i + 1]));
+    }
+    return actions;
   }
 }
 

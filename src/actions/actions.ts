@@ -13,6 +13,12 @@ import { Manager } from '../types/Manager';
  * one another since they need to have refs to parents set/unset.
  */
 export enum ActionId {
+  /**
+   * NULL is the only action that doesn't mutate anything, but the action will be processed just like any
+   * other action, the net effect being that containers that depend on properties of actions with type = NULL
+   * will have their viewProps reloaded.  Used for special cases where a single action can change multiple
+   * pieces of state, eg an array insertion or deletion.
+   */
   NULL,
   INSERT_STATE_OBJECT,
   DELETE_STATE_OBJECT,
@@ -390,6 +396,8 @@ export class ArrayMutateAction
     this.keyGen = _keyGen;
   }
 
+  // Attempts to solve the problem of updating array actions for inserts/deletes above the index where it occurs.
+  // This just doesn't work since container's viewProps get updated by using array actions' indexes and child values
   public containersToRender(containersBeingRendered: AnyContainerComponent[])
     : void {
     if (this.index > -1) {
@@ -400,13 +408,14 @@ export class ArrayMutateAction
       let _index = this.index > -1 ? this.index : undefined;
       let mappingActions = Manager.get(this.parent).getMappingState().getPathMappings(fullpath, _index);
       this.concatContainersFromMappingActions(containersBeingRendered, mappingActions);
-      if (_index !== undefined && (this.type === ActionId.INSERT_PROPERTY || this.type === ActionId.DELETE_PROPERTY) ) {
-        // we need to get all containers for array elements above the index
-        for (let i = 1 + _index; i < this.valuesArray.length; i++) {
-          mappingActions = Manager.get(this.parent).getMappingState().getPathMappings(fullpath, i);
-          this.concatContainersFromMappingActions(containersBeingRendered, mappingActions);
-        }
-      }
+      // if (_index !== undefined &&
+      // (this.type === ActionId.INSERT_PROPERTY || this.type === ActionId.DELETE_PROPERTY) ) {
+      //   // we need to get all containers for array elements above the index
+      //   for (let i = 1 + _index; i < this.valuesArray.length; i++) {
+      //     mappingActions = Manager.get(this.parent).getMappingState().getPathMappings(fullpath, i);
+      //     this.concatContainersFromMappingActions(containersBeingRendered, mappingActions);
+      //   }
+      // }
     } else {
       super.containersToRender(containersBeingRendered);
     }

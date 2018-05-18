@@ -1,0 +1,8 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="test" type="NodeJSConfigurationType" factoryName="Node.js" application-parameters="--env=jsdom --runInBand --forceExit" path-to-js-file="scripts/test.js" working-dir="$PROJECT_DIR$">
+    <envs>
+      <env name="REACT_APP_STATE_MUTATION_CHECKING" value="true" />
+    </envs>
+    <method />
+  </configuration>
+</component>

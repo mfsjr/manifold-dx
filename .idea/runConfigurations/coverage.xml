@@ -1,0 +1,5 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="coverage" type="NodeJSConfigurationType" factoryName="Node.js" application-parameters="--env=jsdom --coverage" path-to-js-file="scripts/test.js" working-dir="$PROJECT_DIR$">
+    <method />
+  </configuration>
+</component>

@@ -1,0 +1,13 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Components.test.tsx" type="JavaScriptTestRunnerJest" factoryName="Jest" nameIsGenerated="true">
+    <node-interpreter value="project" />
+    <node-options value="" />
+    <working-dir value="$PROJECT_DIR$" />
+    <envs>
+      <env name="REACT_APP_STATE_MUTATION_CHECKING" value="true" />
+    </envs>
+    <scope-kind value="TEST_FILE" />
+    <test-file value="$PROJECT_DIR$/test/Components.test.tsx" />
+    <method />
+  </configuration>
+</component>

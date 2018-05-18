@@ -3,6 +3,10 @@ import * as _ from 'lodash';
 import { MutationError } from '../types/StateMutationCheck';
 import { JSON_replaceCyclicParent, StateObject, Store } from '../types/State';
 
+/**
+ * StateObjects are mutated here, any other mutations will be detected and throw an error.
+ */
+
 /* tslint:disable:no-any */
 let validateArrayIndex = function(actionType: ActionId, ra: Array<any>, index: number,  propertyName: string) {
   /* tslint:enable:no-any */

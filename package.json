@@ -86,7 +86,7 @@
     ],
     "globals": {
       "ts-jest": {
-        "tsConfigFile": "/Users/mfsjr/WebstormProjects/node/manifold-dx/tsconfig.test.json"
+        "tsConfigFile": "./tsconfig.test.json"
       }
     }
   },

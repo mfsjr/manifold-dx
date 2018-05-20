@@ -6,8 +6,8 @@ import { StateObject } from '../types/State';
 export declare type ComponentGenerator<P> = (props: P) => React.Component<P, any>;
 /**
  *
- * A higher-order React.Component designed to function as a container/controller (constructor takes a component
- * and creates another component from it).
+ * A kind of React.Component HOC designed to function as a container/controller (constructor takes a component
+ * and uses it to compose/present).
  *
  * It wraps a react component, which performs the actual rendering
  * and the view usually contains all the markup and styling.  There is

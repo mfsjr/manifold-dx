@@ -16,11 +16,10 @@ var _ = require("lodash");
 var Manager_1 = require("../types/Manager");
 var _1 = require("../");
 /* tslint:enable:no-any */
-// unused: export type Renderer<P> = ComponentGenerator<P> | SFC<P>;
 /**
  *
- * A higher-order React.Component designed to function as a container/controller (constructor takes a component
- * and creates another component from it).
+ * A kind of React.Component HOC designed to function as a container/controller (constructor takes a component
+ * and uses it to compose/present).
  *
  * It wraps a react component, which performs the actual rendering
  * and the view usually contains all the markup and styling.  There is
@@ -206,14 +205,6 @@ var ContainerComponent = /** @class */ (function (_super) {
     ContainerComponent.prototype.render = function () {
         if (this.sfcView) {
             var result = this.sfcView(this.viewProps);
-            // if (result) {
-            //   let key: React.Key | null = result.key;
-            //   if (key) {
-            //     /* tslint:disable:no-console */
-            //     console.log(`key for this component is ${key}`);
-            //     /* tslint:enable:no-console */
-            //   }
-            // }
             return result;
         }
         if (this.viewGenerator) {
@@ -225,7 +216,5 @@ var ContainerComponent = /** @class */ (function (_super) {
     return ContainerComponent;
 }(React.Component));
 exports.ContainerComponent = ContainerComponent;
-// export type GenericContainerMappingTypes<CP, VP, A extends StateObject>
-// = MappingAction<any, any, CP, VP, any, A, any>;
 /* tslint:enable:no-any */
 //# sourceMappingURL=ContainerComponent.js.map

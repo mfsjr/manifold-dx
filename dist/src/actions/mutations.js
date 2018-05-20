@@ -4,6 +4,9 @@ var actions_1 = require("./actions");
 var _ = require("lodash");
 var StateMutationCheck_1 = require("../types/StateMutationCheck");
 var State_1 = require("../types/State");
+/**
+ * StateObjects are mutated here, any other mutations will be detected and throw an error.
+ */
 /* tslint:disable:no-any */
 var validateArrayIndex = function (actionType, ra, index, propertyName) {
     /* tslint:enable:no-any */

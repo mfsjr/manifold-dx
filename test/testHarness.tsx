@@ -1,7 +1,8 @@
 import { Store, StateObject } from '../src/types/State';
 // import { ArrayKeyGeneratorFn, propertyKeyGenerator } from '../src/actions/actions';
 import { ArrayCrudActionCreator, CrudActionCreator } from '../src/actions/actionCreators';
-import { ArrayKeyGeneratorFn, propertyKeyGenerator } from '../src/actions/actions';
+import { ArrayKeyGeneratorFn } from '../src/actions/actions';
+import { getArrayCrudCreator, getCrudCreator } from '../src';
 
 export interface Address {
   id: number;
@@ -26,13 +27,17 @@ export interface Name {
 /**
  * Accessors to be used on our Name & StateObject data.
  */
-export interface NameAccessors {
+// export interface NameAccessors {
+//   getActionCreator: (nameState: NameState) => CrudActionCreator<Name & StateObject>;
+//   addressKeyGen: ArrayKeyGeneratorFn<Address>;
+//   getAddressesActionCreator: (nameState: NameState) => ArrayCrudActionCreator<NameState, 'addresses', Address>;
+// }
+
+export interface NameState extends Name, StateObject {
   getActionCreator: (nameState: NameState) => CrudActionCreator<Name & StateObject>;
   addressKeyGen: ArrayKeyGeneratorFn<Address>;
   getAddressesActionCreator: (nameState: NameState) => ArrayCrudActionCreator<NameState, 'addresses', Address>;
 }
-
-export interface NameState extends Name, StateObject, NameAccessors { }
 
 // Example of WebStorm Live Template ("getset") for creating getters and setters
 // get $PROPNAME$$END$(): $TYPE$$END$ { return $VAR$$END$; },
@@ -41,14 +46,11 @@ export interface NameState extends Name, StateObject, NameAccessors { }
 /**
  * Factory method for creating instances of {@link NameState}.  Note that the technique we use for
  * providing options that are a function of the same NameState, is to provide a function that takes the
- * NameState as an arg and lazily instantiates the object within the closure.
+ * NameState as an arg and lazily instantiates the object within a closure.
  *
  * Result is that the state object can contain functions that are a function of the same state object.
  *
  * Written out so that the closure variable and the lazy instantiator are side-by-side (fn could be done inline tho)
- *
- * Using getters and setters isn't necessary, just done as an exercise to demonstrate that data passed in could
- * be used directly if needed, rather than copying the key/value pairs via spreads.
  *
  * @param {Name} nameData
  * @param {StateObject} parent
@@ -56,8 +58,7 @@ export interface NameState extends Name, StateObject, NameAccessors { }
  * @returns {NameState}
  */
 export function createNameContainer(nameData: Name, parent: StateObject, myName: string): NameState {
-
-  // lazy initialization held in the closure
+  // lazy initialization held in a closure
   let actionCreator: CrudActionCreator<NameState>;
   let _getActionCreator = function(_nameState: NameState) {
     if (!actionCreator) {
@@ -67,8 +68,7 @@ export function createNameContainer(nameData: Name, parent: StateObject, myName:
   };
 
   // define the keyGeneratorFn, to be used in multiple places below
-  let keyGeneratorFn: ArrayKeyGeneratorFn<Address> =
-    (addr: Address): React.Key => propertyKeyGenerator(addr, 'street');
+  let keyGeneratorFn: ArrayKeyGeneratorFn<Address> = (address: Address) => address.id;
 
   let addressesActionCreator: ArrayCrudActionCreator<NameState, 'addresses', Address>;
   let getAddressesActionCreator = function(_nameState: NameState) {
@@ -81,40 +81,38 @@ export function createNameContainer(nameData: Name, parent: StateObject, myName:
     _parent: parent,
     _myPropname: myName,
     ...nameData,
-
-    // get prefix(): string | undefined { return nameData.prefix; },
-    // set prefix(value: string | undefined) { nameData.prefix = value; },
-    //
-    // get suffix(): string | undefined { return nameData.suffix; },
-    // set suffix(value: string | undefined) { nameData.suffix = value; },
-    //
-    // get first(): string { return nameData.first; },
-    // set first(value: string) { nameData.first = value; },
-    //
-    // get middle(): string { return nameData.middle; },
-    // set middle(value: string) { nameData.middle = value; },
-    //
-    // get last(): string { return nameData.last; },
-    // set last(value: string) { nameData.last = value; },
-    //
-    // get address(): Address | undefined { return nameData.address; },
-    // set address(value: Address | undefined) { nameData.address = value; },
-    //
-    // get addresses(): Array<Address> { return nameData.addresses; },
-    // set addresses(value: Array<Address>) { nameData.addresses = value; },
-    //
-    // get bowlingScores(): Array<number> { return nameData.bowlingScores; },
-    // set bowlingScores(value: Array<number>) { nameData.bowlingScores = value; },
-
     getActionCreator: _getActionCreator,
-
-    addressKeyGen: keyGeneratorFn,
-
+    addressKeyGen: (address: Address) => address.id,
     getAddressesActionCreator
-
   };
   parent[myName] = nameState;
   return nameState;
+}
+
+/**
+ * This class creates a POJO that is both a state object and contains action creation functions.
+ * Seems a bit more compact than the function-based construction, but can function-based be improved?
+ */
+export class NameStateCreator {
+  public nameState: NameState;
+
+  constructor(nameData: Name, parent: StateObject, myName: string) {
+    this.nameState = {
+      ...nameData,
+      _parent: parent,
+      _myPropname: myName,
+      addressKeyGen: (address: Address) => address.id,
+      getAddressesActionCreator: this.getAddressesActionCreator,
+      getActionCreator: this.getActionCreator
+    };
+    parent[myName] = this.nameState;
+  }
+  
+  getActionCreator = (nameState: NameState) => getCrudCreator(this.nameState);
+
+  getAddressesActionCreator: (nameState: NameState) => ArrayCrudActionCreator<NameState, 'addresses', Address> =
+    (nameState: NameState) => getArrayCrudCreator(
+      this.nameState, this.nameState.addresses, this.nameState.addressKeyGen)
 }
 
 export interface TestState {

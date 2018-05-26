@@ -1,4 +1,4 @@
-import { createTestStore, createNameContainer, TestState, NameState, Address } from './testHarness';
+import { createTestStore, TestState, NameState, Address, NameStateCreator } from './testHarness';
 import { Name } from './testHarness';
 import * as React from 'react';
 import { ContainerComponent } from '../src/components/ContainerComponent';
@@ -194,7 +194,8 @@ let resetTestObjects = () => {
   testStore.reset({name: nameState}, {});
   name = {first: 'Matthew', middle: 'F', last: 'Hooper', prefix: 'Mr', bowlingScores: [], addresses: []};
   // nameState = State.createStateObject<Name>(testStore.getState(), 'name', name);
-  nameState = createNameContainer(name, testStore.getState(), 'name');
+  // nameState = createNameContainer(name, testStore.getState(), 'name');
+  nameState = new NameStateCreator(name, testStore.getState(), 'name').nameState;
   bowlingScores = [111, 121, 131];
   initBowlerProps = { fullName: nameState.first };
   container = new BowlerContainer(initBowlerProps);

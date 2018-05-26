@@ -1,5 +1,5 @@
 import {
-  Action, ActionId, ArrayKeyGeneratorFn, ArrayMutateAction,
+  Action, ActionId, ArrayMutateAction,
   StateCrudAction
 } from '../src/actions/actions';
 import { Store } from '../src/types/State';
@@ -9,7 +9,7 @@ import { StateObject } from '../src/types/State';
 import { ActionProcessorFunctionType } from '../src/types/ActionProcessor';
 import * as _ from 'lodash';
 import { onFailureDiff } from '../src/types/StateMutationDiagnostics';
-import { ArrayCrudActionCreator, CrudActionCreator } from '../src/actions/actionCreators';
+import { getArrayCrudCreator, getCrudCreator } from '../src';
 // import { getCrudCreator } from '../src';
 
 const testStore = createTestStore();
@@ -58,7 +58,8 @@ describe('Add the name container', () => {
   });
 
   describe('Modify the name\'s middle initial', () => {
-    let updateMiddleAction = new StateCrudAction(ActionId.UPDATE_PROPERTY, nameState, 'middle', 'J');
+    // let updateMiddleAction = new StateCrudAction(ActionId.UPDATE_PROPERTY, nameState, 'middle', 'J');
+    let updateMiddleAction = nameState.getActionCreator(nameState).update('middle', 'J');
     test('middle initial should be "J"', () => {
       // let appState = state.getState();
       testStore.getManager().actionProcess(updateMiddleAction);
@@ -72,7 +73,8 @@ describe('Add the name container', () => {
 
   describe('Remove the name prefix', () => {
     let prefixValue = nameState.prefix;
-    let deletePrefixAction = new StateCrudAction(ActionId.DELETE_PROPERTY, nameState, 'prefix', '');
+    // let deletePrefixAction = new StateCrudAction(ActionId.DELETE_PROPERTY, nameState, 'prefix', '');
+    let deletePrefixAction = getCrudCreator(nameState).remove('prefix');
     test('Delete the prefix property', () => {
       testStore.getManager().actionProcess(deletePrefixAction);
       expect(nameState.prefix).toBeUndefined();
@@ -97,9 +99,10 @@ describe('Add the name container', () => {
     });
     test('array index notation should work', () => {
       let keyGen = (score: number) => score;
-      let updateAction = new ArrayMutateAction(
-          ActionId.UPDATE_PROPERTY, nameState, 'bowlingScores',
-          0, nameState.bowlingScores, keyGen, 101);
+      // let updateAction = new ArrayMutateAction(
+      //     ActionId.UPDATE_PROPERTY, nameState, 'bowlingScores',
+      //     0, nameState.bowlingScores, keyGen, 101);
+      let updateAction = getArrayCrudCreator(nameState, nameState.bowlingScores, keyGen).update(0, 101);
       expect(updateAction.index).toBe(0);
       testStore.getManager().actionProcess(updateAction);
       expect(bowlingScores[0]).toBe(101);
@@ -108,7 +111,7 @@ describe('Add the name container', () => {
 
   describe('use CrudActionCreator', () => {
     // let crudCreator = nameState._accessors.crudCreator;
-    let crudCreator = new CrudActionCreator(nameState);
+    let crudCreator = nameState.getActionCreator(nameState);
     let last = nameState.last;
     // let updateAction = new StateCrudAction(ActionId.UPDATE_PROPERTY, nameState, 'last', 'Doe');
     test('crudCreator update', () => {
@@ -135,8 +138,8 @@ describe('Add the name container', () => {
   });
 
   describe('use ActionCreator for array changes in nameState.addresses', () => {
-    let streetKeyFn: ArrayKeyGeneratorFn<Address> = nameState.addressKeyGen;
-    let addrActionCreator = new ArrayCrudActionCreator(nameState, nameState.addresses, streetKeyFn);
+    // let streetKeyFn: ArrayKeyGeneratorFn<Address> = nameState.addressKeyGen;
+    let addrActionCreator = nameState.getAddressesActionCreator(nameState);
     test('insert into the addresses array', () => {
       let addr: Address = {
         id: 3,

@@ -25,7 +25,6 @@ var actions_1 = require("../src/actions/actions");
 var State_1 = require("../src/types/State");
 var Manager_1 = require("../src/types/Manager");
 var actionCreators_1 = require("../src/actions/actionCreators");
-var src_1 = require("../src");
 var MappingState_1 = require("../src/types/MappingState");
 var testStore = testHarness_1.createTestStore();
 var name;
@@ -172,7 +171,8 @@ var resetTestObjects = function () {
     testStore.reset({ name: nameState }, {});
     name = { first: 'Matthew', middle: 'F', last: 'Hooper', prefix: 'Mr', bowlingScores: [], addresses: [] };
     // nameState = State.createStateObject<Name>(testStore.getState(), 'name', name);
-    nameState = testHarness_1.createNameContainer(name, testStore.getState(), 'name');
+    // nameState = createNameContainer(name, testStore.getState(), 'name');
+    nameState = new testHarness_1.NameStateCreator(name, testStore.getState(), 'name').nameState;
     bowlingScores = [111, 121, 131];
     initBowlerProps = { fullName: nameState.first };
     container = new BowlerContainer(initBowlerProps);
@@ -182,8 +182,9 @@ var resetTestObjects = function () {
 };
 resetTestObjects();
 describe('ContainerComponent instantiation, mount, update, unmount', function () {
-    var addrKeyGen = function (_address) { return _address.id; };
-    var addressesActionCreator = src_1.getArrayCrudCreator(nameState, nameState.addresses, addrKeyGen);
+    // let addrKeyGen = (_address: Address) => _address.id;
+    // let addressesActionCreator = getArrayCrudCreator(nameState, nameState.addresses, addrKeyGen);
+    var addressesActionCreator = nameState.getAddressesActionCreator(nameState);
     var address1Container;
     var address2Container;
     // let mappingActionCreator = getMappingCreator(nameState, container);

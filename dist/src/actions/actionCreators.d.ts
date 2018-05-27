@@ -1,5 +1,5 @@
 import { StateObject } from '../';
-import { Action, ArrayKeyGeneratorFn, DispatchType, MappingAction } from './actions';
+import { Action, ArrayKeyGeneratorFn, ArrayMutateAction, DispatchType, MappingAction, StateCrudAction } from './actions';
 import { ContainerComponent } from '../components/ContainerComponent';
 /**
  * Create CRUD actions for properties of a StateObject.
@@ -9,16 +9,16 @@ export declare class CrudActionCreator<S extends StateObject> {
     private parent;
     constructor(parent: S);
     protected getPropertyKeyForValue<V>(value: V): keyof S;
-    insert<K extends keyof S>(propertyKey: K, value: S[K]): Action;
-    update<K extends keyof S>(propertyKey: K, value: S[K]): Action;
+    insert<K extends keyof S>(propertyKey: K, value: S[K]): StateCrudAction<S, K>;
+    update<K extends keyof S>(propertyKey: K, value: S[K]): StateCrudAction<S, K>;
     /**
      * Delete the property (named 'remove' because 'delete' is a reserved word)
      * @param {K} propertyKey
      * @returns {Action}
      */
-    remove<K extends keyof S>(propertyKey: K): Action;
-    insertStateObject<K extends keyof S>(value: S[K], propertyKey: K): Action;
-    removeStateObject<K extends keyof S>(propertyKey: K): Action;
+    remove<K extends keyof S>(propertyKey: K): StateCrudAction<S, K>;
+    insertStateObject<K extends keyof S>(value: S[K], propertyKey: K): StateCrudAction<S, K>;
+    removeStateObject<K extends keyof S>(propertyKey: K): StateCrudAction<S, K>;
 }
 /**
  * Factory method for CrudActionCreator, rather than exposing implementation details
@@ -77,9 +77,9 @@ export declare class ArrayCrudActionCreator<S extends StateObject, K extends key
      * @param {V} value
      * @returns {Action}
      */
-    insert(index: number, value: V): Action[];
-    update(index: number, newValue: V): Action;
-    remove(index: number): Action[];
+    insert(index: number, value: V): ArrayMutateAction<S, K, V>[];
+    update(index: number, newValue: V): ArrayMutateAction<S, K, V>;
+    remove(index: number): ArrayMutateAction<S, K, V>[];
 }
 export interface ArrayMappingCreatorOptions<S extends StateObject, K extends keyof S, E> {
     keyGen: ArrayKeyGeneratorFn<E>;

@@ -22,24 +22,19 @@ export interface Name {
 /**
  * Accessors to be used on our Name & StateObject data.
  */
-export interface NameAccessors {
+export interface NameState extends Name, StateObject {
     getActionCreator: (nameState: NameState) => CrudActionCreator<Name & StateObject>;
     addressKeyGen: ArrayKeyGeneratorFn<Address>;
     getAddressesActionCreator: (nameState: NameState) => ArrayCrudActionCreator<NameState, 'addresses', Address>;
 }
-export interface NameState extends Name, StateObject, NameAccessors {
-}
 /**
  * Factory method for creating instances of {@link NameState}.  Note that the technique we use for
  * providing options that are a function of the same NameState, is to provide a function that takes the
- * NameState as an arg and lazily instantiates the object within the closure.
+ * NameState as an arg and lazily instantiates the object within a closure.
  *
  * Result is that the state object can contain functions that are a function of the same state object.
  *
  * Written out so that the closure variable and the lazy instantiator are side-by-side (fn could be done inline tho)
- *
- * Using getters and setters isn't necessary, just done as an exercise to demonstrate that data passed in could
- * be used directly if needed, rather than copying the key/value pairs via spreads.
  *
  * @param {Name} nameData
  * @param {StateObject} parent
@@ -47,6 +42,16 @@ export interface NameState extends Name, StateObject, NameAccessors {
  * @returns {NameState}
  */
 export declare function createNameContainer(nameData: Name, parent: StateObject, myName: string): NameState;
+/**
+ * This class creates a POJO that is both a state object and contains action creation functions.
+ * Seems a bit more compact than the function-based construction, but can function-based be improved?
+ */
+export declare class NameStateCreator {
+    nameState: NameState;
+    constructor(nameData: Name, parent: StateObject, myName: string);
+    getActionCreator: (nameState: NameState) => CrudActionCreator<NameState>;
+    getAddressesActionCreator: (nameState: NameState) => ArrayCrudActionCreator<NameState, 'addresses', Address>;
+}
 export interface TestState {
     name?: Name & StateObject;
     me?: Name & StateObject;

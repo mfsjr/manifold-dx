@@ -35,7 +35,16 @@ var MappingState = /** @class */ (function () {
         if (index === undefined) {
             if (!result) {
                 result = [];
-                this.pathMappings.set(propFullPath, result);
+                var holder = this.pathMappings.get(propFullPath);
+                if (!holder) {
+                    this.pathMappings.set(propFullPath, result);
+                }
+                else if (holder instanceof Map) {
+                    holder.set(null, result);
+                }
+                else {
+                    throw new Error("Mapping failure, array is not mapped, holder is not a Map: " + JSON.stringify(holder));
+                }
             }
             else if (result instanceof Map) {
                 var ra = result.get(null);

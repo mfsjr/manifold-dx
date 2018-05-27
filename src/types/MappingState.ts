@@ -54,7 +54,14 @@ export class MappingState {
     if (index === undefined) {
       if (!result) {
         result = [];
-        this.pathMappings.set(propFullPath, result);
+        let holder = this.pathMappings.get(propFullPath);
+        if (!holder) {
+          this.pathMappings.set(propFullPath, result);
+        } else if (holder instanceof Map) {
+          holder.set(null, result);
+        } else {
+          throw new Error(`Mapping failure, array is not mapped, holder is not a Map: ${JSON.stringify(holder)}`);
+        }
       } else if (result instanceof Map) {
         let ra = result.get(null);
         if (!ra) {

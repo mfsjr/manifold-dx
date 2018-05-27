@@ -6,7 +6,6 @@ import { Action, ActionId, AnyMappingAction, StateCrudAction } from '../src/acti
 import { Store, StateObject } from '../src/types/State';
 import { Manager } from '../src/types/Manager';
 import { getMappingCreator } from '../src/actions/actionCreators';
-import { getArrayCrudCreator } from '../src';
 import { MappingState } from '../src/types/MappingState';
 
 const testStore = createTestStore();
@@ -207,8 +206,9 @@ let resetTestObjects = () => {
 resetTestObjects();
 
 describe('ContainerComponent instantiation, mount, update, unmount', () => {
-  let addrKeyGen = (_address: Address) => _address.id;
-  let addressesActionCreator = getArrayCrudCreator(nameState, nameState.addresses, addrKeyGen);
+  // let addrKeyGen = (_address: Address) => _address.id;
+  // let addressesActionCreator = getArrayCrudCreator(nameState, nameState.addresses, addrKeyGen);
+  let addressesActionCreator = nameState.getAddressesActionCreator(nameState);
   let address1Container: AddressContainer;
   let address2Container: AddressContainer;
   // let mappingActionCreator = getMappingCreator(nameState, container);

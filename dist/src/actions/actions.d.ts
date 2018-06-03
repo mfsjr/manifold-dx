@@ -17,7 +17,7 @@ export declare enum ActionId {
      * will have their viewProps reloaded.  Used for special cases where a single action can change multiple
      * pieces of state, eg an array insertion or deletion.
      */
-    NULL = 0,
+    RERENDER = 0,
     INSERT_STATE_OBJECT = 1,
     DELETE_STATE_OBJECT = 2,
     INSERT_PROPERTY = 3,

@@ -9,6 +9,7 @@ export declare class CrudActionCreator<S extends StateObject> {
     private parent;
     constructor(parent: S);
     protected getPropertyKeyForValue<V>(value: V): keyof S;
+    rerender<K extends keyof S>(propertyKey: K): StateCrudAction<S, K>;
     insert<K extends keyof S>(propertyKey: K, value: S[K]): StateCrudAction<S, K>;
     update<K extends keyof S>(propertyKey: K, value: S[K]): StateCrudAction<S, K>;
     /**

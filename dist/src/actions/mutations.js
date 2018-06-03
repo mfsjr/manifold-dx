@@ -66,7 +66,7 @@ function mutateArray(actionType, stateObject, values, value, propertyName, index
             var subArray = values.splice(index, 1);
             return { oldValue: subArray[0] };
         }
-        case actions_1.ActionId.NULL: {
+        case actions_1.ActionId.RERENDER: {
             return { oldValue: values[index] };
         }
         default: throw new Error("mutateArray: unhandled actionType=" + actionType);
@@ -75,6 +75,10 @@ function mutateArray(actionType, stateObject, values, value, propertyName, index
 exports.mutateArray = mutateArray;
 function mutateValue(actionType, stateObject, value, propertyName) {
     switch (actionType) {
+        // TODO: use this to force re-renders on arrays that have been mutated, esp change in length
+        case actions_1.ActionId.RERENDER: {
+            return { oldValue: stateObject[propertyName] };
+        }
         case actions_1.ActionId.UPDATE_PROPERTY: {
             var isStateObject = State_1.Store.isInstanceOfStateObject(value);
             throwIf(isStateObject, actions_1.ActionId[actionType] + " action isn't applicable to state objects");

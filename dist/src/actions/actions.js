@@ -29,7 +29,7 @@ var ActionId;
      * will have their viewProps reloaded.  Used for special cases where a single action can change multiple
      * pieces of state, eg an array insertion or deletion.
      */
-    ActionId[ActionId["RERENDER"] = 0] = "NULL";
+    ActionId[ActionId["RERENDER"] = 0] = "RERENDER";
     ActionId[ActionId["INSERT_STATE_OBJECT"] = 1] = "INSERT_STATE_OBJECT";
     ActionId[ActionId["DELETE_STATE_OBJECT"] = 2] = "DELETE_STATE_OBJECT";
     ActionId[ActionId["INSERT_PROPERTY"] = 3] = "INSERT_PROPERTY";

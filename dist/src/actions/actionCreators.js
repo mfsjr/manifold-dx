@@ -20,6 +20,9 @@ var CrudActionCreator = /** @class */ (function () {
         }
         throw new Error("Failed to find property value " + value + " in parent");
     };
+    CrudActionCreator.prototype.rerender = function (propertyKey) {
+        return new actions_1.StateCrudAction(actions_1.ActionId.RERENDER, this.parent, propertyKey, this.parent[propertyKey]);
+    };
     CrudActionCreator.prototype.insert = function (propertyKey, value) {
         return new actions_1.StateCrudAction(actions_1.ActionId.UPDATE_PROPERTY, this.parent, propertyKey, value);
     };
@@ -129,7 +132,7 @@ var ArrayCrudActionCreator = /** @class */ (function () {
         // the preceding action mutates every element > index, so dispatch NULL actions that refresh their components
         for (var i = 1 + index; i < this.valuesArray.length; i++) {
             var _value = this.valuesArray[i - 1];
-            var action = new actions_1.ArrayMutateAction(actions_1.ActionId.NULL, this.parent, this.propertyKey, i, this.valuesArray, this.keyGenerator, _value);
+            var action = new actions_1.ArrayMutateAction(actions_1.ActionId.RERENDER, this.parent, this.propertyKey, i, this.valuesArray, this.keyGenerator, _value);
             actions.push(action);
         }
         return actions;
@@ -143,7 +146,7 @@ var ArrayCrudActionCreator = /** @class */ (function () {
         var action = new actions_1.ArrayMutateAction(actions_1.ActionId.DELETE_PROPERTY, this.parent, this.propertyKey, index, this.valuesArray, this.keyGenerator, newValue);
         var actions = [action];
         for (var i = 1 + index; i < this.valuesArray.length - 1; i++) {
-            actions.push(new actions_1.ArrayMutateAction(actions_1.ActionId.NULL, this.parent, this.propertyKey, i, this.valuesArray, this.keyGenerator, this.valuesArray[i + 1]));
+            actions.push(new actions_1.ArrayMutateAction(actions_1.ActionId.RERENDER, this.parent, this.propertyKey, i, this.valuesArray, this.keyGenerator, this.valuesArray[i + 1]));
         }
         return actions;
     };

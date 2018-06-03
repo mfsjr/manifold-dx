@@ -28,6 +28,10 @@ export class CrudActionCreator<S extends StateObject> {
     throw new Error(`Failed to find property value ${value} in parent`);
   }
 
+  public rerender<K extends keyof S>(propertyKey: K): StateCrudAction<S, K> {
+    return new StateCrudAction(ActionId.RERENDER, this.parent, propertyKey, this.parent[propertyKey]);
+  }
+
   public insert<K extends keyof S>(propertyKey: K, value: S[K]): StateCrudAction<S, K> {
     return new StateCrudAction(ActionId.UPDATE_PROPERTY, this.parent, propertyKey, value);
   }
@@ -148,7 +152,7 @@ export class ArrayCrudActionCreator<S extends StateObject, K extends keyof S, V 
     // the preceding action mutates every element > index, so dispatch NULL actions that refresh their components
     for (let i = 1 + index; i < this.valuesArray.length; i++ ) {
       let _value = this.valuesArray[i - 1];
-      let action = new ArrayMutateAction(ActionId.NULL, this.parent, this.propertyKey,
+      let action = new ArrayMutateAction(ActionId.RERENDER, this.parent, this.propertyKey,
                                          i, this.valuesArray, this.keyGenerator, _value);
       actions.push(action);
     }
@@ -170,7 +174,7 @@ export class ArrayCrudActionCreator<S extends StateObject, K extends keyof S, V 
 
     let actions = [action];
     for (let i: number = 1 + index; i < this.valuesArray.length - 1; i++ ) {
-      actions.push(new ArrayMutateAction(ActionId.NULL, this.parent, this.propertyKey, i, this.valuesArray,
+      actions.push(new ArrayMutateAction(ActionId.RERENDER, this.parent, this.propertyKey, i, this.valuesArray,
                                          this.keyGenerator, this.valuesArray[i + 1]));
     }
     return actions;

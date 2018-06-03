@@ -75,7 +75,7 @@ export function mutateArray<S extends StateObject, K extends keyof S, V>
       let subArray = values.splice(index, 1);
       return {oldValue: subArray[0]};
     }
-    case ActionId.NULL: {
+    case ActionId.RERENDER: {
       return { oldValue: values[index] };
     }
     default: throw new Error(`mutateArray: unhandled actionType=${actionType}`);
@@ -86,6 +86,10 @@ export function mutateValue<S extends StateObject, K extends keyof S>
 (actionType: ActionId, stateObject: S, value: S[K] | undefined, propertyName: K)
 : { oldValue?: S[K] } {
   switch (actionType) {
+    // TODO: use this to force re-renders on arrays that have been mutated, esp change in length
+    case ActionId.RERENDER: {
+      return { oldValue: stateObject[propertyName] };
+    }
     case ActionId.UPDATE_PROPERTY: {
       let isStateObject = Store.isInstanceOfStateObject(value);
       throwIf(isStateObject, `${ActionId[actionType]} action isn't applicable to state objects`);

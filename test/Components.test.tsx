@@ -6,7 +6,7 @@ import { Action, ActionId, AnyMappingAction, StateCrudAction } from '../src/acti
 import { Store, StateObject } from '../src/types/State';
 import { Manager } from '../src/types/Manager';
 import { getMappingCreator } from '../src/actions/actionCreators';
-import { MappingState } from '../src/types/MappingState';
+import { arrayMapDelete, arrayMapInsert, MappingState } from '../src/types/MappingState';
 
 const testStore = createTestStore();
 
@@ -436,4 +436,32 @@ describe('Standalone tests for instance of MappingState', () => {
     let addr1Mapping = mappingState.getPathMappings('addresses', 1);
     expect(addr1Mapping).toBeDefined();
   });
+});
+
+describe('ArrayMap insertion and deletion functions', () => {
+  let arrayMap = new Map<number | null, AnyMappingAction[]>();
+  arrayMap.set(null, []);
+  let mappingActions = container.generateMappingActions();
+  arrayMap.set(0, [mappingActions[0]]);
+  arrayMap.set(1, [mappingActions[1]]);
+  arrayMap.set(2, []);
+  let newMappingActions: AnyMappingAction[] = new Array<AnyMappingAction>();
+  let length = arrayMapInsert(arrayMap, 1, newMappingActions );
+  expect(length === 5);
+
+  let actions = arrayMap.get(0);
+  if (!actions) { throw new Error('undefined value'); }
+  expect( actions.length === 1 );
+
+  actions = arrayMap.get(1);
+  if (!actions) { throw new Error('undefined value'); }
+  expect( actions.length === 0 );
+
+  actions = arrayMap.get(2);
+  if (!actions) { throw new Error('undefined value'); }
+  expect( actions.length === 1 );
+
+  let deletedActions = arrayMapDelete(arrayMap, 1);
+  expect(deletedActions.length === 0);
+
 });

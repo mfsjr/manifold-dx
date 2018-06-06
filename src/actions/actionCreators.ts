@@ -1,7 +1,6 @@
 import { StateObject } from '../';
 import {
-  Action, ActionId, ArrayKeyGeneratorFn, ArrayMutateAction, DispatchType, MappingAction,
-  StateCrudAction
+  Action, ActionId, ArrayKeyGeneratorFn, ArrayMutateAction, DispatchType, MappingAction, StateAction, StateCrudAction,
 } from './actions';
 import { ContainerComponent } from '../components/ContainerComponent';
 
@@ -144,12 +143,14 @@ export class ArrayCrudActionCreator<S extends StateObject, K extends keyof S, V 
    * @param {V} value
    * @returns {Action}
    */
-  public insert(index: number, value: V): ArrayMutateAction<S, K, V>[] {
-    let actions: Array<ArrayMutateAction<S, K, V>> = [
+  public insert(index: number, value: V): StateAction<S, K>[] {
+    let actions: Array<StateAction<S, K>> = [
       new ArrayMutateAction(
-        ActionId.INSERT_PROPERTY, this.parent, this.propertyKey, index, this.valuesArray, this.keyGenerator, value)
+        ActionId.INSERT_PROPERTY, this.parent, this.propertyKey, index, this.valuesArray, this.keyGenerator, value),
+      new StateCrudAction(ActionId.RERENDER, this.parent, this.propertyKey, this.parent[this.propertyKey])
     ];
-    // the preceding action mutates every element > index, so dispatch NULL actions that refresh their components
+
+    // // the preceding action mutates every element > index, so dispatch NULL actions that refresh their components
     for (let i = 1 + index; i < this.valuesArray.length; i++ ) {
       let _value = this.valuesArray[i - 1];
       let action = new ArrayMutateAction(ActionId.RERENDER, this.parent, this.propertyKey,
@@ -160,13 +161,13 @@ export class ArrayCrudActionCreator<S extends StateObject, K extends keyof S, V 
     return actions;
   }
 
-  public update(index: number, newValue: V): ArrayMutateAction<S, K, V> {
+  public update(index: number, newValue: V): StateAction<S, K> {
     // let index = this.getIndexOf(oldValue);
     return new ArrayMutateAction(
       ActionId.UPDATE_PROPERTY, this.parent, this.propertyKey, index, this.valuesArray, this.keyGenerator, newValue);
   }
 
-  public remove(index: number): ArrayMutateAction<S, K, V>[] {
+  public remove(index: number): StateAction<S, K>[] {
     let newValue: V = index + 1 < this.valuesArray.length ? this.valuesArray[index + 1] : undefined;
     let action = new ArrayMutateAction(
       ActionId.DELETE_PROPERTY, this.parent, this.propertyKey, index, this.valuesArray,

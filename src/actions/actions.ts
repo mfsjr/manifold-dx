@@ -343,6 +343,15 @@ export class ArrayMutateAction
     if (perform) {
       this.oldValue = this.mutateResult ? this.mutateResult.oldValue : undefined;
       this.mutated = true;
+      //
+      // if (this.type === ActionId.INSERT_PROPERTY) {
+      //   let mappingState = Manager.get(this.parent).getMappingState();
+      //   let arrayMap = mappingState.getPathMappingArrayMap(fullpath);
+      //   if (arrayMap) {
+      //     // the component to be rendered will place its mapping actions in this slot
+      //     arrayMapInsert(arrayMap, [], this.index);
+      //   }
+      // }
     } else {
       this.mutateResult = undefined;
       this.oldValue = undefined;

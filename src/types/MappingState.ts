@@ -18,6 +18,43 @@ export type ArrayMap = Map<number | null, AnyMappingAction[]>;
  */
 export type PathMappingValue = AnyMappingAction[] | ArrayMap;
 
+export function arrayMapDelete(arrayMap: ArrayMap, index: number, num?: number): AnyMappingAction[] {
+  let result = arrayMap.get(index);
+  let dx: number = num ? num : 1;
+  if (!result) {
+    throw new Error(`undefined actions at index = ${index}` );
+  }
+  let size = arrayMap.get(null) ? arrayMap.size - dx : arrayMap.size;
+  for (let i = index + dx; i < size; i++) {
+    let mappingActions = arrayMap.get(i);
+    if (!mappingActions) {
+      throw new Error(`undefined actions at index = ${i}`);
+    }
+    arrayMap.set(i - dx, mappingActions);
+    arrayMap.delete(i);
+    mappingActions.forEach(ma => ma.index = i - dx);
+  }
+  return result;
+}
+
+export function arrayMapInsert(arrayMap: ArrayMap, index: number, ...insertedMappingActions: Array<AnyMappingAction[]>)
+    : number {
+  let inserts = insertedMappingActions.length;
+  let size = arrayMap.get(null) ? arrayMap.size - inserts : arrayMap.size;
+  for (let i = size; i > index; i-- ) {
+    let mappingActions = arrayMap.get(i - inserts);
+    if (!mappingActions) {
+      throw new Error(`found undefined entry at i - ${inserts} = ${i - inserts}` );
+    }
+    arrayMap.set(i, mappingActions);
+  }
+  for (let i = index; i < index + insertedMappingActions.length; ++i) {
+    arrayMap.set(i, insertedMappingActions[i - index]);
+  }
+
+  return arrayMap.size;
+}
+
 /**
  * Relates application state properties with React components, for the purpose of
  * forcing components to update (ie render).
@@ -103,6 +140,11 @@ export class MappingState {
       }
       return result;
     }
+  }
+
+  public getPathMappingArrayMap(fullpath: string): ArrayMap | undefined {
+    let result = this.pathMappings.get(fullpath);
+    return result instanceof Map ? result : undefined;
   }
 
   /**

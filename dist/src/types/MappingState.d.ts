@@ -16,6 +16,8 @@ export declare type ArrayMap = Map<number | null, AnyMappingAction[]>;
  * so that unique elements in lists can be identified for rendering.
  */
 export declare type PathMappingValue = AnyMappingAction[] | ArrayMap;
+export declare function arrayMapDelete(arrayMap: ArrayMap, index: number, num?: number): AnyMappingAction[];
+export declare function arrayMapInsert(arrayMap: ArrayMap, index: number, ...insertedMappingActions: Array<AnyMappingAction[]>): number;
 /**
  * Relates application state properties with React components, for the purpose of
  * forcing components to update (ie render).
@@ -30,6 +32,7 @@ export declare class MappingState {
     getSize(): number;
     getPathMappings(path: string, index?: number): AnyMappingAction[] | undefined;
     getOrCreatePathMappings(propFullPath: string, index?: number): AnyMappingAction[];
+    getPathMappingArrayMap(fullpath: string): ArrayMap | undefined;
     /**
      * If genericMappingAction is undefined, remove all mappings for the path.
      * If key is defined, its assumed the path is mapped to an array

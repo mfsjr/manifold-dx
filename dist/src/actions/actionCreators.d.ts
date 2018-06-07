@@ -1,5 +1,5 @@
 import { StateObject } from '../';
-import { Action, ArrayKeyGeneratorFn, ArrayMutateAction, DispatchType, MappingAction, StateCrudAction } from './actions';
+import { Action, ArrayKeyGeneratorFn, ArrayMutateAction, DispatchType, MappingAction, StateAction, StateCrudAction } from './actions';
 import { ContainerComponent } from '../components/ContainerComponent';
 /**
  * Create CRUD actions for properties of a StateObject.
@@ -78,9 +78,9 @@ export declare class ArrayCrudActionCreator<S extends StateObject, K extends key
      * @param {V} value
      * @returns {Action}
      */
-    insert(index: number, value: V): ArrayMutateAction<S, K, V>[];
+    insert(index: number, value: V): StateAction<S, K>[];
     update(index: number, newValue: V): ArrayMutateAction<S, K, V>;
-    remove(index: number): ArrayMutateAction<S, K, V>[];
+    remove(index: number): StateAction<S, K>[];
 }
 export interface ArrayMappingCreatorOptions<S extends StateObject, K extends keyof S, E> {
     keyGen: ArrayKeyGeneratorFn<E>;

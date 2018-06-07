@@ -293,11 +293,13 @@ describe('ContainerComponent instantiation, mount, update, unmount', function ()
         // verify that state was updated
         expect(nameState.addresses[0].street).toBe(addr0.street);
         expect(nameState.addresses[1].street).toBe(newAddr1.street);
-        // verify that the prop that was mapped from the state was also updated
-        // expect(address1Container.viewProps[`addresses`]).toBeUndefined();
-        expect(address1Container.viewProps.address).toBe(addr0);
-        expect(address2Container.viewProps.address).toBe(newAddr1);
         var _a;
+        // verify that the prop that was mapped from the state was also updated
+        // new scheme: state array index insert results in mappings insertion
+        // old scheme: state changes with insertion, mappings are fixed
+        // // expect(address1Container.viewProps[`addresses`]).toBeUndefined();
+        // expect(address1Container.viewProps.address).toBe(addr0);
+        // expect(address2Container.viewProps.address).toBe(newAddr1);
     });
     test('deleting an element from the addresses array re-maps the array and its containers', function () {
         expect(nameState.addresses[1].street).toBe(newAddr1.street);
@@ -385,5 +387,33 @@ describe('Standalone tests for instance of MappingState', function () {
         var addr1Mapping = mappingState.getPathMappings('addresses', 1);
         expect(addr1Mapping).toBeDefined();
     });
+});
+describe('ArrayMap insertion and deletion functions', function () {
+    var arrayMap = new Map();
+    arrayMap.set(null, []);
+    var mappingActions = container.generateMappingActions();
+    arrayMap.set(0, [mappingActions[0]]);
+    arrayMap.set(1, [mappingActions[1]]);
+    arrayMap.set(2, []);
+    var newMappingActions = new Array();
+    var length = MappingState_1.arrayMapInsert(arrayMap, 1, newMappingActions);
+    expect(length === 5);
+    var actions = arrayMap.get(0);
+    if (!actions) {
+        throw new Error('undefined value');
+    }
+    expect(actions.length === 1);
+    actions = arrayMap.get(1);
+    if (!actions) {
+        throw new Error('undefined value');
+    }
+    expect(actions.length === 0);
+    actions = arrayMap.get(2);
+    if (!actions) {
+        throw new Error('undefined value');
+    }
+    expect(actions.length === 1);
+    var deletedActions = MappingState_1.arrayMapDelete(arrayMap, 1);
+    expect(deletedActions.length === 0);
 });
 //# sourceMappingURL=Components.test.js.map

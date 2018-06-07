@@ -127,14 +127,16 @@ var ArrayCrudActionCreator = /** @class */ (function () {
      */
     ArrayCrudActionCreator.prototype.insert = function (index, value) {
         var actions = [
-            new actions_1.ArrayMutateAction(actions_1.ActionId.INSERT_PROPERTY, this.parent, this.propertyKey, index, this.valuesArray, this.keyGenerator, value)
+            new actions_1.ArrayMutateAction(actions_1.ActionId.INSERT_PROPERTY, this.parent, this.propertyKey, index, this.valuesArray, this.keyGenerator, value),
+            new actions_1.StateCrudAction(actions_1.ActionId.RERENDER, this.parent, this.propertyKey, this.parent[this.propertyKey])
         ];
-        // the preceding action mutates every element > index, so dispatch NULL actions that refresh their components
-        for (var i = 1 + index; i < this.valuesArray.length; i++) {
-            var _value = this.valuesArray[i - 1];
-            var action = new actions_1.ArrayMutateAction(actions_1.ActionId.RERENDER, this.parent, this.propertyKey, i, this.valuesArray, this.keyGenerator, _value);
-            actions.push(action);
-        }
+        // // // the preceding action mutates every element > index, so dispatch NULL actions that refresh their components
+        // for (let i = 1 + index; i < this.valuesArray.length; i++ ) {
+        //   let _value = this.valuesArray[i - 1];
+        //   let action = new ArrayMutateAction(ActionId.RERENDER, this.parent, this.propertyKey,
+        //                                      i, this.valuesArray, this.keyGenerator, _value);
+        //   actions.push(action);
+        // }
         return actions;
     };
     ArrayCrudActionCreator.prototype.update = function (index, newValue) {

@@ -12,6 +12,7 @@ var __extends = (this && this.__extends) || (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 var mutations_1 = require("./mutations");
 var Manager_1 = require("../types/Manager");
+var MappingState_1 = require("../types/MappingState");
 /**
  * ActionId's for calling api's that change state.
  *
@@ -281,6 +282,22 @@ var ArrayMutateAction = /** @class */ (function (_super) {
         if (perform) {
             this.oldValue = this.mutateResult ? this.mutateResult.oldValue : undefined;
             this.mutated = true;
+            if (this.type === ActionId.INSERT_PROPERTY) {
+                var mappingState = Manager_1.Manager.get(this.parent).getMappingState();
+                var arrayMap = mappingState.getPathMappingArrayMap(fullpath);
+                if (arrayMap) {
+                    // the component to be rendered will place its mapping actions in this slot
+                    MappingState_1.arrayMapInsert(arrayMap, this.index, []);
+                }
+            }
+            else if (this.type === ActionId.DELETE_PROPERTY) {
+                var mappingState = Manager_1.Manager.get(this.parent).getMappingState();
+                var arrayMap = mappingState.getPathMappingArrayMap(fullpath);
+                if (arrayMap) {
+                    // the component to be rendered will place its mapping actions in this slot
+                    MappingState_1.arrayMapDelete(arrayMap, this.index);
+                }
+            }
         }
         else {
             this.mutateResult = undefined;

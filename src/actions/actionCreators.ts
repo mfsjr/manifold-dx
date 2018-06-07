@@ -161,7 +161,7 @@ export class ArrayCrudActionCreator<S extends StateObject, K extends keyof S, V 
     return actions;
   }
 
-  public update(index: number, newValue: V): StateAction<S, K> {
+  public update(index: number, newValue: V): ArrayMutateAction<S, K, V> {
     // let index = this.getIndexOf(oldValue);
     return new ArrayMutateAction(
       ActionId.UPDATE_PROPERTY, this.parent, this.propertyKey, index, this.valuesArray, this.keyGenerator, newValue);

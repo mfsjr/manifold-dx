@@ -1,5 +1,54 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+function arrayMapDelete(arrayMap, index, num) {
+    var result = arrayMap.get(index);
+    var dx = num ? num : 1;
+    if (!result) {
+        throw new Error("undefined actions at index = " + index);
+    }
+    var size = arrayMap.get(null) ? arrayMap.size - 1 : arrayMap.size;
+    var _loop_1 = function (i) {
+        var mappingActions = arrayMap.get(i);
+        if (!mappingActions) {
+            throw new Error("undefined actions at index = " + i);
+        }
+        arrayMap.set(i - dx, mappingActions);
+        arrayMap.delete(i);
+        mappingActions.forEach(function (ma) { return ma.index = i - dx; });
+    };
+    for (var i = index + dx; i < size; i++) {
+        _loop_1(i);
+    }
+    for (var i = 0; i < dx; i++) {
+        arrayMap.delete(size - 1 - i);
+    }
+    return result;
+}
+exports.arrayMapDelete = arrayMapDelete;
+function arrayMapInsert(arrayMap, index) {
+    var insertedMappingActions = [];
+    for (var _i = 2; _i < arguments.length; _i++) {
+        insertedMappingActions[_i - 2] = arguments[_i];
+    }
+    var inserts = insertedMappingActions.length;
+    var size = arrayMap.get(null) ? arrayMap.size - 1 : arrayMap.size;
+    var _loop_2 = function (i) {
+        var mappingActions = arrayMap.get(i);
+        if (!mappingActions) {
+            throw new Error("found undefined entry at i - " + inserts + " = " + (i - inserts));
+        }
+        arrayMap.set(i + inserts, mappingActions);
+        mappingActions.forEach(function (ma) { return ma.index = i + inserts; });
+    };
+    for (var i = size - 1; i >= index; i--) {
+        _loop_2(i);
+    }
+    for (var i = index; i < index + insertedMappingActions.length; ++i) {
+        arrayMap.set(i, insertedMappingActions[i - index]);
+    }
+    return arrayMap.size;
+}
+exports.arrayMapInsert = arrayMapInsert;
 /**
  * Relates application state properties with React components, for the purpose of
  * forcing components to update (ie render).
@@ -89,6 +138,10 @@ var MappingState = /** @class */ (function () {
             }
             return result;
         }
+    };
+    MappingState.prototype.getPathMappingArrayMap = function (fullpath) {
+        var result = this.pathMappings.get(fullpath);
+        return result instanceof Map ? result : undefined;
     };
     /**
      * If genericMappingAction is undefined, remove all mappings for the path.

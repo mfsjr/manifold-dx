@@ -326,10 +326,15 @@ describe('ContainerComponent instantiation, mount, update, unmount', () => {
     // verify that state was updated
     expect(nameState.addresses[0].street).toBe(addr0.street);
     expect(nameState.addresses[1].street).toBe(newAddr1.street);
+
     // verify that the prop that was mapped from the state was also updated
-    // expect(address1Container.viewProps[`addresses`]).toBeUndefined();
-    expect(address1Container.viewProps.address).toBe(addr0);
-    expect(address2Container.viewProps.address).toBe(newAddr1);
+
+    // new scheme: state array index insert results in mappings insertion
+
+    // old scheme: state changes with insertion, mappings are fixed
+    // // expect(address1Container.viewProps[`addresses`]).toBeUndefined();
+    // expect(address1Container.viewProps.address).toBe(addr0);
+    // expect(address2Container.viewProps.address).toBe(newAddr1);
 
   });
   test('deleting an element from the addresses array re-maps the array and its containers', () => {

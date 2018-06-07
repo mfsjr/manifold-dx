@@ -150,13 +150,13 @@ export class ArrayCrudActionCreator<S extends StateObject, K extends keyof S, V 
       new StateCrudAction(ActionId.RERENDER, this.parent, this.propertyKey, this.parent[this.propertyKey])
     ];
 
-    // // the preceding action mutates every element > index, so dispatch NULL actions that refresh their components
-    for (let i = 1 + index; i < this.valuesArray.length; i++ ) {
-      let _value = this.valuesArray[i - 1];
-      let action = new ArrayMutateAction(ActionId.RERENDER, this.parent, this.propertyKey,
-                                         i, this.valuesArray, this.keyGenerator, _value);
-      actions.push(action);
-    }
+    // // // the preceding action mutates every element > index, so dispatch NULL actions that refresh their components
+    // for (let i = 1 + index; i < this.valuesArray.length; i++ ) {
+    //   let _value = this.valuesArray[i - 1];
+    //   let action = new ArrayMutateAction(ActionId.RERENDER, this.parent, this.propertyKey,
+    //                                      i, this.valuesArray, this.keyGenerator, _value);
+    //   actions.push(action);
+    // }
 
     return actions;
   }

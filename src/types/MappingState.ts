@@ -24,7 +24,7 @@ export function arrayMapDelete(arrayMap: ArrayMap, index: number, num?: number):
   if (!result) {
     throw new Error(`undefined actions at index = ${index}` );
   }
-  let size = arrayMap.get(null) ? arrayMap.size - dx : arrayMap.size;
+  let size = arrayMap.get(null) ? arrayMap.size - 1 : arrayMap.size;
   for (let i = index + dx; i < size; i++) {
     let mappingActions = arrayMap.get(i);
     if (!mappingActions) {
@@ -34,19 +34,23 @@ export function arrayMapDelete(arrayMap: ArrayMap, index: number, num?: number):
     arrayMap.delete(i);
     mappingActions.forEach(ma => ma.index = i - dx);
   }
+  for (let i = 0; i < dx; i++ ) {
+    arrayMap.delete(size - 1 - i);
+  }
   return result;
 }
 
 export function arrayMapInsert(arrayMap: ArrayMap, index: number, ...insertedMappingActions: Array<AnyMappingAction[]>)
     : number {
   let inserts = insertedMappingActions.length;
-  let size = arrayMap.get(null) ? arrayMap.size - inserts : arrayMap.size;
-  for (let i = size; i > index; i-- ) {
-    let mappingActions = arrayMap.get(i - inserts);
+  let size = arrayMap.get(null) ? arrayMap.size - 1 : arrayMap.size;
+  for (let i = size - 1; i >= index; i-- ) {
+    let mappingActions = arrayMap.get(i);
     if (!mappingActions) {
       throw new Error(`found undefined entry at i - ${inserts} = ${i - inserts}` );
     }
-    arrayMap.set(i, mappingActions);
+    arrayMap.set(i + inserts, mappingActions);
+    mappingActions.forEach(ma => ma.index = i + inserts);
   }
   for (let i = index; i < index + insertedMappingActions.length; ++i) {
     arrayMap.set(i, insertedMappingActions[i - index]);

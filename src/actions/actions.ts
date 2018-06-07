@@ -2,6 +2,7 @@ import { mutateArray, mutateValue } from './mutations';
 import { AnyContainerComponent, ContainerComponent } from '../components/ContainerComponent';
 import { StateObject } from '../types/State';
 import { Manager } from '../types/Manager';
+import { arrayMapDelete, arrayMapInsert } from '../types/MappingState';
 
 /**
  * ActionId's for calling api's that change state.
@@ -343,15 +344,22 @@ export class ArrayMutateAction
     if (perform) {
       this.oldValue = this.mutateResult ? this.mutateResult.oldValue : undefined;
       this.mutated = true;
-      //
-      // if (this.type === ActionId.INSERT_PROPERTY) {
-      //   let mappingState = Manager.get(this.parent).getMappingState();
-      //   let arrayMap = mappingState.getPathMappingArrayMap(fullpath);
-      //   if (arrayMap) {
-      //     // the component to be rendered will place its mapping actions in this slot
-      //     arrayMapInsert(arrayMap, [], this.index);
-      //   }
-      // }
+
+      if (this.type === ActionId.INSERT_PROPERTY) {
+        let mappingState = Manager.get(this.parent).getMappingState();
+        let arrayMap = mappingState.getPathMappingArrayMap(fullpath);
+        if (arrayMap) {
+          // the component to be rendered will place its mapping actions in this slot
+          arrayMapInsert(arrayMap, this.index, []);
+        }
+      } else if (this.type === ActionId.DELETE_PROPERTY) {
+        let mappingState = Manager.get(this.parent).getMappingState();
+        let arrayMap = mappingState.getPathMappingArrayMap(fullpath);
+        if (arrayMap) {
+          // the component to be rendered will place its mapping actions in this slot
+          arrayMapDelete(arrayMap, this.index);
+        }
+      }
     } else {
       this.mutateResult = undefined;
       this.oldValue = undefined;

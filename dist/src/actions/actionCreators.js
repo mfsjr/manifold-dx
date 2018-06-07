@@ -130,13 +130,6 @@ var ArrayCrudActionCreator = /** @class */ (function () {
             new actions_1.ArrayMutateAction(actions_1.ActionId.INSERT_PROPERTY, this.parent, this.propertyKey, index, this.valuesArray, this.keyGenerator, value),
             new actions_1.StateCrudAction(actions_1.ActionId.RERENDER, this.parent, this.propertyKey, this.parent[this.propertyKey])
         ];
-        // // // the preceding action mutates every element > index, so dispatch NULL actions that refresh their components
-        // for (let i = 1 + index; i < this.valuesArray.length; i++ ) {
-        //   let _value = this.valuesArray[i - 1];
-        //   let action = new ArrayMutateAction(ActionId.RERENDER, this.parent, this.propertyKey,
-        //                                      i, this.valuesArray, this.keyGenerator, _value);
-        //   actions.push(action);
-        // }
         return actions;
     };
     ArrayCrudActionCreator.prototype.update = function (index, newValue) {
@@ -145,12 +138,10 @@ var ArrayCrudActionCreator = /** @class */ (function () {
     };
     ArrayCrudActionCreator.prototype.remove = function (index) {
         var newValue = index + 1 < this.valuesArray.length ? this.valuesArray[index + 1] : undefined;
-        var action = new actions_1.ArrayMutateAction(actions_1.ActionId.DELETE_PROPERTY, this.parent, this.propertyKey, index, this.valuesArray, this.keyGenerator, newValue);
-        var actions = [action];
-        for (var i = 1 + index; i < this.valuesArray.length - 1; i++) {
-            actions.push(new actions_1.ArrayMutateAction(actions_1.ActionId.RERENDER, this.parent, this.propertyKey, i, this.valuesArray, this.keyGenerator, this.valuesArray[i + 1]));
-        }
-        return actions;
+        return [
+            new actions_1.ArrayMutateAction(actions_1.ActionId.DELETE_PROPERTY, this.parent, this.propertyKey, index, this.valuesArray, this.keyGenerator, newValue),
+            new actions_1.StateCrudAction(actions_1.ActionId.RERENDER, this.parent, this.propertyKey, this.parent[this.propertyKey])
+        ];
     };
     return ArrayCrudActionCreator;
 }());

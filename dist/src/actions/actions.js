@@ -50,9 +50,10 @@ var Action = /** @class */ (function () {
      * the possible exception of testing.
      *
      * @param {Action} action
+     * @param {boolean} perform - optional, will default to true, false means undo
      */
-    Action.perform = function (action) {
-        action.performMutation();
+    Action.perform = function (action, perform) {
+        action.performMutation(perform);
     };
     /**
      * Undo the mutation on the action.  This is only called by the {@link Manager} and should never be called directly.
@@ -61,8 +62,8 @@ var Action = /** @class */ (function () {
     Action.undo = function (action) {
         action.undoMutation();
     };
-    Action.prototype.performMutation = function () {
-        this.mutate(true);
+    Action.prototype.performMutation = function (perform) {
+        this.mutate(perform ? perform : true);
     };
     Action.prototype.assignProps = function (from) {
         this.type = from.type;
@@ -114,14 +115,6 @@ var StateAction = /** @class */ (function (_super) {
         var fullPath = Manager_1.Manager.get(this.parent).getFullPath(this.parent, this.propertyName);
         var mappingActions = Manager_1.Manager.get(this.parent).getMappingState().getPathMappings(fullPath);
         this.concatContainersFromMappingActions(containersBeingRendered, mappingActions);
-        // if (mappingActions) {
-        //   let containers = mappingActions.map((mapping) => mapping.component);
-        //   containers.forEach((container) => {
-        //     if (containersBeingRendered.indexOf(container) < 0) {
-        //       containersBeingRendered.push(container);
-        //     }
-        //   });
-        // }
     };
     StateAction.prototype.concatContainersFromMappingActions = function (containersBeingRendered, mappingActions) {
         if (mappingActions) {
@@ -146,6 +139,9 @@ var StateCrudAction = /** @class */ (function (_super) {
     function StateCrudAction(actionType, _parent, _propertyName, _value) {
         var _this = _super.call(this, actionType, _parent, _propertyName) || this;
         _this.value = _value;
+        if (actionType === ActionId.UPDATE_PROPERTY && _value instanceof Array) {
+            throw new Error("Arrays may be inserted or deleted, have resized or mutated, but not updated");
+        }
         return _this;
     }
     StateCrudAction.prototype.getOldValue = function () {

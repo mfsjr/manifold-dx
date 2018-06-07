@@ -293,13 +293,14 @@ describe('ContainerComponent instantiation, mount, update, unmount', function ()
         // verify that state was updated
         expect(nameState.addresses[0].street).toBe(addr0.street);
         expect(nameState.addresses[1].street).toBe(newAddr1.street);
-        var _a;
         // verify that the prop that was mapped from the state was also updated
         // new scheme: state array index insert results in mappings insertion
         // old scheme: state changes with insertion, mappings are fixed
         // // expect(address1Container.viewProps[`addresses`]).toBeUndefined();
-        // expect(address1Container.viewProps.address).toBe(addr0);
-        // expect(address2Container.viewProps.address).toBe(newAddr1);
+        expect(address1Container.viewProps.address).toBe(newAddr1);
+        // does this make sense?
+        expect(address2Container.viewProps.address).toBe(undefined);
+        var _a;
     });
     test('deleting an element from the addresses array re-maps the array and its containers', function () {
         expect(nameState.addresses[1].street).toBe(newAddr1.street);
@@ -309,7 +310,8 @@ describe('ContainerComponent instantiation, mount, update, unmount', function ()
         (_a = Manager_1.Manager.get(nameState)).actionProcess.apply(_a, deleteActions);
         expect(nameState.addresses[0].street).toBe(newAddr1.street);
         expect(address1Container.viewProps.address).toBe(newAddr1);
-        expect(address2Container.viewProps.address).toBe(addr2);
+        // does this make sense?
+        expect(address2Container.viewProps.address).toBe(undefined);
         var _a;
     });
     test('unmount should result in bowler being removed from the still-present component state mapping value ' +

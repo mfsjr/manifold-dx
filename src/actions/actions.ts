@@ -49,9 +49,10 @@ export abstract class Action {
    * the possible exception of testing.
    *
    * @param {Action} action
+   * @param {boolean} perform - optional, will default to true, false means undo
    */
-  public static perform(action: Action): void {
-    action.performMutation();
+  public static perform(action: Action, perform?: boolean): void {
+    action.performMutation(perform);
   }
 
   /**
@@ -72,8 +73,8 @@ export abstract class Action {
     this.type = actionType;
   }
 
-  protected performMutation(): void {
-    this.mutate(true);
+  protected performMutation(perform?: boolean): void {
+    this.mutate(perform ? perform : true);
   }
 
   protected assignProps(from: Action) {
@@ -132,14 +133,6 @@ export abstract class StateAction<S extends StateObject, K extends keyof S> exte
     let fullPath = Manager.get(this.parent).getFullPath(this.parent, this.propertyName);
     let mappingActions = Manager.get(this.parent).getMappingState().getPathMappings(fullPath);
     this.concatContainersFromMappingActions(containersBeingRendered, mappingActions);
-    // if (mappingActions) {
-    //   let containers = mappingActions.map((mapping) => mapping.component);
-    //   containers.forEach((container) => {
-    //     if (containersBeingRendered.indexOf(container) < 0) {
-    //       containersBeingRendered.push(container);
-    //     }
-    //   });
-    // }
   }
   
   protected concatContainersFromMappingActions(
@@ -190,6 +183,9 @@ export class StateCrudAction<S extends StateObject, K extends keyof S> extends S
   constructor(actionType: ActionId, _parent: S, _propertyName: K, _value?: S[K]) {
     super(actionType, _parent, _propertyName);
     this.value = _value;
+    if (actionType === ActionId.UPDATE_PROPERTY && _value instanceof Array) {
+      throw new Error(`Arrays may be inserted or deleted, have resized or mutated, but not updated`);
+    }
   }
 
   protected mutate(perform: boolean = true): void {

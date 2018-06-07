@@ -150,14 +150,6 @@ export class ArrayCrudActionCreator<S extends StateObject, K extends keyof S, V 
       new StateCrudAction(ActionId.RERENDER, this.parent, this.propertyKey, this.parent[this.propertyKey])
     ];
 
-    // // // the preceding action mutates every element > index, so dispatch NULL actions that refresh their components
-    // for (let i = 1 + index; i < this.valuesArray.length; i++ ) {
-    //   let _value = this.valuesArray[i - 1];
-    //   let action = new ArrayMutateAction(ActionId.RERENDER, this.parent, this.propertyKey,
-    //                                      i, this.valuesArray, this.keyGenerator, _value);
-    //   actions.push(action);
-    // }
-
     return actions;
   }
 
@@ -169,16 +161,11 @@ export class ArrayCrudActionCreator<S extends StateObject, K extends keyof S, V 
 
   public remove(index: number): StateAction<S, K>[] {
     let newValue: V = index + 1 < this.valuesArray.length ? this.valuesArray[index + 1] : undefined;
-    let action = new ArrayMutateAction(
-      ActionId.DELETE_PROPERTY, this.parent, this.propertyKey, index, this.valuesArray,
-      this.keyGenerator, newValue);
-
-    let actions = [action];
-    for (let i: number = 1 + index; i < this.valuesArray.length - 1; i++ ) {
-      actions.push(new ArrayMutateAction(ActionId.RERENDER, this.parent, this.propertyKey, i, this.valuesArray,
-                                         this.keyGenerator, this.valuesArray[i + 1]));
-    }
-    return actions;
+    return [
+      new ArrayMutateAction(ActionId.DELETE_PROPERTY, this.parent, this.propertyKey, index, this.valuesArray,
+                            this.keyGenerator, newValue),
+      new StateCrudAction(ActionId.RERENDER, this.parent, this.propertyKey, this.parent[this.propertyKey])
+    ];
   }
 }
 

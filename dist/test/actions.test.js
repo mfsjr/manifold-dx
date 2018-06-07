@@ -89,7 +89,8 @@ describe('Add the name container', function () {
     });
     describe('Array related actions', function () {
         test('bowling scores should be present', function () {
-            var bowlingAction = new actions_1.StateCrudAction(actions_1.ActionId.UPDATE_PROPERTY, nameState, 'bowlingScores', bowlingScores);
+            new actions_1.StateCrudAction(actions_1.ActionId.DELETE_PROPERTY, nameState, 'bowlingScores', undefined).process();
+            var bowlingAction = new actions_1.StateCrudAction(actions_1.ActionId.INSERT_PROPERTY, nameState, 'bowlingScores', bowlingScores);
             // testStore.getManager().actionPerform(bowlingAction);
             bowlingAction.process();
             expect(nameState.bowlingScores).toBe(bowlingScores);

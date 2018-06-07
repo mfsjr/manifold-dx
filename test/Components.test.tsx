@@ -333,8 +333,9 @@ describe('ContainerComponent instantiation, mount, update, unmount', () => {
 
     // old scheme: state changes with insertion, mappings are fixed
     // // expect(address1Container.viewProps[`addresses`]).toBeUndefined();
-    // expect(address1Container.viewProps.address).toBe(addr0);
-    // expect(address2Container.viewProps.address).toBe(newAddr1);
+    expect(address1Container.viewProps.address).toBe(newAddr1);
+    // does this make sense?
+    expect(address2Container.viewProps.address).toBe(undefined);
 
   });
   test('deleting an element from the addresses array re-maps the array and its containers', () => {
@@ -346,7 +347,8 @@ describe('ContainerComponent instantiation, mount, update, unmount', () => {
 
     expect(nameState.addresses[0].street).toBe(newAddr1.street);
     expect(address1Container.viewProps.address).toBe(newAddr1);
-    expect(address2Container.viewProps.address).toBe(addr2);
+    // does this make sense?
+    expect(address2Container.viewProps.address).toBe(undefined);
   });
   test(
       'unmount should result in bowler being removed from the still-present component state mapping value ' +

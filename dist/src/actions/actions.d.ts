@@ -40,8 +40,9 @@ export declare abstract class Action {
      * the possible exception of testing.
      *
      * @param {Action} action
+     * @param {boolean} perform - optional, will default to true, false means undo
      */
-    static perform(action: Action): void;
+    static perform(action: Action, perform?: boolean): void;
     /**
      * Undo the mutation on the action.  This is only called by the {@link Manager} and should never be called directly.
      * @param {Action} action
@@ -51,7 +52,7 @@ export declare abstract class Action {
     abstract clone(): Action;
     abstract process(): void;
     constructor(actionType: ActionId);
-    protected performMutation(): void;
+    protected performMutation(perform?: boolean): void;
     protected assignProps(from: Action): void;
     getUndoAction(): ActionId;
     protected undoMutation(): void;

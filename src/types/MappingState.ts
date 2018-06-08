@@ -31,7 +31,6 @@ export function arrayMapDelete(arrayMap: ArrayMap, index: number, num?: number):
       throw new Error(`undefined actions at index = ${i}`);
     }
     arrayMap.set(i - dx, mappingActions);
-    arrayMap.delete(i);
     mappingActions.forEach(ma => ma.index = i - dx);
   }
   for (let i = 0; i < dx; i++ ) {

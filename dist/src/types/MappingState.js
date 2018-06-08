@@ -13,7 +13,6 @@ function arrayMapDelete(arrayMap, index, num) {
             throw new Error("undefined actions at index = " + i);
         }
         arrayMap.set(i - dx, mappingActions);
-        arrayMap.delete(i);
         mappingActions.forEach(function (ma) { return ma.index = i - dx; });
     };
     for (var i = index + dx; i < size; i++) {

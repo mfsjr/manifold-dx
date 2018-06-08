@@ -83,6 +83,9 @@ export declare abstract class ContainerComponent<CP, VP, A extends StateObject> 
      */
     abstract createViewProps(): VP;
     /**
+     * Update the properties of the view (presentational component) immediately after the
+     * container component's properties have changed.
+     *
      * This method can be used to alter default state property and dispatch mappings
      */
     updateViewProps(executedActions: Action[]): void;

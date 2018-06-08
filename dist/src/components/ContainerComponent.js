@@ -117,6 +117,9 @@ var ContainerComponent = /** @class */ (function (_super) {
         this.mappingActions.push(action);
     };
     /**
+     * Update the properties of the view (presentational component) immediately after the
+     * container component's properties have changed.
+     *
      * This method can be used to alter default state property and dispatch mappings
      */
     ContainerComponent.prototype.updateViewProps = function (executedActions) { return; };
@@ -191,6 +194,7 @@ var ContainerComponent = /** @class */ (function (_super) {
                 unmappingAction.type = action.getUndoAction();
                 unmappingActions_1.push(unmappingAction);
             });
+            // TODO: defer execution of these actions, as other actions may be executing
             (_a = Manager_1.Manager.get(this.appData)).actionUndo.apply(_a, [0].concat(unmappingActions_1));
         }
         var _a;

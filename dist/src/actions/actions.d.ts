@@ -54,6 +54,10 @@ export declare abstract class Action {
     constructor(actionType: ActionId);
     protected performMutation(perform?: boolean): void;
     protected assignProps(from: Action): void;
+    /**
+     * Invert this action's type, or throw an error if its not invertible.
+     * @returns {ActionId}
+     */
     getUndoAction(): ActionId;
     protected undoMutation(): void;
     containersToRender(containersBeingRendered: AnyContainerComponent[]): void;

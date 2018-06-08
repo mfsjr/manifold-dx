@@ -34,15 +34,15 @@ export declare class MappingState {
     getOrCreatePathMappings(propFullPath: string, index?: number): AnyMappingAction[];
     getPathMappingArrayMap(fullpath: string): ArrayMap | undefined;
     /**
-     * If genericMappingAction is undefined, remove all mappings for the path.
+     * If mapping action is undefined, remove all mappings for the path.
      * If key is defined, its assumed the path is mapped to an array
      *
      * @param {string} _fullPath
-     * @param {AnyMappingAction | undefined} genericMappingAction
+     * @param {AnyMappingAction | undefined} mappingAction
      * @param {number} _index
      * @returns {number}
      */
-    removePathMapping(_fullPath: string, genericMappingAction: AnyMappingAction | undefined, _index?: number): number;
+    removePathMapping(_fullPath: string, mappingAction: AnyMappingAction, _index?: number): number;
     /**
      * If a state object is removed it will not be mapped directly, but it may have many child properties that are.
      *

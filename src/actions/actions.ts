@@ -83,9 +83,16 @@ export abstract class Action {
     this.pristine = from.pristine;
   }
 
+  /**
+   * Invert this action's type, or throw an error if its not invertible.
+   * @returns {ActionId}
+   */
   getUndoAction(): ActionId {
-    // Invert the action (note that UPDATE is the inverse of UPDATE)
-    let undoAction = ActionId.UPDATE_PROPERTY;
+    let undoAction: ActionId | undefined;
+
+    if (this.type === ActionId.UPDATE_PROPERTY || this.type === ActionId.MAP_STATE_TO_PROP) {
+      undoAction = this.type;
+    }
     if (this.type === ActionId.DELETE_PROPERTY || this.type === ActionId.INSERT_PROPERTY) {
       undoAction = this.type === ActionId.INSERT_PROPERTY ? ActionId.DELETE_PROPERTY : ActionId.INSERT_PROPERTY;
     }
@@ -93,6 +100,9 @@ export abstract class Action {
       undoAction = this.type === ActionId.INSERT_STATE_OBJECT
           ? ActionId.DELETE_STATE_OBJECT
           : ActionId.INSERT_STATE_OBJECT;
+    }
+    if (!undoAction) {
+      throw new Error(`Failed to find undoAction for ${this.type}, ${ActionId[this.type]}`);
     }
     return undoAction;
   }

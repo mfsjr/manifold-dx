@@ -159,6 +159,9 @@ export abstract class ContainerComponent<CP, VP, A extends StateObject>
   public abstract createViewProps(): VP;
 
   /**
+   * Update the properties of the view (presentational component) immediately after the
+   * container component's properties have changed.
+   *
    * This method can be used to alter default state property and dispatch mappings
    */
   public updateViewProps(executedActions: Action[]): void { return; }
@@ -235,6 +238,7 @@ export abstract class ContainerComponent<CP, VP, A extends StateObject>
         unmappingAction.type = action.getUndoAction();
         unmappingActions.push(unmappingAction);
       });
+      // TODO: defer execution of these actions, as other actions may be executing
       Manager.get(this.appData).actionUndo(0, ...unmappingActions);
     }
   }

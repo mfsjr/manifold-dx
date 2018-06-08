@@ -151,47 +151,25 @@ export class MappingState {
   }
 
   /**
-   * If genericMappingAction is undefined, remove all mappings for the path.
+   * If mapping action is undefined, remove all mappings for the path.
    * If key is defined, its assumed the path is mapped to an array
    *
    * @param {string} _fullPath
-   * @param {AnyMappingAction | undefined} genericMappingAction
+   * @param {AnyMappingAction | undefined} mappingAction
    * @param {number} _index
    * @returns {number}
    */
   public removePathMapping(
             _fullPath: string,
-            genericMappingAction: AnyMappingAction | undefined,
+            mappingAction: AnyMappingAction,
             _index?: number): number {
     let containers = this.getPathMappings(_fullPath, _index);
     if (containers) {
-      if (_index === undefined) {
-        if (genericMappingAction) {
-          let index = containers.indexOf(genericMappingAction);
-          if (index > -1) {
-            containers.splice(index, 1);
-            return 1;
-          }
-          return 0;
-        } else {
-          this.pathMappings.delete(_fullPath);
-          return containers.length;
-        }
-      } else {
-        if (containers && containers.length > 0) {
-          if (genericMappingAction) {
-            let index = containers.indexOf(genericMappingAction);
-            if (index > -1) {
-              containers.splice(index, 1);
-              return 1;
-            }
-          } else {
-            if (!this.pathMappings.delete(_fullPath)) {
-              throw new Error(`Failed to delete all mapping actions in the map at ${_fullPath}`);
-            }
-            return containers.length;
-          }
-        }
+      let index = containers.indexOf(mappingAction);
+      if (index > -1) {
+        containers.splice(index, 1);
+        // if there's nothing mapped to this, should we delete the key?
+        return 1;
       }
     }
     return 0;

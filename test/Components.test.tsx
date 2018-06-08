@@ -57,15 +57,6 @@ const ScoreCardGenerator = function(props: ScoreCardProps): React.Component<Scor
 };
 
 export function addressRowSfc(addressProps: AddressProps): React.ReactElement<AddressProps> {
-  // React.Children.forEach(props.children, (child, index) => {
-  //   if (child) {
-  //     if (typeof child !== 'string' && typeof child !== 'number') {
-  //       child.props.modifyBook = props.modifyBook;
-  //     } else {
-  //       throw new Error('Children of the row should not be ReactText!!!');
-  //     }
-  //   }
-  // });
   return (
     <div>
       <div>
@@ -329,11 +320,15 @@ describe('ContainerComponent instantiation, mount, update, unmount', () => {
 
     // verify that the prop that was mapped from the state was also updated
 
-    // new scheme: state array index insert results in mappings insertion
+    // state array index insert results in React inserting a new component,
+    // the old component at index 0 now is mapped to index 1
+    // Note we are looking at the container props, which is responsible for mapping to the view
+    // expect(address1Container.props.address).toBe(newAddr1);
+    // expect(address2Container.props.address).toBe(addr0);
 
     // old scheme: state changes with insertion, mappings are fixed
     // // expect(address1Container.viewProps[`addresses`]).toBeUndefined();
-    // expect(address1Container.viewProps.address).toBe(addr0);
+    // ;
     // expect(address2Container.viewProps.address).toBe(newAddr1);
 
   });

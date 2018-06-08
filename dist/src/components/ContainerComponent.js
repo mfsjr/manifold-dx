@@ -185,7 +185,8 @@ var ContainerComponent = /** @class */ (function (_super) {
         var _a;
     };
     ContainerComponent.prototype.componentWillUnmount = function () {
-        if (this.mappingActions) {
+        // TODO: this fix passes our tests, needs to be tried out
+        if (this.mappingActions && this.mappingActions.length > 0) {
             // unsubscribe from stateMappingActions, we need to undo these specific actions
             var unmappingActions_1 = [];
             this.mappingActions.forEach(function (action) {

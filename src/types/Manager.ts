@@ -72,6 +72,9 @@ export class Manager {
   }
 
   public actionUndo(nActions: number = 1, ..._undoActions: Action[]): number {
+    if (nActions === 0 && _undoActions.length === 0 ) {
+      throw Error(`Expecting to undo existing actions or receive actions to undo, received neither`);
+    }
     let actions = _undoActions.length > 0 ? _undoActions : this.actionQueue.lastActions(nActions);
 
     actions.forEach((action) => {
@@ -81,7 +84,7 @@ export class Manager {
         }
       } else {
         if (!action.pristine) {
-          throw Error('expecting actions passed in to be new/origin/pristine');
+          throw Error('expecting actions passed in to be new/original/pristine');
         }
       }
     });

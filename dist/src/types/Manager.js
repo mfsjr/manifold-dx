@@ -54,6 +54,9 @@ var Manager = /** @class */ (function () {
         for (var _i = 1; _i < arguments.length; _i++) {
             _undoActions[_i - 1] = arguments[_i];
         }
+        if (nActions === 0 && _undoActions.length === 0) {
+            throw Error("Expecting to undo existing actions or receive actions to undo, received neither");
+        }
         var actions = _undoActions.length > 0 ? _undoActions : this.actionQueue.lastActions(nActions);
         actions.forEach(function (action) {
             if (actions !== _undoActions) {
@@ -63,7 +66,7 @@ var Manager = /** @class */ (function () {
             }
             else {
                 if (!action.pristine) {
-                    throw Error('expecting actions passed in to be new/origin/pristine');
+                    throw Error('expecting actions passed in to be new/original/pristine');
                 }
             }
         });

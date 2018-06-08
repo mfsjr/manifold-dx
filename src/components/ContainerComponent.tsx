@@ -229,7 +229,8 @@ export abstract class ContainerComponent<CP, VP, A extends StateObject>
   }
 
   componentWillUnmount() {
-    if (this.mappingActions) {
+    // TODO: this fix passes our tests, needs to be tried out
+    if (this.mappingActions && this.mappingActions.length > 0) {
       // unsubscribe from stateMappingActions, we need to undo these specific actions
       let unmappingActions: AnyMappingAction[] = [];
       this.mappingActions.forEach((action) => {

@@ -216,41 +216,6 @@ export class StateCrudAction<S extends StateObject, K extends keyof S> extends S
 }
 
 /**
- * Functions like this are necessary to create mappings between React keys array indexes
- *
- * Its probably a good idea to co-locate these methods in StateObjects next to the arrays they apply to,
- * in order to make sure there's one and only one definition.
- */
-export type ArrayKeyGeneratorFn<V> = (arrayElement: V, index?: number, array?: Array<V>) => React.Key;
-
-/**
- * The name of this function is intended to convey the fact that it uses a property of the array
- * object type to use as the key.
- *
- * Seems like this is the usual / expected case, so export this function to be used for that.
- * Note that the signature is not the same as KeyGeneratorFnType, so to use it you will need to
- * generate the actual KeyGeneratorFnType like so:
- *
- * `let idGenerator = bookKeyGenerator<Book>(book: Book) {
- *    return propertyKeyGenerator<Book>(books, index, { propertyKey: 'id' } );
- *  }
- * `
- *
- * @param {Array<V>} array
- * @param {number} index
- * @param {{propertyKey: keyof V}} options
- * @returns {React.Key}
- */
-export function propertyKeyGenerator<V>(arrayElement: V, propertyKey: keyof V): React.Key {
-  let keyValue = arrayElement[propertyKey];
-  if (typeof keyValue === 'string' || typeof keyValue === 'number') { // typeguard for React.Key
-    return keyValue;
-  }
-  let message = `keyValue ${JSON.stringify(keyValue, null, 4)} is not a React.Key!`;
-  throw new Error(message);
-}
-
-/**
  * For mutating the elements in the array.
  */
 export class ArrayChangeAction
@@ -263,7 +228,6 @@ export class ArrayChangeAction
   // ms: changed from optional to required, since arrays are simple properties that must be explicitly inserted
   valuesArray: Array<V> & S[K];
   index: number;
-  keyGen: ArrayKeyGeneratorFn<V>;
 
   protected assignProps(from: ArrayChangeAction<S, K, V>) {
     super.assignProps(from);
@@ -272,7 +236,6 @@ export class ArrayChangeAction
     this.value = from.value;
     this.valuesArray = from.valuesArray;
     this.index = from.index;
-    this.keyGen = from.keyGen;
   }
 
   public clone(): ArrayChangeAction<S, K, V> {
@@ -281,7 +244,6 @@ export class ArrayChangeAction
         this.propertyName,
         this.index,
         this.valuesArray,
-        this.keyGen,
         this.value);
 
     return copy;
@@ -289,13 +251,12 @@ export class ArrayChangeAction
 
   // TODO: restrict the set of ActionId's here to regular property insert/update/delete
   constructor(actionType: ActionId, _parent: S, _propertyName: K, _index: number,
-              valuesArray: Array<V> & S[K], _keyGen: ArrayKeyGeneratorFn<V>, _value?: V) {
+              valuesArray: Array<V> & S[K], _value?: V) {
     super(actionType, _parent, _propertyName);
 
     this.index = _index;
     this.value = _value;
     this.valuesArray = valuesArray;
-    this.keyGen = _keyGen;
   }
 
   // Attempts to solve the problem of updating array actions for inserts/deletes above the index where it occurs.
@@ -383,7 +344,6 @@ export class MappingAction
 
   //
   index: number = -1;
-  keyGen?: ArrayKeyGeneratorFn<E>;
   propArray?: Array<E>;
 
   protected assignProps(from:  MappingAction<S, K, CP, VP, TP, A, E>) {
@@ -448,9 +408,9 @@ export class MappingAction
    * @param {S[K] & Array<E>} _propArray
    * @param {ArrayKeyGeneratorFn<E>} _keyGen
    */
-  public setArrayElement(_index: number, _propArray: S[K] & Array<E>, _keyGen: ArrayKeyGeneratorFn<E>)
+  public setArrayElement(_index: number, _propArray: S[K] & Array<E>)
     : MappingAction<S, K, CP, VP, TP, A, E> {
-    if (this.index > -1 || this.keyGen || this.propArray) {
+    if (this.index > -1 || this.propArray) {
       // this can be done once and only once, or we throw
       throw new Error(`attempting to reset array ${this.propertyName} at index = ${_index}`);
     }
@@ -459,7 +419,7 @@ export class MappingAction
       throw new Error(`Can't map to an undefined array index ${_index} at ${fullpath}`);
     }
     this.index = _index;
-    this.keyGen = _keyGen;
+
     this.propArray = _propArray;
     return this;
   }

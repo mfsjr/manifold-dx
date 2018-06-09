@@ -1,7 +1,6 @@
 import { Store, StateObject } from '../src/types/State';
 // import { ArrayKeyGeneratorFn, propertyKeyGenerator } from '../src/actions/actions';
 import { ArrayCrudActionCreator, CrudActionCreator } from '../src/actions/actionCreators';
-import { ArrayKeyGeneratorFn } from '../src/actions/actions';
 import { getArrayCrudCreator, getCrudCreator } from '../src';
 
 export interface Address {
@@ -35,7 +34,6 @@ export interface Name {
 
 export interface NameState extends Name, StateObject {
   getActionCreator: (nameState: NameState) => CrudActionCreator<Name & StateObject>;
-  addressKeyGen: ArrayKeyGeneratorFn<Address>;
   getAddressesActionCreator: (nameState: NameState) => ArrayCrudActionCreator<NameState, 'addresses', Address>;
 }
 
@@ -67,13 +65,10 @@ export function createNameContainer(nameData: Name, parent: StateObject, myName:
     return actionCreator;
   };
 
-  // define the keyGeneratorFn, to be used in multiple places below
-  let keyGeneratorFn: ArrayKeyGeneratorFn<Address> = (address: Address) => address.id;
-
   let addressesActionCreator: ArrayCrudActionCreator<NameState, 'addresses', Address>;
   let getAddressesActionCreator = function(_nameState: NameState) {
     addressesActionCreator = addressesActionCreator ||
-      new ArrayCrudActionCreator(_nameState, _nameState.addresses, keyGeneratorFn);
+      new ArrayCrudActionCreator(_nameState, _nameState.addresses);
     return addressesActionCreator;
   };
 
@@ -82,7 +77,6 @@ export function createNameContainer(nameData: Name, parent: StateObject, myName:
     _myPropname: myName,
     ...nameData,
     getActionCreator: _getActionCreator,
-    addressKeyGen: (address: Address) => address.id,
     getAddressesActionCreator
   };
   parent[myName] = nameState;
@@ -101,7 +95,6 @@ export class NameStateCreator {
       ...nameData,
       _parent: parent,
       _myPropname: myName,
-      addressKeyGen: (address: Address) => address.id,
       getAddressesActionCreator: this.getAddressesActionCreator,
       getActionCreator: this.getActionCreator
     };
@@ -112,7 +105,7 @@ export class NameStateCreator {
 
   getAddressesActionCreator: (nameState: NameState) => ArrayCrudActionCreator<NameState, 'addresses', Address> =
     (nameState: NameState) => getArrayCrudCreator(
-      this.nameState, this.nameState.addresses, this.nameState.addressKeyGen)
+      this.nameState, this.nameState.addresses)
 }
 
 export interface TestState {

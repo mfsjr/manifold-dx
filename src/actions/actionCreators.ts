@@ -1,6 +1,6 @@
 import { StateObject } from '../';
 import {
-  Action, ActionId, ArrayKeyGeneratorFn, ArrayChangeAction, DispatchType, MappingAction, StateAction, StateCrudAction,
+  Action, ActionId, ArrayChangeAction, DispatchType, MappingAction, StateAction, StateCrudAction,
 } from './actions';
 import { ContainerComponent } from '../components/ContainerComponent';
 
@@ -65,9 +65,9 @@ export function getCrudCreator<S extends StateObject>(parent: S): CrudActionCrea
 }
 
 export function getArrayCrudCreator<S extends StateObject, K extends keyof S, V extends Object>
-(parent: S, childArray: Array<V> & S[K], keyGenerator: ArrayKeyGeneratorFn<V>)
+(parent: S, childArray: Array<V> & S[K])
 : ArrayCrudActionCreator<S, K, V> {
-  return new ArrayCrudActionCreator(parent, childArray, keyGenerator);
+  return new ArrayCrudActionCreator(parent, childArray);
 }
 /**
  * Class for creating CRUD actions for arrays of objects (not primitives).
@@ -85,8 +85,6 @@ export class ArrayCrudActionCreator<S extends StateObject, K extends keyof S, V 
   private propertyKey: K;
 
   private valuesArray: Array<V> & S[K]; // & keyof S[keyof S];
-
-  private keyGenerator: ArrayKeyGeneratorFn<V>;
 
   /**
    * Construct an array crud creator.  We require a somewhat redundant 'valuesArray'
@@ -106,7 +104,7 @@ export class ArrayCrudActionCreator<S extends StateObject, K extends keyof S, V 
    * @param {Array<V>} childArray
    * @param {ArrayKeyGeneratorFn} keyGenerator
    */
-  constructor(parent: S, childArray: Array<V> & S[K], keyGenerator: ArrayKeyGeneratorFn<V>) {
+  constructor(parent: S, childArray: Array<V> & S[K]) {
     this.parent = parent;
     /* tslint:disable:no-any */
     let array: any = childArray;
@@ -122,7 +120,6 @@ export class ArrayCrudActionCreator<S extends StateObject, K extends keyof S, V 
     }
     this.propertyKey = propKey;
     this.valuesArray = array;
-    this.keyGenerator = keyGenerator;
   }
 
   public append(value: V): Action {
@@ -146,7 +143,7 @@ export class ArrayCrudActionCreator<S extends StateObject, K extends keyof S, V 
   public insert(index: number, value: V): StateAction<S, K>[] {
     let actions: Array<StateAction<S, K>> = [
       new ArrayChangeAction(
-        ActionId.INSERT_PROPERTY, this.parent, this.propertyKey, index, this.valuesArray, this.keyGenerator, value),
+        ActionId.INSERT_PROPERTY, this.parent, this.propertyKey, index, this.valuesArray, value),
       new StateCrudAction(ActionId.RERENDER, this.parent, this.propertyKey, this.parent[this.propertyKey])
     ];
 
@@ -156,20 +153,21 @@ export class ArrayCrudActionCreator<S extends StateObject, K extends keyof S, V 
   public update(index: number, newValue: V): ArrayChangeAction<S, K, V> {
     // let index = this.getIndexOf(oldValue);
     return new ArrayChangeAction(
-      ActionId.UPDATE_PROPERTY, this.parent, this.propertyKey, index, this.valuesArray, this.keyGenerator, newValue);
+      ActionId.UPDATE_PROPERTY, this.parent, this.propertyKey, index, this.valuesArray, newValue);
   }
 
   public remove(index: number): StateAction<S, K>[] {
+
     return [
-      new ArrayChangeAction(ActionId.DELETE_PROPERTY, this.parent, this.propertyKey, index, this.valuesArray,
-                            this.keyGenerator, undefined),
+      new ArrayChangeAction(ActionId.DELETE_PROPERTY, this.parent, this.propertyKey, index,
+                            this.valuesArray),
       new StateCrudAction(ActionId.RERENDER, this.parent, this.propertyKey, this.parent[this.propertyKey])
     ];
   }
 }
 
 export interface ArrayMappingCreatorOptions<S extends StateObject, K extends keyof S, E> {
-  keyGen: ArrayKeyGeneratorFn<E>;
+
   array: Array<E> & S[K];
 }
 
@@ -216,7 +214,7 @@ export function getMappingCreator<S extends StateObject, K extends keyof S, A ex
       throw Error(`Failed to find array in parent`);
     }
 
-    let result = mappingAction.setArrayElement(index, arrayOptions.array, arrayOptions.keyGen);
+    let result = mappingAction.setArrayElement(index, arrayOptions.array);
     return result as MappingAction<S, K, CP, VP, TP, A, E>;
   };
 

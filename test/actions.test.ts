@@ -99,11 +99,7 @@ describe('Add the name container', () => {
       expect(bowlingScores[0]).toBe(111);
     });
     test('array index notation should work', () => {
-      let keyGen = (score: number) => score;
-      // let updateAction = new ArrayMutateAction(
-      //     ActionId.UPDATE_PROPERTY, nameState, 'bowlingScores',
-      //     0, nameState.bowlingScores, keyGen, 101);
-      let updateAction = getArrayCrudCreator(nameState, nameState.bowlingScores, keyGen).update(0, 101);
+      let updateAction = getArrayCrudCreator(nameState, nameState.bowlingScores).update(0, 101);
       expect(updateAction.index).toBe(0);
       testStore.getManager().actionProcess(updateAction);
       expect(bowlingScores[0]).toBe(101);
@@ -192,10 +188,10 @@ describe('Add the name container', () => {
       if (!nameState.bowlingScores) {
         throw new Error('nameState.bowlingScores should be defined but is falsey');
       }
-      let keyGen = (score: number) => score;
+
       let appendScore = new ArrayChangeAction(
           ActionId.INSERT_PROPERTY, nameState, 'bowlingScores',
-          nameState.bowlingScores.length, nameState.bowlingScores, keyGen, 299);
+          nameState.bowlingScores.length, nameState.bowlingScores, 299);
       expect(() => {testStore.getManager().actionProcess(appendScore); }).not.toThrow();
 
       // restore the old middle
@@ -213,10 +209,10 @@ describe('Add the name container', () => {
       if (!nameState.bowlingScores) {
         throw new Error('nameState.bowlingScores should be defined but is falsey');
       }
-      let keyGen = (score: number) => score;
+
       let appendScore = new ArrayChangeAction(
           ActionId.INSERT_PROPERTY, nameState, 'bowlingScores',
-          nameState.bowlingScores.length, nameState.bowlingScores, keyGen, 299);
+          nameState.bowlingScores.length, nameState.bowlingScores, 299);
       expect(() => {testStore.getManager().actionProcess(appendScore); }).toThrow();
 
       // restore the old middle

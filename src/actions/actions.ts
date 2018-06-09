@@ -194,7 +194,8 @@ export class StateCrudAction<S extends StateObject, K extends keyof S> extends S
     super(actionType, _parent, _propertyName);
     this.value = _value;
     if (actionType === ActionId.UPDATE_PROPERTY && _value instanceof Array) {
-      throw new Error(`Arrays may be inserted or deleted, have resized or mutated, but not updated`);
+      throw new Error(
+        `Arrays may be inserted or deleted, but not updated (you can insert, update or delete array elements)`);
     }
   }
 
@@ -322,14 +323,6 @@ export class ArrayMutateAction
       let _index = this.index > -1 ? this.index : undefined;
       let mappingActions = Manager.get(this.parent).getMappingState().getPathMappings(fullpath, _index);
       this.concatContainersFromMappingActions(containersBeingRendered, mappingActions);
-      // if (_index !== undefined &&
-      // (this.type === ActionId.INSERT_PROPERTY || this.type === ActionId.DELETE_PROPERTY) ) {
-      //   // we need to get all containers for array elements above the index
-      //   for (let i = 1 + _index; i < this.valuesArray.length; i++) {
-      //     mappingActions = Manager.get(this.parent).getMappingState().getPathMappings(fullpath, i);
-      //     this.concatContainersFromMappingActions(containersBeingRendered, mappingActions);
-      //   }
-      // }
     } else {
       super.containersToRender(containersBeingRendered);
     }

@@ -41,7 +41,7 @@ var ActionId;
 /* tslint:enable:no-any */
 var Action = /** @class */ (function () {
     function Action(actionType) {
-        this.mutated = false;
+        this.changed = false;
         this.pristine = true;
         this.type = actionType;
     }
@@ -53,21 +53,21 @@ var Action = /** @class */ (function () {
      * @param {boolean} perform - optional, will default to true, false means undo
      */
     Action.perform = function (action, perform) {
-        action.performMutation(perform);
+        action.performChange(perform);
     };
     /**
      * Undo the mutation on the action.  This is only called by the {@link Manager} and should never be called directly.
      * @param {Action} action
      */
     Action.undo = function (action) {
-        action.undoMutation();
+        action.undoChange();
     };
-    Action.prototype.performMutation = function (perform) {
-        this.mutate(perform ? perform : true);
+    Action.prototype.performChange = function (perform) {
+        this.change(perform ? perform : true);
     };
     Action.prototype.assignProps = function (from) {
         this.type = from.type;
-        this.mutated = from.mutated;
+        this.changed = from.changed;
         this.pristine = from.pristine;
     };
     /**
@@ -92,8 +92,8 @@ var Action = /** @class */ (function () {
         }
         return undoAction;
     };
-    Action.prototype.undoMutation = function () {
-        this.mutate(false);
+    Action.prototype.undoChange = function () {
+        this.change(false);
     };
     Action.prototype.containersToRender = function (containersBeingRendered) { return; };
     return Action;
@@ -158,7 +158,7 @@ var StateCrudAction = /** @class */ (function (_super) {
     };
     StateCrudAction.prototype.assignProps = function (from) {
         _super.prototype.assignProps.call(this, from);
-        this.mutateResult = from.mutateResult;
+        this.changeResult = from.changeResult;
         this.oldValue = from.oldValue;
         this.value = from.value;
     };
@@ -167,7 +167,7 @@ var StateCrudAction = /** @class */ (function (_super) {
         copy.assignProps(this);
         return copy;
     };
-    StateCrudAction.prototype.mutate = function (perform) {
+    StateCrudAction.prototype.change = function (perform) {
         if (perform === void 0) { perform = true; }
         this.pristine = false;
         var fullpath = Manager_1.Manager.get(this.parent).getFullPath(this.parent, this.propertyName);
@@ -175,13 +175,13 @@ var StateCrudAction = /** @class */ (function (_super) {
         // annotateActionInState(this);
         var actionId = perform ? this.type : this.getUndoAction();
         var _value = perform ? this.value : this.oldValue;
-        this.mutateResult = mutations_1.mutateValue(actionId, this.parent, _value, this.propertyName);
+        this.changeResult = mutations_1.mutateValue(actionId, this.parent, _value, this.propertyName);
         if (perform) {
-            this.oldValue = this.mutateResult ? this.mutateResult.oldValue : undefined;
+            this.oldValue = this.changeResult ? this.changeResult.oldValue : undefined;
             this.mutated = true;
         }
         else {
-            this.mutateResult = undefined;
+            this.changeResult = undefined;
             this.oldValue = undefined;
             this.mutated = false;
         }
@@ -239,7 +239,7 @@ var ArrayMutateAction = /** @class */ (function (_super) {
     }
     ArrayMutateAction.prototype.assignProps = function (from) {
         _super.prototype.assignProps.call(this, from);
-        this.mutateResult = from.mutateResult;
+        this.mutateResult = from.changeResult;
         this.oldValue = from.oldValue;
         this.value = from.value;
         this.valuesArray = from.valuesArray;
@@ -274,7 +274,7 @@ var ArrayMutateAction = /** @class */ (function (_super) {
             _super.prototype.containersToRender.call(this, containersBeingRendered);
         }
     };
-    ArrayMutateAction.prototype.mutate = function (perform) {
+    ArrayMutateAction.prototype.change = function (perform) {
         if (perform === void 0) { perform = true; }
         this.pristine = false;
         // annotateActionInState(this);
@@ -408,7 +408,7 @@ var MappingAction = /** @class */ (function (_super) {
      * Map this property/component pair to the applications ContainerState, or if false, unmap it.
      * @param {boolean} perform
      */
-    MappingAction.prototype.mutate = function (perform) {
+    MappingAction.prototype.change = function (perform) {
         if (perform === void 0) { perform = true; }
         this.pristine = false;
         // If this action refers to an element at an array index, compute the key
@@ -424,15 +424,15 @@ var MappingAction = /** @class */ (function (_super) {
         }
     };
     // on componentDidMount
-    MappingAction.prototype.performMutation = function () {
-        this.mutate(true);
+    MappingAction.prototype.performChange = function () {
+        this.change(true);
     };
     // on componentWillUnmount
-    MappingAction.prototype.undoMutation = function () {
-        this.mutate(false);
+    MappingAction.prototype.undoChange = function () {
+        this.change(false);
     };
     MappingAction.prototype.redo = function () {
-        this.performMutation();
+        this.performChange();
     };
     return MappingAction;
 }(StateAction));

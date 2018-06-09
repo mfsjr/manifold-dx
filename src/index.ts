@@ -1,7 +1,7 @@
 import { Action, StateCrudAction, MappingAction, DispatchType } from './actions/actions';
 import { ContainerComponent } from './components/ContainerComponent';
 import { Store, StateObject } from './types/State';
-import { ArrayMutateAction } from './actions/actions';
+import { ArrayChangeAction } from './actions/actions';
 import { getCrudCreator, getArrayCrudCreator, getMappingCreator } from './actions/actionCreators';
 
 /**
@@ -17,7 +17,7 @@ export {
   getArrayCrudCreator,
   getMappingCreator,
   StateCrudAction,
-  ArrayMutateAction,
+  ArrayChangeAction,
   MappingAction,
   DispatchType,
   ContainerComponent

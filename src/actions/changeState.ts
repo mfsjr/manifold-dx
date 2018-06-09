@@ -4,7 +4,7 @@ import { MutationError } from '../types/StateMutationCheck';
 import { JSON_replaceCyclicParent, StateObject, Store } from '../types/State';
 
 /**
- * StateObjects are mutated here, any other mutations will be detected and throw an error.
+ * StateObjects are changed here, any other changes will be detected and throw an error.
  */
 
 /* tslint:disable:no-any */
@@ -50,7 +50,7 @@ let actionImmutabilityCheck = function(actionId: ActionId, oldValue: any, newVal
  * @param {number} index
  * @returns {{oldValue?: V}}
  */
-export function mutateArray<S extends StateObject, K extends keyof S, V>
+export function changeArray<S extends StateObject, K extends keyof S, V>
 (actionType: ActionId, stateObject: S, values: Array<V>,
  value: V,  propertyName: K, index: number)
 : {oldValue?: V} {
@@ -78,15 +78,14 @@ export function mutateArray<S extends StateObject, K extends keyof S, V>
     case ActionId.RERENDER: {
       return { oldValue: values[index] };
     }
-    default: throw new Error(`mutateArray: unhandled actionType=${actionType}`);
+    default: throw new Error(`changeArray: unhandled actionType=${actionType}`);
   }
 }
 
-export function mutateValue<S extends StateObject, K extends keyof S>
+export function changeValue<S extends StateObject, K extends keyof S>
 (actionType: ActionId, stateObject: S, value: S[K] | undefined, propertyName: K)
 : { oldValue?: S[K] } {
   switch (actionType) {
-    // TODO: use this to force re-renders on arrays that have been mutated, esp change in length
     case ActionId.RERENDER: {
       return { oldValue: stateObject[propertyName] };
     }

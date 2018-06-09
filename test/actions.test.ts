@@ -1,5 +1,5 @@
 import {
-  Action, ActionId, ArrayMutateAction,
+  Action, ActionId, ArrayChangeAction,
   StateCrudAction
 } from '../src/actions/actions';
 import { Store } from '../src/types/State';
@@ -193,7 +193,7 @@ describe('Add the name container', () => {
         throw new Error('nameState.bowlingScores should be defined but is falsey');
       }
       let keyGen = (score: number) => score;
-      let appendScore = new ArrayMutateAction(
+      let appendScore = new ArrayChangeAction(
           ActionId.INSERT_PROPERTY, nameState, 'bowlingScores',
           nameState.bowlingScores.length, nameState.bowlingScores, keyGen, 299);
       expect(() => {testStore.getManager().actionProcess(appendScore); }).not.toThrow();
@@ -214,7 +214,7 @@ describe('Add the name container', () => {
         throw new Error('nameState.bowlingScores should be defined but is falsey');
       }
       let keyGen = (score: number) => score;
-      let appendScore = new ArrayMutateAction(
+      let appendScore = new ArrayChangeAction(
           ActionId.INSERT_PROPERTY, nameState, 'bowlingScores',
           nameState.bowlingScores.length, nameState.bowlingScores, keyGen, 299);
       expect(() => {testStore.getManager().actionProcess(appendScore); }).toThrow();

@@ -1,6 +1,6 @@
 import { StateObject } from '../';
 import {
-  Action, ActionId, ArrayKeyGeneratorFn, ArrayMutateAction, DispatchType, MappingAction, StateAction, StateCrudAction,
+  Action, ActionId, ArrayKeyGeneratorFn, ArrayChangeAction, DispatchType, MappingAction, StateAction, StateCrudAction,
 } from './actions';
 import { ContainerComponent } from '../components/ContainerComponent';
 
@@ -145,7 +145,7 @@ export class ArrayCrudActionCreator<S extends StateObject, K extends keyof S, V 
    */
   public insert(index: number, value: V): StateAction<S, K>[] {
     let actions: Array<StateAction<S, K>> = [
-      new ArrayMutateAction(
+      new ArrayChangeAction(
         ActionId.INSERT_PROPERTY, this.parent, this.propertyKey, index, this.valuesArray, this.keyGenerator, value),
       new StateCrudAction(ActionId.RERENDER, this.parent, this.propertyKey, this.parent[this.propertyKey])
     ];
@@ -153,15 +153,15 @@ export class ArrayCrudActionCreator<S extends StateObject, K extends keyof S, V 
     return actions;
   }
 
-  public update(index: number, newValue: V): ArrayMutateAction<S, K, V> {
+  public update(index: number, newValue: V): ArrayChangeAction<S, K, V> {
     // let index = this.getIndexOf(oldValue);
-    return new ArrayMutateAction(
+    return new ArrayChangeAction(
       ActionId.UPDATE_PROPERTY, this.parent, this.propertyKey, index, this.valuesArray, this.keyGenerator, newValue);
   }
 
   public remove(index: number): StateAction<S, K>[] {
     return [
-      new ArrayMutateAction(ActionId.DELETE_PROPERTY, this.parent, this.propertyKey, index, this.valuesArray,
+      new ArrayChangeAction(ActionId.DELETE_PROPERTY, this.parent, this.propertyKey, index, this.valuesArray,
                             this.keyGenerator, undefined),
       new StateCrudAction(ActionId.RERENDER, this.parent, this.propertyKey, this.parent[this.propertyKey])
     ];

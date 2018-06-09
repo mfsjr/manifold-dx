@@ -11,7 +11,7 @@ import {
 import * as _ from 'lodash';
 import { Manager } from '../types/Manager';
 import { StateObject } from '../types/State';
-import { ArrayMutateAction } from '../';
+import { ArrayChangeAction } from '../';
 
 /* tslint:disable:no-any */
 export type ComponentGenerator<P> = (props: P) => React.Component<P, any>;
@@ -205,7 +205,7 @@ export abstract class ContainerComponent<CP, VP, A extends StateObject>
           mappingActions.forEach((mapping) => {
             if (action instanceof StateCrudAction) {
               _viewProps[mapping.targetPropName] = action.value;
-            } else if (action instanceof ArrayMutateAction) {
+            } else if (action instanceof ArrayChangeAction) {
               // if we are mutating the list element, we only want to change that index
               // otherwise its an insert/delete and we want to update the whole array
               if ( mapping.index !== undefined ) {

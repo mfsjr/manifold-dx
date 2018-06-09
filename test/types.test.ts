@@ -1,5 +1,5 @@
 import { ActionQueue, createActionQueue, } from '../src/types/ActionQueue';
-import { ActionId, ArrayMutateAction, StateCrudAction } from '../src/actions/actions';
+import { ActionId, ArrayChangeAction, StateCrudAction } from '../src/actions/actions';
 import * as _ from 'lodash';
 import { Address, createTestStore, createNameContainer, createTestState, Name } from './testHarness';
 import { Store, StateObject } from '../src/types/State';
@@ -139,7 +139,7 @@ describe('Test the actionQueue', () => {
   let actionQueue: ActionQueue = createActionQueue(3);
   let updateMiddleAction = new StateCrudAction(ActionId.UPDATE_PROPERTY, nameState, 'middle', 'J');
   let insertScoresAction = new StateCrudAction(ActionId.INSERT_PROPERTY, nameState, 'bowlingScores', bowlingScores);
-  let appendScoreAction = new ArrayMutateAction(
+  let appendScoreAction = new ArrayChangeAction(
       ActionId.INSERT_PROPERTY, nameState, 'bowlingScores', 3,  nameState.bowlingScores, keyGen, 141);
   let deletePrefixAction = new StateCrudAction(ActionId.DELETE_PROPERTY, nameState, 'prefix', '');
   test('the currentIndex should equal the length after an action is added', () => {

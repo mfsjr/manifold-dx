@@ -1,4 +1,4 @@
-import { mutateArray, mutateValue } from './mutations';
+import { changeArray, changeValue } from './changeState';
 import { AnyContainerComponent, ContainerComponent } from '../components/ContainerComponent';
 import { StateObject } from '../types/State';
 import { Manager } from '../types/Manager';
@@ -14,12 +14,6 @@ import { arrayMapDelete, arrayMapInsert } from '../types/MappingState';
  * one another since they need to have refs to parents set/unset.
  */
 export enum ActionId {
-  /**
-   * NULL is the only action that doesn't mutate anything, but the action will be processed just like any
-   * other action, the net effect being that containers that depend on properties of actions with type = NULL
-   * will have their viewProps reloaded.  Used for special cases where a single action can change multiple
-   * pieces of state, eg an array insertion or deletion.
-   */
   RERENDER,
   INSERT_STATE_OBJECT,
   DELETE_STATE_OBJECT,
@@ -41,29 +35,29 @@ export abstract class Action {
    */
   public postHook?: () => void;
   type: ActionId;
-  mutated: boolean = false;
+  changed: boolean = false;
   pristine: boolean = true;
 
   /**
-   * Performs the mutation on the action, called by the {@link Manager}, and should only be called by it, with
+   * Performs the change on the action, called by the {@link Manager}, and should only be called by it, with
    * the possible exception of testing.
    *
    * @param {Action} action
    * @param {boolean} perform - optional, will default to true, false means undo
    */
   public static perform(action: Action, perform?: boolean): void {
-    action.performMutation(perform);
+    action.performChange(perform);
   }
 
   /**
-   * Undo the mutation on the action.  This is only called by the {@link Manager} and should never be called directly.
+   * Undo the change on the action.  This is only called by the {@link Manager} and should never be called directly.
    * @param {Action} action
    */
   public static undo(action: Action): void {
-    action.undoMutation();
+    action.undoChange();
   }
 
-  protected abstract mutate(perform: boolean): void;
+  protected abstract change(perform: boolean): void;
 
   public abstract clone(): Action;
 
@@ -73,13 +67,13 @@ export abstract class Action {
     this.type = actionType;
   }
 
-  protected performMutation(perform?: boolean): void {
-    this.mutate(perform ? perform : true);
+  protected performChange(perform?: boolean): void {
+    this.change(perform ? perform : true);
   }
 
   protected assignProps(from: Action) {
     this.type = from.type;
-    this.mutated = from.mutated;
+    this.changed = from.changed;
     this.pristine = from.pristine;
   }
 
@@ -107,8 +101,8 @@ export abstract class Action {
     return undoAction;
   }
 
-  protected undoMutation(): void {
-    this.mutate(false);
+  protected undoChange(): void {
+    this.change(false);
   }
 
   public containersToRender(containersBeingRendered: AnyContainerComponent[]): void { return; }
@@ -165,11 +159,11 @@ export type GenericStateCrudAction = StateCrudAction<any, any>;
 /* tslint:enable:no-any */
 
 /**
- * Action classes contain instructions for mutating state, in the form
+ * Action classes contain instructions for changing state, in the form
  * of StateObjects.
  */
 export class StateCrudAction<S extends StateObject, K extends keyof S> extends StateAction<S, K> {
-  mutateResult?: {oldValue?: S[K]};
+  changeResult?: {oldValue?: S[K]};
   oldValue?: S[K];
   value: S[K] | undefined;
 
@@ -179,7 +173,7 @@ export class StateCrudAction<S extends StateObject, K extends keyof S> extends S
 
   protected assignProps(from: StateCrudAction<S, K>) {
     super.assignProps(from);
-    this.mutateResult = from.mutateResult;
+    this.changeResult = from.changeResult;
     this.oldValue = from.oldValue;
     this.value = from.value;
   }
@@ -199,7 +193,7 @@ export class StateCrudAction<S extends StateObject, K extends keyof S> extends S
     }
   }
 
-  protected mutate(perform: boolean = true): void {
+  protected change(perform: boolean = true): void {
     this.pristine = false;
 
     let fullpath = Manager.get(this.parent).getFullPath(this.parent, this.propertyName);
@@ -208,14 +202,14 @@ export class StateCrudAction<S extends StateObject, K extends keyof S> extends S
     // annotateActionInState(this);
     let actionId = perform ? this.type : this.getUndoAction();
     let _value = perform ? this.value : this.oldValue;
-    this.mutateResult = mutateValue(actionId, this.parent, _value, this.propertyName);
+    this.changeResult = changeValue(actionId, this.parent, _value, this.propertyName);
     if (perform) {
-      this.oldValue = this.mutateResult ? this.mutateResult.oldValue : undefined;
-      this.mutated = true;
+      this.oldValue = this.changeResult ? this.changeResult.oldValue : undefined;
+      this.changed = true;
     } else {
-      this.mutateResult = undefined;
+      this.changeResult = undefined;
       this.oldValue = undefined;
-      this.mutated = false;
+      this.changed = false;
     }
   }
 
@@ -257,19 +251,12 @@ export function propertyKeyGenerator<V>(arrayElement: V, propertyKey: keyof V): 
 }
 
 /**
- * Standalone data structure: for each array in state, maps React list keys to array indexes.
- *
- * - singleton created at startup
- * - entries <Array, KeyIndexMap> are created lazily
- * - updated upon ArrayMutateAction update
- * - deleted upon StateCrudAction array delete
- *
- * Note that duplicated keys result in an Error being thrown.
+ * For mutating the elements in the array.
  */
-export class ArrayMutateAction
+export class ArrayChangeAction
   <S extends StateObject, K extends keyof S, V> extends StateAction<S, K> {
 
-  mutateResult?: {oldValue?: V};
+  changeResult?: {oldValue?: V};
   oldValue?: V | undefined;
   value: V | undefined;
   // see Typescript issue 20177 at https://github.com/Microsoft/TypeScript/issues/20771#issuecomment-367834171
@@ -278,9 +265,9 @@ export class ArrayMutateAction
   index: number;
   keyGen: ArrayKeyGeneratorFn<V>;
 
-  protected assignProps(from: ArrayMutateAction<S, K, V>) {
+  protected assignProps(from: ArrayChangeAction<S, K, V>) {
     super.assignProps(from);
-    this.mutateResult = from.mutateResult;
+    this.changeResult = from.changeResult;
     this.oldValue = from.oldValue;
     this.value = from.value;
     this.valuesArray = from.valuesArray;
@@ -288,8 +275,8 @@ export class ArrayMutateAction
     this.keyGen = from.keyGen;
   }
 
-  public clone(): ArrayMutateAction<S, K, V> {
-    let copy: ArrayMutateAction<S, K, V> = new ArrayMutateAction(
+  public clone(): ArrayChangeAction<S, K, V> {
+    let copy: ArrayChangeAction<S, K, V> = new ArrayChangeAction(
         this.type, this.parent,
         this.propertyName,
         this.index,
@@ -328,7 +315,7 @@ export class ArrayMutateAction
     }
   }
 
-  protected mutate(perform: boolean = true): void {
+  protected change(perform: boolean = true): void {
     this.pristine = false;
     // annotateActionInState(this);
     let actionId = perform ? this.type : this.getUndoAction();
@@ -339,10 +326,10 @@ export class ArrayMutateAction
     // NOTE that index is of type number, required, not possibly undefined or null
     this.mappingActions = Manager.get(this.parent).getMappingState().getPathMappings(fullpath, this.index) || [];
 
-    this.mutateResult = mutateArray(actionId, this.parent, this.valuesArray, this.value, this.propertyName, this.index);
+    this.changeResult = changeArray(actionId, this.parent, this.valuesArray, this.value, this.propertyName, this.index);
     if (perform) {
-      this.oldValue = this.mutateResult ? this.mutateResult.oldValue : undefined;
-      this.mutated = true;
+      this.oldValue = this.changeResult ? this.changeResult.oldValue : undefined;
+      this.changed = true;
 
       if (this.type === ActionId.INSERT_PROPERTY) {
         let mappingState = Manager.get(this.parent).getMappingState();
@@ -360,9 +347,9 @@ export class ArrayMutateAction
         }
       }
     } else {
-      this.mutateResult = undefined;
+      this.changeResult = undefined;
       this.oldValue = undefined;
-      this.mutated = false;
+      this.changed = false;
     }
   }
 }
@@ -485,7 +472,7 @@ export class MappingAction
    * Map this property/component pair to the applications ContainerState, or if false, unmap it.
    * @param {boolean} perform
    */
-  protected mutate(perform: boolean = true): void {
+  protected change(perform: boolean = true): void {
     this.pristine = false;
 
     // If this action refers to an element at an array index, compute the key
@@ -501,15 +488,15 @@ export class MappingAction
   }
 
   // on componentDidMount
-  performMutation() {
-    this.mutate(true);
+  performChange() {
+    this.change(true);
   }
   // on componentWillUnmount
-  undoMutation() {
-    this.mutate(false);
+  undoChange() {
+    this.change(false);
   }
   redo() {
-    this.performMutation();
+    this.performChange();
   }
 }
 

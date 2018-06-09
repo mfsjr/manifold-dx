@@ -1,6 +1,6 @@
 import { JSON_replaceCyclicParent } from '../src/types/State';
 import { Name } from './testHarness';
-import { mutateArray, mutateValue } from '../src/actions/mutations';
+import { changeArray, changeValue } from '../src/actions/changeState';
 import { ActionId } from '../src/actions/actions';
 import * as _ from 'lodash';
 import { Address, createTestStore, createTestState, TestState } from './testHarness';
@@ -35,7 +35,7 @@ describe('mutate object values', () => {
   resetTestObjects();
   let resultInsertName: {oldValue?: Name};
   test('should insert the name object', () => {
-    resultInsertName = mutateValue(ActionId.INSERT_STATE_OBJECT, testStore.getState(), nameState, 'me');
+    resultInsertName = changeValue(ActionId.INSERT_STATE_OBJECT, testStore.getState(), nameState, 'me');
     expect(testStore.getState().me).toBe(nameState);
     expect(nameState.last).toEqual('Hooper');
   });
@@ -49,7 +49,7 @@ describe('mutate object values', () => {
   // let's insert an optional property "suffix" into the nameState
   describe('insert the optional "suffix" property into the nameState', () => {
     test('result from inserting the new suffix property should be a {}', () => {
-      let resultInsertNewProp = mutateValue(ActionId.INSERT_PROPERTY, nameState, 'Jr', 'suffix');
+      let resultInsertNewProp = changeValue(ActionId.INSERT_PROPERTY, nameState, 'Jr', 'suffix');
       expect(resultInsertNewProp).toEqual({});
     });
     test('nameState should have a new suffix property', () => {
@@ -59,7 +59,7 @@ describe('mutate object values', () => {
     describe('now delete the "suffix" property', () => {
       // let's delete the optional property that's there now...
       test('resultDeleteNewProp should have suffix value "Jr"', () => {
-        let resultDeleteNewProp = mutateValue(ActionId.DELETE_PROPERTY, nameState, undefined, 'prefix');
+        let resultDeleteNewProp = changeValue(ActionId.DELETE_PROPERTY, nameState, undefined, 'prefix');
         expect(resultDeleteNewProp).toEqual({oldValue: 'Mr'});
       });
       test('nameState\'s "prefix" property shouldn\'t be there any more', () => {
@@ -72,7 +72,7 @@ describe('mutate object values', () => {
   let stateNameContainer = _.get(testStore.getState(), 'name') as Name & StateObject;
   let resultInsertAddress: {oldValue?: Address};
   test('name should have an address', () => {
-    resultInsertAddress = mutateValue(ActionId.INSERT_STATE_OBJECT, stateNameContainer, addressState, 'address');
+    resultInsertAddress = changeValue(ActionId.INSERT_STATE_OBJECT, stateNameContainer, addressState, 'address');
     expect(testStore.getState().name).toBe(nameState);
     expect(nameState.address).toBe(addressState);
     expect(addressState.city).toEqual('Clinton Corners');
@@ -86,7 +86,7 @@ describe('mutate object values', () => {
   test('middle initial should be J', () => {
     let appState = testStore.getState();
     // console.log(`appState has name? ${!!appState.name}`);
-    resultUpdateMiddle  = mutateValue(ActionId.UPDATE_PROPERTY, nameState, 'J', 'middle');
+    resultUpdateMiddle  = changeValue(ActionId.UPDATE_PROPERTY, nameState, 'J', 'middle');
     expect(_.get(appState, 'name.middle')).toEqual('J');
   });
   test('old last middle initial to be F', () => {
@@ -95,10 +95,10 @@ describe('mutate object values', () => {
 
   describe('Verify that mismatched property/container actions throw', () => {
     test('deleting a property should throw when a container is supplied', () => {
-      expect(() => { mutateValue(ActionId.DELETE_PROPERTY, nameState, undefined, 'address'); }).toThrow();
+      expect(() => { changeValue(ActionId.DELETE_PROPERTY, nameState, undefined, 'address'); }).toThrow();
     });
     test('inserting a property should throw when a container is supplied', () => {
-      expect(() => {mutateValue(
+      expect(() => {changeValue(
           ActionId.INSERT_PROPERTY, testStore.getState() as TestState & StateObject,
           addressState, 'address'); }).toThrow();
     });
@@ -106,7 +106,7 @@ describe('mutate object values', () => {
 
   describe('insert array of bowling scores to name', () => {
     test('result of adding scores should be {}', () => {
-      let addScoresResult = mutateValue(ActionId.INSERT_PROPERTY, nameState, bowlingScores, 'bowlingScores');
+      let addScoresResult = changeValue(ActionId.INSERT_PROPERTY, nameState, bowlingScores, 'bowlingScores');
       expect(addScoresResult).toEqual({});
     });
     test('scores should be a property of names', () => {
@@ -114,7 +114,7 @@ describe('mutate object values', () => {
     });
     let newScore = 141;
     test('should be able to insert to the end of the array', () => {
-      let appendScoreResult = mutateArray(
+      let appendScoreResult = changeArray(
           ActionId.INSERT_PROPERTY, nameState, nameState.bowlingScores,
           newScore, 'bowlingScores', 3);
       expect(appendScoreResult).toEqual({});
@@ -125,7 +125,7 @@ describe('mutate object values', () => {
     });
     let firstScore = 101;
     test('insert new first score', () => {
-      let firstScoreResult = mutateArray(
+      let firstScoreResult = changeArray(
           ActionId.INSERT_PROPERTY, nameState,  nameState.bowlingScores,
           firstScore, 'bowlingScores', 0);
       expect(firstScoreResult).toEqual({});
@@ -133,19 +133,19 @@ describe('mutate object values', () => {
       expect(bowlingScores[0]).toBe(firstScore);
     });
     test('update the second score', () => {
-      let secondScoreResult = mutateArray(
+      let secondScoreResult = changeArray(
           ActionId.UPDATE_PROPERTY, nameState, nameState.bowlingScores, 112, 'bowlingScores', 1);
       expect(secondScoreResult).toEqual({oldValue: 111});
       expect(_.get(nameState, 'bowlingScores[1]')).toEqual(112);
     });
     test('delete the third score', () => {
-      let deleteThirdResult = mutateArray(
+      let deleteThirdResult = changeArray(
           ActionId.DELETE_PROPERTY, nameState, nameState.bowlingScores, undefined, 'bowlingScores', 2);
       expect(deleteThirdResult).toEqual({oldValue: 121});
       expect(bowlingScores.indexOf(121)).toEqual(-1);
     });
     test('array property notation to work', () => {
-      let updateFirstBowlingScore = mutateArray(
+      let updateFirstBowlingScore = changeArray(
           ActionId.UPDATE_PROPERTY, nameState, nameState.bowlingScores, 99, 'bowlingScores', 0);
       expect(updateFirstBowlingScore.oldValue).toEqual(101);
       expect(nameState.bowlingScores).toBe(bowlingScores);
@@ -154,21 +154,21 @@ describe('mutate object values', () => {
 
     test('updating array with same property to fail with MutationError', () => {
       expect(() => {
-        mutateArray(ActionId.UPDATE_PROPERTY, nameState, nameState.bowlingScores, 99, 'bowlingScores', 0);
+        changeArray(ActionId.UPDATE_PROPERTY, nameState, nameState.bowlingScores, 99, 'bowlingScores', 0);
       }).toThrow();
     });
     test('deleting a container from an array should throw', () => {
-      expect(() => {mutateArray(
+      expect(() => {changeArray(
           ActionId.DELETE_STATE_OBJECT, nameState, nameState.bowlingScores,
           undefined, 'bowlingScores', 2); }).toThrow();
     });
     test('inserting beyond the length of the array should throw', () => {
-      expect(() => {mutateArray(
+      expect(() => {changeArray(
           ActionId.INSERT_PROPERTY, nameState, nameState.bowlingScores,
           300, 'bowlingScores', 9); }).toThrow();
     });
     test('inserting into an array at a negative index should throw', () => {
-      expect(() => {mutateArray(
+      expect(() => {changeArray(
           ActionId.INSERT_PROPERTY, nameState,  nameState.bowlingScores,
           300, 'bowlingScores', -1); } ).toThrow();
     });
@@ -176,7 +176,7 @@ describe('mutate object values', () => {
 
   describe('insert "country" property, not part of IAddress', () => {
     test('result of insert country should be {}', () => {
-      let resultInsertCountry = mutateValue(ActionId.INSERT_PROPERTY, addressState, 'USA', 'country');
+      let resultInsertCountry = changeValue(ActionId.INSERT_PROPERTY, addressState, 'USA', 'country');
       expect(resultInsertCountry).toEqual({});
     });
     test(' address should now have a country', () => {
@@ -184,7 +184,7 @@ describe('mutate object values', () => {
     });
     describe('now delete the country', () => {
       test('result of deleting country should be "{country: "USA"}" ', () => {
-        let resultDeleteCountry =  mutateValue(ActionId.DELETE_PROPERTY, addressState, '', 'country');
+        let resultDeleteCountry =  changeValue(ActionId.DELETE_PROPERTY, addressState, '', 'country');
         expect(resultDeleteCountry).toEqual({oldValue: 'USA'});
       });
       test('address should not contain the country property', () => {
@@ -196,7 +196,7 @@ describe('mutate object values', () => {
       expect(json.indexOf('_parent')).toBeGreaterThan(0);
     });
     test('delete the nameState from the name container', () => {
-      let deleteResult = mutateValue(
+      let deleteResult = changeValue(
           ActionId.DELETE_STATE_OBJECT, testStore.getState() as TestState & StateObject,
           undefined, 'name');
       expect(deleteResult.oldValue).toBe(nameState);
@@ -216,12 +216,12 @@ describe('mutate object values', () => {
       }
       nameState.bowlingScores.push(220);
       expect( () => {
-        mutateValue(ActionId.UPDATE_PROPERTY, nameState, nameState.bowlingScores, 'bowlingScores');
+        changeValue(ActionId.UPDATE_PROPERTY, nameState, nameState.bowlingScores, 'bowlingScores');
       }).toThrow();
     });
     test('reinsert same object doesn\'t throw since state objects are recreated upon insertion', () => {
       expect(() => {
-        mutateValue(ActionId.INSERT_STATE_OBJECT, nameState, nameState.address, 'address');
+        changeValue(ActionId.INSERT_STATE_OBJECT, nameState, nameState.address, 'address');
       }).not.toThrow();
     });
   });

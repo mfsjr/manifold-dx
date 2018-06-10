@@ -24,7 +24,7 @@ var CrudActionCreator = /** @class */ (function () {
         return new actions_1.StateCrudAction(actions_1.ActionId.RERENDER, this.parent, propertyKey, this.parent[propertyKey]);
     };
     CrudActionCreator.prototype.insert = function (propertyKey, value) {
-        return new actions_1.StateCrudAction(actions_1.ActionId.UPDATE_PROPERTY, this.parent, propertyKey, value);
+        return new actions_1.StateCrudAction(actions_1.ActionId.INSERT_PROPERTY, this.parent, propertyKey, value);
     };
     CrudActionCreator.prototype.update = function (propertyKey, value) {
         return new actions_1.StateCrudAction(actions_1.ActionId.UPDATE_PROPERTY, this.parent, propertyKey, value);
@@ -130,6 +130,9 @@ var ArrayCrudActionCreator = /** @class */ (function () {
             new actions_1.StateCrudAction(actions_1.ActionId.RERENDER, this.parent, this.propertyKey, this.parent[this.propertyKey])
         ];
         return actions;
+    };
+    ArrayCrudActionCreator.prototype.rerender = function (index) {
+        return new actions_1.ArrayChangeAction(actions_1.ActionId.RERENDER, this.parent, this.propertyKey, index, this.valuesArray, this.valuesArray[index]);
     };
     ArrayCrudActionCreator.prototype.update = function (index, newValue) {
         // let index = this.getIndexOf(oldValue);

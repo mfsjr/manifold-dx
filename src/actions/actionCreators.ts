@@ -32,7 +32,7 @@ export class CrudActionCreator<S extends StateObject> {
   }
 
   public insert<K extends keyof S>(propertyKey: K, value: S[K]): StateCrudAction<S, K> {
-    return new StateCrudAction(ActionId.UPDATE_PROPERTY, this.parent, propertyKey, value);
+    return new StateCrudAction(ActionId.INSERT_PROPERTY, this.parent, propertyKey, value);
   }
   public update<K extends keyof S>(propertyKey: K, value: S[K]): StateCrudAction<S, K> {
     return new StateCrudAction(ActionId.UPDATE_PROPERTY, this.parent, propertyKey, value);
@@ -148,6 +148,12 @@ export class ArrayCrudActionCreator<S extends StateObject, K extends keyof S, V 
     ];
 
     return actions;
+  }
+
+  public rerender(index: number): StateAction<S, K> {
+    return new ArrayChangeAction(
+      ActionId.RERENDER, this.parent, this.propertyKey, index, this.valuesArray, this.valuesArray[index]
+    );
   }
 
   public update(index: number, newValue: V): ArrayChangeAction<S, K, V> {

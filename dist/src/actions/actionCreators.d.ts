@@ -78,6 +78,7 @@ export declare class ArrayCrudActionCreator<S extends StateObject, K extends key
      * @returns {Action}
      */
     insert(index: number, value: V): StateAction<S, K>[];
+    rerender(index: number): StateAction<S, K>;
     update(index: number, newValue: V): ArrayChangeAction<S, K, V>;
     remove(index: number): StateAction<S, K>[];
 }

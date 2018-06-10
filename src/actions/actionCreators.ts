@@ -157,10 +157,10 @@ export class ArrayCrudActionCreator<S extends StateObject, K extends keyof S, V 
   }
 
   public remove(index: number): StateAction<S, K>[] {
-
+    let newValue: V = index + 1 < this.valuesArray.length ? this.valuesArray[index + 1] : undefined;
     return [
       new ArrayChangeAction(ActionId.DELETE_PROPERTY, this.parent, this.propertyKey, index,
-                            this.valuesArray),
+                            this.valuesArray, newValue),
       new StateCrudAction(ActionId.RERENDER, this.parent, this.propertyKey, this.parent[this.propertyKey])
     ];
   }

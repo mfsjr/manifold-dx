@@ -136,8 +136,9 @@ var ArrayCrudActionCreator = /** @class */ (function () {
         return new actions_1.ArrayChangeAction(actions_1.ActionId.UPDATE_PROPERTY, this.parent, this.propertyKey, index, this.valuesArray, newValue);
     };
     ArrayCrudActionCreator.prototype.remove = function (index) {
+        var newValue = index + 1 < this.valuesArray.length ? this.valuesArray[index + 1] : undefined;
         return [
-            new actions_1.ArrayChangeAction(actions_1.ActionId.DELETE_PROPERTY, this.parent, this.propertyKey, index, this.valuesArray),
+            new actions_1.ArrayChangeAction(actions_1.ActionId.DELETE_PROPERTY, this.parent, this.propertyKey, index, this.valuesArray, newValue),
             new actions_1.StateCrudAction(actions_1.ActionId.RERENDER, this.parent, this.propertyKey, this.parent[this.propertyKey])
         ];
     };

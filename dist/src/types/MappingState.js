@@ -152,11 +152,13 @@ var MappingState = /** @class */ (function () {
      * @returns {number}
      */
     MappingState.prototype.removePathMapping = function (_fullPath, mappingAction, _index) {
-        var containers = this.getPathMappings(_fullPath, _index);
-        if (containers) {
-            var index = containers.indexOf(mappingAction);
+        var pathMappingActions = this.getPathMappings(_fullPath, _index);
+        if (pathMappingActions) {
+            var pathMappingComponents = pathMappingActions.map(function (action) { return action.component; });
+            var index = pathMappingComponents.indexOf(mappingAction.component);
+            //   let index = pathMappingActions.indexOf(mappingAction);
             if (index > -1) {
-                containers.splice(index, 1);
+                pathMappingActions.splice(index, 1);
                 // if there's nothing mapped to this, should we delete the key?
                 return 1;
             }

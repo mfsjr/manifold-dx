@@ -1,4 +1,5 @@
 import { AnyMappingAction } from '../actions/actions';
+import { AnyContainerComponent } from '../components/ContainerComponent';
 
 /**
  * Array maps hold all the mappings associated with an array, including the array itself.
@@ -163,11 +164,13 @@ export class MappingState {
             _fullPath: string,
             mappingAction: AnyMappingAction,
             _index?: number): number {
-    let containers = this.getPathMappings(_fullPath, _index);
-    if (containers) {
-      let index = containers.indexOf(mappingAction);
+    let pathMappingActions = this.getPathMappings(_fullPath, _index);
+    if (pathMappingActions) {
+      let pathMappingComponents: AnyContainerComponent[] = pathMappingActions.map(action => action.component);
+      let index = pathMappingComponents.indexOf(mappingAction.component);
+      //   let index = pathMappingActions.indexOf(mappingAction);
       if (index > -1) {
-        containers.splice(index, 1);
+        pathMappingActions.splice(index, 1);
         // if there's nothing mapped to this, should we delete the key?
         return 1;
       }

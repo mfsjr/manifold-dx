@@ -214,7 +214,6 @@ export abstract class ContainerComponent<CP, VP, A extends StateObject>
                 _viewProps[mapping.targetPropName] = action.valuesArray;
               }
             }
-
           });
         }
       }

@@ -9,7 +9,7 @@ import { StateObject } from '../src/types/State';
 import { ActionProcessorFunctionType } from '../src/types/ActionProcessor';
 import * as _ from 'lodash';
 import { onFailureDiff } from '../src/types/StateMutationDiagnostics';
-import { getArrayCrudCreator, getCrudCreator } from '../src';
+import { getArrayActionCreator, getActionCreator } from '../src';
 // import { getCrudCreator } from '../src';
 
 const testStore = createTestStore();
@@ -74,7 +74,7 @@ describe('Add the name container', () => {
   describe('Remove the name prefix', () => {
     let prefixValue = nameState.prefix;
     // let deletePrefixAction = new StateCrudAction(ActionId.DELETE_PROPERTY, nameState, 'prefix', '');
-    let deletePrefixAction = getCrudCreator(nameState).remove('prefix');
+    let deletePrefixAction = getActionCreator(nameState).remove('prefix');
     test('Delete the prefix property', () => {
       testStore.getManager().actionProcess(deletePrefixAction);
       expect(nameState.prefix).toBeUndefined();
@@ -99,7 +99,7 @@ describe('Add the name container', () => {
       expect(bowlingScores[0]).toBe(111);
     });
     test('array index notation should work', () => {
-      let updateAction = getArrayCrudCreator(nameState, nameState.bowlingScores).update(0, 101);
+      let updateAction = getArrayActionCreator(nameState, nameState.bowlingScores).update(0, 101);
       expect(updateAction.index).toBe(0);
       testStore.getManager().actionProcess(updateAction);
       expect(bowlingScores[0]).toBe(101);

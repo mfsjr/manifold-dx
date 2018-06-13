@@ -2,7 +2,7 @@ import { Action, StateCrudAction, MappingAction, DispatchType } from './actions/
 import { ContainerComponent } from './components/ContainerComponent';
 import { Store, StateObject } from './types/State';
 import { ArrayChangeAction } from './actions/actions';
-import { getCrudCreator, getArrayCrudCreator, getMappingCreator } from './actions/actionCreators';
+import { getActionCreator, getArrayActionCreator, getMappingActionCreator } from './actions/actionCreators';
 
 /**
  * This is intended to be a list of objects you will need to use the library as-is.
@@ -13,9 +13,9 @@ export {
   Store,
   StateObject,
   Action,
-  getCrudCreator,
-  getArrayCrudCreator,
-  getMappingCreator,
+  getActionCreator,
+  getArrayActionCreator,
+  getMappingActionCreator,
   StateCrudAction,
   ArrayChangeAction,
   MappingAction,

@@ -1,7 +1,7 @@
 import { Store, StateObject } from '../src/types/State';
 // import { ArrayKeyGeneratorFn, propertyKeyGenerator } from '../src/actions/actions';
-import { ArrayCrudActionCreator, CrudActionCreator } from '../src/actions/actionCreators';
-import { getArrayCrudCreator, getCrudCreator } from '../src';
+import { ArrayActionCreator, ActionCreator } from '../src/actions/actionCreators';
+import { getArrayActionCreator, getActionCreator } from '../src';
 
 export interface Address {
   id: number;
@@ -33,8 +33,8 @@ export interface Name {
 // }
 
 export interface NameState extends Name, StateObject {
-  getActionCreator: (nameState: NameState) => CrudActionCreator<Name & StateObject>;
-  getAddressesActionCreator: (nameState: NameState) => ArrayCrudActionCreator<NameState, 'addresses', Address>;
+  getActionCreator: (nameState: NameState) => ActionCreator<Name & StateObject>;
+  getAddressesActionCreator: (nameState: NameState) => ArrayActionCreator<NameState, 'addresses', Address>;
 }
 
 // Example of WebStorm Live Template ("getset") for creating getters and setters
@@ -57,18 +57,18 @@ export interface NameState extends Name, StateObject {
  */
 export function createNameContainer(nameData: Name, parent: StateObject, myName: string): NameState {
   // lazy initialization held in a closure
-  let actionCreator: CrudActionCreator<NameState>;
+  let actionCreator: ActionCreator<NameState>;
   let _getActionCreator = function(_nameState: NameState) {
     if (!actionCreator) {
-      actionCreator = new CrudActionCreator<NameState>(_nameState);
+      actionCreator = new ActionCreator<NameState>(_nameState);
     }
     return actionCreator;
   };
 
-  let addressesActionCreator: ArrayCrudActionCreator<NameState, 'addresses', Address>;
+  let addressesActionCreator: ArrayActionCreator<NameState, 'addresses', Address>;
   let getAddressesActionCreator = function(_nameState: NameState) {
     addressesActionCreator = addressesActionCreator ||
-      new ArrayCrudActionCreator(_nameState, _nameState.addresses);
+      new ArrayActionCreator(_nameState, _nameState.addresses);
     return addressesActionCreator;
   };
 
@@ -101,10 +101,10 @@ export class NameStateCreator {
     parent[myName] = this.nameState;
   }
   
-  getActionCreator = (nameState: NameState) => getCrudCreator(this.nameState);
+  getActionCreator = (nameState: NameState) => getActionCreator(this.nameState);
 
-  getAddressesActionCreator: (nameState: NameState) => ArrayCrudActionCreator<NameState, 'addresses', Address> =
-    (nameState: NameState) => getArrayCrudCreator(
+  getAddressesActionCreator: (nameState: NameState) => ArrayActionCreator<NameState, 'addresses', Address> =
+    (nameState: NameState) => getArrayActionCreator(
       this.nameState, this.nameState.addresses)
 }
 

@@ -233,9 +233,10 @@ export abstract class ContainerComponent<CP, VP, A extends StateObject>
       // unsubscribe from stateMappingActions, we need to undo these specific actions
       let unmappingActions: AnyMappingAction[] = [];
       this.mappingActions.forEach((action) => {
-        let unmappingAction = action.clone();
-        unmappingAction.pristine = true;
-        unmappingAction.type = action.getUndoAction();
+        // let unmappingAction = action.clone();
+        // unmappingAction.pristine = true;
+        // unmappingAction.type = action.getUndoActionId();
+        let unmappingAction = action.getUndoAction();
         unmappingActions.push(unmappingAction);
       });
       // TODO: defer execution of these actions, as other actions may be executing

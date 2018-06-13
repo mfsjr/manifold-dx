@@ -6,9 +6,9 @@ import { ContainerComponent } from '../components/ContainerComponent';
 
 /**
  * Create CRUD actions for properties of a StateObject.
- * Array CRUD actions are in {@link ArrayCrudActionCreator}
+ * Array CRUD actions are in {@link ArrayActionCreator}
  */
-export class CrudActionCreator<S extends StateObject> {
+export class ActionCreator<S extends StateObject> {
   private parent: S;
   // private propertyKey: keyof S;
 
@@ -58,29 +58,29 @@ export class CrudActionCreator<S extends StateObject> {
 /**
  * Factory method for CrudActionCreator, rather than exposing implementation details
  * @param {S} parent
- * @returns {CrudActionCreator<S extends StateObject>}
+ * @returns {ActionCreator<S extends StateObject>}
  */
-export function getCrudCreator<S extends StateObject>(parent: S): CrudActionCreator<S> {
-  return new CrudActionCreator(parent);
+export function getActionCreator<S extends StateObject>(parent: S): ActionCreator<S> {
+  return new ActionCreator(parent);
 }
 
-export function getArrayCrudCreator<S extends StateObject, K extends keyof S, V extends Object>
+export function getArrayActionCreator<S extends StateObject, K extends keyof S, V extends Object>
 (parent: S, childArray: Array<V> & S[K])
-: ArrayCrudActionCreator<S, K, V> {
-  return new ArrayCrudActionCreator(parent, childArray);
+: ArrayActionCreator<S, K, V> {
+  return new ArrayActionCreator(parent, childArray);
 }
 /**
  * Class for creating CRUD actions for arrays of objects (not primitives).
  *
  * Arrays of primitives can be handled with CRUD operations that treat arrays as simple properties,
- * using {@link CrudActionCreator}s above.  Note that the creation and deletion of arrays of
+ * using {@link ActionCreator}s above.  Note that the creation and deletion of arrays of
  * objects would need to use the same.
  *
  * usage example from tests:  new ArrayCrudActionCreator(nameState, nameState.addresses, streetKeyFn)
  *
  * S is the StateObject which the array is a property of
  */
-export class ArrayCrudActionCreator<S extends StateObject, K extends keyof S, V extends Object> {
+export class ArrayActionCreator<S extends StateObject, K extends keyof S, V extends Object> {
   private parent: S;
   private propertyKey: K;
 
@@ -177,7 +177,7 @@ export interface ArrayMappingCreatorOptions<S extends StateObject, K extends key
   array: Array<E> & S[K];
 }
 
-export function getMappingCreator<S extends StateObject, K extends keyof S, A extends StateObject, E>
+export function getMappingActionCreator<S extends StateObject, K extends keyof S, A extends StateObject, E>
 (_parent: S, _propKey: K, arrayOptions?: ArrayMappingCreatorOptions<S, K, E>) {
 
   /**

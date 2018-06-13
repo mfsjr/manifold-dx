@@ -81,7 +81,7 @@ export abstract class Action {
    * Invert this action's type, or throw an error if its not invertible.
    * @returns {ActionId}
    */
-  getUndoAction(): ActionId {
+  getUndoActionId(): ActionId {
     let undoAction: ActionId | undefined;
 
     if (this.type === ActionId.UPDATE_PROPERTY || this.type === ActionId.MAP_STATE_TO_PROP) {
@@ -200,7 +200,7 @@ export class StateCrudAction<S extends StateObject, K extends keyof S> extends S
     this.mappingActions = Manager.get(this.parent).getMappingState().getPathMappings(fullpath) || [];
 
     // annotateActionInState(this);
-    let actionId = perform ? this.type : this.getUndoAction();
+    let actionId = perform ? this.type : this.getUndoActionId();
     let _value = perform ? this.value : this.oldValue;
     this.changeResult = changeValue(actionId, this.parent, _value, this.propertyName);
     if (perform) {
@@ -279,7 +279,7 @@ export class ArrayChangeAction
   protected change(perform: boolean = true): void {
     this.pristine = false;
     // annotateActionInState(this);
-    let actionId = perform ? this.type : this.getUndoAction();
+    let actionId = perform ? this.type : this.getUndoActionId();
 
     let fullpath = Manager.get(this.parent).getFullPath(this.parent, this.propertyName);
     // let key = this.keyGen && this.index > -1 ? this.keyGen(this.valuesArray[this.index]) : undefined;
@@ -364,6 +364,18 @@ export class MappingAction
         ...this.dispatches);
     copy.assignProps(this);
     return copy;
+  }
+
+  /**
+   * Clone the action and modify the clone so that it 'undoes' this, i.e., unmaps this mapping.
+   * @returns {MappingAction
+   * <S extends StateObject, K extends keyof S, CP, VP, TP extends keyof VP, A extends StateObject, E>}
+   */
+  public getUndoAction() {
+    let unmappingAction = this.clone();
+    unmappingAction.pristine = true;
+    unmappingAction.type = this.getUndoActionId();
+    return unmappingAction;
   }
 
   /**

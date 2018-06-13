@@ -192,7 +192,7 @@ var ContainerComponent = /** @class */ (function (_super) {
             this.mappingActions.forEach(function (action) {
                 var unmappingAction = action.clone();
                 unmappingAction.pristine = true;
-                unmappingAction.type = action.getUndoAction();
+                unmappingAction.type = action.getUndoActionId();
                 unmappingActions_1.push(unmappingAction);
             });
             // TODO: defer execution of these actions, as other actions may be executing

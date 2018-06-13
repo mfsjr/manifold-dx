@@ -68,7 +68,7 @@ var Action = /** @class */ (function () {
      * Invert this action's type, or throw an error if its not invertible.
      * @returns {ActionId}
      */
-    Action.prototype.getUndoAction = function () {
+    Action.prototype.getUndoActionId = function () {
         var undoAction;
         if (this.type === ActionId.UPDATE_PROPERTY || this.type === ActionId.MAP_STATE_TO_PROP) {
             undoAction = this.type;
@@ -167,7 +167,7 @@ var StateCrudAction = /** @class */ (function (_super) {
         var fullpath = Manager_1.Manager.get(this.parent).getFullPath(this.parent, this.propertyName);
         this.mappingActions = Manager_1.Manager.get(this.parent).getMappingState().getPathMappings(fullpath) || [];
         // annotateActionInState(this);
-        var actionId = perform ? this.type : this.getUndoAction();
+        var actionId = perform ? this.type : this.getUndoActionId();
         var _value = perform ? this.value : this.oldValue;
         this.changeResult = changeState_1.changeValue(actionId, this.parent, _value, this.propertyName);
         if (perform) {
@@ -228,7 +228,7 @@ var ArrayChangeAction = /** @class */ (function (_super) {
         if (perform === void 0) { perform = true; }
         this.pristine = false;
         // annotateActionInState(this);
-        var actionId = perform ? this.type : this.getUndoAction();
+        var actionId = perform ? this.type : this.getUndoActionId();
         var fullpath = Manager_1.Manager.get(this.parent).getFullPath(this.parent, this.propertyName);
         // let key = this.keyGen && this.index > -1 ? this.keyGen(this.valuesArray[this.index]) : undefined;
         // NOTE that index is of type number, required, not possibly undefined or null

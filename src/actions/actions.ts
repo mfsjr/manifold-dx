@@ -343,7 +343,7 @@ export class MappingAction
   dispatches: DispatchType[];
 
   //
-  index: number = -1;
+  index: number | null = -1;
   propArray?: Array<E>;
 
   protected assignProps(from:  MappingAction<S, K, CP, VP, TP, A, E>) {
@@ -420,13 +420,13 @@ export class MappingAction
    * @param {S[K] & Array<E>} _propArray
    * @param {ArrayKeyGeneratorFn<E>} _keyGen
    */
-  public setArrayElement(_index: number, _propArray: S[K] & Array<E>)
+  public setArrayElement(_index: number | null, _propArray: S[K] & Array<E>)
     : MappingAction<S, K, CP, VP, TP, A, E> {
-    if (this.index > -1 || this.propArray) {
+    if ( (this.index !== -1 || this.index === null) || this.propArray) {
       // this can be done once and only once, or we throw
       throw new Error(`attempting to reset array ${this.propertyName} at index = ${_index}`);
     }
-    if (_propArray.length < _index || _propArray.length < 0 || !_propArray[_index]) {
+    if (_index !== null && (_propArray.length < _index || _propArray.length < 0 || !_propArray[_index])) {
       let fullpath = Manager.get(this.parent).getFullPath(this.parent, this.propertyName);
       throw new Error(`Can't map to an undefined array index ${_index} at ${fullpath}`);
     }
@@ -436,7 +436,7 @@ export class MappingAction
     return this;
   }
 
-  public getIndex(): number {
+  public getIndex(): number | null {
     return this.index;
   }
 
@@ -450,7 +450,7 @@ export class MappingAction
     // If this action refers to an element at an array index, compute the key
     // let key = (this.propArray && this.keyGen && this.index > -1) ?
     // this.keyGen(this.propArray[this.index]) : undefined;
-    let _index = this.index > -1 ? this.index : (this.parent[this.propertyName] instanceof Array ? null : undefined);
+    let _index = this.index !== -1 ? this.index : (this.parent[this.propertyName] instanceof Array ? null : undefined);
     if (perform) {
       let components = Manager.get(this.parent).getMappingState().getOrCreatePathMapping(this.fullPath, _index);
       components.push(this);

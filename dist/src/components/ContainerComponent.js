@@ -103,20 +103,6 @@ var ContainerComponent = /** @class */ (function (_super) {
         return this.viewComponent;
     };
     /**
-     * This method is intended to pre-populate the {@link mappingActions} with mapping from an array element to a
-     * container.
-     *
-     * The action is passed into the {@link appendToMappingActions} and executed once.
-     *
-     * @param {AnyMappingAction} action
-     */
-    ContainerComponent.prototype.setArrayChildMappingAction = function (action) {
-        if (action.index < 0) {
-            throw new Error("This method only accepts mappings to array elements at path " + action.fullPath);
-        }
-        this.mappingActions.push(action);
-    };
-    /**
      * Update the properties of the view (presentational component) immediately after the
      * container component's properties have changed.
      *

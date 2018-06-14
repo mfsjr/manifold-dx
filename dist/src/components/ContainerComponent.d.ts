@@ -67,15 +67,6 @@ export declare abstract class ContainerComponent<CP, VP, A extends StateObject> 
      */
     protected abstract appendToMappingActions(mappingActions: AnyMappingAction[]): void;
     /**
-     * This method is intended to pre-populate the {@link mappingActions} with mapping from an array element to a
-     * container.
-     *
-     * The action is passed into the {@link appendToMappingActions} and executed once.
-     *
-     * @param {AnyMappingAction} action
-     */
-    setArrayChildMappingAction(action: AnyMappingAction): void;
-    /**
      * Create default view properties, used to initialize {@link viewProps} and passed
      * into this container's presentational component, either {@link sfcView} or
      * {@link viewComponent} via {@link viewGenerator}

@@ -93,5 +93,5 @@ export interface ArrayMappingCreatorOptions<S extends StateObject, K extends key
 }
 export declare function getMappingActionCreator<S extends StateObject, K extends keyof S, A extends StateObject, E>(_parent: S, _propKey: K, arrayOptions?: ArrayMappingCreatorOptions<S, K, E>): {
     createPropertyMappingAction: <CP, VP, TP extends keyof VP>(_component: ContainerComponent<CP, VP, A>, targetPropKey: TP, ...dispatches: DispatchType[]) => MappingAction<S, K, CP, VP, TP, A, E>;
-    createArrayIndexMappingAction: <CP, VP, TP extends keyof VP>(index: number, _component: ContainerComponent<CP, VP, A>, targetPropKey: TP, ...dispatches: DispatchType[]) => MappingAction<S, K, CP, VP, TP, A, E>;
+    createArrayIndexMappingAction: <CP, VP, TP extends keyof VP>(index: number | null, _component: ContainerComponent<CP, VP, A>, targetPropKey: TP, ...dispatches: DispatchType[]) => MappingAction<S, K, CP, VP, TP, A, E>;
 };

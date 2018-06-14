@@ -135,20 +135,20 @@ export abstract class ContainerComponent<CP, VP, A extends StateObject>
    */
   protected abstract appendToMappingActions(mappingActions: AnyMappingAction[]): void;
 
-  /**
-   * This method is intended to pre-populate the {@link mappingActions} with mapping from an array element to a
-   * container.
-   *
-   * The action is passed into the {@link appendToMappingActions} and executed once.
-   *
-   * @param {AnyMappingAction} action
-   */
-  public setArrayChildMappingAction(action: AnyMappingAction): void {
-    if (action.index < 0) {
-      throw new Error(`This method only accepts mappings to array elements at path ${action.fullPath}`);
-    }
-    this.mappingActions.push(action);
-  }
+  // /**
+  //  * This method is intended to pre-populate the {@link mappingActions} with mapping from an array element to a
+  //  * container.
+  //  *
+  //  * The action is passed into the {@link appendToMappingActions} and executed once.
+  //  *
+  //  * @param {AnyMappingAction} action
+  //  */
+  // public setArrayChildMappingAction(action: AnyMappingAction): void {
+  //   if (action.index < 0) {
+  //     throw new Error(`This method only accepts mappings to array elements at path ${action.fullPath}`);
+  //   }
+  //   this.mappingActions.push(action);
+  // }
 
   /**
    * Create default view properties, used to initialize {@link viewProps} and passed

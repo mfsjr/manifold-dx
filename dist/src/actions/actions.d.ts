@@ -125,7 +125,7 @@ export declare class MappingAction<S extends StateObject, K extends keyof S, CP,
     fullPath: string;
     targetPropName: TP;
     dispatches: DispatchType[];
-    index: number;
+    index: number | null;
     propArray?: Array<E>;
     protected assignProps(from: MappingAction<S, K, CP, VP, TP, A, E>): void;
     clone(): MappingAction<S, K, CP, VP, TP, A, E>;
@@ -157,8 +157,8 @@ export declare class MappingAction<S extends StateObject, K extends keyof S, CP,
      * @param {S[K] & Array<E>} _propArray
      * @param {ArrayKeyGeneratorFn<E>} _keyGen
      */
-    setArrayElement(_index: number, _propArray: S[K] & Array<E>): MappingAction<S, K, CP, VP, TP, A, E>;
-    getIndex(): number;
+    setArrayElement(_index: number | null, _propArray: S[K] & Array<E>): MappingAction<S, K, CP, VP, TP, A, E>;
+    getIndex(): number | null;
     /**
      * Map this property/component pair to the applications ContainerState, or if false, unmap it.
      * @param {boolean} perform

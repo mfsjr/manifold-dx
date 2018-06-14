@@ -226,7 +226,7 @@ export function getMappingActionCreator<S extends StateObject, K extends keyof S
 
   let createArrayIndexMappingAction = function<CP, VP, TP extends keyof VP>
   (
-    index: number,
+    index: number | null,
     _component: ContainerComponent<CP, VP, A>,
     targetPropKey: TP,
     ...dispatches: DispatchType[]

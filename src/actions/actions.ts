@@ -294,14 +294,14 @@ export class ArrayChangeAction
 
       if (this.type === ActionId.INSERT_PROPERTY) {
         let mappingState = Manager.get(this.parent).getMappingState();
-        let arrayMap = mappingState.getPathMappingArrayMap(fullpath);
+        let arrayMap = mappingState.getPathMappingsArrayMap(fullpath);
         if (arrayMap) {
           // the component to be rendered will place its mapping actions in this slot
           arrayMapInsert(arrayMap, this.index, []);
         }
       } else if (this.type === ActionId.DELETE_PROPERTY) {
         let mappingState = Manager.get(this.parent).getMappingState();
-        let arrayMap = mappingState.getPathMappingArrayMap(fullpath);
+        let arrayMap = mappingState.getPathMappingsArrayMap(fullpath);
         if (arrayMap) {
           // the component to be rendered will place its mapping actions in this slot
           arrayMapDelete(arrayMap, this.index);
@@ -450,9 +450,9 @@ export class MappingAction
     // If this action refers to an element at an array index, compute the key
     // let key = (this.propArray && this.keyGen && this.index > -1) ?
     // this.keyGen(this.propArray[this.index]) : undefined;
-    let _index = this.index > -1 ? this.index : undefined;
+    let _index = this.index > -1 ? this.index : (this.parent[this.propertyName] instanceof Array ? null : undefined);
     if (perform) {
-      let components = Manager.get(this.parent).getMappingState().getOrCreatePathMappings(this.fullPath, _index);
+      let components = Manager.get(this.parent).getMappingState().getOrCreatePathMapping(this.fullPath, _index);
       components.push(this);
     } else {
       Manager.get(this.parent).getMappingState().removePathMapping(this.fullPath, this, _index);

@@ -1,8 +1,14 @@
 import { StateObject } from '../';
 import {
-  Action, ActionId, ArrayChangeAction, DispatchType, MappingAction, StateAction, StateCrudAction,
+  ActionId, ArrayChangeAction, DispatchType, MappingAction, StateAction, StateCrudAction,
 } from './actions';
 import { ContainerComponent } from '../components/ContainerComponent';
+
+export type NotArray<T> = T;
+// TODO: figure out how to do type checking with this instead of RTE
+export function isNotArray<T>(value: T): value is NotArray<T> {
+  return !(value instanceof Array);
+}
 
 /**
  * Create CRUD actions for properties of a StateObject.
@@ -27,14 +33,23 @@ export class ActionCreator<S extends StateObject> {
     throw new Error(`Failed to find property value ${value} in parent`);
   }
 
+  protected throwIfArray<K extends keyof S>(propValue: S[K]): void {
+    if (propValue instanceof Array) {
+      throw new Error(`ActionCreator instructed to create action on array, use ArrayActionCreator for that`);
+    }
+  }
+
   public rerender<K extends keyof S>(propertyKey: K): StateCrudAction<S, K> {
+    this.throwIfArray(this.parent[propertyKey]);
     return new StateCrudAction(ActionId.RERENDER, this.parent, propertyKey, this.parent[propertyKey]);
   }
 
   public insert<K extends keyof S>(propertyKey: K, value: S[K]): StateCrudAction<S, K> {
+    this.throwIfArray(this.parent[propertyKey]);
     return new StateCrudAction(ActionId.INSERT_PROPERTY, this.parent, propertyKey, value);
   }
   public update<K extends keyof S>(propertyKey: K, value: S[K]): StateCrudAction<S, K> {
+    this.throwIfArray(this.parent[propertyKey]);
     return new StateCrudAction(ActionId.UPDATE_PROPERTY, this.parent, propertyKey, value);
   }
 
@@ -44,13 +59,15 @@ export class ActionCreator<S extends StateObject> {
    * @returns {Action}
    */
   public remove<K extends keyof S>(propertyKey: K): StateCrudAction<S, K> {
+    this.throwIfArray(this.parent[propertyKey]);
     return new StateCrudAction(ActionId.DELETE_PROPERTY, this.parent, propertyKey);
   }
   // TODO: can this and the crudInsert above actually work when defined in terms of non-existent keys?
-  public insertStateObject<K extends keyof S>(value: S[K], propertyKey: K): StateCrudAction<S, K> {
+  public insertStateObject<K extends keyof S>(value: S[K] & StateObject, propertyKey: K): StateCrudAction<S, K> {
     return new StateCrudAction(ActionId.INSERT_STATE_OBJECT, this.parent, propertyKey, value);
   }
   public removeStateObject<K extends keyof S>(propertyKey: K): StateCrudAction<S, K> {
+    this.throwIfArray(this.parent[propertyKey]);
     return new StateCrudAction(ActionId.DELETE_STATE_OBJECT, this.parent, propertyKey, this.parent[propertyKey]);
   }
 }
@@ -122,8 +139,20 @@ export class ArrayActionCreator<S extends StateObject, K extends keyof S, V exte
     this.valuesArray = array;
   }
 
-  public append(value: V): Action {
-    return this.insert(this.valuesArray.length, value)[0];
+  public insertArray(newArray: Array<V> & S[K]): StateAction<S, K> {
+    return new StateCrudAction(ActionId.INSERT_PROPERTY, this.parent, this.propertyKey, newArray);
+  }
+
+  public removeArray(): StateAction<S, K> {
+    return new StateCrudAction(ActionId.DELETE_PROPERTY, this.parent, this.propertyKey, undefined);
+  }
+
+  public rerenderArray(): StateAction<S, K> {
+    return new StateCrudAction(ActionId.RERENDER, this.parent, this.propertyKey, this.parent[this.propertyKey]);
+  }
+
+  public appendElement(value: V): StateAction<S, K> {
+    return this.insertElement(this.valuesArray.length, value)[0];
   }
 
   /**
@@ -140,7 +169,7 @@ export class ArrayActionCreator<S extends StateObject, K extends keyof S, V exte
    * @param {V} value
    * @returns {Action}
    */
-  public insert(index: number, value: V): StateAction<S, K>[] {
+  public insertElement(index: number, value: V): StateAction<S, K>[] {
     let actions: Array<StateAction<S, K>> = [
       new ArrayChangeAction(
         ActionId.INSERT_PROPERTY, this.parent, this.propertyKey, index, this.valuesArray, value),
@@ -150,19 +179,19 @@ export class ArrayActionCreator<S extends StateObject, K extends keyof S, V exte
     return actions;
   }
 
-  public rerender(index: number): StateAction<S, K> {
+  public rerenderElement(index: number): StateAction<S, K> {
     return new ArrayChangeAction(
       ActionId.RERENDER, this.parent, this.propertyKey, index, this.valuesArray, this.valuesArray[index]
     );
   }
 
-  public update(index: number, newValue: V): ArrayChangeAction<S, K, V> {
+  public updateElement(index: number, newValue: V): ArrayChangeAction<S, K, V> {
     // let index = this.getIndexOf(oldValue);
     return new ArrayChangeAction(
       ActionId.UPDATE_PROPERTY, this.parent, this.propertyKey, index, this.valuesArray, newValue);
   }
 
-  public remove(index: number): StateAction<S, K>[] {
+  public removeElement(index: number): StateAction<S, K>[] {
     let newValue: V = index + 1 < this.valuesArray.length ? this.valuesArray[index + 1] : undefined;
     return [
       new ArrayChangeAction(ActionId.DELETE_PROPERTY, this.parent, this.propertyKey, index,

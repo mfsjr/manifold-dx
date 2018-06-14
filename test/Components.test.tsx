@@ -244,11 +244,11 @@ describe('ContainerComponent instantiation, mount, update, unmount', () => {
     expect(container.average).toBeGreaterThan(100);
   });
   test('add to the addresses', () => {
-    addressesActionCreator.insert(0, addr1).forEach(action => action.process());
+    addressesActionCreator.insertElement(0, addr1).forEach(action => action.process());
     expect(nameState.addresses[0].street).toBe(addr1.street);
   });
   test('append to the addresses', () => {
-    addressesActionCreator.append(addr2).process();
+    addressesActionCreator.appendElement(addr2).process();
     expect(nameState.addresses[1].state).toBe(addr2.state);
   });
   test(`Create a mapping action to an array index`, () => {
@@ -295,7 +295,7 @@ describe('ContainerComponent instantiation, mount, update, unmount', () => {
   test('updating the state array index value should update address1Container and its properties', () => {
     newAddr1.street = '16 Genung Ct';
     expect(address1Container.viewProps[`addresses`]).toBeUndefined();
-    addressesActionCreator.update(0, newAddr1).process();
+    addressesActionCreator.updateElement(0, newAddr1).process();
     expect(address1Container.viewProps[`addresses`]).toBeUndefined();
     expect(nameState.addresses[0].street).toBe(newAddr1.street);
     // verify that the prop that was mapped from the state was also updated
@@ -311,7 +311,7 @@ describe('ContainerComponent instantiation, mount, update, unmount', () => {
       state: 'NY',
       zip: '21039'
     };
-    let insertActions = addressesActionCreator.insert(0, addr0);
+    let insertActions = addressesActionCreator.insertElement(0, addr0);
     Manager.get(nameState).actionProcess(...insertActions);
 
     // verify that state was updated
@@ -336,7 +336,7 @@ describe('ContainerComponent instantiation, mount, update, unmount', () => {
     expect(nameState.addresses[1].street).toBe(newAddr1.street);
     expect(nameState.addresses[2].street).toBe(addr2.street);
     //
-    let deleteActions = addressesActionCreator.remove(0);
+    let deleteActions = addressesActionCreator.removeElement(0);
     Manager.get(nameState).actionProcess(...deleteActions);
 
     expect(nameState.addresses[0].street).toBe(newAddr1.street);
@@ -356,7 +356,7 @@ describe('ContainerComponent instantiation, mount, update, unmount', () => {
 describe('Standalone tests for instance of MappingState', () => {
   let mappingState = new MappingState();
   // other tests have already captured api's for simple properties, so concentrate on array/React.Key api's
-  let addressesMappings = mappingState.getOrCreatePathMappings('addresses');
+  let addressesMappings = mappingState.getOrCreatePathMapping('addresses');
   let mappingActions = container.generateMappingActions();
 
   test('addresses returns addressesMappings', () => {
@@ -368,7 +368,7 @@ describe('Standalone tests for instance of MappingState', () => {
     expect(addressesMappings instanceof Array).toBeTruthy();
   });
 
-  let addr1Mappings = mappingState.getOrCreatePathMappings('addresses', 1);
+  let addr1Mappings = mappingState.getOrCreatePathMapping('addresses', 1);
   test('addr1Mappings to be an array', () => {
     expect(addr1Mappings instanceof Array).toBeTruthy();
   });
@@ -401,15 +401,15 @@ describe('Standalone tests for instance of MappingState', () => {
     // we expect there to be one entry for every element in the array, plus one for the array itself
     expect(n).toBe(addr1Mappings.length + 1);
     // now add them back and restore the variables we're using for testing
-    mappingState.getOrCreatePathMappings('addresses');
-    mappingState.getOrCreatePathMappings('addresses', 1);
+    mappingState.getOrCreatePathMapping('addresses');
+    mappingState.getOrCreatePathMapping('addresses', 1);
     // let mappingActions = container.getMappingActions();
     mappingActions.forEach(action => addr1Mappings.push(action));
     addr1Mappings = mappingActions;
   });
 
   test('removing state paths, ie path prefixes' , () => {
-    mappingState.getOrCreatePathMappings('address');
+    mappingState.getOrCreatePathMapping('address');
     let n = mappingState.removeStatePath('address');
     // both 'address' and 'addresses' should be removed by the 'address' path prefix / state path
     expect(n === 2).toBeTruthy();
@@ -420,7 +420,7 @@ describe('Standalone tests for instance of MappingState', () => {
     let addressesMapping = mappingState.getPathMappings('addresses');
     expect(addressesMapping).toBeUndefined();
 
-    let addr1Mapping = mappingState.getOrCreatePathMappings('addresses', 1);
+    let addr1Mapping = mappingState.getOrCreatePathMapping('addresses', 1);
     expect(addr1Mapping).toBeDefined();
 
     // this should still be undefined
@@ -431,12 +431,23 @@ describe('Standalone tests for instance of MappingState', () => {
 
   test('Mapping the array after mapping an index of it', () => {
     // a somewhat atypical sequence of doing things, but something that should be doable
-    let addressesMapping = mappingState.getOrCreatePathMappings('addresses');
+    let addressesMapping = mappingState.getOrCreatePathMapping('addresses');
     expect(addressesMapping).toBeDefined();
 
     // the previously mapped index should still be there
     let addr1Mapping = mappingState.getPathMappings('addresses', 1);
     expect(addr1Mapping).toBeDefined();
+  });
+
+  test('Assign mapping to array using null (direct array mapping)', () => {
+    // let previousAddresses = new Array<Address>();
+    let propKey = 'previous';
+    expect(mappingState.getPathMappings(propKey)).toBeFalsy();
+    let array = mappingState.getOrCreatePathMapping(propKey, null);
+    expect(array instanceof Array).toBeTruthy();
+    let test = mappingState.getPathMappingsArrayMap(propKey);
+    expect(test instanceof Map).toBeTruthy();
+    expect(test && test.get(null)).toBe(array);
   });
 });
 

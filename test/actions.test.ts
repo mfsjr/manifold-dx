@@ -99,7 +99,7 @@ describe('Add the name container', () => {
       expect(bowlingScores[0]).toBe(111);
     });
     test('array index notation should work', () => {
-      let updateAction = getArrayActionCreator(nameState, nameState.bowlingScores).update(0, 101);
+      let updateAction = getArrayActionCreator(nameState, nameState.bowlingScores).updateElement(0, 101);
       expect(updateAction.index).toBe(0);
       testStore.getManager().actionProcess(updateAction);
       expect(bowlingScores[0]).toBe(101);
@@ -146,7 +146,7 @@ describe('Add the name container', () => {
         zip: '12345'
       };
 
-      let action = addrActionCreator.insert(0, addr);
+      let action = addrActionCreator.insertElement(0, addr);
       // action.perform();
       testStore.getManager().actionProcess(...action);
 
@@ -154,17 +154,17 @@ describe('Add the name container', () => {
     });
     test('update an item in the addresses array', () => {
       let updatedAddr: Address = {...nameState.addresses[0], zip: '54321'};
-      let action = addrActionCreator.update(0, updatedAddr);
+      let action = addrActionCreator.updateElement(0, updatedAddr);
       testStore.getManager().actionProcess(action);
       expect(nameState.addresses[0].zip).toBe('54321');
     });
     test('add another address', () => {
-      let action = addrActionCreator.insert(1, address2);
+      let action = addrActionCreator.insertElement(1, address2);
       testStore.getManager().actionProcess(...action);
       expect(nameState.addresses[1]).toBe(address2);
     });
     test('delete an address', () => {
-      let removeAction = addrActionCreator.remove(0);
+      let removeAction = addrActionCreator.removeElement(0);
       testStore.getManager().actionProcess(...removeAction);
 
       expect(nameState.addresses.length).toBe(1);

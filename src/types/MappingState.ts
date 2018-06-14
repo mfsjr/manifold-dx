@@ -75,7 +75,7 @@ export class MappingState {
     return this.pathMappings.size;
   }
 
-  public getPathMappings(path: string, index?: number): AnyMappingAction[] | undefined {
+  public getPathMappings(path: string, index?: number | null): AnyMappingAction[] | undefined {
     let pathResults = this.pathMappings.get(path);
     if (!pathResults) {
       return undefined;
@@ -90,7 +90,21 @@ export class MappingState {
     throw Error(`pathResults from ${path} expected to be instanceof Array, or a Map`);
   }
 
-  public getOrCreatePathMappings(propFullPath: string, index?: number): AnyMappingAction[] {
+  public getOrCreatePathMapping(propFullPath: string, index?: number | null): AnyMappingAction[] {
+    if (index === null) {
+      // TODO: assert value at fullpath is an array (null is used only in ArrayMap)
+      let arrayMap = this.getPathMappingsArrayMap(propFullPath);
+      if (!arrayMap) {
+        arrayMap = new Map<number | null, AnyMappingAction[]>();
+        this.pathMappings.set(propFullPath, arrayMap);
+      }
+      let mapResult = arrayMap.get(index);
+      if (!mapResult) {
+        mapResult = new Array<AnyMappingAction>();
+        arrayMap.set(index, mapResult);
+      }
+      return mapResult;
+    }
     let result = this.getPathMappings(propFullPath, index);
     if (index === undefined) {
       if (!result) {
@@ -146,7 +160,7 @@ export class MappingState {
     }
   }
 
-  public getPathMappingArrayMap(fullpath: string): ArrayMap | undefined {
+  public getPathMappingsArrayMap(fullpath: string): ArrayMap | undefined {
     let result = this.pathMappings.get(fullpath);
     return result instanceof Map ? result : undefined;
   }
@@ -163,7 +177,7 @@ export class MappingState {
   public removePathMapping(
             _fullPath: string,
             mappingAction: AnyMappingAction,
-            _index?: number): number {
+            _index?: number | null): number {
     let pathMappingActions = this.getPathMappings(_fullPath, _index);
     if (pathMappingActions) {
       let pathMappingComponents: AnyContainerComponent[] = pathMappingActions.map(action => action.component);

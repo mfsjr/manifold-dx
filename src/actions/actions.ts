@@ -295,6 +295,11 @@ export class ArrayChangeAction
       if (this.type === ActionId.INSERT_PROPERTY) {
         let mappingState = Manager.get(this.parent).getMappingState();
         let arrayMap = mappingState.getPathMappingsArrayMap(fullpath);
+        if (!arrayMap) {
+          /*tslint:disable:no-console*/
+          console.log(`WARNING: action isn't wired to component, failed to get arrayMap for ${fullpath}`);
+          /*tslint:enable:no-console*/
+        }
         if (arrayMap) {
           // the component to be rendered will place its mapping actions in this slot
           arrayMapInsert(arrayMap, this.index, []);

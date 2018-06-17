@@ -254,12 +254,12 @@ describe('ContainerComponent instantiation, mount, update, unmount', () => {
   test(`Create a mapping action to an array index`, () => {
     let addr1Container = new AddressContainer({address: addr1}, 'addr1Container');
     address1Container = addr1Container;
-    let keyGen = (address: Address) => address.id;
+    // let keyGen = (address: Address) => address.id;
     // let addr1MappingAction = getMappingCreator(nameState, addr1Container)
     // .createMappingAction('addresses', 'address');
-    let addressesOptions = {keyGen: keyGen, array: nameState.addresses};
-    let addr1MappingAction = getMappingActionCreator(nameState, 'addresses', addressesOptions)
-      .createArrayIndexMappingAction(0, addr1Container, 'address');
+    // let addressesOptions = {keyGen: keyGen, array: nameState.addresses};
+    let addr1MappingAction = getMappingActionCreator(nameState, 'addresses')
+      .createArrayIndexMappingAction(nameState.addresses, 0, addr1Container, 'address');
 
     addr1MappingAction.process();
     let manager = Manager.get(nameState);
@@ -275,8 +275,8 @@ describe('ContainerComponent instantiation, mount, update, unmount', () => {
 
     let addr2Container = new AddressContainer({address: addr2}, 'addr2Container');
     address2Container = addr2Container;
-    let addr2MappingAction = getMappingActionCreator(nameState, 'addresses', addressesOptions)
-      .createArrayIndexMappingAction(1, addr2Container, 'address');
+    let addr2MappingAction = getMappingActionCreator(nameState, 'addresses')
+      .createArrayIndexMappingAction(nameState.addresses, 1, addr2Container, 'address');
     addr2MappingAction.process();
 
     let mapping2 = Manager.get(nameState).getMappingState().getPathMappings(fullpath, 1);

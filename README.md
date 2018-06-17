@@ -74,6 +74,7 @@ Ok, what are these so-called "new approaches"?
    
 **Demo:**
 See the todo app at [https://github.com/mfsjr/manifold-dx-todo](https://github.com/mfsjr/manifold-dx-todo). 
+A more developed app at [https://github.com/mfsjr/manifold-dx-editor](https://github.com/mfsjr/manifold-dx-editor)
 
 **Run Tests:** `npm test --runInBand REACT_APP_STATE_MUTATION_CHECKING=true` 
 - `runInBand` since we need to have tests execute in order

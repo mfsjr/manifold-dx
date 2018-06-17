@@ -201,13 +201,8 @@ export class ArrayActionCreator<S extends StateObject, K extends keyof S, V exte
   }
 }
 
-export interface ArrayMappingCreatorOptions<S extends StateObject, K extends keyof S, E> {
-
-  array: Array<E> & S[K];
-}
-
 export function getMappingActionCreator<S extends StateObject, K extends keyof S, A extends StateObject, E>
-(_parent: S, _propKey: K, arrayOptions?: ArrayMappingCreatorOptions<S, K, E>) {
+(_parent: S, _propKey: K) {
 
   /**
    * Create a MappingAction from the state defined by this creator, to the component and its view / target property.
@@ -224,8 +219,20 @@ export function getMappingActionCreator<S extends StateObject, K extends keyof S
     return new MappingAction(_parent, _propKey, _component, targetPropKey, ...dispatches);
   };
 
+  /**
+   * Create a mapping from an array element, or the whole array, to a component
+   * @param {number | null} index use number to map from an array element, or null to map the array itself
+   * @param {ContainerComponent<CP, VP, A extends StateObject>} _component the component being mapped, typically 'this'
+   * @param {TP} targetPropKey the name of the view/target property being updated
+   * @param {DispatchType} dispatches optional functions executed after the action but before rendering.  View props
+   *    may be updated here
+   * @returns {MappingAction
+   *  <S extends StateObject, K extends keyof S, CP, VP, TP extends keyof VP, A extends StateObject, E>}
+   *  the mapping action
+   */
   let createArrayIndexMappingAction = function<CP, VP, TP extends keyof VP>
   (
+    _array: S[K] & Array<E>,
     index: number | null,
     _component: ContainerComponent<CP, VP, A>,
     targetPropKey: TP,
@@ -234,14 +241,10 @@ export function getMappingActionCreator<S extends StateObject, K extends keyof S
       : MappingAction<S, K, CP, VP, TP, A, E> {
 
     let mappingAction = new MappingAction(_parent, _propKey, _component, targetPropKey, ...dispatches);
-    if (!arrayOptions) {
-      throw new Error(`Can't invoke this method without arrayOptions!`);
-    }
     // TODO: try building a custom type guard for Array<E>
-    let array = arrayOptions.array;
     let propKey: K | undefined;
     for (let key in _parent) {
-      if (array === _parent[key] && array instanceof Array) {
+      if (_array === _parent[key] && _array instanceof Array) {
         propKey = key as K;
       }
     }
@@ -249,7 +252,7 @@ export function getMappingActionCreator<S extends StateObject, K extends keyof S
       throw Error(`Failed to find array in parent`);
     }
 
-    let result = mappingAction.setArrayElement(index, arrayOptions.array);
+    let result = mappingAction.setArrayElement(index, _array);
     return result as MappingAction<S, K, CP, VP, TP, A, E>;
   };
 

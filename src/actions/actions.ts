@@ -23,12 +23,22 @@ export enum ActionId {
   MAP_STATE_TO_PROP,
 }
 
+/**
+ * Mapping hooks are functions that can optionally be attached to mappings (see {@link MappingAction}.
+ *
+ * They are executed after the mapping has updated the component with the new state values, but immediately
+ * before the component renders.  So this is a place where the component's view props could be modified.
+ *
+ * See {@link ContainerComponent#handleChange} and {@link ContainerComponent#invokeMappingHooks}
+ *
+ * Note that these differ from postHooks in that those are attached to specific actions, and postHooks
+ * execute immediately before mappingHooks.
+ */
 /* tslint:disable:no-any */
-export type DispatchType = (action: StateCrudAction<any, any>) => void;
+export type MappingHook = (action: StateCrudAction<any, any>) => void;
 /* tslint:enable:no-any */
 
 export abstract class Action {
-
   /**
    * Optional action to be performed after the execution of the action,
    * see {@link ActionProcessor}
@@ -345,7 +355,7 @@ export class MappingAction
   component: ContainerComponent<CP, VP, A>;
   fullPath: string;
   targetPropName: TP;
-  dispatches: DispatchType[];
+  mappingHooks: MappingHook[];
 
   //
   index: number | null = -1;
@@ -356,7 +366,7 @@ export class MappingAction
     this.component = from.component;
     this.fullPath = from.fullPath;
     this.targetPropName = from.targetPropName;
-    this.dispatches = from.dispatches;
+    this.mappingHooks = from.mappingHooks;
     this.index = from.index;
   }
 
@@ -366,7 +376,7 @@ export class MappingAction
         this.propertyName,
         this.component,
         this.targetPropName,
-        ...this.dispatches);
+        ...this.mappingHooks);
     copy.assignProps(this);
     return copy;
   }
@@ -390,7 +400,7 @@ export class MappingAction
    * @param {K} _propertyOrArrayName
    * @param {ContainerComponent<CP, VP, any>} _component
    * @param {TP} targetPropName
-   * @param {DispatchType} dispatches - these are generally instance functions in the component that update other
+   * @param {MappingHook} mappingHooks - these are generally instance functions in the component that update other
    *          component view properties as a function of the target view property having changed.
    */
 
@@ -399,13 +409,13 @@ export class MappingAction
               _propertyOrArrayName: K,
               _component: ContainerComponent<CP, VP, A>,
               targetPropName: TP,
-              ...dispatches: DispatchType[]
+              ...mappingHooks: MappingHook[]
               ) {
     super(ActionId.MAP_STATE_TO_PROP, parent, _propertyOrArrayName);
     this.component = _component;
     this.fullPath = Manager.get(this.parent).getFullPath(this.parent, this.propertyName);
     this.targetPropName = targetPropName;
-    this.dispatches = dispatches;
+    this.mappingHooks = mappingHooks;
   }
 
   getValue(): S[K] {

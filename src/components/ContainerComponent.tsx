@@ -2,7 +2,7 @@ import * as React from 'react';
 import { ReactElement, ReactNode, SFC } from 'react';
 import {
   Action,
-  DispatchType,
+  MappingHook,
   StateCrudAction,
   MappingAction,
   StateAction,
@@ -70,9 +70,9 @@ export abstract class ContainerComponent<CP, VP, A extends StateObject>
   public getMappingActions() { return this.mappingActions; }
 
   createMappingAction<S extends StateObject, K extends keyof S, TP extends keyof VP, V>
-  (parentState: S, _propKey: K, targetPropKey: TP, ...dispatches: DispatchType[])
+  (parentState: S, _propKey: K, targetPropKey: TP, ...mappingHooks: MappingHook[])
     : MappingAction<S, K, CP, VP, TP, A, V> {
-    return new MappingAction(parentState, _propKey, this, targetPropKey, ...dispatches);
+    return new MappingAction(parentState, _propKey, this, targetPropKey, ...mappingHooks);
   }
 
   /**
@@ -113,9 +113,9 @@ export abstract class ContainerComponent<CP, VP, A extends StateObject>
   }
 
   public createMapping<S extends StateObject, K extends keyof S, TP extends keyof VP, V>
-          (stateObject: S, stateObjectProperty: K, targetViewProp: TP, ...dispatches: DispatchType[])
+          (stateObject: S, stateObjectProperty: K, targetViewProp: TP, ...mappingHooks: MappingHook[])
           : MappingAction<S, K, CP, VP, TP, A, V> {
-    return new MappingAction(stateObject, stateObjectProperty, this, targetViewProp, ...dispatches);
+    return new MappingAction(stateObject, stateObjectProperty, this, targetViewProp, ...mappingHooks);
   }
 
   /**
@@ -135,21 +135,6 @@ export abstract class ContainerComponent<CP, VP, A extends StateObject>
    */
   protected abstract appendToMappingActions(mappingActions: AnyMappingAction[]): void;
 
-  // /**
-  //  * This method is intended to pre-populate the {@link mappingActions} with mapping from an array element to a
-  //  * container.
-  //  *
-  //  * The action is passed into the {@link appendToMappingActions} and executed once.
-  //  *
-  //  * @param {AnyMappingAction} action
-  //  */
-  // public setArrayChildMappingAction(action: AnyMappingAction): void {
-  //   if (action.index < 0) {
-  //     throw new Error(`This method only accepts mappings to array elements at path ${action.fullPath}`);
-  //   }
-  //   this.mappingActions.push(action);
-  // }
-
   /**
    * Create default view properties, used to initialize {@link viewProps} and passed
    * into this container's presentational component, either {@link sfcView} or
@@ -162,25 +147,27 @@ export abstract class ContainerComponent<CP, VP, A extends StateObject>
    * Update the properties of the view (presentational component) immediately after the
    * container component's properties have changed.
    *
-   * This method can be used to alter default state property and dispatch mappings
+   * This method is invoked after state changes have been mapped but before rendering,
+   * see {@link handleChange}.
    */
   public updateViewProps(executedActions: Action[]): void { return; }
 
   /**
-   * Default implementation of dispatches using mapping actions.
+   * Default implementation of mappingHook functions contained in mapping actions.
    *
    * Note that only actions whose pathing matches the mapping will invoke
    *
-   * @param {Action[]} executedActions
+   * @param {Action[]} executedActions have already modified state, whose changes have already been mapped,
+   * but not yet rendered.
    */
-  protected dispatchUsingMappings(executedActions: Action[]): void {
+  protected invokeMappingHooks(executedActions: Action[]): void {
     executedActions.forEach((action) => {
       if (action instanceof StateCrudAction) {
         let mappingActions = action.mappingActions;
         if (mappingActions && mappingActions.length > 0) {
           mappingActions.forEach((mapping) => {
-            if (mapping.dispatches && mapping.dispatches.length > 0) {
-              mapping.dispatches.forEach((dispatch) => dispatch(action));
+            if (mapping.mappingHooks && mapping.mappingHooks.length > 0) {
+              mapping.mappingHooks.forEach((hookFunction) => hookFunction(action));
             }
           });
         }
@@ -246,7 +233,7 @@ export abstract class ContainerComponent<CP, VP, A extends StateObject>
 
   handleChange(executedActions: Action[]) {
     this.updateViewPropsUsingMappings(executedActions);
-    this.dispatchUsingMappings(executedActions);
+    this.invokeMappingHooks(executedActions);
     this.updateViewProps(executedActions);
     // our state has changed, force a render
     this.forceUpdate();

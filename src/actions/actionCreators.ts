@@ -1,6 +1,6 @@
 import { StateObject } from '../';
 import {
-  ActionId, ArrayChangeAction, DispatchType, MappingAction, StateAction, StateCrudAction,
+  ActionId, ArrayChangeAction, MappingHook, MappingAction, StateAction, StateCrudAction,
 } from './actions';
 import { ContainerComponent } from '../components/ContainerComponent';
 
@@ -209,14 +209,14 @@ export function getMappingActionCreator<S extends StateObject, K extends keyof S
    *
    * @param {ContainerComponent<CP, VP, A extends StateObject>} _component
    * @param {TP} targetPropKey
-   * @param {DispatchType} dispatches
+   * @param {MappingHook} functions that are executed after mapping but before rendering
    * @returns {MappingAction<S extends StateObject, K extends keyof S, CP, VP, TP extends keyof VP,
    * A extends StateObject, E>}
    */
   let createPropertyMappingAction = function<CP, VP, TP extends keyof VP>
-  (_component: ContainerComponent<CP, VP, A>, targetPropKey: TP, ...dispatches: DispatchType[])
+  (_component: ContainerComponent<CP, VP, A>, targetPropKey: TP, ...mappingHooks: MappingHook[])
   : MappingAction<S, K, CP, VP, TP, A, E> {
-    return new MappingAction(_parent, _propKey, _component, targetPropKey, ...dispatches);
+    return new MappingAction(_parent, _propKey, _component, targetPropKey, ...mappingHooks);
   };
 
   /**
@@ -224,7 +224,7 @@ export function getMappingActionCreator<S extends StateObject, K extends keyof S
    * @param {number | null} index use number to map from an array element, or null to map the array itself
    * @param {ContainerComponent<CP, VP, A extends StateObject>} _component the component being mapped, typically 'this'
    * @param {TP} targetPropKey the name of the view/target property being updated
-   * @param {DispatchType} dispatches optional functions executed after the action but before rendering.  View props
+   * @param {MappingHook} optional functions executed after the action but before rendering.  View props
    *    may be updated here
    * @returns {MappingAction
    *  <S extends StateObject, K extends keyof S, CP, VP, TP extends keyof VP, A extends StateObject, E>}
@@ -236,11 +236,11 @@ export function getMappingActionCreator<S extends StateObject, K extends keyof S
     index: number | null,
     _component: ContainerComponent<CP, VP, A>,
     targetPropKey: TP,
-    ...dispatches: DispatchType[]
+    ...mappingHooks: MappingHook[]
   )
       : MappingAction<S, K, CP, VP, TP, A, E> {
 
-    let mappingAction = new MappingAction(_parent, _propKey, _component, targetPropKey, ...dispatches);
+    let mappingAction = new MappingAction(_parent, _propKey, _component, targetPropKey, ...mappingHooks);
     // TODO: try building a custom type guard for Array<E>
     let propKey: K | undefined;
     for (let key in _parent) {

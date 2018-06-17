@@ -247,7 +247,7 @@ describe('Test perform/undo/redo actions marking the app state, mutating, and th
   test('perform the update middle action', () => {
     testStore.reset(createTestState(), {});
     let updateMiddleResult = testStore.getManager().actionProcess(updateMiddleAction);
-    expect(updateMiddleResult).toBe(1);
+    expect(updateMiddleResult.length).toBe(1);
   });
 
   test('expect the action queue to contain our action', () => {
@@ -256,7 +256,7 @@ describe('Test perform/undo/redo actions marking the app state, mutating, and th
 
   test('expect action undo to work', () => {
     let undoMiddleResult = testStore.getManager().actionUndo(1);
-    expect(undoMiddleResult).toBe(1);
+    expect(undoMiddleResult.length).toBe(1);
   });
 
   test('after undo, action queue\'s current index should be decremented by 1', () => {
@@ -269,7 +269,7 @@ describe('Test perform/undo/redo actions marking the app state, mutating, and th
 
   test('redo action should succeed', () => {
     let redoMiddleResult = testStore.getManager().actionRedo(1);
-    expect(redoMiddleResult).toBe(1);
+    expect(redoMiddleResult.length).toBe(1);
   });
 
   test('after redo middle name should be restored', () => {

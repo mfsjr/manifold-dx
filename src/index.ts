@@ -1,4 +1,4 @@
-import { Action, StateCrudAction, MappingAction, DispatchType } from './actions/actions';
+import { Action, StateCrudAction, MappingAction, MappingHook } from './actions/actions';
 import { ContainerComponent } from './components/ContainerComponent';
 import { Store, StateObject } from './types/State';
 import { ArrayChangeAction } from './actions/actions';
@@ -19,6 +19,6 @@ export {
   StateCrudAction,
   ArrayChangeAction,
   MappingAction,
-  DispatchType,
+  MappingHook,
   ContainerComponent
 };

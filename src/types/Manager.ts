@@ -71,7 +71,7 @@ export class Manager {
     return this.actionQueue;
   }
 
-  public actionUndo(nActions: number = 1, ..._undoActions: Action[]): number {
+  public actionUndo(nActions: number = 1, ..._undoActions: Action[]): Action[] {
     if (nActions === 0 && _undoActions.length === 0 ) {
       throw Error(`Expecting to undo existing actions or receive actions to undo, received neither`);
     }
@@ -88,82 +88,52 @@ export class Manager {
         }
       }
     });
-    actions = this.actionProcessor.preProcess(actions);
-    actions.forEach((action) => {
+    let actionMethod = (action: Action) => {
       Action.undo(action);
-      // action.undo();
       this.actionQueue.incrementCurrentIndex(-1);
-    });
-    actions = this.actionProcessor.postProcess(actions);
-    return actions.length;
+    }
+    return this.dispatch(actionMethod, ...actions);
   }
 
-  public actionRedo(nActions: number = 1): number {
+  public actionRedo(nActions: number = 1): Action[] {
     let actions = this.actionQueue.nextActions(nActions);
     actions.forEach((action) => {
       if (action.pristine) {
         throw Error('redo cannot be performed on new/original/pristine actions');
       }
     });
-    actions = this.actionProcessor.preProcess(actions);
-    actions.forEach((action) => {
+    let actionMethod = (action: Action) => {
       Action.perform(action);
-      // action.perform();
       this.actionQueue.incrementCurrentIndex(1);
-    });
-    actions = this.actionProcessor.postProcess(actions);
-    return actions.length;
+    }
+    return this.dispatch(actionMethod, ...actions);
   }
 
-  public actionProcess(...actions: Action[]): number {
+  /**
+   * All new actions are performed here.  Actions may be undone via {@link actionUndo} or replayed via
+   * {@link actionRedo}.
+   *
+   * @param {Action} actions
+   * @returns {number}
+   */
+  public actionProcess(...actions: Action[]): Action[] {
     actions.forEach((action) => {
       if (!action.pristine) {
         throw new Error('you can only perform actions for new/original/pristine actions');
       }
     });
-    actions = this.actionProcessor.preProcess(actions);
-    actions.forEach((action) => {
+    let actionMethod = (action: Action) => {
       Action.perform(action);
-      // action.perform();
       this.actionQueue.push(action);
-    });
+    }
+    return this.dispatch(actionMethod, ...actions);
+  }
+
+  protected dispatch(actionMethod: (action: Action) => void, ...actions: Action[]): Action[] {
+    actions = this.actionProcessor.preProcess(actions);
+    actions.forEach((action) => actionMethod(action) );
     actions = this.actionProcessor.postProcess(actions);
-    return actions.length;
-  }
-
-  /**
-   * Undo actions that have been performed.
-   * @param {number} lastN
-   * @returns {number}
-   */
-  public undoAction(lastN: number = 1): number {
-    // get the lastN actions and reverse their order, as we want to execute last-to-first
-    let undoActions = this.actionQueue.lastActions(lastN).reverse();
-    undoActions.forEach(action => {
-      // annotateActionInState(action);
-      Action.undo(action);
-      // action.undo();
-      // decrement the actionQueue's current index by the actual number of actions undone
-      this.actionQueue.incrementCurrentIndex(-undoActions.length);
-    });
-    return undoActions.length;
-  }
-
-  /**
-   * Redo actions that have been undone.
-   * @param {number} nextN
-   * @returns {number}
-   */
-  public redoAction(nextN: number = 1): number {
-    let redoActions = this.actionQueue.nextActions(nextN);
-    redoActions.forEach(action => {
-      // annotateActionInState(action);
-      Action.perform(action);
-      // increment the actionQueue's currentIndex by the actual number of actions redone
-      this.actionQueue.incrementCurrentIndex(redoActions.length);
-    });
-    // TODO: render in React!
-    return redoActions.length;
+    return actions;
   }
 
   public getFullPath(container: StateObject, propName: string): string {

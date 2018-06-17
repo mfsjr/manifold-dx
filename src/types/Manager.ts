@@ -4,6 +4,8 @@ import { MappingState } from './MappingState';
 import { createActionQueue, ActionQueue } from './ActionQueue';
 import { ActionProcessor } from './ActionProcessor';
 
+export type ActionSignature = (n?: number, ...actions: Action[]) => Action[];
+
 /**
  * Manages state, contains no references to app-specific data, which is handled in the
  * State class.
@@ -70,7 +72,7 @@ export class Manager {
   public getActionQueue() {
     return this.actionQueue;
   }
-
+  // TODO: implement a single method for dispatching safely
   public actionUndo(nActions: number = 1, ..._undoActions: Action[]): Action[] {
     if (nActions === 0 && _undoActions.length === 0 ) {
       throw Error(`Expecting to undo existing actions or receive actions to undo, received neither`);
@@ -91,8 +93,8 @@ export class Manager {
     let actionMethod = (action: Action) => {
       Action.undo(action);
       this.actionQueue.incrementCurrentIndex(-1);
-    }
-    return this.dispatch(actionMethod, ...actions);
+    };
+    return this.performActions(actionMethod, ...actions);
   }
 
   public actionRedo(nActions: number = 1): Action[] {
@@ -105,8 +107,8 @@ export class Manager {
     let actionMethod = (action: Action) => {
       Action.perform(action);
       this.actionQueue.incrementCurrentIndex(1);
-    }
-    return this.dispatch(actionMethod, ...actions);
+    };
+    return this.performActions(actionMethod, ...actions);
   }
 
   /**
@@ -125,11 +127,11 @@ export class Manager {
     let actionMethod = (action: Action) => {
       Action.perform(action);
       this.actionQueue.push(action);
-    }
-    return this.dispatch(actionMethod, ...actions);
+    };
+    return this.performActions(actionMethod, ...actions);
   }
 
-  protected dispatch(actionMethod: (action: Action) => void, ...actions: Action[]): Action[] {
+  protected performActions(actionMethod: (action: Action) => void, ...actions: Action[]): Action[] {
     actions = this.actionProcessor.preProcess(actions);
     actions.forEach((action) => actionMethod(action) );
     actions = this.actionProcessor.postProcess(actions);

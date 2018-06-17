@@ -74,7 +74,7 @@ var Manager = /** @class */ (function () {
             actions_1.Action.undo(action);
             _this.actionQueue.incrementCurrentIndex(-1);
         };
-        return this.dispatch.apply(this, [actionMethod].concat(actions));
+        return this.performActions.apply(this, [actionMethod].concat(actions));
     };
     Manager.prototype.actionRedo = function (nActions) {
         var _this = this;
@@ -89,7 +89,7 @@ var Manager = /** @class */ (function () {
             actions_1.Action.perform(action);
             _this.actionQueue.incrementCurrentIndex(1);
         };
-        return this.dispatch.apply(this, [actionMethod].concat(actions));
+        return this.performActions.apply(this, [actionMethod].concat(actions));
     };
     /**
      * All new actions are performed here.  Actions may be undone via {@link actionUndo} or replayed via
@@ -113,9 +113,9 @@ var Manager = /** @class */ (function () {
             actions_1.Action.perform(action);
             _this.actionQueue.push(action);
         };
-        return this.dispatch.apply(this, [actionMethod].concat(actions));
+        return this.performActions.apply(this, [actionMethod].concat(actions));
     };
-    Manager.prototype.dispatch = function (actionMethod) {
+    Manager.prototype.performActions = function (actionMethod) {
         var actions = [];
         for (var _i = 1; _i < arguments.length; _i++) {
             actions[_i - 1] = arguments[_i];

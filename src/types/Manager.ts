@@ -27,7 +27,7 @@ export class Manager {
 
   protected static stateManagerMap: Map<StateObject, Manager> = new Map();
 
-  protected dispatchingActiona: boolean = false;
+  protected dispatchingActions: boolean = false;
 
   protected dispatchArgs: DispatchArgs[] = [];
 
@@ -142,23 +142,34 @@ export class Manager {
   }
 
   protected dispatch(actionMethod: (action: Action) => void, ...actions: Action[]): Action[] {
-    if (this.dispatchingActiona) {
-      throw new Error(`You can't dispatch actions while actions are processing`);
+    if (this.dispatchingActions) {
+      this.dispatchArgs.push({actionMethod, actions});
+      return [];
     }
+
     try {
-      this.dispatchingActiona = true;
+      this.dispatchingActions = true;
       actions = this.actionProcessor.preProcess(actions);
-      actions.forEach((action) => actionMethod(action) );
+      actions.forEach((action) => actionMethod(action));
       actions = this.actionProcessor.postProcess(actions);
-      return actions;
+      this.dispatchingActions = false;
     } catch (err) {
+      this.dispatchingActions = false;
       /*tslint:disable:no-console*/
       console.log(`Error during dispatch, action(s) = ${JSON.stringify(actions, JSON_replaceCyclicParent, 4)}`);
       /*tslint:disable:no-console*/
       throw err;
-    } finally {
-      this.dispatchingActiona = false;
     }
+    while (this.dispatchArgs.length > 0) {
+      let deferredActions = this.dispatchFromNextArgs(this.dispatchArgs);
+      actions.push(...deferredActions);
+    }
+    return actions;
+  }
+
+  public dispatchFromNextArgs(_dispatchArgs: DispatchArgs[]): Action[] {
+    let args: DispatchArgs[] = _dispatchArgs.splice(0, 1);
+    return this.dispatch(args[0].actionMethod, ...args[0].actions);
   }
 
   public getFullPath(container: StateObject, propName: string): string {

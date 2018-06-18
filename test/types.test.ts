@@ -1,8 +1,9 @@
 import { ActionQueue, createActionQueue, } from '../src/types/ActionQueue';
-import { ActionId, ArrayChangeAction, StateCrudAction } from '../src/actions/actions';
+import { Action, ActionId, ArrayChangeAction, StateCrudAction } from '../src/actions/actions';
 import * as _ from 'lodash';
 import { Address, createTestStore, createNameContainer, createTestState, Name } from './testHarness';
 import { Store, StateObject } from '../src/types/Store';
+import { getActionCreator } from '../src';
 
 interface TestStateObjects {
   nameState: Name & StateObject;
@@ -289,4 +290,34 @@ describe('Test perform/undo/redo actions marking the app state, mutating, and th
     testStore.getManager().actionProcess(insertName);
     expect(testStore.getState().name).toBeDefined();
   });
+});
+
+describe(`test Manager's dispatch args`, () => {
+  let actionMethod = (action: Action) => {
+    Action.perform(action);
+  };
+  test(`incoming middle name should be J`, () => {
+    let dispatchArgs = [
+      {
+        actionMethod,
+        actions: [getActionCreator(nameState).update('middle', 'K')]
+      },
+      {
+        actionMethod,
+        actions: [getActionCreator(nameState).update('middle', 'L')]
+      }
+    ];
+    expect(nameState.middle).toBe('J');
+    let actions = testStore.getManager().dispatchFromNextArgs(dispatchArgs);
+    expect(actions.length).toBe(1);
+    expect(dispatchArgs.length).toBe(1);
+    expect(nameState.middle).toBe('K');
+
+    let actions2 = testStore.getManager().dispatchFromNextArgs(dispatchArgs);
+    actions.push(...actions2);
+    expect(actions.length).toBe(2);
+    expect(dispatchArgs.length).toBe(0);
+    expect(nameState.middle).toBe('L');
+  });
+
 });

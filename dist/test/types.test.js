@@ -181,7 +181,7 @@ describe('Get the full path of properties in state objects, usable by lodash "ge
         // }
         expect(appState.name).toBe(nameState);
         var insertScoresAction = new actions_1.StateCrudAction(actions_1.ActionId.INSERT_PROPERTY, nameState, 'bowlingScores', bowlingScores);
-        insertScoresAction.process();
+        insertScoresAction.dispatch();
         // Action.perform(insertScoresAction);
         var fullPath = testStore.getManager().getFullPath(nameState, 'bowlingScores[0]');
         expect(fullPath).toEqual('name.bowlingScores[0]');

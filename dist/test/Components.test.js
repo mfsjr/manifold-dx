@@ -218,7 +218,7 @@ describe('ContainerComponent instantiation, mount, update, unmount', function ()
         expect(container.average).toBeGreaterThan(100);
     });
     test('add to the addresses', function () {
-        addressesActionCreator.insertElement(0, addr1).forEach(function (action) { return action.process(); });
+        addressesActionCreator.insertElement(0, addr1).forEach(function (action) { return action.dispatch(); });
         expect(nameState.addresses[0].street).toBe(addr1.street);
     });
     test('append to the addresses', function () {
@@ -235,7 +235,7 @@ describe('ContainerComponent instantiation, mount, update, unmount', function ()
         // let addressesOptions = {keyGen: keyGen, array: nameState.addresses};
         var addr1MappingAction = actionCreators_1.getMappingActionCreator(nameState, 'addresses')
             .createArrayIndexMappingAction(nameState.addresses, 0, addr1Container, 'address');
-        addr1MappingAction.process();
+        addr1MappingAction.dispatch();
         var manager = Manager_1.Manager.get(nameState);
         var fullpath = manager.getFullPath(nameState, 'addresses');
         var mapping1 = Manager_1.Manager.get(nameState).getMappingState().getPathMappings(fullpath, 0);
@@ -249,7 +249,7 @@ describe('ContainerComponent instantiation, mount, update, unmount', function ()
         address2Container = addr2Container;
         var addr2MappingAction = actionCreators_1.getMappingActionCreator(nameState, 'addresses')
             .createArrayIndexMappingAction(nameState.addresses, 1, addr2Container, 'address');
-        addr2MappingAction.process();
+        addr2MappingAction.dispatch();
         var mapping2 = Manager_1.Manager.get(nameState).getMappingState().getPathMappings(fullpath, 1);
         // 'mapping' is possibly undefined, so cast it and then test it
         mapping2 = mapping2;
@@ -264,7 +264,7 @@ describe('ContainerComponent instantiation, mount, update, unmount', function ()
     test('updating the state array index value should update address1Container and its properties', function () {
         newAddr1.street = '16 Genung Ct';
         expect(address1Container.viewProps["addresses"]).toBeUndefined();
-        addressesActionCreator.updateElement(0, newAddr1).process();
+        addressesActionCreator.updateElement(0, newAddr1).dispatch();
         expect(address1Container.viewProps["addresses"]).toBeUndefined();
         expect(nameState.addresses[0].street).toBe(newAddr1.street);
         // verify that the prop that was mapped from the state was also updated

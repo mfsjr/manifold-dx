@@ -111,7 +111,7 @@ var StateAction = /** @class */ (function (_super) {
      * Process the action.  A convenience method that calls Manager.get().actionPerform, which is the correct
      * way to process an action or an array of actions.
      */
-    StateAction.prototype.process = function () {
+    StateAction.prototype.dispatch = function () {
         Manager_1.Manager.get(this.parent).actionProcess(this);
     };
     StateAction.prototype.containersToRender = function (containersBeingRendered) {

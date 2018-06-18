@@ -71,7 +71,7 @@ export abstract class Action {
 
   public abstract clone(): Action;
 
-  public abstract process(): void;
+  public abstract dispatch(): void;
 
   constructor(actionType: ActionId) {
     this.type = actionType;
@@ -140,7 +140,7 @@ export abstract class StateAction<S extends StateObject, K extends keyof S> exte
    * Process the action.  A convenience method that calls Manager.get().actionPerform, which is the correct
    * way to process an action or an array of actions.
    */
-  public process(): void {
+  public dispatch(): void {
     Manager.get(this.parent).actionProcess(this);
   }
   public containersToRender(containersBeingRendered: AnyContainerComponent[]): void {

@@ -54,7 +54,7 @@ export declare abstract class Action {
     static undo(action: Action): void;
     protected abstract change(perform: boolean): void;
     abstract clone(): Action;
-    abstract process(): void;
+    abstract dispatch(): void;
     constructor(actionType: ActionId);
     protected performChange(perform?: boolean): void;
     protected assignProps(from: Action): void;
@@ -76,7 +76,7 @@ export declare abstract class StateAction<S extends StateObject, K extends keyof
      * Process the action.  A convenience method that calls Manager.get().actionPerform, which is the correct
      * way to process an action or an array of actions.
      */
-    process(): void;
+    dispatch(): void;
     containersToRender(containersBeingRendered: AnyContainerComponent[]): void;
     protected concatContainersFromMappingActions(containersBeingRendered: AnyContainerComponent[], mappingActions?: AnyMappingAction[]): void;
 }

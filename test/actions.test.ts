@@ -91,10 +91,10 @@ describe('Add the name container', () => {
 
   describe('Array related actions', () => {
     test('bowling scores should be present', () => {
-      new StateCrudAction(ActionId.DELETE_PROPERTY, nameState, 'bowlingScores', undefined).process();
+      new StateCrudAction(ActionId.DELETE_PROPERTY, nameState, 'bowlingScores', undefined).dispatch();
       let bowlingAction = new StateCrudAction(ActionId.INSERT_PROPERTY, nameState, 'bowlingScores', bowlingScores);
       // testStore.getManager().actionPerform(bowlingAction);
-      bowlingAction.process();
+      bowlingAction.dispatch();
       expect(nameState.bowlingScores).toBe(bowlingScores);
       expect(bowlingScores[0]).toBe(111);
     });

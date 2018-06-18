@@ -1,5 +1,5 @@
 import { Action } from '../actions/actions';
-import { Store, StateConfigOptions } from './State';
+import { Store, StateConfigOptions } from './Store';
 import { AnyContainerComponent } from '../components/ContainerComponent';
 import { StateMutationCheck } from './StateMutationCheck';
 

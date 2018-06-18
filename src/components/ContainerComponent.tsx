@@ -10,7 +10,7 @@ import {
 } from '../actions/actions';
 import * as _ from 'lodash';
 import { Manager } from '../types/Manager';
-import { StateObject } from '../types/State';
+import { StateObject } from '../types/Store';
 import { ArrayChangeAction } from '../';
 
 /* tslint:disable:no-any */

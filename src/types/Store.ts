@@ -1,6 +1,7 @@
 import { Manager } from './Manager';
 import * as _ from 'lodash';
 import { onFailureDiff } from './StateMutationDiagnostics';
+import { Action } from '..';
 
 /**
  * State data is comprised of plain objects that are modified to implement this interface.
@@ -10,15 +11,6 @@ import { onFailureDiff } from './StateMutationDiagnostics';
 export interface StateObject {
   _parent: StateObject;
   _myPropname: string;
-
-  /**
-   * Accessors are pojos containing methods written by devs as needed.  These methods typically operate on the
-   * data contained within this state object.  They can transform data, call the Action API
-   * for performing updates, inserts or deletes, etc.
-   */
-  /* tslint:disable:no-any */
-  _accessors?: any;
-  /* tslint:enable:no-any */
 }
 
 /**
@@ -213,6 +205,23 @@ export class Store<A> {
 
   public getManager(): Manager {
     return this.manager;
+  }
+
+  /**
+   * Convenience method, seems likely that devs with Flux/Redux experience might expect this method to be here
+   * @param {Action} actions
+   * @returns {Action[]}
+   */
+  public dispatch(...actions: Action[]): Action[] {
+    return this.manager.actionProcess(...actions);
+  }
+
+  public dispatchUndo(nActions: number = 1, ..._undoActions: Action[]): Action[] {
+    return this.manager.actionUndo(nActions, ..._undoActions);
+  }
+
+  public dispatchRedo(nActions: number = 1): Action[] {
+    return this.manager.actionRedo(nActions);
   }
 
 }

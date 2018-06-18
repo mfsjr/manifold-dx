@@ -1,10 +1,15 @@
-import { Store, StateObject, StateConfigOptions, JSON_replaceCyclicParent } from './State';
+import { Store, StateObject, StateConfigOptions, JSON_replaceCyclicParent } from './Store';
 import { Action } from '../actions/actions';
 import { MappingState } from './MappingState';
 import { createActionQueue, ActionQueue } from './ActionQueue';
 import { ActionProcessor } from './ActionProcessor';
 
 export type ActionSignature = (n?: number, ...actions: Action[]) => Action[];
+
+export interface DispatchArgs {
+  actionMethod: (action: Action) => void;
+  actions: Action[];
+}
 
 /**
  * Manages state, contains no references to app-specific data, which is handled in the
@@ -22,9 +27,14 @@ export class Manager {
 
   protected static stateManagerMap: Map<StateObject, Manager> = new Map();
 
-    /* tslint:disable:no-any */
+  protected dispatchingActiona: boolean = false;
+
+  protected dispatchArgs: DispatchArgs[] = [];
+
+  /* tslint:disable:no-any */
   protected state: Store<any>;
-    /* tslint:disable:no-any */
+  /* tslint:disable:no-any */
+
   protected actionQueue: ActionQueue;
   protected mappingState: MappingState;
   protected actionProcessor: ActionProcessor;
@@ -94,7 +104,7 @@ export class Manager {
       Action.undo(action);
       this.actionQueue.incrementCurrentIndex(-1);
     };
-    return this.performActions(actionMethod, ...actions);
+    return this.dispatch(actionMethod, ...actions);
   }
 
   public actionRedo(nActions: number = 1): Action[] {
@@ -108,7 +118,7 @@ export class Manager {
       Action.perform(action);
       this.actionQueue.incrementCurrentIndex(1);
     };
-    return this.performActions(actionMethod, ...actions);
+    return this.dispatch(actionMethod, ...actions);
   }
 
   /**
@@ -128,14 +138,27 @@ export class Manager {
       Action.perform(action);
       this.actionQueue.push(action);
     };
-    return this.performActions(actionMethod, ...actions);
+    return this.dispatch(actionMethod, ...actions);
   }
 
-  protected performActions(actionMethod: (action: Action) => void, ...actions: Action[]): Action[] {
-    actions = this.actionProcessor.preProcess(actions);
-    actions.forEach((action) => actionMethod(action) );
-    actions = this.actionProcessor.postProcess(actions);
-    return actions;
+  protected dispatch(actionMethod: (action: Action) => void, ...actions: Action[]): Action[] {
+    if (this.dispatchingActiona) {
+      throw new Error(`You can't dispatch actions while actions are processing`);
+    }
+    try {
+      this.dispatchingActiona = true;
+      actions = this.actionProcessor.preProcess(actions);
+      actions.forEach((action) => actionMethod(action) );
+      actions = this.actionProcessor.postProcess(actions);
+      return actions;
+    } catch (err) {
+      /*tslint:disable:no-console*/
+      console.log(`Error during dispatch, action(s) = ${JSON.stringify(actions, JSON_replaceCyclicParent, 4)}`);
+      /*tslint:disable:no-console*/
+      throw err;
+    } finally {
+      this.dispatchingActiona = false;
+    }
   }
 
   public getFullPath(container: StateObject, propName: string): string {

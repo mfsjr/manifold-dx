@@ -1,6 +1,6 @@
 import { changeArray, changeValue } from './changeState';
 import { AnyContainerComponent, ContainerComponent } from '../components/ContainerComponent';
-import { StateObject } from '../types/State';
+import { StateObject } from '../types/Store';
 import { Manager } from '../types/Manager';
 import { arrayMapDelete, arrayMapInsert } from '../types/MappingState';
 

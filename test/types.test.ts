@@ -2,7 +2,7 @@ import { ActionQueue, createActionQueue, } from '../src/types/ActionQueue';
 import { ActionId, ArrayChangeAction, StateCrudAction } from '../src/actions/actions';
 import * as _ from 'lodash';
 import { Address, createTestStore, createNameContainer, createTestState, Name } from './testHarness';
-import { Store, StateObject } from '../src/types/State';
+import { Store, StateObject } from '../src/types/Store';
 
 interface TestStateObjects {
   nameState: Name & StateObject;

@@ -151,8 +151,8 @@ export class ArrayActionCreator<S extends StateObject, K extends keyof S, V exte
     return new StateCrudAction(ActionId.RERENDER, this.parent, this.propertyKey, this.parent[this.propertyKey]);
   }
 
-  public appendElement(value: V): StateAction<S, K> {
-    return this.insertElement(this.valuesArray.length, value)[0];
+  public appendElement(value: V): StateAction<S, K>[] {
+    return this.insertElement(this.valuesArray.length, value);
   }
 
   /**

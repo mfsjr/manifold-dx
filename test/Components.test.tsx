@@ -3,7 +3,7 @@ import { Name } from './testHarness';
 import * as React from 'react';
 import { ContainerComponent } from '../src/components/ContainerComponent';
 import { Action, ActionId, AnyMappingAction, StateCrudAction } from '../src/actions/actions';
-import { Store, StateObject } from '../src/types/State';
+import { Store, StateObject } from '../src/types/Store';
 import { Manager } from '../src/types/Manager';
 import { getMappingActionCreator } from '../src/actions/actionCreators';
 import { arrayMapDelete, arrayMapInsert, MappingState } from '../src/types/MappingState';
@@ -248,7 +248,8 @@ describe('ContainerComponent instantiation, mount, update, unmount', () => {
     expect(nameState.addresses[0].street).toBe(addr1.street);
   });
   test('append to the addresses', () => {
-    addressesActionCreator.appendElement(addr2).process();
+    let actions = addressesActionCreator.appendElement(addr2);
+    testStore.dispatch(...actions);
     expect(nameState.addresses[1].state).toBe(addr2.state);
   });
   test(`Create a mapping action to an array index`, () => {

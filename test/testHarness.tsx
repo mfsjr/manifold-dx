@@ -1,4 +1,4 @@
-import { Store, StateObject } from '../src/types/State';
+import { Store, StateObject } from '../src/types/Store';
 // import { ArrayKeyGeneratorFn, propertyKeyGenerator } from '../src/actions/actions';
 import { ArrayActionCreator, ActionCreator } from '../src/actions/actionCreators';
 import { getArrayActionCreator, getActionCreator } from '../src';

@@ -2,10 +2,10 @@ import {
   Action, ActionId, ArrayChangeAction,
   StateCrudAction
 } from '../src/actions/actions';
-import { Store } from '../src/types/State';
+import { Store } from '../src/types/Store';
 import { Address, createTestStore, createTestState, Name, NameState } from './testHarness';
 import { createNameContainer } from './testHarness';
-import { StateObject } from '../src/types/State';
+import { StateObject } from '../src/types/Store';
 import { ActionProcessorFunctionType } from '../src/types/ActionProcessor';
 import * as _ from 'lodash';
 import { onFailureDiff } from '../src/types/StateMutationDiagnostics';
@@ -107,7 +107,6 @@ describe('Add the name container', () => {
   });
 
   describe('use CrudActionCreator', () => {
-    // let crudCreator = nameState._accessors.crudCreator;
     let crudCreator = nameState.getActionCreator(nameState);
     let last = nameState.last;
     // let updateAction = new StateCrudAction(ActionId.UPDATE_PROPERTY, nameState, 'last', 'Doe');

@@ -1,7 +1,7 @@
 import { ActionId } from './actions';
 import * as _ from 'lodash';
 import { MutationError } from '../types/StateMutationCheck';
-import { JSON_replaceCyclicParent, StateObject, Store } from '../types/State';
+import { JSON_replaceCyclicParent, StateObject, Store } from '../types/Store';
 
 /**
  * StateObjects are changed here, any other changes will be detected and throw an error.

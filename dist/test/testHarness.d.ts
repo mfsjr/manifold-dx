@@ -1,4 +1,4 @@
-import { Store, StateObject } from '../src/types/State';
+import { Store, StateObject } from '../src/types/Store';
 import { ArrayActionCreator, ActionCreator } from '../src/actions/actionCreators';
 export interface Address {
     id: number;

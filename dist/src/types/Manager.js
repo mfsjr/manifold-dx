@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var State_1 = require("./State");
+var Store_1 = require("./Store");
 var actions_1 = require("../actions/actions");
 var MappingState_1 = require("./MappingState");
 var ActionQueue_1 = require("./ActionQueue");
@@ -13,21 +13,23 @@ var ActionProcessor_1 = require("./ActionProcessor");
  */
 var Manager = /** @class */ (function () {
     function Manager(state, options) {
+        this.dispatchingActions = false;
+        this.dispatchArgs = [];
         this.resetManager(state, {});
         Manager.manager = this;
     }
     Manager.get = function (stateObject) {
-        var topState = State_1.Store.getTopState(stateObject);
+        var topState = Store_1.Store.getTopState(stateObject);
         var result = Manager.stateManagerMap.get(topState);
         if (!result) {
-            var err = "Failed to find manager for stateObject = \n        " + JSON.stringify(stateObject, State_1.JSON_replaceCyclicParent, 4);
+            var err = "Failed to find manager for stateObject = \n        " + JSON.stringify(stateObject, Store_1.JSON_replaceCyclicParent, 4);
             throw Error(err);
         }
         return result;
     };
     Manager.set = function (stateObject, manager) {
         if (Manager.stateManagerMap.has(stateObject)) {
-            var message = "Map already has key for \n        " + JSON.stringify(stateObject, State_1.JSON_replaceCyclicParent, 4);
+            var message = "Map already has key for \n        " + JSON.stringify(stateObject, Store_1.JSON_replaceCyclicParent, 4);
             throw new Error(message);
         }
         Manager.stateManagerMap.set(stateObject, manager);
@@ -47,6 +49,7 @@ var Manager = /** @class */ (function () {
     Manager.prototype.getActionQueue = function () {
         return this.actionQueue;
     };
+    // TODO: implement a single method for dispatching safely
     Manager.prototype.actionUndo = function (nActions) {
         var _this = this;
         if (nActions === void 0) { nActions = 1; }
@@ -120,14 +123,37 @@ var Manager = /** @class */ (function () {
         for (var _i = 1; _i < arguments.length; _i++) {
             actions[_i - 1] = arguments[_i];
         }
-        actions = this.actionProcessor.preProcess(actions);
-        actions.forEach(function (action) { return actionMethod(action); });
-        actions = this.actionProcessor.postProcess(actions);
+        if (this.dispatchingActions) {
+            this.dispatchArgs.push({ actionMethod: actionMethod, actions: actions });
+            return [];
+        }
+        try {
+            this.dispatchingActions = true;
+            actions = this.actionProcessor.preProcess(actions);
+            actions.forEach(function (action) { return actionMethod(action); });
+            actions = this.actionProcessor.postProcess(actions);
+            this.dispatchingActions = false;
+        }
+        catch (err) {
+            this.dispatchingActions = false;
+            /*tslint:disable:no-console*/
+            console.log("Error during dispatch, action(s) = " + JSON.stringify(actions, Store_1.JSON_replaceCyclicParent, 4));
+            /*tslint:disable:no-console*/
+            throw err;
+        }
+        while (this.dispatchArgs.length > 0) {
+            var deferredActions = this.dispatchFromNextArgs(this.dispatchArgs);
+            actions.push.apply(actions, deferredActions);
+        }
         return actions;
+    };
+    Manager.prototype.dispatchFromNextArgs = function (_dispatchArgs) {
+        var args = _dispatchArgs.splice(0, 1);
+        return this.dispatch.apply(this, [args[0].actionMethod].concat(args[0].actions));
     };
     Manager.prototype.getFullPath = function (container, propName) {
         var fullPath = propName;
-        var containerIterator = State_1.Store.createStateObjectIterator(container);
+        var containerIterator = Store_1.Store.createStateObjectIterator(container);
         var iteratorResult = containerIterator.next();
         while (!iteratorResult.done) {
             if (iteratorResult.value._parent !== iteratorResult.value) {

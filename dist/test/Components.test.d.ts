@@ -4,7 +4,7 @@ import { Name } from './testHarness';
 import * as React from 'react';
 import { ContainerComponent } from '../src/components/ContainerComponent';
 import { Action, AnyMappingAction, StateCrudAction } from '../src/actions/actions';
-import { StateObject } from '../src/types/State';
+import { StateObject } from '../src/types/Store';
 export interface BowlerProps {
     fullName: string;
 }

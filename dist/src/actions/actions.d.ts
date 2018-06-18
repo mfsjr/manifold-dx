@@ -1,5 +1,5 @@
 import { AnyContainerComponent, ContainerComponent } from '../components/ContainerComponent';
-import { StateObject } from '../types/State';
+import { StateObject } from '../types/Store';
 /**
  * ActionId's for calling api's that change state.
  *

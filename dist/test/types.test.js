@@ -4,7 +4,8 @@ var ActionQueue_1 = require("../src/types/ActionQueue");
 var actions_1 = require("../src/actions/actions");
 var _ = require("lodash");
 var testHarness_1 = require("./testHarness");
-var State_1 = require("../src/types/State");
+var Store_1 = require("../src/types/Store");
+var src_1 = require("../src");
 var testStore = testHarness_1.createTestStore();
 var resetTestObjects = function () {
     testStore.reset(testHarness_1.createTestState(), {});
@@ -12,7 +13,7 @@ var resetTestObjects = function () {
     var address = { id: 1, street: '54 Upton Lake Rd', city: 'Clinton Corners', state: 'NY', zip: '12514' };
     // let x = State.createStateObject<Name>(testStore.getState(), 'name', name);
     var x = testHarness_1.createNameContainer(name, testStore.getState(), 'name');
-    var y = State_1.Store.createStateObject(x, 'address', address);
+    var y = Store_1.Store.createStateObject(x, 'address', address);
     // NOTE: do this after setting up the store's initial state, this is where the snapshot is taken
     // if you init state after calling this you will get mutation errors!
     testStore.getManager().getActionProcessorAPI().enableMutationChecking();
@@ -37,14 +38,14 @@ describe('state setup', function () {
         expect(testStore.getState()._parent).toEqual(testStore.getState());
     });
     test('nameState should be identified as a state object', function () {
-        expect(State_1.Store.isInstanceOfStateObject(nameState)).toBe(true);
-        expect(State_1.Store.isInstanceOfStateObject(nameState)).toBe(true);
+        expect(Store_1.Store.isInstanceOfStateObject(nameState)).toBe(true);
+        expect(Store_1.Store.isInstanceOfStateObject(nameState)).toBe(true);
     });
     test('state should be identified as a state object', function () {
-        expect(State_1.Store.isInstanceOfStateObject(testStore.getState())).toBe(true);
+        expect(Store_1.Store.isInstanceOfStateObject(testStore.getState())).toBe(true);
     });
     test('bowlingScores is not a state object', function () {
-        expect(State_1.Store.isInstanceOfStateObject(bowlingScores)).toBe(false);
+        expect(Store_1.Store.isInstanceOfStateObject(bowlingScores)).toBe(false);
     });
     test('if a plain object structurally matches a state object, it should be identified as a state object', function () {
         var c = {
@@ -52,7 +53,7 @@ describe('state setup', function () {
             _myPropname: ''
         };
         c._parent = c;
-        expect(State_1.Store.isInstanceOfStateObject(c)).toBe(true);
+        expect(Store_1.Store.isInstanceOfStateObject(c)).toBe(true);
     });
 });
 describe('creating child state objects', function () {
@@ -69,7 +70,7 @@ describe('creating child state objects', function () {
 });
 describe('Iterating through parents', function () {
     test('find parents of addressState', function () {
-        var iterator = State_1.Store.createStateObjectIterator(addressState);
+        var iterator = Store_1.Store.createStateObjectIterator(addressState);
         var result = iterator.next();
         // first call to next returns the original state object
         expect(result.value).toBe(addressState);
@@ -249,6 +250,33 @@ describe('Test perform/undo/redo actions marking the app state, mutating, and th
         var insertName = new actions_1.StateCrudAction(actions_1.ActionId.INSERT_STATE_OBJECT, testStore.getState(), 'name', nameState);
         testStore.getManager().actionProcess(insertName);
         expect(testStore.getState().name).toBeDefined();
+    });
+});
+describe("test Manager's dispatch args", function () {
+    var actionMethod = function (action) {
+        actions_1.Action.perform(action);
+    };
+    test("incoming middle name should be J", function () {
+        var dispatchArgs = [
+            {
+                actionMethod: actionMethod,
+                actions: [src_1.getActionCreator(nameState).update('middle', 'K')]
+            },
+            {
+                actionMethod: actionMethod,
+                actions: [src_1.getActionCreator(nameState).update('middle', 'L')]
+            }
+        ];
+        expect(nameState.middle).toBe('J');
+        var actions = testStore.getManager().dispatchFromNextArgs(dispatchArgs);
+        expect(actions.length).toBe(1);
+        expect(dispatchArgs.length).toBe(1);
+        expect(nameState.middle).toBe('K');
+        var actions2 = testStore.getManager().dispatchFromNextArgs(dispatchArgs);
+        actions.push.apply(actions, actions2);
+        expect(actions.length).toBe(2);
+        expect(dispatchArgs.length).toBe(0);
+        expect(nameState.middle).toBe('L');
     });
 });
 //# sourceMappingURL=types.test.js.map

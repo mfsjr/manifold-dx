@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { ReactNode, SFC } from 'react';
 import { Action, MappingHook, MappingAction, AnyMappingAction } from '../actions/actions';
-import { StateObject } from '../types/State';
+import { StateObject } from '../types/Store';
 export declare type ComponentGenerator<P> = (props: P) => React.Component<P, any>;
 /**
  *

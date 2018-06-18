@@ -1,5 +1,5 @@
 import { Action } from '../actions/actions';
-import { Store } from './State';
+import { Store } from './Store';
 export declare class MutationError extends Error {
     constructor(message: string);
 }

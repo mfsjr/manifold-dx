@@ -31,16 +31,6 @@ var ActionProcessor = /** @class */ (function () {
     ActionProcessor.prototype.disableMutationChecking = function () {
         this.mutationCheck.disableMutationChecks();
     };
-    // protected renderer(actions: Action[]): Action[] {
-    //   this.updatedComponents = [];
-    //   actions.forEach((action: Action) =>
-    //     action.containersToRender(this.updatedComponents) );
-    //   if (this.updatedComponents.length > 0) {
-    //     this.updatedComponents.forEach( (container: AnyContainerComponent) =>
-    //       container.handleChange(actions));
-    //   }
-    //   return actions;
-    // }
     ActionProcessor.prototype.renderer = function (actions) {
         var _this = this;
         this.updatedComponents = [];
@@ -52,10 +42,6 @@ var ActionProcessor = /** @class */ (function () {
             }
             _this.updatedComponents.concat(uc);
         });
-        // if (this.updatedComponents.length > 0) {
-        //   this.updatedComponents.forEach( (container: AnyContainerComponent) =>
-        //     container.handleChange(actions));
-        // }
         return actions;
     };
     /**

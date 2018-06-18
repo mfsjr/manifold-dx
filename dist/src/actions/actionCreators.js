@@ -132,7 +132,7 @@ var ArrayActionCreator = /** @class */ (function () {
         return new actions_1.StateCrudAction(actions_1.ActionId.RERENDER, this.parent, this.propertyKey, this.parent[this.propertyKey]);
     };
     ArrayActionCreator.prototype.appendElement = function (value) {
-        return this.insertElement(this.valuesArray.length, value)[0];
+        return this.insertElement(this.valuesArray.length, value);
     };
     /**
      * Insert into the StateObject's array, and return an array of actions for each element above the insertion.

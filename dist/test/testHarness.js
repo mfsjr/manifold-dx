@@ -8,7 +8,7 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
     return t;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var State_1 = require("../src/types/State");
+var Store_1 = require("../src/types/Store");
 // import { ArrayKeyGeneratorFn, propertyKeyGenerator } from '../src/actions/actions';
 var actionCreators_1 = require("../src/actions/actionCreators");
 var src_1 = require("../src");
@@ -75,7 +75,7 @@ exports.createTestState = createTestState;
  * @returns {Store<TestState>}
  */
 function createTestStore() {
-    return new State_1.Store(createTestState(), {});
+    return new Store_1.Store(createTestState(), {});
 }
 exports.createTestStore = createTestStore;
 //# sourceMappingURL=testHarness.js.map

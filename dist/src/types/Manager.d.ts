@@ -1,8 +1,13 @@
-import { Store, StateObject, StateConfigOptions } from './State';
+import { Store, StateObject, StateConfigOptions } from './Store';
 import { Action } from '../actions/actions';
 import { MappingState } from './MappingState';
 import { ActionQueue } from './ActionQueue';
 import { ActionProcessor } from './ActionProcessor';
+export declare type ActionSignature = (n?: number, ...actions: Action[]) => Action[];
+export interface DispatchArgs {
+    actionMethod: (action: Action) => void;
+    actions: Action[];
+}
 /**
  * Manages state, contains no references to app-specific data, which is handled in the
  * State class.
@@ -17,6 +22,8 @@ export declare class Manager {
      */
     protected static manager: Manager;
     protected static stateManagerMap: Map<StateObject, Manager>;
+    protected dispatchingActions: boolean;
+    protected dispatchArgs: DispatchArgs[];
     protected state: Store<any>;
     protected actionQueue: ActionQueue;
     protected mappingState: MappingState;
@@ -39,6 +46,7 @@ export declare class Manager {
      */
     actionProcess(...actions: Action[]): Action[];
     protected dispatch(actionMethod: (action: Action) => void, ...actions: Action[]): Action[];
+    dispatchFromNextArgs(_dispatchArgs: DispatchArgs[]): Action[];
     getFullPath(container: StateObject, propName: string): string;
     getMappingState(): MappingState;
 }

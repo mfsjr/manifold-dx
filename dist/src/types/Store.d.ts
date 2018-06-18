@@ -1,4 +1,5 @@
 import { Manager } from './Manager';
+import { Action } from '..';
 /**
  * State data is comprised of plain objects that are modified to implement this interface.
  *
@@ -7,12 +8,6 @@ import { Manager } from './Manager';
 export interface StateObject {
     _parent: StateObject;
     _myPropname: string;
-    /**
-     * Accessors are pojos containing methods written by devs as needed.  These methods typically operate on the
-     * data contained within this state object.  They can transform data, call the Action API
-     * for performing updates, inserts or deletes, etc.
-     */
-    _accessors?: any;
 }
 /**
  * Options which may be passed directly to the State constructor
@@ -95,6 +90,14 @@ export declare class Store<A> {
     reset(appData: A, options: StateConfigOptions): void;
     getState(): StateObject & A;
     getManager(): Manager;
+    /**
+     * Convenience method, seems likely that devs with Flux/Redux experience might expect this method to be here
+     * @param {Action} actions
+     * @returns {Action[]}
+     */
+    dispatch(...actions: Action[]): Action[];
+    dispatchUndo(nActions?: number, ..._undoActions: Action[]): Action[];
+    dispatchRedo(nActions?: number): Action[];
 }
 /**
  * This is only used in JSON.stringify, to prevent cyclic errors arising from

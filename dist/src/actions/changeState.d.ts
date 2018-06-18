@@ -1,5 +1,5 @@
 import { ActionId } from './actions';
-import { StateObject } from '../types/State';
+import { StateObject } from '../types/Store';
 /**
  *
  * @param {ActionId} actionType

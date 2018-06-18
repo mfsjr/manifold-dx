@@ -68,7 +68,7 @@ export declare class ArrayActionCreator<S extends StateObject, K extends keyof S
     insertArray(newArray: Array<V> & S[K]): StateAction<S, K>;
     removeArray(): StateAction<S, K>;
     rerenderArray(): StateAction<S, K>;
-    appendElement(value: V): StateAction<S, K>;
+    appendElement(value: V): StateAction<S, K>[];
     /**
      * Insert into the StateObject's array, and return an array of actions for each element above the insertion.
      *

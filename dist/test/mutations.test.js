@@ -1,11 +1,11 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var State_1 = require("../src/types/State");
+var Store_1 = require("../src/types/Store");
 var changeState_1 = require("../src/actions/changeState");
 var actions_1 = require("../src/actions/actions");
 var _ = require("lodash");
 var testHarness_1 = require("./testHarness");
-var State_2 = require("../src/types/State");
+var Store_2 = require("../src/types/Store");
 var testStore = testHarness_1.createTestStore();
 var name;
 var address;
@@ -15,9 +15,9 @@ var bowlingScores;
 var resetTestObjects = function () {
     testStore.reset(testHarness_1.createTestState(), {});
     name = { first: 'Matthew', middle: 'F', last: 'Hooper', prefix: 'Mr', bowlingScores: [], addresses: [] };
-    nameState = State_2.Store.createStateObject(testStore.getState(), 'name', name);
+    nameState = Store_2.Store.createStateObject(testStore.getState(), 'name', name);
     address = { id: 1, street: '54 Upton Lake Rd', city: 'Clinton Corners', state: 'NY', zip: '12514' };
-    addressState = State_2.Store.createStateObject(nameState, 'address', address);
+    addressState = Store_2.Store.createStateObject(nameState, 'address', address);
     bowlingScores = [111, 121, 131];
     // NOTE: do this after setting up the store's initial state, this is where the snapshot is taken
     // if you init state after calling this you will get mutation errors!
@@ -174,7 +174,7 @@ describe('mutate object values', function () {
             });
         });
         test('the JSON_replaceCyclicParent function, used to remove cyclic references for JSON.stringify', function () {
-            var json = JSON.stringify(nameState, State_1.JSON_replaceCyclicParent, 4);
+            var json = JSON.stringify(nameState, Store_1.JSON_replaceCyclicParent, 4);
             expect(json.indexOf('_parent')).toBeGreaterThan(0);
         });
         test('delete the nameState from the name container', function () {

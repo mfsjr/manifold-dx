@@ -22,7 +22,7 @@ var testHarness_1 = require("./testHarness");
 var React = require("react");
 var ContainerComponent_1 = require("../src/components/ContainerComponent");
 var actions_1 = require("../src/actions/actions");
-var State_1 = require("../src/types/State");
+var Store_1 = require("../src/types/Store");
 var Manager_1 = require("../src/types/Manager");
 var actionCreators_1 = require("../src/actions/actionCreators");
 var MappingState_1 = require("../src/types/MappingState");
@@ -186,7 +186,7 @@ describe('ContainerComponent instantiation, mount, update, unmount', function ()
             throw new Error('container.nameState is undefined!');
         }
         var so = testStore.getState();
-        var top = State_1.Store.getTopState(container.nameState);
+        var top = Store_1.Store.getTopState(container.nameState);
         if (so !== top) {
             throw new Error('app state doesn\'t equal top of nameState');
         }
@@ -222,7 +222,8 @@ describe('ContainerComponent instantiation, mount, update, unmount', function ()
         expect(nameState.addresses[0].street).toBe(addr1.street);
     });
     test('append to the addresses', function () {
-        addressesActionCreator.appendElement(addr2).process();
+        var actions = addressesActionCreator.appendElement(addr2);
+        testStore.dispatch.apply(testStore, actions);
         expect(nameState.addresses[1].state).toBe(addr2.state);
     });
     test("Create a mapping action to an array index", function () {

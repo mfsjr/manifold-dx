@@ -142,6 +142,32 @@ var Store = /** @class */ (function () {
     Store.prototype.getManager = function () {
         return this.manager;
     };
+    /**
+     * Convenience method, seems likely that devs with Flux/Redux experience might expect this method to be here
+     * @param {Action} actions
+     * @returns {Action[]}
+     */
+    Store.prototype.dispatch = function () {
+        var actions = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            actions[_i] = arguments[_i];
+        }
+        return (_a = this.manager).actionProcess.apply(_a, actions);
+        var _a;
+    };
+    Store.prototype.dispatchUndo = function (nActions) {
+        if (nActions === void 0) { nActions = 1; }
+        var _undoActions = [];
+        for (var _i = 1; _i < arguments.length; _i++) {
+            _undoActions[_i - 1] = arguments[_i];
+        }
+        return (_a = this.manager).actionUndo.apply(_a, [nActions].concat(_undoActions));
+        var _a;
+    };
+    Store.prototype.dispatchRedo = function (nActions) {
+        if (nActions === void 0) { nActions = 1; }
+        return this.manager.actionRedo(nActions);
+    };
     Store.StateKeys = Store.getStateKeys();
     /**
      * Iterate through parent containers up to and including the top-level application state.
@@ -189,4 +215,4 @@ function JSON_replaceCyclicParent(key, value) {
     return key === '_parent' ? '(parent)' : value;
 }
 exports.JSON_replaceCyclicParent = JSON_replaceCyclicParent;
-//# sourceMappingURL=State.js.map
+//# sourceMappingURL=Store.js.map

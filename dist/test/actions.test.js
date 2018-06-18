@@ -9,7 +9,7 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var actions_1 = require("../src/actions/actions");
-var State_1 = require("../src/types/State");
+var Store_1 = require("../src/types/Store");
 var testHarness_1 = require("./testHarness");
 var testHarness_2 = require("./testHarness");
 var _ = require("lodash");
@@ -38,7 +38,7 @@ var resetTestObjects = function () {
     nameState = testHarness_2.createNameContainer(name, testStore.getState(), 'name');
     bowlingScores = [111, 121, 131];
     address = { id: 2, street: '54 Upton Lake Rd', city: 'Clinton Corners', state: 'NY', zip: '12514' };
-    addressState = State_1.Store.createStateObject(nameState, 'address', address);
+    addressState = Store_1.Store.createStateObject(nameState, 'address', address);
     nameState.address = addressState;
     // NOTE: do this after setting up the store's initial state, this is where the snapshot is taken
     // if you init state after calling this you will get mutation errors!
@@ -104,7 +104,6 @@ describe('Add the name container', function () {
         });
     });
     describe('use CrudActionCreator', function () {
-        // let crudCreator = nameState._accessors.crudCreator;
         var crudCreator = nameState.getActionCreator(nameState);
         var last = nameState.last;
         // let updateAction = new StateCrudAction(ActionId.UPDATE_PROPERTY, nameState, 'last', 'Doe');
@@ -237,7 +236,7 @@ describe('test stripping StateObject info', function () {
     test('stripping all StateObject properties from the object graph', function () {
         var stateClone = _.cloneDeep(testStore.getState());
         stateClone.helper = function () { return 'Help'; };
-        State_1.Store.stripStateObject(stateClone);
+        Store_1.Store.stripStateObject(stateClone);
         expect(stateClone.helper).toBeDefined();
         expect(stateClone.hasOwnProperty('_parent')).toBe(false);
         expect(stateClone.hasOwnProperty('_myPropname')).toBe(false);
@@ -253,7 +252,7 @@ describe('test stripping StateObject info', function () {
         expect(stateClone.name.address.hasOwnProperty('_parent')).toBe(false);
         stateClone = _.cloneDeep(testStore.getState());
         stateClone.helper = function () { return 'Help'; };
-        State_1.Store.stripStateObject(stateClone, true);
+        Store_1.Store.stripStateObject(stateClone, true);
         expect(stateClone.helper).toBeUndefined();
     });
 });

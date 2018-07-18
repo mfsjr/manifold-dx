@@ -9,7 +9,7 @@ import { Action } from '..';
  * Note that __parents__ are never null (top level app state is self-referencing)
  */
 export interface StateObject {
-  _parent: StateObject;
+  _parent: StateObject | null;
   _myPropname: string;
 }
 
@@ -107,7 +107,7 @@ export class Store<A> {
 
   public static getTopState(stateObject: StateObject): StateObject {
     let result = stateObject;
-    while (result._parent !== result) {
+    while (result._parent !== null) {
       result = result._parent;
     }
     return result;
@@ -137,8 +137,10 @@ export class Store<A> {
       const next = function (): IteratorResult<StateObject> {
           let result = {done: done, value: currentContainer};
           // if we have just returned State, then we are now done
-          done = currentContainer === currentContainer._parent;
-          currentContainer = currentContainer._parent;
+          done = currentContainer === currentContainer._parent || null === currentContainer._parent;
+          if (currentContainer._parent) {
+            currentContainer = currentContainer._parent;
+          }
           return result;
       };
 

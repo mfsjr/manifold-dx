@@ -16,6 +16,7 @@ let bowlingScores: Array<number>;
 
 let resetTestObjects = () => {
   testStore.reset(createTestState(), {});
+  // comment out the next line to test with a self-referenced parent
   testStore.getState()._parent = null;
   name = {first: 'Matthew', middle: 'F', last: 'Hooper', prefix: 'Mr', bowlingScores: [], addresses: []};
   nameState = Store.createStateObject<Name>(testStore.getState() as TestState & StateObject, 'name', name);

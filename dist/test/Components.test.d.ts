@@ -41,7 +41,7 @@ export declare class BowlerContainer extends ContainerComponent<BowlerProps, Sco
     nameState: Name & StateObject;
     constructor(bowlerProps: BowlerProps);
     createViewProps(): ScoreCardProps;
-    createView(viewProps: ScoreCardProps): React.Component<ScoreCardProps, {}, any>;
+    createView(viewProps: ScoreCardProps): React.Component<ScoreCardProps, {}>;
     appendToMappingActions(actions: AnyMappingAction[]): void;
     /**
      * This is unrelated to any of the container's mapping internals, is simply being used for standalone testing.

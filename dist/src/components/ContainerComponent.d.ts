@@ -57,7 +57,7 @@ export declare abstract class ContainerComponent<CP, VP, A extends StateObject> 
      * This is only used for testing
      * @returns {React.Component<VP, any>}
      */
-    getView(): React.Component<VP, any, any>;
+    getView(): React.Component<VP, any>;
     /**
      * Append mappings to the provided array, so that the container will be notified of state changes affecting its props.
      *

@@ -122,9 +122,11 @@ export abstract class ContainerComponent<CP, VP, A extends StateObject>
    * This is only used for testing
    * @returns {React.Component<VP, any>}
    */
-  public getView() {
+  /*tslint:disable:no-any*/
+  public getView(): React.Component<VP, any> {
     return this.viewComponent;
   }
+  /*tslint:enable:no-any*/
 
   /**
    * Append mappings to the provided array, so that the container will be notified of state changes affecting its props.

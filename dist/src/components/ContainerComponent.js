@@ -99,6 +99,7 @@ var ContainerComponent = /** @class */ (function (_super) {
      * This is only used for testing
      * @returns {React.Component<VP, any>}
      */
+    /*tslint:disable:no-any*/
     ContainerComponent.prototype.getView = function () {
         return this.viewComponent;
     };

@@ -158,8 +158,9 @@ var BowlerContainer = /** @class */ (function (_super) {
 }(ContainerComponent_1.ContainerComponent));
 exports.BowlerContainer = BowlerContainer;
 var resetTestObjects = function () {
-    // testStore.reset(createTestState(), {});
     testStore.reset({ name: nameState }, {});
+    // comment out the next line to test with a self-referenced parent
+    testStore.getState()._parent = null;
     name = { first: 'Matthew', middle: 'F', last: 'Hooper', prefix: 'Mr', bowlingScores: [], addresses: [] };
     // nameState = State.createStateObject<Name>(testStore.getState(), 'name', name);
     // nameState = createNameContainer(name, testStore.getState(), 'name');

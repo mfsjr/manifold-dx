@@ -82,7 +82,7 @@ var Store = /** @class */ (function () {
     };
     Store.getTopState = function (stateObject) {
         var result = stateObject;
-        while (result._parent !== result) {
+        while (result._parent !== null && (result._parent && result._parent !== result)) {
             result = result._parent;
         }
         return result;
@@ -193,8 +193,10 @@ var Store = /** @class */ (function () {
         var next = function () {
             var result = { done: done, value: currentContainer };
             // if we have just returned State, then we are now done
-            done = currentContainer === currentContainer._parent;
-            currentContainer = currentContainer._parent;
+            done = currentContainer === currentContainer._parent || null === currentContainer._parent;
+            if (currentContainer._parent) {
+                currentContainer = currentContainer._parent;
+            }
             return result;
         };
         return { next: next };

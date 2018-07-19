@@ -33,6 +33,8 @@ var address2 = {
 };
 var resetTestObjects = function () {
     testStore.reset(testHarness_1.createTestState(), {});
+    // comment out the next line to test with a self-referenced parent
+    testStore.getState()._parent = null;
     name = { first: 'Matthew', middle: 'F', last: 'Hooper', prefix: 'Mr', bowlingScores: [], addresses: [] };
     // nameState = State.createStateObject<Name>(testStore.getState(), 'name', name);
     nameState = testHarness_2.createNameContainer(name, testStore.getState(), 'name');

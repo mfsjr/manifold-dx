@@ -156,7 +156,7 @@ var Manager = /** @class */ (function () {
         var containerIterator = Store_1.Store.createStateObjectIterator(container);
         var iteratorResult = containerIterator.next();
         while (!iteratorResult.done) {
-            if (iteratorResult.value._parent !== iteratorResult.value) {
+            if (iteratorResult.value._parent !== iteratorResult.value && iteratorResult.value._parent !== null) {
                 fullPath = iteratorResult.value._myPropname + '.' + fullPath;
             }
             iteratorResult = containerIterator.next();

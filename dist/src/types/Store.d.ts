@@ -6,7 +6,7 @@ import { Action } from '..';
  * Note that __parents__ are never null (top level app state is self-referencing)
  */
 export interface StateObject {
-    _parent: StateObject;
+    _parent: StateObject | null;
     _myPropname: string;
 }
 /**

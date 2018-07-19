@@ -9,6 +9,8 @@ var src_1 = require("../src");
 var testStore = testHarness_1.createTestStore();
 var resetTestObjects = function () {
     testStore.reset(testHarness_1.createTestState(), {});
+    // comment out the next line to test with a self-referenced parent
+    testStore.getState()._parent = null;
     var name = { first: 'Matthew', middle: 'F', last: 'Hooper', prefix: 'Mr', bowlingScores: [], addresses: [] };
     var address = { id: 1, street: '54 Upton Lake Rd', city: 'Clinton Corners', state: 'NY', zip: '12514' };
     // let x = State.createStateObject<Name>(testStore.getState(), 'name', name);
@@ -34,8 +36,13 @@ describe('manager setup', function () {
     });
 });
 describe('state setup', function () {
-    test('should return the initial state, containing _parent == this', function () {
-        expect(testStore.getState()._parent).toEqual(testStore.getState());
+    test('should return the initial state, containing _parent == this or null', function () {
+        if (testStore.getState()._parent) {
+            expect(testStore.getState()._parent).toEqual(testStore.getState());
+        }
+        else {
+            expect(testStore.getState()._parent).toEqual(null);
+        }
     });
     test('nameState should be identified as a state object', function () {
         expect(Store_1.Store.isInstanceOfStateObject(nameState)).toBe(true);
@@ -78,15 +85,17 @@ describe('Iterating through parents', function () {
             if (result.value === nameState) {
                 expect(result.value._parent).not.toBe(result.value);
             }
-            else if (result.value === testStore.getState()) {
-                expect(result.value._parent).toBe(result.value);
+            else if (result.value === testStore.getState() || result.value === null) {
+                var _value = result.value._parent ? result.value._parent : null;
+                expect(result.value._parent).toBe(_value);
             }
             result = iterator.next();
         }
         // when done, result.value is the app State
         var temp = testStore.getState();
         expect(result.value).toBe(temp);
-        expect(result.value._parent).toBe(result.value);
+        var value = result.value._parent ? result.value._parent : null;
+        expect(result.value._parent).toBe(value);
     });
 });
 // describe('Mark the state graph with action annotations', () => {

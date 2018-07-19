@@ -15,6 +15,7 @@ const testStore = createTestStore();
 
 let resetTestObjects = (): TestStateObjects => {
   testStore.reset(createTestState(), {});
+  testStore.getState()._parent = null;
   let name: Name = {first: 'Matthew', middle: 'F', last: 'Hooper', prefix: 'Mr', bowlingScores: [], addresses: []};
   let address: Address = {id: 1, street: '54 Upton Lake Rd', city: 'Clinton Corners', state: 'NY', zip: '12514'};
   // let x = State.createStateObject<Name>(testStore.getState(), 'name', name);
@@ -45,8 +46,12 @@ describe ('manager setup', () => {
 });
 
 describe('state setup', () => {
-  test('should return the initial state, containing _parent == this', () => {
-    expect(testStore.getState()._parent).toEqual(testStore.getState());
+  test('should return the initial state, containing _parent == this or null', () => {
+    if (testStore.getState()._parent) {
+      expect(testStore.getState()._parent).toEqual(testStore.getState());
+    } else {
+      expect(testStore.getState()._parent).toEqual(null);
+    }
   });
 
   test('nameState should be identified as a state object', () => {
@@ -98,15 +103,18 @@ describe('Iterating through parents', () => {
     while (!result.done) {
       if (result.value === nameState) {
         expect(result.value._parent).not.toBe(result.value);
-      } else if (result.value === testStore.getState()) {
-        expect(result.value._parent).toBe(result.value);
+      } else if (result.value === testStore.getState() || result.value === null ) {
+        let _value = result.value._parent ? result.value._parent : null;
+        expect(result.value._parent).toBe(_value);
       }
       result = iterator.next();
     }
     // when done, result.value is the app State
     let temp = testStore.getState();
     expect(result.value).toBe(temp);
-    expect(result.value._parent).toBe(result.value);
+
+    let value = result.value._parent ? result.value._parent : null;
+    expect(result.value._parent).toBe(value);
   });
 
 });

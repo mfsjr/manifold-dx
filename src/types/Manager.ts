@@ -177,7 +177,7 @@ export class Manager {
     let containerIterator = Store.createStateObjectIterator(container);
     let iteratorResult: IteratorResult<StateObject> = containerIterator.next();
     while (!iteratorResult.done) {
-      if (iteratorResult.value._parent !== iteratorResult.value) {
+      if (iteratorResult.value._parent !== iteratorResult.value && iteratorResult.value._parent !== null) {
         fullPath = iteratorResult.value._myPropname + '.' + fullPath;
       }
       iteratorResult = containerIterator.next();

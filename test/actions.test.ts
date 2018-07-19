@@ -30,6 +30,7 @@ let address2: Address = {
 
 let resetTestObjects = () => {
   testStore.reset(createTestState(), {});
+  testStore.getState()._parent = null;
   name = {first: 'Matthew', middle: 'F', last: 'Hooper', prefix: 'Mr', bowlingScores: [], addresses: [] };
   // nameState = State.createStateObject<Name>(testStore.getState(), 'name', name);
   nameState = createNameContainer(name, testStore.getState(), 'name');

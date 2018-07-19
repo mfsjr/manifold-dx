@@ -107,7 +107,7 @@ export class Store<A> {
 
   public static getTopState(stateObject: StateObject): StateObject {
     let result = stateObject;
-    while (result._parent !== null) {
+    while (result._parent !== null && (result._parent && result._parent !== result))  {
       result = result._parent;
     }
     return result;

@@ -192,11 +192,7 @@ export class ArrayActionCreator<S extends StateObject, K extends keyof S, V exte
   }
 
   public removeElement(index: number): StateAction<S, K>[] {
-    let aValue = index + 1 <= this.valuesArray.length ? this.valuesArray[index + 1] : undefined;
-    if (!aValue) {
-      throw new Error(`invalid index = ${index}`);
-    }
-    let newValue: V = aValue;
+    let newValue = index + 1 < this.valuesArray.length ? this.valuesArray[index + 1] : this.valuesArray[index];
     return [
       new ArrayChangeAction(ActionId.DELETE_PROPERTY, this.parent, this.propertyKey, index,
                             this.valuesArray, newValue),

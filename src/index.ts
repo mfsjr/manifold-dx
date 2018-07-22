@@ -1,6 +1,6 @@
-import { Action, StateCrudAction, MappingAction, MappingHook } from './actions/actions';
+import { Action, StateCrudAction, MappingAction, MappingHook, AnyMappingAction } from './actions/actions';
 import { ContainerComponent } from './components/ContainerComponent';
-import { Store, StateObject } from './types/Store';
+import { Store, StateObject, State, StateParent, StateProp } from './types/Store';
 import { ArrayChangeAction } from './actions/actions';
 import { getActionCreator, getArrayActionCreator, getMappingActionCreator } from './actions/actionCreators';
 
@@ -11,6 +11,9 @@ import { getActionCreator, getArrayActionCreator, getMappingActionCreator } from
  */
 export {
   Store,
+  State,
+  StateParent,
+  StateProp,
   StateObject,
   Action,
   getActionCreator,
@@ -19,6 +22,7 @@ export {
   StateCrudAction,
   ArrayChangeAction,
   MappingAction,
+  AnyMappingAction,
   MappingHook,
   ContainerComponent
 };

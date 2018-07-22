@@ -159,8 +159,6 @@ var BowlerContainer = /** @class */ (function (_super) {
 exports.BowlerContainer = BowlerContainer;
 var resetTestObjects = function () {
     testStore.reset({ name: nameState }, {});
-    // comment out the next line to test with a self-referenced parent
-    testStore.getState()._parent = null;
     name = { first: 'Matthew', middle: 'F', last: 'Hooper', prefix: 'Mr', bowlingScores: [], addresses: [] };
     // nameState = State.createStateObject<Name>(testStore.getState(), 'name', name);
     // nameState = createNameContainer(name, testStore.getState(), 'name');
@@ -272,6 +270,7 @@ describe('ContainerComponent instantiation, mount, update, unmount', function ()
         expect(address1Container.viewProps.address).toBe(newAddr1);
     });
     test('inserting a new element into index 0 should result in container remapping props to state', function () {
+        var _a;
         expect(nameState.addresses[0].street).toBe(newAddr1.street);
         // all containers that have been mapped should have their props updated to reflect the new state array insert
         var addr0 = {
@@ -286,7 +285,6 @@ describe('ContainerComponent instantiation, mount, update, unmount', function ()
         // verify that state was updated
         expect(nameState.addresses[0].street).toBe(addr0.street);
         expect(nameState.addresses[1].street).toBe(newAddr1.street);
-        var _a;
         // verify that the prop that was mapped from the state was also updated
         // state array index insert results in React inserting a new component,
         // the old component at index 0 now is mapped to index 1
@@ -299,6 +297,7 @@ describe('ContainerComponent instantiation, mount, update, unmount', function ()
         // expect(address2Container.viewProps.address).toBe(newAddr1);
     });
     test('deleting an element from the addresses array re-maps the array and its containers', function () {
+        var _a;
         expect(nameState.addresses[1].street).toBe(newAddr1.street);
         expect(nameState.addresses[2].street).toBe(addr2.street);
         //
@@ -307,7 +306,6 @@ describe('ContainerComponent instantiation, mount, update, unmount', function ()
         expect(nameState.addresses[0].street).toBe(newAddr1.street);
         expect(address1Container.viewProps.address).toBe(newAddr1);
         expect(address2Container.viewProps.address).toBe(undefined);
-        var _a;
     });
     test('unmount should result in bowler being removed from the still-present component state mapping value ' +
         '(array of commentsUI)', function () {

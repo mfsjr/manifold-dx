@@ -118,7 +118,7 @@ var MappingState = /** @class */ (function () {
             }
             return result;
         }
-        else {
+        else { // key is defined, we will be returning the results from a nested map, converting from an array if needed
             var keyMap = this.pathMappings.get(propFullPath);
             // TODO: clean up the types, return the same keymap for different key values (don't recreate the map)
             if (!keyMap) {
@@ -137,7 +137,7 @@ var MappingState = /** @class */ (function () {
                     result = [];
                     keyMap.set(index, result);
                 }
-                else {
+                else { // the only other object that we put here is a map
                     if (!(keyMap instanceof Map)) {
                         throw new Error("keyMap should be a Map");
                     }

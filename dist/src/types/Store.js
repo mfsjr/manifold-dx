@@ -82,7 +82,7 @@ var Store = /** @class */ (function () {
     };
     Store.getTopState = function (stateObject) {
         var result = stateObject;
-        while (result._parent !== null && (result._parent && result._parent !== result)) {
+        while (result._parent !== null) {
             result = result._parent;
         }
         return result;
@@ -118,7 +118,7 @@ var Store = /** @class */ (function () {
     Store.prototype.reset = function (appData, options) {
         // appData is modified s.t. its type becomes A & StateObject
         // if appData holds anything in a closure, its preserved by doing the type conversion (and casting) this way
-        appData["_parent"] = appData;
+        appData["_parent"] = null;
         appData["_myPropname"] = '';
         this.state = appData;
         // this.state = Object.assign(State.createState(), appData);
@@ -152,8 +152,8 @@ var Store = /** @class */ (function () {
         for (var _i = 0; _i < arguments.length; _i++) {
             actions[_i] = arguments[_i];
         }
-        return (_a = this.manager).actionProcess.apply(_a, actions);
         var _a;
+        return (_a = this.manager).actionProcess.apply(_a, actions);
     };
     Store.prototype.dispatchUndo = function (nActions) {
         if (nActions === void 0) { nActions = 1; }
@@ -161,8 +161,8 @@ var Store = /** @class */ (function () {
         for (var _i = 1; _i < arguments.length; _i++) {
             _undoActions[_i - 1] = arguments[_i];
         }
-        return (_a = this.manager).actionUndo.apply(_a, [nActions].concat(_undoActions));
         var _a;
+        return (_a = this.manager).actionUndo.apply(_a, [nActions].concat(_undoActions));
     };
     Store.prototype.dispatchRedo = function (nActions) {
         if (nActions === void 0) { nActions = 1; }
@@ -193,7 +193,7 @@ var Store = /** @class */ (function () {
         var next = function () {
             var result = { done: done, value: currentContainer };
             // if we have just returned State, then we are now done
-            done = currentContainer === currentContainer._parent || null === currentContainer._parent;
+            done = null === currentContainer._parent;
             if (currentContainer._parent) {
                 currentContainer = currentContainer._parent;
             }

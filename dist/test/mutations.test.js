@@ -14,8 +14,6 @@ var addressState;
 var bowlingScores;
 var resetTestObjects = function () {
     testStore.reset(testHarness_1.createTestState(), {});
-    // comment out the next line to test with a self-referenced parent
-    testStore.getState()._parent = null;
     name = { first: 'Matthew', middle: 'F', last: 'Hooper', prefix: 'Mr', bowlingScores: [], addresses: [] };
     nameState = Store_2.Store.createStateObject(testStore.getState(), 'name', name);
     address = { id: 1, street: '54 Upton Lake Rd', city: 'Clinton Corners', state: 'NY', zip: '12514' };

@@ -1,4 +1,3 @@
-/// <reference types="react" />
 import * as React from 'react';
 import { ReactNode, SFC } from 'react';
 import { Action, MappingHook, MappingAction, AnyMappingAction } from '../actions/actions';

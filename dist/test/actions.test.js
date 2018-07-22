@@ -33,8 +33,6 @@ var address2 = {
 };
 var resetTestObjects = function () {
     testStore.reset(testHarness_1.createTestState(), {});
-    // comment out the next line to test with a self-referenced parent
-    testStore.getState()._parent = null;
     name = { first: 'Matthew', middle: 'F', last: 'Hooper', prefix: 'Mr', bowlingScores: [], addresses: [] };
     // nameState = State.createStateObject<Name>(testStore.getState(), 'name', name);
     nameState = testHarness_2.createNameContainer(name, testStore.getState(), 'name');
@@ -134,6 +132,7 @@ describe('Add the name container', function () {
         // let streetKeyFn: ArrayKeyGeneratorFn<Address> = nameState.addressKeyGen;
         var addrActionCreator = nameState.getAddressesActionCreator(nameState);
         test('insert into the addresses array', function () {
+            var _a;
             var addr = {
                 id: 3,
                 street: '6 Lily Pond Lane',
@@ -145,7 +144,6 @@ describe('Add the name container', function () {
             // action.perform();
             (_a = testStore.getManager()).actionProcess.apply(_a, action);
             expect(nameState.addresses[0]).toEqual(addr);
-            var _a;
         });
         test('update an item in the addresses array', function () {
             var updatedAddr = __assign({}, nameState.addresses[0], { zip: '54321' });
@@ -154,17 +152,17 @@ describe('Add the name container', function () {
             expect(nameState.addresses[0].zip).toBe('54321');
         });
         test('add another address', function () {
+            var _a;
             var action = addrActionCreator.insertElement(1, address2);
             (_a = testStore.getManager()).actionProcess.apply(_a, action);
             expect(nameState.addresses[1]).toBe(address2);
-            var _a;
         });
         test('delete an address', function () {
+            var _a;
             var removeAction = addrActionCreator.removeElement(0);
             (_a = testStore.getManager()).actionProcess.apply(_a, removeAction);
             expect(nameState.addresses.length).toBe(1);
             expect(nameState.addresses[0]).toBe(address2);
-            var _a;
         });
     });
     describe('Verify StateMutationCheck', function () {

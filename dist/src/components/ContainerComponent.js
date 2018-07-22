@@ -14,7 +14,7 @@ var React = require("react");
 var actions_1 = require("../actions/actions");
 var _ = require("lodash");
 var Manager_1 = require("../types/Manager");
-var _1 = require("../");
+var __1 = require("../");
 /* tslint:enable:no-any */
 /**
  *
@@ -151,7 +151,7 @@ var ContainerComponent = /** @class */ (function (_super) {
                         if (action instanceof actions_1.StateCrudAction) {
                             _viewProps[mapping.targetPropName] = action.value;
                         }
-                        else if (action instanceof _1.ArrayChangeAction) {
+                        else if (action instanceof __1.ArrayChangeAction) {
                             // if we are mutating the list element, we only want to change that index
                             // otherwise its an insert/delete and we want to update the whole array
                             if (mapping.index !== undefined) {
@@ -168,12 +168,13 @@ var ContainerComponent = /** @class */ (function (_super) {
     };
     // TODO: change this to componentWillMount?
     ContainerComponent.prototype.componentDidMount = function () {
+        var _a;
         // subscribe
         this.appendToMappingActions(this.mappingActions);
         (_a = Manager_1.Manager.get(this.appData)).actionProcess.apply(_a, this.mappingActions);
-        var _a;
     };
     ContainerComponent.prototype.componentWillUnmount = function () {
+        var _a;
         // TODO: this fix passes our tests, needs to be tried out
         if (this.mappingActions && this.mappingActions.length > 0) {
             // unsubscribe from stateMappingActions, we need to undo these specific actions
@@ -188,7 +189,6 @@ var ContainerComponent = /** @class */ (function (_super) {
             // TODO: defer execution of these actions, as other actions may be executing
             (_a = Manager_1.Manager.get(this.appData)).actionUndo.apply(_a, [0].concat(unmappingActions_1));
         }
-        var _a;
     };
     ContainerComponent.prototype.handleChange = function (executedActions) {
         this.updateViewPropsUsingMappings(executedActions);

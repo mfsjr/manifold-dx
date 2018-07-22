@@ -16,7 +16,7 @@ export declare enum ActionId {
     INSERT_PROPERTY = 3,
     UPDATE_PROPERTY = 4,
     DELETE_PROPERTY = 5,
-    MAP_STATE_TO_PROP = 6,
+    MAP_STATE_TO_PROP = 6
 }
 /**
  * Mapping hooks are functions that can optionally be attached to mappings (see {@link MappingAction}.

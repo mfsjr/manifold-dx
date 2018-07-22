@@ -9,8 +9,6 @@ var src_1 = require("../src");
 var testStore = testHarness_1.createTestStore();
 var resetTestObjects = function () {
     testStore.reset(testHarness_1.createTestState(), {});
-    // comment out the next line to test with a self-referenced parent
-    testStore.getState()._parent = null;
     var name = { first: 'Matthew', middle: 'F', last: 'Hooper', prefix: 'Mr', bowlingScores: [], addresses: [] };
     var address = { id: 1, street: '54 Upton Lake Rd', city: 'Clinton Corners', state: 'NY', zip: '12514' };
     // let x = State.createStateObject<Name>(testStore.getState(), 'name', name);

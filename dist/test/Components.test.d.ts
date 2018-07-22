@@ -1,4 +1,3 @@
-/// <reference types="react" />
 import { TestState, Address } from './testHarness';
 import { Name } from './testHarness';
 import * as React from 'react';

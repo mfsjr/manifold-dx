@@ -10,6 +10,18 @@ export interface StateObject {
     _myPropname: string;
 }
 /**
+ * Helper interface for composing the initial state, not necessary, but improves usability.
+ * Uses generics to enforce that this obect's _myPropname is defined in the parent.
+ *
+ * P: the generic type of the parent.
+ */
+export interface State<P extends StateObject | null> extends StateObject {
+    _parent: StateParent<P>;
+    _myPropname: StateProp<P>;
+}
+export declare type StateParent<P> = P extends StateObject ? P : null;
+export declare type StateProp<P> = StateParent<P> extends null ? '' : keyof P;
+/**
  * Options which may be passed directly to the State constructor
  */
 export interface StateConfigOptions {
@@ -85,7 +97,7 @@ export declare class Store<A> {
      * further and remove all functions so that it is pure data.
      */
     static stripStateObject(stateObject: any, includingFunctions?: boolean): any;
-    private static getStateKeys();
+    private static getStateKeys;
     constructor(appData: A, options: StateConfigOptions);
     reset(appData: A, options: StateConfigOptions): void;
     getState(): StateObject & A;

@@ -1,18 +1,27 @@
 # Manifold-dx for React
 
-Simplified state management, based on new approaches to providing 
-unidirectional predictability, automatic / configurable  
-mutation checking, type safety from TypeScript, and 'time-travel'.
+The goal here is to provide Flux mechanics similar to those of Redux, 
+while providing the ease of use of MobX.
 
-Ok, what are these so-called "new approaches"?
+Using a TypeScript-first approach, we are able to accomplish these 
+goals by using simple graph nodes that can store any kind of data and 
+be nested to arbitrary depths.
 
-1. **You don't code actions or reducers, you call Action API's**
+This combination allows us to eliminate the need for developers to write
+action types, actions, action creators, reducers and dispatchers, while 
+retaining the advantages of actions, Flux and some aspects of time travel.
+
+So how does all this work?
+
+1. **You don't code actions or reducers, you call Action Creator API's**
 
    The obvious advantages here are that developers don't have to code 
    anything, and the API is fully tested.
    
    Actions are implemented as pure invertible functions, so they may 
-   be performed, undone or redone easily, all through the API.
+   be performed, undone or redone easily.  Actions perform inserts, 
+   updates or deletions on the state object graph, which you can read
+   directly since you have direct access to it.
    
    Another less obvious advantage is mutation detection.  Since only 
    the API changes state, out-of-the-box change detection catches any 

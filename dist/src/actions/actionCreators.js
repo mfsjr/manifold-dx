@@ -163,8 +163,7 @@ var ArrayActionCreator = /** @class */ (function () {
         return new actions_1.ArrayChangeAction(actions_1.ActionId.UPDATE_PROPERTY, this.parent, this.propertyKey, index, this.valuesArray, newValue);
     };
     ArrayActionCreator.prototype.removeElement = function (index) {
-        // let newValue: V = index + 1 < this.valuesArray.length ? this.valuesArray[index + 1] : undefined;
-        var aValue = index + 1 < this.valuesArray.length ? this.valuesArray[index + 1] : undefined;
+        var aValue = index + 1 <= this.valuesArray.length ? this.valuesArray[index + 1] : undefined;
         if (!aValue) {
             throw new Error("invalid index = " + index);
         }

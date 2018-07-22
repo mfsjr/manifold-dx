@@ -30,8 +30,6 @@ let address2: Address = {
 
 let resetTestObjects = () => {
   testStore.reset(createTestState(), {});
-  // comment out the next line to test with a self-referenced parent
-  testStore.getState()._parent = null;
   name = {first: 'Matthew', middle: 'F', last: 'Hooper', prefix: 'Mr', bowlingScores: [], addresses: [] };
   // nameState = State.createStateObject<Name>(testStore.getState(), 'name', name);
   nameState = createNameContainer(name, testStore.getState(), 'name');

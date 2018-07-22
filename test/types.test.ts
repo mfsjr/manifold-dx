@@ -15,8 +15,6 @@ const testStore = createTestStore();
 
 let resetTestObjects = (): TestStateObjects => {
   testStore.reset(createTestState(), {});
-  // comment out the next line to test with a self-referenced parent
-  testStore.getState()._parent = null;
   let name: Name = {first: 'Matthew', middle: 'F', last: 'Hooper', prefix: 'Mr', bowlingScores: [], addresses: []};
   let address: Address = {id: 1, street: '54 Upton Lake Rd', city: 'Clinton Corners', state: 'NY', zip: '12514'};
   // let x = State.createStateObject<Name>(testStore.getState(), 'name', name);

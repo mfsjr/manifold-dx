@@ -14,6 +14,20 @@ export interface StateObject {
 }
 
 /**
+ * Helper interface for composing the initial state, not necessary, but improves usability.
+ * Uses generics to enforce that this obect's _myPropname is defined in the parent.
+ *
+ * P: the generic type of the parent.
+ */
+export interface State<P extends StateObject | null> extends StateObject {
+  _parent: StateParent<P>;
+  _myPropname: StateProp<P>;
+}
+
+export type StateParent<P> = P extends StateObject ? P : null;
+export type StateProp<P> = StateParent<P> extends null ? '' : keyof P;
+
+/**
  * Options which may be passed directly to the State constructor
  */
 export interface StateConfigOptions {
@@ -107,7 +121,7 @@ export class Store<A> {
 
   public static getTopState(stateObject: StateObject): StateObject {
     let result = stateObject;
-    while (result._parent !== null && (result._parent && result._parent !== result))  {
+    while (result._parent !== null)  {
       result = result._parent;
     }
     return result;
@@ -137,7 +151,7 @@ export class Store<A> {
       const next = function (): IteratorResult<StateObject> {
           let result = {done: done, value: currentContainer};
           // if we have just returned State, then we are now done
-          done = currentContainer === currentContainer._parent || null === currentContainer._parent;
+          done = null === currentContainer._parent;
           if (currentContainer._parent) {
             currentContainer = currentContainer._parent;
           }
@@ -183,7 +197,7 @@ export class Store<A> {
   public reset(appData: A, options: StateConfigOptions): void {
     // appData is modified s.t. its type becomes A & StateObject
     // if appData holds anything in a closure, its preserved by doing the type conversion (and casting) this way
-    appData[`_parent`] = appData;
+    appData[`_parent`] = null;
     appData[`_myPropname`] = '';
     this.state = appData as A & StateObject;
     // this.state = Object.assign(State.createState(), appData);

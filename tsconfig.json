@@ -18,7 +18,8 @@
     "noImplicitAny": true,
     "strictNullChecks": true,
     "suppressImplicitAnyIndexErrors": true,
-    "noUnusedLocals": true
+    "noUnusedLocals": true,
+    "keyofStringsOnly": true
   },
   "exclude": [
     "node_modules",

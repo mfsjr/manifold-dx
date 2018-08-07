@@ -478,3 +478,10 @@ describe('ArrayMap insertion and deletion functions', () => {
   expect(deletedActions.length === 0);
 
 });
+
+// describe('enzyme-based tests of rendering', () => {
+//   resetTestObjects();
+//   test('initial conditions', () => {
+//     expect(Manager.get(container.nameState).getMappingState().getSize()).toBeGreaterThan(0);
+//   });
+// });

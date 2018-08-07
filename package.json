@@ -19,9 +19,11 @@
     "immutable"
   ],
   "dependencies": {
-    "jsondiffpatch": "^0.2.5",
     "@types/lodash": "^4.14.85",
-    "lodash": "^4.17.4"
+    "@types/recompose": "^0.26.3",
+    "jsondiffpatch": "^0.2.5",
+    "lodash": "^4.17.4",
+    "recompose": "^0.28.0"
   },
   "peerDependencies": {
     "react": "^0.14.0 || ^15.0.0-0 || ^16.0.0-0",

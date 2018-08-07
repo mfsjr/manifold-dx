@@ -12,6 +12,7 @@ import * as _ from 'lodash';
 import { Manager } from '../types/Manager';
 import { StateObject } from '../types/Store';
 import { ArrayChangeAction } from '../';
+import { shallowEqual } from 'recompose';
 
 /* tslint:disable:no-any */
 export type ComponentGenerator<P> = (props: P) => React.Component<P, any>;
@@ -35,6 +36,7 @@ export abstract class ContainerComponent<CP, VP, A extends StateObject>
 
   // this class will be managing/creating the props to hand to the view, writable here, readonly in the view
   public viewProps: VP;
+  protected viewPropsUpdated: boolean | null = false;
 
   protected appData: A; 
 
@@ -186,6 +188,7 @@ export abstract class ContainerComponent<CP, VP, A extends StateObject>
    */
   protected updateViewPropsUsingMappings(executedActions: Action[]): void {
     let _viewProps = this.viewProps;
+    this.viewPropsUpdated = false;
     // let _displayName = this[`displayName`];
     executedActions.forEach((action) => {
       if (action instanceof StateAction) {
@@ -194,13 +197,16 @@ export abstract class ContainerComponent<CP, VP, A extends StateObject>
           mappingActions.forEach((mapping) => {
             if (action instanceof StateCrudAction) {
               _viewProps[mapping.targetPropName] = action.value;
+              this.viewPropsUpdated = true;
             } else if (action instanceof ArrayChangeAction) {
               // if we are mutating the list element, we only want to change that index
               // otherwise its an insert/delete and we want to update the whole array
               if ( mapping.index !== undefined ) {
                 _viewProps[mapping.targetPropName] = action.value;
+                this.viewPropsUpdated = true;
               } else {
                 _viewProps[mapping.targetPropName] = action.valuesArray;
+                this.viewPropsUpdated = true;
               }
             }
           });
@@ -209,7 +215,6 @@ export abstract class ContainerComponent<CP, VP, A extends StateObject>
     });
   }
 
-  // TODO: change this to componentWillMount?
   componentDidMount() {
     // subscribe
     this.appendToMappingActions(this.mappingActions);
@@ -217,7 +222,6 @@ export abstract class ContainerComponent<CP, VP, A extends StateObject>
   }
 
   componentWillUnmount() {
-    // TODO: this fix passes our tests, needs to be tried out
     if (this.mappingActions && this.mappingActions.length > 0) {
       // unsubscribe from stateMappingActions, we need to undo these specific actions
       let unmappingActions: AnyMappingAction[] = [];
@@ -228,7 +232,6 @@ export abstract class ContainerComponent<CP, VP, A extends StateObject>
         let unmappingAction = action.getUndoAction();
         unmappingActions.push(unmappingAction);
       });
-      // TODO: defer execution of these actions, as other actions may be executing
       Manager.get(this.appData).actionUndo(0, ...unmappingActions);
     }
   }
@@ -239,6 +242,27 @@ export abstract class ContainerComponent<CP, VP, A extends StateObject>
     this.updateViewProps(executedActions);
     // our state has changed, force a render
     this.forceUpdate();
+  }
+
+  /**
+   * Return true if viewProps, props or state has changed.
+   *
+   * We track viewProps changes when actions have changed state that is mapped to viewProps.
+   *
+   * Our props and state changes are checked against the incoming nextProps and nextState using
+   * recompose's 'shallowEqual'.
+   *
+   * @param {CP} nextProps
+   * @returns {boolean}
+   */
+  shouldComponentUpdate<S, CTX>(nextProps: CP, nextState: S, nextContext: CTX ) {
+    let result = this.viewPropsUpdated || !shallowEqual(this.props, nextProps);
+    // if this.viewPropsUpdated is true, we will return true, we want to update only once, so reset to null
+    this.viewPropsUpdated = this.viewPropsUpdated ? null : this.viewPropsUpdated;
+    result = result || !shallowEqual(this.state, nextState);
+
+    return result;
+    // return super.shouldComponentUpdate ? super.shouldComponentUpdate(nextProps, nextState, nextContext) : true;
   }
 
   render(): ReactNode {

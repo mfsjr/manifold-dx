@@ -1,7 +1,12 @@
 import * as React from 'react';
 import * as enzyme from 'enzyme';
-
 import * as Adapter from 'enzyme-adapter-react-16';
+
+// https://github.com/Microsoft/TypeScript/issues/15031
+// declare module "./setup";
+// import * as setup from './setup';
+// setup.config();
+
 import { ContainerComponent, StateObject } from '../src';
 import { Address, createTestStore, TestState } from './testHarness';
 import { AnyMappingAction } from '../src/actions/actions';

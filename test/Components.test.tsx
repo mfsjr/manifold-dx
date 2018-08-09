@@ -48,7 +48,7 @@ let addr2: Address = {
   zip: '19532'
 };
 
-export interface AddressProps {
+interface AddressProps {
   address: Address;
 }
 
@@ -56,7 +56,7 @@ const ScoreCardGenerator = function(props: ScoreCardProps): React.Component<Scor
   return new React.Component<ScoreCardProps>(props);
 };
 
-export function addressRowSfc(addressProps: AddressProps): React.ReactElement<AddressProps> {
+function addressRowSfc(addressProps: AddressProps): React.ReactElement<AddressProps> {
   return (
     <div>
       <div>
@@ -73,7 +73,7 @@ export function addressRowSfc(addressProps: AddressProps): React.ReactElement<Ad
  * This child container is deliberately over-engineered since we want to test the behavior of a more likely
  * "real-world" example.
  */
-export class AddressContainer extends ContainerComponent<AddressProps, AddressProps, TestState & StateObject> {
+class AddressContainer extends ContainerComponent<AddressProps, AddressProps, TestState & StateObject> {
   address: Address;
 
   public displayName: string;
@@ -97,7 +97,7 @@ export class AddressContainer extends ContainerComponent<AddressProps, AddressPr
   }
 }
 
-export class BowlerContainer extends ContainerComponent<BowlerProps, ScoreCardProps, TestState & StateObject> {
+class BowlerContainer extends ContainerComponent<BowlerProps, ScoreCardProps, TestState & StateObject> {
 
   public average: number;
 

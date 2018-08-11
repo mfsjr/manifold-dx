@@ -1,3 +1,17 @@
+
+// import { JSDOM } from 'jsdom';
+const jsdom = require('jsdom');
+// const { JSDOM } = jsdom;
+const { window } = new jsdom('<!doctype html><html><body></body></html>');
+export interface Global {
+  document: Document;
+  window: Window;
+}
+
+declare var global: Global;
+global.window = window;
+global.document = window.document;
+
 import * as React from 'react';
 import * as enzyme from 'enzyme';
 import * as Adapter from 'enzyme-adapter-react-16';
@@ -49,7 +63,7 @@ const AddressSfc: SFC<Address> = (props: Address): ReactElement<Address> => {
 
 describe('enzyme tests for lifecycle methods', () => {
   it('renders the correct text when no enthusiasm level is given', () => {
-    const hello = enzyme.shallow(
+    const hello = enzyme.mount(
       <AddressContainer
         id={2}
         street={'Genung Ct'}

@@ -1,16 +1,20 @@
-
+import { JSDOM } from 'jsdom';
 // import { JSDOM } from 'jsdom';
-const jsdom = require('jsdom');
+// const jsdom = require('jsdom');
 // const { JSDOM } = jsdom;
-const { window } = new jsdom('<!doctype html><html><body></body></html>');
+const { window } = new JSDOM('<!doctype html><html><body></body></html>');
 export interface Global {
   document: Document;
   window: Window;
+  navigator: {
+    userAgent: string;
+  };
 }
 
 declare var global: Global;
 global.window = window;
 global.document = window.document;
+global.navigator = { userAgent: 'node.js' };
 
 import * as React from 'react';
 import * as enzyme from 'enzyme';

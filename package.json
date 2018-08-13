@@ -57,7 +57,6 @@
     "typescript": "^2.9.2"
   },
   "jest": {
-    "mapCoverage": true,
     "collectCoverageFrom": [
       "src/**/*.{js,jsx,ts,tsx}"
     ],

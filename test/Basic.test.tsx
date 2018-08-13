@@ -1,7 +1,4 @@
 import { JSDOM } from 'jsdom';
-// import { JSDOM } from 'jsdom';
-// const jsdom = require('jsdom');
-// const { JSDOM } = jsdom;
 const { window } = new JSDOM('<!doctype html><html><body></body></html>');
 export interface Global {
   document: Document;
@@ -19,11 +16,6 @@ global.navigator = { userAgent: 'node.js' };
 import * as React from 'react';
 import * as enzyme from 'enzyme';
 import * as Adapter from 'enzyme-adapter-react-16';
-
-// https://github.com/Microsoft/TypeScript/issues/15031
-// declare module "./setup";
-// import * as setup from './setup';
-// setup.config();
 
 import { ContainerComponent, StateObject } from '../src';
 import { Address, createTestStore, TestState } from './testHarness';

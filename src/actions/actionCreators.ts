@@ -35,17 +35,17 @@ export class ActionCreator<S extends StateObject> {
 
   protected throwIfArray<K extends keyof S>(propValue: S[K]): void {
     if (propValue instanceof Array) {
-      throw new Error(`ActionCreator instructed to create action on array, use ArrayActionCreator for that`);
+      throw new Error(`Invalid action type for ActionCreator using an array, try using ArrayActionCreator`);
     }
   }
 
   public rerender<K extends keyof S>(propertyKey: K): StateCrudAction<S, K> {
-    this.throwIfArray(this.parent[propertyKey]);
+    // this.throwIfArray(this.parent[propertyKey]);
     return new StateCrudAction(ActionId.RERENDER, this.parent, propertyKey, this.parent[propertyKey]);
   }
 
   public insert<K extends keyof S>(propertyKey: K, value: S[K]): StateCrudAction<S, K> {
-    this.throwIfArray(this.parent[propertyKey]);
+    // this.throwIfArray(this.parent[propertyKey]);
     return new StateCrudAction(ActionId.INSERT_PROPERTY, this.parent, propertyKey, value);
   }
   public update<K extends keyof S>(propertyKey: K, value: S[K]): StateCrudAction<S, K> {
@@ -59,7 +59,7 @@ export class ActionCreator<S extends StateObject> {
    * @returns {Action}
    */
   public remove<K extends keyof S>(propertyKey: K): StateCrudAction<S, K> {
-    this.throwIfArray(this.parent[propertyKey]);
+    // this.throwIfArray(this.parent[propertyKey]);
     return new StateCrudAction(ActionId.DELETE_PROPERTY, this.parent, propertyKey);
   }
   // TODO: can this and the crudInsert above actually work when defined in terms of non-existent keys?
@@ -139,13 +139,14 @@ export class ArrayActionCreator<S extends StateObject, K extends keyof S, V exte
     this.valuesArray = array;
   }
 
-  public insertArray(newArray: Array<V> & S[K]): StateAction<S, K> {
-    return new StateCrudAction(ActionId.INSERT_PROPERTY, this.parent, this.propertyKey, newArray);
-  }
-
-  public removeArray(): StateAction<S, K> {
-    return new StateCrudAction(ActionId.DELETE_PROPERTY, this.parent, this.propertyKey, undefined);
-  }
+  // Use ActionCreator to insert and delete arrays as properties, use this class on array elements
+  // public insertArray(newArray: Array<V> & S[K]): StateAction<S, K> {
+  //   return new StateCrudAction(ActionId.INSERT_PROPERTY, this.parent, this.propertyKey, newArray);
+  // }
+  //
+  // public removeArray(): StateAction<S, K> {
+  //   return new StateCrudAction(ActionId.DELETE_PROPERTY, this.parent, this.propertyKey, undefined);
+  // }
 
   public rerenderArray(): StateAction<S, K> {
     return new StateCrudAction(ActionId.RERENDER, this.parent, this.propertyKey, this.parent[this.propertyKey]);
@@ -192,7 +193,7 @@ export class ArrayActionCreator<S extends StateObject, K extends keyof S, V exte
   }
 
   public removeElement(index: number): StateAction<S, K>[] {
-    let newValue: V = index + 1 < this.valuesArray.length ? this.valuesArray[index + 1] : undefined;
+    let newValue: V | undefined = index + 1 < this.valuesArray.length ? this.valuesArray[index + 1] : undefined;
     return [
       new ArrayChangeAction(ActionId.DELETE_PROPERTY, this.parent, this.propertyKey, index,
                             this.valuesArray, newValue),

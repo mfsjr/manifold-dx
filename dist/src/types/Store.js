@@ -178,8 +178,7 @@ var Store = /** @class */ (function () {
      * Also note that lib.es6.d.ts defines IteratorResult<T> as { done: boolean, value: T }, ie, value is required,
      * so examples that omit it are also hosed, that interface should be { done: boolean, value?: T }.
      *
-     * Will not be 'done' until next() is called when iterator's current stateObject/value equals the
-     * top-level application State (also an StateObject).
+     * Will not be 'done' until next() is called when iterator's current stateObject/value equals null.
      *
      * This code looks a little awkward, since we need to return State once before returning done = true.
      * But, that seems to be the most sensible behavior.

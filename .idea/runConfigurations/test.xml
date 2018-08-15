@@ -3,6 +3,6 @@
     <envs>
       <env name="REACT_APP_STATE_MUTATION_CHECKING" value="true" />
     </envs>
-    <method />
+    <method v="2" />
   </configuration>
 </component>

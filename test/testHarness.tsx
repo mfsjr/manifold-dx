@@ -23,15 +23,6 @@ export interface Name {
   bowlingScores: Array<number>;
 }
 
-/**
- * Accessors to be used on our Name & StateObject data.
- */
-// export interface NameAccessors {
-//   getActionCreator: (nameState: NameState) => CrudActionCreator<Name & StateObject>;
-//   addressKeyGen: ArrayKeyGeneratorFn<Address>;
-//   getAddressesActionCreator: (nameState: NameState) => ArrayCrudActionCreator<NameState, 'addresses', Address>;
-// }
-
 export interface NameState extends Name, StateObject {
   getActionCreator: (nameState: NameState) => ActionCreator<Name & StateObject>;
   getAddressesActionCreator: (nameState: NameState) => ArrayActionCreator<NameState, 'addresses', Address>;

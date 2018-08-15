@@ -4,8 +4,8 @@
         "align": [
             true,
             "parameters",
-            "arguments",
-            "statements"
+            "argumenats",
+            "statemeants"
         ],
         "ban": false,
         "class-name": true,

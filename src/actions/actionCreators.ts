@@ -139,15 +139,6 @@ export class ArrayActionCreator<S extends StateObject, K extends keyof S, V exte
     this.valuesArray = array;
   }
 
-  // Use ActionCreator to insert and delete arrays as properties, use this class on array elements
-  // public insertArray(newArray: Array<V> & S[K]): StateAction<S, K> {
-  //   return new StateCrudAction(ActionId.INSERT_PROPERTY, this.parent, this.propertyKey, newArray);
-  // }
-  //
-  // public removeArray(): StateAction<S, K> {
-  //   return new StateCrudAction(ActionId.DELETE_PROPERTY, this.parent, this.propertyKey, undefined);
-  // }
-
   public rerenderArray(): StateAction<S, K> {
     return new StateCrudAction(ActionId.RERENDER, this.parent, this.propertyKey, this.parent[this.propertyKey]);
   }

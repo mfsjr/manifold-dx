@@ -24,6 +24,7 @@ export interface State<P extends StateObject | null> extends StateObject {
   _myPropname: StateProp<P>;
 }
 
+// conditional types are used to define parent/child relationships OR top-most parents in the state object graph
 export type StateParent<P> = P extends StateObject ? P : null;
 export type StateProp<P> = StateParent<P> extends null ? '' : keyof P;
 

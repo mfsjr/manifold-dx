@@ -106,10 +106,10 @@ class BowlerContainer extends ContainerComponent<BowlerProps, ScoreCardProps, Te
 
   constructor(bowlerProps: BowlerProps) {
     super(bowlerProps, testStore.getState(), undefined, ScoreCardGenerator);
-    if (!this.appData.name) {
+    if (!this.appState.name) {
       throw new Error('nameState must be defined!');
     }
-    this.nameState = this.appData.name;
+    this.nameState = this.appState.name;
     // this.addressesMapper = getMappingCreator(this.nameState, this).createMappingAction('addresses', 'addresses');
   }
 

@@ -28,7 +28,7 @@ var recompose_1 = require("recompose");
  *
  * CP: container props, a plain object (pojo)
  * VP: view component props, also a plain object
- * A: topmost application data residing in a state object {@link StateObject}
+ * A: application state (top of the StateObject graph) {@link StateObject}
  */
 var ContainerComponent = /** @class */ (function (_super) {
     __extends(ContainerComponent, _super);
@@ -51,7 +51,7 @@ var ContainerComponent = /** @class */ (function (_super) {
         if (!_.isPlainObject(_props)) {
             throw new Error('container props must be plain objects');
         }
-        _this.appData = appData;
+        _this.appState = appData;
         if (!appData) {
             throw new Error('Failed to get appData to base container');
         }
@@ -177,7 +177,7 @@ var ContainerComponent = /** @class */ (function (_super) {
         var _a;
         // subscribe
         this.appendToMappingActions(this.mappingActions);
-        (_a = Manager_1.Manager.get(this.appData)).actionProcess.apply(_a, this.mappingActions);
+        (_a = Manager_1.Manager.get(this.appState)).actionProcess.apply(_a, this.mappingActions);
     };
     ContainerComponent.prototype.componentWillUnmount = function () {
         var _a;
@@ -191,7 +191,7 @@ var ContainerComponent = /** @class */ (function (_super) {
                 var unmappingAction = action.getUndoAction();
                 unmappingActions_1.push(unmappingAction);
             });
-            (_a = Manager_1.Manager.get(this.appData)).actionUndo.apply(_a, [0].concat(unmappingActions_1));
+            (_a = Manager_1.Manager.get(this.appState)).actionUndo.apply(_a, [0].concat(unmappingActions_1));
         }
     };
     ContainerComponent.prototype.handleChange = function (executedActions) {
@@ -218,7 +218,6 @@ var ContainerComponent = /** @class */ (function (_super) {
         this.viewPropsUpdated = this.viewPropsUpdated ? null : this.viewPropsUpdated;
         result = result || !recompose_1.shallowEqual(this.state, nextState);
         return result;
-        // return super.shouldComponentUpdate ? super.shouldComponentUpdate(nextProps, nextState, nextContext) : true;
     };
     ContainerComponent.prototype.render = function () {
         if (this.sfcView) {

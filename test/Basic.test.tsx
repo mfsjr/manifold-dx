@@ -1,6 +1,11 @@
+/*
+ * Need to set up jsdom before setting up React
+ * TODO: can we do this in setup.js only?  If so, will using it in different tests cause tests to have side-effects?
+ * Note that we are fabricating NodeJS.Global, we should consider extending it if we can
+ *   see https://stackoverflow.com/questions/45311337/how-to-use-jsdom-to-test-functions-with-document
+ *       https://stackoverflow.com/questions/41194264/mocha-react-navigator-is-not-defined
+ */
 
-// Need to set up jsdom before setting up React
-// TODO: can we do this in setup.js only?  If so, will using it in different tests cause tests to have side-effects?
 import { JSDOM } from 'jsdom';
 const { window } = new JSDOM('<!doctype html><html><body></body></html>');
 export interface Global {
@@ -84,10 +89,10 @@ class BowlerContainer extends ContainerComponent<BowlerProps, ScoreCardProps, Te
 
   constructor(bowlerProps: BowlerProps) {
     super(bowlerProps, testStore.getState(), BowlerContainerView);
-    if (!this.appData.name) {
+    if (!this.appState.name) {
       throw new Error('nameState must be defined!');
     }
-    this.nameState = this.appData.name;
+    this.nameState = this.appState.name;
     // this.addressesMapper = getMappingCreator(this.nameState, this).createMappingAction('addresses', 'addresses');
   }
 

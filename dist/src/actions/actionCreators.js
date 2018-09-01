@@ -122,14 +122,6 @@ var ArrayActionCreator = /** @class */ (function () {
         this.propertyKey = propKey;
         this.valuesArray = array;
     }
-    // Use ActionCreator to insert and delete arrays as properties, use this class on array elements
-    // public insertArray(newArray: Array<V> & S[K]): StateAction<S, K> {
-    //   return new StateCrudAction(ActionId.INSERT_PROPERTY, this.parent, this.propertyKey, newArray);
-    // }
-    //
-    // public removeArray(): StateAction<S, K> {
-    //   return new StateCrudAction(ActionId.DELETE_PROPERTY, this.parent, this.propertyKey, undefined);
-    // }
     ArrayActionCreator.prototype.rerenderArray = function () {
         return new actions_1.StateCrudAction(actions_1.ActionId.RERENDER, this.parent, this.propertyKey, this.parent[this.propertyKey]);
     };

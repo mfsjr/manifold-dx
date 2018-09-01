@@ -87,10 +87,10 @@ var BowlerContainer = /** @class */ (function (_super) {
     __extends(BowlerContainer, _super);
     function BowlerContainer(bowlerProps) {
         var _this = _super.call(this, bowlerProps, testStore.getState(), undefined, ScoreCardGenerator) || this;
-        if (!_this.appData.name) {
+        if (!_this.appState.name) {
             throw new Error('nameState must be defined!');
         }
-        _this.nameState = _this.appData.name;
+        _this.nameState = _this.appState.name;
         return _this;
         // this.addressesMapper = getMappingCreator(this.nameState, this).createMappingAction('addresses', 'addresses');
     }

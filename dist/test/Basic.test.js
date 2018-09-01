@@ -1,4 +1,11 @@
 "use strict";
+/*
+ * Need to set up jsdom before setting up React
+ * TODO: can we do this in setup.js only?  If so, will using it in different tests cause tests to have side-effects?
+ * Note that we are fabricating NodeJS.Global, we should consider extending it if we can
+ *   see https://stackoverflow.com/questions/45311337/how-to-use-jsdom-to-test-functions-with-document
+ *       https://stackoverflow.com/questions/41194264/mocha-react-navigator-is-not-defined
+ */
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
         ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -10,8 +17,6 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-// Need to set up jsdom before setting up React
-// TODO: can we do this in setup.js only?  If so, will using it in different tests cause tests to have side-effects?
 var jsdom_1 = require("jsdom");
 var window = new jsdom_1.JSDOM('<!doctype html><html><body></body></html>').window;
 global.window = window;
@@ -74,10 +79,10 @@ var BowlerContainer = /** @class */ (function (_super) {
     __extends(BowlerContainer, _super);
     function BowlerContainer(bowlerProps) {
         var _this = _super.call(this, bowlerProps, testStore.getState(), BowlerContainerView) || this;
-        if (!_this.appData.name) {
+        if (!_this.appState.name) {
             throw new Error('nameState must be defined!');
         }
-        _this.nameState = _this.appData.name;
+        _this.nameState = _this.appState.name;
         return _this;
         // this.addressesMapper = getMappingCreator(this.nameState, this).createMappingAction('addresses', 'addresses');
     }

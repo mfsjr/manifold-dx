@@ -29,7 +29,7 @@ export type ComponentGenerator<P> = (props: P) => React.Component<P, any>;
  *
  * CP: container props, a plain object (pojo)
  * VP: view component props, also a plain object
- * A: topmost application data residing in a state object {@link StateObject}
+ * A: application state (top of the StateObject graph) {@link StateObject}
  */
 export abstract class ContainerComponent<CP, VP, A extends StateObject>
     extends React.Component<CP> {
@@ -38,7 +38,7 @@ export abstract class ContainerComponent<CP, VP, A extends StateObject>
   public viewProps: VP;
   protected viewPropsUpdated: boolean | null = false;
 
-  protected appData: A; 
+  protected appState: A;
 
   protected viewGenerator: ComponentGenerator<VP> | undefined;
 
@@ -94,7 +94,7 @@ export abstract class ContainerComponent<CP, VP, A extends StateObject>
     if (!_.isPlainObject(_props)) {
       throw new Error('container props must be plain objects');
     }
-    this.appData = appData;
+    this.appState = appData;
     if (!appData) {
       throw new Error('Failed to get appData to base container');
     } else {
@@ -218,7 +218,7 @@ export abstract class ContainerComponent<CP, VP, A extends StateObject>
   componentDidMount() {
     // subscribe
     this.appendToMappingActions(this.mappingActions);
-    Manager.get(this.appData).actionProcess(...this.mappingActions);
+    Manager.get(this.appState).actionProcess(...this.mappingActions);
   }
 
   componentWillUnmount() {
@@ -232,7 +232,7 @@ export abstract class ContainerComponent<CP, VP, A extends StateObject>
         let unmappingAction = action.getUndoAction();
         unmappingActions.push(unmappingAction);
       });
-      Manager.get(this.appData).actionUndo(0, ...unmappingActions);
+      Manager.get(this.appState).actionUndo(0, ...unmappingActions);
     }
   }
 
@@ -262,7 +262,6 @@ export abstract class ContainerComponent<CP, VP, A extends StateObject>
     result = result || !shallowEqual(this.state, nextState);
 
     return result;
-    // return super.shouldComponentUpdate ? super.shouldComponentUpdate(nextProps, nextState, nextContext) : true;
   }
 
   render(): ReactNode {

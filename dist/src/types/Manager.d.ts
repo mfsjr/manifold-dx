@@ -45,6 +45,11 @@ export declare class Manager {
      * @returns {number}
      */
     actionProcess(...actions: Action[]): Action[];
+    /**
+     * Dispatch actions if none are being dispatched, else queue them for execution when current dispatch completes
+     * @param actionMethod
+     * @param actions
+     */
     protected dispatch(actionMethod: (action: Action) => void, ...actions: Action[]): Action[];
     dispatchFromNextArgs(_dispatchArgs: DispatchArgs[]): Action[];
     getFullPath(container: StateObject, propName: string): string;

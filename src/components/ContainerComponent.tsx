@@ -31,7 +31,7 @@ export type ComponentGenerator<P> = (props: P) => React.Component<P, any>;
  * VP: view component props, also a plain object
  * A: application state (top of the StateObject graph) {@link StateObject}
  */
-export abstract class ContainerComponent<CP, VP, A extends StateObject>
+export abstract class ContainerComponent<CP, VP, A extends StateObject, RS = {} >
     extends React.Component<CP> {
 
   // this class will be managing/creating the props to hand to the view, writable here, readonly in the view
@@ -89,8 +89,8 @@ export abstract class ContainerComponent<CP, VP, A extends StateObject>
    * @param {ComponentGenerator<VP> | undefined} viewGenerator
    */
   constructor(_props: CP, appData: StateObject & A, sfc: SFC<VP> | undefined,
-              viewGenerator?: ComponentGenerator<VP> | undefined) {
-    super(_props);
+              viewGenerator?: ComponentGenerator<VP> | undefined, reactState?: RS) {
+    super(_props, reactState);
     if (!_.isPlainObject(_props)) {
       throw new Error('container props must be plain objects');
     }

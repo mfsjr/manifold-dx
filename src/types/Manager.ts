@@ -141,6 +141,11 @@ export class Manager {
     return this.dispatch(actionMethod, ...actions);
   }
 
+  /**
+   * Dispatch actions if none are being dispatched, else queue them for execution when current dispatch completes
+   * @param actionMethod
+   * @param actions
+   */
   protected dispatch(actionMethod: (action: Action) => void, ...actions: Action[]): Action[] {
     if (this.dispatchingActions) {
       this.dispatchArgs.push({actionMethod, actions});

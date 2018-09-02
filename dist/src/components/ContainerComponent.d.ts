@@ -14,12 +14,12 @@ export declare type ComponentGenerator<P> = (props: P) => React.Component<P, any
  *
  * CP: container props, a plain object (pojo)
  * VP: view component props, also a plain object
- * A: topmost application data residing in a state object {@link StateObject}
+ * A: application state (top of the StateObject graph) {@link StateObject}
  */
-export declare abstract class ContainerComponent<CP, VP, A extends StateObject> extends React.Component<CP> {
+export declare abstract class ContainerComponent<CP, VP, A extends StateObject, RS = {}> extends React.Component<CP> {
     viewProps: VP;
     protected viewPropsUpdated: boolean | null;
-    protected appData: A;
+    protected appState: A;
     protected viewGenerator: ComponentGenerator<VP> | undefined;
     /**
      * stateless functional component, this is a function that returns a view typically
@@ -51,7 +51,7 @@ export declare abstract class ContainerComponent<CP, VP, A extends StateObject> 
      * @param {React.SFC<VP> | undefined} sfc
      * @param {ComponentGenerator<VP> | undefined} viewGenerator
      */
-    constructor(_props: CP, appData: StateObject & A, sfc: SFC<VP> | undefined, viewGenerator?: ComponentGenerator<VP> | undefined);
+    constructor(_props: CP, appData: StateObject & A, sfc: SFC<VP> | undefined, viewGenerator?: ComponentGenerator<VP> | undefined, reactState?: RS);
     createMapping<S extends StateObject, K extends keyof S, TP extends keyof VP, V>(stateObject: S, stateObjectProperty: K, targetViewProp: TP, ...mappingHooks: MappingHook[]): MappingAction<S, K, CP, VP, TP, A, V>;
     /**
      * This is only used for testing

@@ -118,6 +118,11 @@ var Manager = /** @class */ (function () {
         };
         return this.dispatch.apply(this, [actionMethod].concat(actions));
     };
+    /**
+     * Dispatch actions if none are being dispatched, else queue them for execution when current dispatch completes
+     * @param actionMethod
+     * @param actions
+     */
     Manager.prototype.dispatch = function (actionMethod) {
         var actions = [];
         for (var _i = 1; _i < arguments.length; _i++) {

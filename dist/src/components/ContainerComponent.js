@@ -43,8 +43,8 @@ var ContainerComponent = /** @class */ (function (_super) {
      * @param {React.SFC<VP> | undefined} sfc
      * @param {ComponentGenerator<VP> | undefined} viewGenerator
      */
-    function ContainerComponent(_props, appData, sfc, viewGenerator) {
-        var _this = _super.call(this, _props) || this;
+    function ContainerComponent(_props, appData, sfc, viewGenerator, reactState) {
+        var _this = _super.call(this, _props, reactState) || this;
         _this.viewPropsUpdated = false;
         /* tslint:enable:no-any */
         _this.mappingActions = [];

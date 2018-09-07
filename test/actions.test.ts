@@ -147,7 +147,8 @@ describe('Add the name container', () => {
 
       let action = addrActionCreator.insertElement(0, addr);
       // action.perform();
-      testStore.getManager().actionProcess(...action);
+      // testStore.getManager().actionProcess(...action);
+      testStore.dispatch(...action);
 
       expect(nameState.addresses[0]).toEqual(addr);
     });

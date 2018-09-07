@@ -132,7 +132,6 @@ describe('Add the name container', function () {
         // let streetKeyFn: ArrayKeyGeneratorFn<Address> = nameState.addressKeyGen;
         var addrActionCreator = nameState.getAddressesActionCreator(nameState);
         test('insert into the addresses array', function () {
-            var _a;
             var addr = {
                 id: 3,
                 street: '6 Lily Pond Lane',
@@ -142,7 +141,8 @@ describe('Add the name container', function () {
             };
             var action = addrActionCreator.insertElement(0, addr);
             // action.perform();
-            (_a = testStore.getManager()).actionProcess.apply(_a, action);
+            // testStore.getManager().actionProcess(...action);
+            testStore.dispatch.apply(testStore, action);
             expect(nameState.addresses[0]).toEqual(addr);
         });
         test('update an item in the addresses array', function () {

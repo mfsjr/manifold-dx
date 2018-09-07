@@ -101,7 +101,7 @@ export class ArrayActionCreator<S extends StateObject, K extends keyof S, V exte
   private parent: S;
   private propertyKey: K;
 
-  private valuesArray: Array<V> & S[K]; // & keyof S[keyof S];
+  private valuesArray: Array<V> & S[K];
 
   /**
    * Construct an array crud creator.  We require a somewhat redundant 'valuesArray'

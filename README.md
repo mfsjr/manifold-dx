@@ -112,9 +112,10 @@ the excellent de-facto standard that was used as a reference,
 along with complimentary libraries that have been enthusiastically 
 built up around it.
 
-### This is experimental software!!!  
-Recent work has centered on:
-- Optimizing user-facing API's for ease-of-use
-- Real-world app with Material-UI, Formik, GraphQL
-- Organizing state initialization, design, and enforcing structure using TypeScript conditional types 
+### This is BETA software
+- Its tested, it works, but hasn't been used in heavy duty apps yet (but its intended for that)  
+- Recent work has centered on:
+	- Optimizing user-facing API's for ease-of-use
+	- Real-world apps with Material-UI v1, Formik, GraphQL
+	- Organizing state initialization, design, and enforcing structure using TypeScript conditional types 
 

@@ -78,6 +78,12 @@ export declare abstract class StateAction<S extends StateObject, K extends keyof
      */
     dispatch(): void;
     containersToRender(containersBeingRendered: AnyContainerComponent[]): void;
+    /**
+     * Implementation used by property and array based actions to add unique containers to be rendered
+     * to an array of other containers to be rendered.
+     * @param containersBeingRendered
+     * @param mappingActions
+     */
     protected concatContainersFromMappingActions(containersBeingRendered: AnyContainerComponent[], mappingActions?: AnyMappingAction[]): void;
 }
 export declare type GenericStateCrudAction = StateCrudAction<any, any>;

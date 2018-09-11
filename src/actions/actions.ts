@@ -148,7 +148,13 @@ export abstract class StateAction<S extends StateObject, K extends keyof S> exte
     let mappingActions = Manager.get(this.parent).getMappingState().getPathMappings(fullPath);
     this.concatContainersFromMappingActions(containersBeingRendered, mappingActions);
   }
-  
+
+  /**
+   * Implementation used by property and array based actions to add unique containers to be rendered
+   * to an array of other containers to be rendered.
+   * @param containersBeingRendered
+   * @param mappingActions
+   */
   protected concatContainersFromMappingActions(
     containersBeingRendered: AnyContainerComponent[],
     mappingActions?: AnyMappingAction[]

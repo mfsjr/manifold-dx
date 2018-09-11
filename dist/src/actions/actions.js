@@ -119,6 +119,12 @@ var StateAction = /** @class */ (function (_super) {
         var mappingActions = Manager_1.Manager.get(this.parent).getMappingState().getPathMappings(fullPath);
         this.concatContainersFromMappingActions(containersBeingRendered, mappingActions);
     };
+    /**
+     * Implementation used by property and array based actions to add unique containers to be rendered
+     * to an array of other containers to be rendered.
+     * @param containersBeingRendered
+     * @param mappingActions
+     */
     StateAction.prototype.concatContainersFromMappingActions = function (containersBeingRendered, mappingActions) {
         if (mappingActions) {
             var containers = mappingActions.map(function (mapping) { return mapping.component; });

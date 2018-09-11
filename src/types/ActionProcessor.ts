@@ -30,7 +30,7 @@ export class ActionProcessor implements ActionProcessorAPI {
   private preProcessors: ActionProcessorFunctionType[] = [];
   private postProcessors: ActionProcessorFunctionType[] = [];
 
-  private updatedComponents: AnyContainerComponent[];
+  // private updatedComponents: AnyContainerComponent[] = [];
 
     /* tslint:disable:no-any */
   constructor(state: Store<any>, options: StateConfigOptions) {
@@ -64,27 +64,55 @@ export class ActionProcessor implements ActionProcessorAPI {
     this.mutationCheck.disableMutationChecks();
   }
 
+  // protected renderer(actions: Action[]): Action[] {
+  //   this.updatedComponents = [];
+  //   actions.forEach((action: Action) => {
+  //     let uc: AnyContainerComponent[] = [];
+  //     action.containersToRender(uc);
+  //     if (uc.length > 0) {
+  //       // TODO: optimize this by creating a map of container keys to action array values, call this once for each
+  //       uc.forEach(container => container.handleChange([action]));
+  //     }
+  //     this.updatedComponents.concat(uc);
+  //   });
+  //   return actions;
+  // }
+
   protected renderer(actions: Action[]): Action[] {
-    this.updatedComponents = [];
+    // this.updatedComponents.length = 0;
+    // TODO: make this a private instance and containerActionsMap.clear() it rather than recreate
+    let containerActionsMap: Map<AnyContainerComponent, Action[]> = new Map<AnyContainerComponent, Action[]>();
+    let uc: AnyContainerComponent[] = [];
     actions.forEach((action: Action) => {
-      let uc: AnyContainerComponent[] = [];
+      uc.length = 0;
       action.containersToRender(uc);
       if (uc.length > 0) {
-        uc.forEach(container => container.handleChange([action]));
+        uc.forEach(container => {
+          let mappedActions: Action[] | undefined  = containerActionsMap.get(container);
+          if (!mappedActions) {
+            containerActionsMap.set(container, [action]);
+          } else {
+            mappedActions.push(action);
+          }
+        });
       }
-      this.updatedComponents.concat(uc);
     });
+    if (containerActionsMap.size > 0) {
+      containerActionsMap.forEach((mappedActions: Action[], mappedContainers: AnyContainerComponent) => {
+        mappedContainers.handleChange(mappedActions);
+        // this.updatedComponents.push(mappedContainers);
+      });
+    }
     return actions;
   }
-
-  /**
-   * Return an array of the last ContainerComponents that were updated and rendered, see {@link renderer}.
-   * @returns {AnyContainerComponent[]}
-   */
-  public getUpdatedComponents(): AnyContainerComponent[] {
-    return this.updatedComponents;
-  }
-
+  // /**
+  //  * Return an array of the last ContainerComponents that were updated and rendered, see {@link renderer}.
+  //  * @returns {AnyContainerComponent[]}
+  //  */
+  // public getUpdatedComponents(): AnyContainerComponent[] {
+  //   return this.updatedComponents;
+  // }
+  //
   public preProcess(actions: Action[]): Action[] {
     actions = this.process(actions, this.preProcessors);
     if (this.mutationCheck.isEnabled()) {

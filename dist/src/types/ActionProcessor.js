@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 var StateMutationCheck_1 = require("./StateMutationCheck");
 var ActionProcessor = /** @class */ (function () {
+    // private updatedComponents: AnyContainerComponent[] = [];
     /* tslint:disable:no-any */
     function ActionProcessor(state, options) {
         /* tslint:enable:no-any */
@@ -31,26 +32,55 @@ var ActionProcessor = /** @class */ (function () {
     ActionProcessor.prototype.disableMutationChecking = function () {
         this.mutationCheck.disableMutationChecks();
     };
+    // protected renderer(actions: Action[]): Action[] {
+    //   this.updatedComponents = [];
+    //   actions.forEach((action: Action) => {
+    //     let uc: AnyContainerComponent[] = [];
+    //     action.containersToRender(uc);
+    //     if (uc.length > 0) {
+    //       // TODO: optimize this by creating a map of container keys to action array values, call this once for each
+    //       uc.forEach(container => container.handleChange([action]));
+    //     }
+    //     this.updatedComponents.concat(uc);
+    //   });
+    //   return actions;
+    // }
     ActionProcessor.prototype.renderer = function (actions) {
-        var _this = this;
-        this.updatedComponents = [];
+        // this.updatedComponents.length = 0;
+        // TODO: make this a private instance and containerActionsMap.clear() it rather than recreate
+        var containerActionsMap = new Map();
+        var uc = [];
         actions.forEach(function (action) {
-            var uc = [];
+            uc.length = 0;
             action.containersToRender(uc);
             if (uc.length > 0) {
-                uc.forEach(function (container) { return container.handleChange([action]); });
+                uc.forEach(function (container) {
+                    var mappedActions = containerActionsMap.get(container);
+                    if (!mappedActions) {
+                        containerActionsMap.set(container, [action]);
+                    }
+                    else {
+                        mappedActions.push(action);
+                    }
+                });
             }
-            _this.updatedComponents.concat(uc);
         });
+        if (containerActionsMap.size > 0) {
+            containerActionsMap.forEach(function (mappedActions, mappedContainers) {
+                mappedContainers.handleChange(mappedActions);
+                // this.updatedComponents.push(mappedContainers);
+            });
+        }
         return actions;
     };
-    /**
-     * Return an array of the last ContainerComponents that were updated and rendered, see {@link renderer}.
-     * @returns {AnyContainerComponent[]}
-     */
-    ActionProcessor.prototype.getUpdatedComponents = function () {
-        return this.updatedComponents;
-    };
+    // /**
+    //  * Return an array of the last ContainerComponents that were updated and rendered, see {@link renderer}.
+    //  * @returns {AnyContainerComponent[]}
+    //  */
+    // public getUpdatedComponents(): AnyContainerComponent[] {
+    //   return this.updatedComponents;
+    // }
+    //
     ActionProcessor.prototype.preProcess = function (actions) {
         actions = this.process(actions, this.preProcessors);
         if (this.mutationCheck.isEnabled()) {

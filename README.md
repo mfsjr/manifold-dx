@@ -9,9 +9,24 @@ be nested to arbitrary depths.
 
 This combination allows us to eliminate the need for developers to write
 action types, actions, action creators, reducers and dispatchers, while 
-retaining the advantages of actions, Flux and some aspects of time travel.
+retaining the advantages of actions, Flux and time travel.
 
-So how does all this work?
+### The Crux Of It
+There are two key capabilities of TypeScript that we exploit:
+1. We can write type-safe, generic setters:
+```typescript jsx
+function setValue<T, K extends keyof T>(object: T, propertyName: string, newValue: K): void {
+  object[propertyName] = newValue;
+}
+```
+2. We can define a graph consisting of graph nodes that contain data elements and other graph nodes.
+	They can be defined so that they can traverse to the top of the state key, where every property 
+	name is known, e.g., 'appState.user.address.street'
+	
+**Actions invoke setters in a type-safe manner.  After they are invoked, the property path is used
+to check a map that contains components that are to be updated when that property changes**
+ 
+### So what are the resulting capabilities?
 
 1. **You don't code actions or reducers, you call Action Creator API's**
 
@@ -27,6 +42,7 @@ So how does all this work?
    the API changes state, out-of-the-box change detection catches any 
    accidental mutations a developer may cause (for example, if the 
    developer is accessing state directly to compute other properties).
+   When a mutation is detected in development, an error is thrown.
    
 1. **State can mutate, but React data is immutable.  Every piece of state 
    can be expressed as a unique key, so deeply nested state graphs 
@@ -89,28 +105,59 @@ A more developed app at [https://github.com/mfsjr/manifold-dx-editor](https://gi
 - `runInBand` since we need to have tests execute in order
 - and we want REACT_APP_STATE_MUTATION_CHECKING on when testing or debugging.
   - this will also turn on state diff output, when mutations are detected
-
+  
+### Building an App
+- The easiest way to begin is using create-react-app with react-script-ts.
+- **How To Compose Trees**  Let's look at some code that shows how...  
+```typescript jsx
+		// In order to make trees traversable, every node knows its parent, 
+		// and what its parent calls it (its property name)
+		export interface StateObject {
+		  _parent: StateObject | null;
+		  _myPropname: string;
+		}
+		// So the StateObject will carry some app-specific data in an interface that we define
+		export interface User {
+	    nameFirst: string;
+	    nameLast: string;
+	    nameMiddle: string;
+	    email: string;
+	    joined: Date;
+	    address?: Address;
+		}
+		// From these we create our application state's topmost object:
+		export interface4  extends StateObject, User { }
+		// Now we create the object itself
+		const appState: UserState = {
+  		_parent: null,
+  		_myPropname: '',
+  		nameFirst: 'Joe',
+  		nameMiddle: 'Six',
+  		nameLast: 'Pack',
+  		email: 'joesixback@beer.com',
+  		joined: new Date(2017, 12, 31)
+		}
+		// From here, you might want to add an address
+		export interface Address extends StateObject {
+  		street: string;
+  		city: string;
+  		state: string;
+  		zip: string;
+		}
+		// now create the address
+		appState.address = {
+  		street: '724 Evergreen Terrace',
+  		city: 'Springfield',
+  		state: 'WA',
+  		zip: '12345'
+		}
+		
+```
+ 
 ##### What's Next
 - Larger, real-world example applications
 - Rendering optimizations
 
-##### TL;DR What's in a name?
-Manifolds exist in engineering and mathematics and describe certain 
-geometries, in our case pertaining to object graphs and the modifications we 
-make to them, as well as the effects they have on reducing the code that 
-developers are required to write, while needing fewer accompanying libraries:
-
-"The concept of a manifold is central to many parts of geometry and modern 
-mathematical physics because it allows complicated structures to be described 
-and understood in terms of the simpler local topological properties of Euclidean 
-space. Manifolds naturally arise as solution sets of systems of equations 
-and as graphs of functions." - Wikipedia
-
-Appending 'dx' to the name is intended to convey that its a framework 
-that deals with dynamic changes, as well as giving a nod to Redux, 
-the excellent de-facto standard that was used as a reference, 
-along with complimentary libraries that have been enthusiastically 
-built up around it.
 
 ### This is BETA software
 - Its tested, it works, but hasn't been used in heavy duty apps yet (but its intended for that)  

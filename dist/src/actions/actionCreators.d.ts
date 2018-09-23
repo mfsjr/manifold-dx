@@ -84,6 +84,7 @@ export declare class ArrayActionCreator<S extends StateObject, K extends keyof S
     insertElement(index: number, value: V): StateAction<S, K>[];
     rerenderElement(index: number): StateAction<S, K>;
     updateElement(index: number, newValue: V): ArrayChangeAction<S, K, V>;
+    updateAll(array: Array<V>): StateAction<S, K>[];
     removeElement(index: number): StateAction<S, K>[];
 }
 export declare function getMappingActionCreator<S extends StateObject, K extends keyof S, A extends StateObject, E>(_parent: S, _propKey: K): {

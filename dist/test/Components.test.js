@@ -294,12 +294,12 @@ describe('ContainerComponent instantiation, mount, update, unmount', function ()
         // expect(address2Container.viewProps.address).toBe(newAddr1);
     });
     test('deleting an element from the addresses array re-maps the array and its containers', function () {
-        var _a;
         expect(nameState.addresses[1].street).toBe(newAddr1.street);
         expect(nameState.addresses[2].street).toBe(addr2.street);
         //
         var deleteActions = addressesActionCreator.removeElement(0);
-        (_a = Manager_1.Manager.get(nameState)).actionProcess.apply(_a, deleteActions);
+        // Manager.get(nameState).actionProcess(...deleteActions);
+        testStore.dispatch.apply(testStore, deleteActions);
         expect(nameState.addresses[0].street).toBe(newAddr1.street);
         expect(address1Container.viewProps.address).toBe(newAddr1);
         expect(address2Container.viewProps.address).toBe(undefined);
@@ -307,8 +307,44 @@ describe('ContainerComponent instantiation, mount, update, unmount', function ()
     test('unmount should result in bowler being removed from the still-present component state mapping value ' +
         '(array of commentsUI)', function () {
         container.componentWillUnmount();
+        expect(container.getMappingActions().length).toBeGreaterThan(0);
         expect(testStore.getManager().getMappingState().getPathMappings(container.getMappingActions()[0].fullPath))
             .not.toContain(container);
+    });
+    test('updating all array elements using addresses3 should update all the addresses in state', function () {
+        var addresses3 = [
+            {
+                id: 10,
+                city: 'Pawling',
+                street: '4th',
+                state: 'WY',
+                zip: '93837',
+                country: 'US'
+            },
+            {
+                id: 11,
+                city: 'Kingston',
+                street: '5th',
+                state: 'HI',
+                zip: '13227',
+                country: 'US'
+            },
+            {
+                id: 12,
+                city: 'Rome',
+                street: '6th',
+                state: 'CA',
+                zip: '83227',
+                country: 'US'
+            }
+        ];
+        expect(nameState.addresses.length).toBe(2);
+        var updateAllActions = actionCreators_1.getArrayActionCreator(nameState, nameState.addresses).updateAll(addresses3);
+        testStore.dispatch.apply(testStore, updateAllActions);
+        // updateAllActions.forEach(action => action.dispatch());
+        expect(addresses3.length).toBe(3);
+        expect(nameState.addresses.length).toBe(3);
+        addresses3.forEach(function (addr, index) { return expect(nameState.addresses[index]).toBe(addresses3[index]); });
     });
 });
 describe('Standalone tests for instance of MappingState', function () {

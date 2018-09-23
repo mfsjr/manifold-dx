@@ -39,7 +39,7 @@ var ActionCreator = /** @class */ (function () {
         return new actions_1.StateCrudAction(actions_1.ActionId.INSERT_PROPERTY, this.parent, propertyKey, value);
     };
     ActionCreator.prototype.update = function (propertyKey, value) {
-        this.throwIfArray(this.parent[propertyKey]);
+        // this.throwIfArray(this.parent[propertyKey]);
         return new actions_1.StateCrudAction(actions_1.ActionId.UPDATE_PROPERTY, this.parent, propertyKey, value);
     };
     /**
@@ -155,6 +155,27 @@ var ArrayActionCreator = /** @class */ (function () {
     ArrayActionCreator.prototype.updateElement = function (index, newValue) {
         // let index = this.getIndexOf(oldValue);
         return new actions_1.ArrayChangeAction(actions_1.ActionId.UPDATE_PROPERTY, this.parent, this.propertyKey, index, this.valuesArray, newValue);
+    };
+    ArrayActionCreator.prototype.updateAll = function (array) {
+        var actions = [];
+        var sup = Math.max(array.length, this.valuesArray.length);
+        for (var i = 0; i < sup; i++) {
+            if (i < array.length && i < this.valuesArray.length) {
+                actions.push(this.updateElement(i, array[i]));
+            }
+            if (i >= array.length) {
+                actions.push(new actions_1.ArrayChangeAction(actions_1.ActionId.DELETE_PROPERTY, this.parent, this.propertyKey, i, this.valuesArray, array[i]));
+                // actions.concat(this.removeElement(i));
+                continue;
+            }
+            if (i >= this.valuesArray.length) {
+                actions.push(new actions_1.ArrayChangeAction(actions_1.ActionId.INSERT_PROPERTY, this.parent, this.propertyKey, i, this.valuesArray, array[i]));
+                // actions.concat(this.appendElement(array[i]));
+                continue;
+            }
+        }
+        actions.push(new actions_1.StateCrudAction(actions_1.ActionId.RERENDER, this.parent, this.propertyKey, this.parent[this.propertyKey]));
+        return actions;
     };
     ArrayActionCreator.prototype.removeElement = function (index) {
         var newValue = index + 1 < this.valuesArray.length ? this.valuesArray[index + 1] : this.valuesArray[index];

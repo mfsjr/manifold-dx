@@ -49,7 +49,7 @@ export class ActionCreator<S extends StateObject> {
     return new StateCrudAction(ActionId.INSERT_PROPERTY, this.parent, propertyKey, value);
   }
   public update<K extends keyof S>(propertyKey: K, value: S[K]): StateCrudAction<S, K> {
-    this.throwIfArray(this.parent[propertyKey]);
+    // this.throwIfArray(this.parent[propertyKey]);
     return new StateCrudAction(ActionId.UPDATE_PROPERTY, this.parent, propertyKey, value);
   }
 
@@ -181,6 +181,32 @@ export class ArrayActionCreator<S extends StateObject, K extends keyof S, V exte
     // let index = this.getIndexOf(oldValue);
     return new ArrayChangeAction(
       ActionId.UPDATE_PROPERTY, this.parent, this.propertyKey, index, this.valuesArray, newValue);
+  }
+
+  public updateAll(array: Array<V>): StateAction<S, K>[] {
+    let actions: StateAction<S, K>[] = [];
+    let sup = Math.max(array.length, this.valuesArray.length);
+    for (let i = 0; i < sup; i++) {
+      if ( i < array.length && i < this.valuesArray.length) {
+        actions.push(this.updateElement(i, array[i]));
+      }
+      if (i >= array.length) {
+        actions.push(new ArrayChangeAction(ActionId.DELETE_PROPERTY, this.parent, this.propertyKey, i,
+          this.valuesArray, array[i]));
+        // actions.concat(this.removeElement(i));
+        continue;
+      }
+      if ( i >= this.valuesArray.length ) {
+        actions.push(
+          new ArrayChangeAction(
+            ActionId.INSERT_PROPERTY, this.parent, this.propertyKey, i, this.valuesArray, array[i]),
+        );
+        // actions.concat(this.appendElement(array[i]));
+        continue;
+      }
+    }
+    actions.push(new StateCrudAction(ActionId.RERENDER, this.parent, this.propertyKey, this.parent[this.propertyKey]));
+    return actions;
   }
 
   public removeElement(index: number): StateAction<S, K>[] {

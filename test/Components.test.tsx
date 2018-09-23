@@ -5,7 +5,7 @@ import { ContainerComponent } from '../src/components/ContainerComponent';
 import { Action, ActionId, AnyMappingAction, StateCrudAction } from '../src/actions/actions';
 import { Store, StateObject } from '../src/types/Store';
 import { Manager } from '../src/types/Manager';
-import { getMappingActionCreator } from '../src/actions/actionCreators';
+import { getArrayActionCreator, getMappingActionCreator } from '../src/actions/actionCreators';
 import { arrayMapDelete, arrayMapInsert, MappingState } from '../src/types/MappingState';
 
 const testStore = createTestStore();
@@ -262,6 +262,7 @@ describe('ContainerComponent instantiation, mount, update, unmount', () => {
       .createArrayIndexMappingAction(nameState.addresses, 0, addr1Container, 'address');
 
     addr1MappingAction.dispatch();
+
     let manager = Manager.get(nameState);
     let fullpath = manager.getFullPath(nameState, 'addresses');
     let mapping1 = Manager.get(nameState).getMappingState().getPathMappings(fullpath, 0);
@@ -313,7 +314,6 @@ describe('ContainerComponent instantiation, mount, update, unmount', () => {
     };
     let insertActions = addressesActionCreator.insertElement(0, addr0);
     Manager.get(nameState).actionProcess(...insertActions);
-
     // verify that state was updated
     expect(nameState.addresses[0].street).toBe(addr0.street);
     expect(nameState.addresses[1].street).toBe(newAddr1.street);
@@ -332,12 +332,14 @@ describe('ContainerComponent instantiation, mount, update, unmount', () => {
     // expect(address2Container.viewProps.address).toBe(newAddr1);
 
   });
+
   test('deleting an element from the addresses array re-maps the array and its containers', () => {
     expect(nameState.addresses[1].street).toBe(newAddr1.street);
     expect(nameState.addresses[2].street).toBe(addr2.street);
     //
     let deleteActions = addressesActionCreator.removeElement(0);
-    Manager.get(nameState).actionProcess(...deleteActions);
+    // Manager.get(nameState).actionProcess(...deleteActions);
+    testStore.dispatch(...deleteActions);
 
     expect(nameState.addresses[0].street).toBe(newAddr1.street);
     expect(address1Container.viewProps.address).toBe(newAddr1);
@@ -348,8 +350,46 @@ describe('ContainerComponent instantiation, mount, update, unmount', () => {
       '(array of commentsUI)',
       () => {
     container.componentWillUnmount();
+    expect(container.getMappingActions().length).toBeGreaterThan(0);
     expect(testStore.getManager().getMappingState().getPathMappings(container.getMappingActions()[0].fullPath))
         .not.toContain(container);
+  });
+
+  test('updating all array elements using addresses3 should update all the addresses in state', () => {
+    let addresses3: Address[] = [
+      {
+        id: 10,
+        city: 'Pawling',
+        street: '4th',
+        state: 'WY',
+        zip: '93837',
+        country: 'US'
+      },
+      {
+        id: 11,
+        city: 'Kingston',
+        street: '5th',
+        state: 'HI',
+        zip: '13227',
+        country: 'US'
+      },
+      {
+        id: 12,
+        city: 'Rome',
+        street: '6th',
+        state: 'CA',
+        zip: '83227',
+        country: 'US'
+      }
+    ];
+
+    expect(nameState.addresses.length).toBe(2);
+    let updateAllActions = getArrayActionCreator(nameState, nameState.addresses).updateAll(addresses3);
+    testStore.dispatch(...updateAllActions);
+    // updateAllActions.forEach(action => action.dispatch());
+    expect(addresses3.length).toBe(3);
+    expect(nameState.addresses.length).toBe(3);
+    addresses3.forEach((addr, index) => expect(nameState.addresses[index]).toBe(addresses3[index]))
   });
 });
 

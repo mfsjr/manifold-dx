@@ -339,7 +339,7 @@ describe('ContainerComponent instantiation, mount, update, unmount', function ()
             }
         ];
         expect(nameState.addresses.length).toBe(2);
-        var updateAllActions = actionCreators_1.getArrayActionCreator(nameState, nameState.addresses).updateAll(addresses3);
+        var updateAllActions = actionCreators_1.getArrayActionCreator(nameState, nameState.addresses).replaceAll(addresses3);
         testStore.dispatch.apply(testStore, updateAllActions);
         // updateAllActions.forEach(action => action.dispatch());
         expect(addresses3.length).toBe(3);

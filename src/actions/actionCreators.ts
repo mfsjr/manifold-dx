@@ -54,6 +54,38 @@ export class ActionCreator<S extends StateObject> {
   }
 
   /**
+   * Similar to Object.assign, only difference being that if property values happen
+   * to match, nothing is done (no action will be performed).
+   *
+   * @param newObject
+   */
+  public assignAll<K extends keyof S>(newObject: S): StateCrudAction<S, K>[] {
+    let keys: Array<string> = Object.getOwnPropertyNames(newObject);
+    let actions: StateCrudAction<S, K>[] = [];
+    keys.forEach(key => {
+      if (newObject[key] && this.parent[key]) {
+        if (this.isKeyOf(this.parent, key)) {
+          if (newObject[key] !== this.parent[key]) {
+            let action = this.update(key, newObject[key]) as StateCrudAction<S, K>;
+            actions.push(action);
+          }
+        }
+        if (newObject[key] && !this.parent[key]) {
+          if (this.isKeyOf(this.parent, key)) {
+            let action = this.insert(key, newObject[key]) as StateCrudAction<S, K>;
+            actions.push(action);
+          }
+        }
+      }
+    });
+    return actions;
+  }
+
+  public isKeyOf<K extends keyof S>(value: S, key: string): key is K {
+    return value.hasOwnProperty(key);
+  }
+
+  /**
    * Delete the property (named 'remove' because 'delete' is a reserved word)
    * @param {K} propertyKey
    * @returns {Action}
@@ -183,23 +215,33 @@ export class ArrayActionCreator<S extends StateObject, K extends keyof S, V exte
       ActionId.UPDATE_PROPERTY, this.parent, this.propertyKey, index, this.valuesArray, newValue);
   }
 
-  public updateAll(array: Array<V>): StateAction<S, K>[] {
+  /**
+   * Replace the current array's elements with the contents of the newArray.
+   *
+   * Note that if an element at an index is the same in the new and old array, it will be left unchanged (no
+   * actions will be dispatched).
+   *
+   * @param newArray
+   */
+  public replaceAll(newArray: Array<V>): StateAction<S, K>[] {
     let actions: StateAction<S, K>[] = [];
-    let sup = Math.max(array.length, this.valuesArray.length);
+    let sup = Math.max(newArray.length, this.valuesArray.length);
     for (let i = 0; i < sup; i++) {
-      if ( i < array.length && i < this.valuesArray.length) {
-        actions.push(this.updateElement(i, array[i]));
+      if ( i < newArray.length && i < this.valuesArray.length) {
+        if (newArray[i] !== this.valuesArray[i]) {
+          actions.push(this.updateElement(i, newArray[i]));
+        }
       }
-      if (i >= array.length) {
+      if (i >= newArray.length) {
         actions.push(new ArrayChangeAction(ActionId.DELETE_PROPERTY, this.parent, this.propertyKey, i,
-          this.valuesArray, array[i]));
+          this.valuesArray, newArray[i]));
         // actions.concat(this.removeElement(i));
         continue;
       }
       if ( i >= this.valuesArray.length ) {
         actions.push(
           new ArrayChangeAction(
-            ActionId.INSERT_PROPERTY, this.parent, this.propertyKey, i, this.valuesArray, array[i]),
+            ActionId.INSERT_PROPERTY, this.parent, this.propertyKey, i, this.valuesArray, newArray[i]),
         );
         // actions.concat(this.appendElement(array[i]));
         continue;

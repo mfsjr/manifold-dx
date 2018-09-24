@@ -43,6 +43,37 @@ var ActionCreator = /** @class */ (function () {
         return new actions_1.StateCrudAction(actions_1.ActionId.UPDATE_PROPERTY, this.parent, propertyKey, value);
     };
     /**
+     * Similar to Object.assign, only difference being that if property values happen
+     * to match, nothing is done (no action will be performed).
+     *
+     * @param newObject
+     */
+    ActionCreator.prototype.assignAll = function (newObject) {
+        var _this = this;
+        var keys = Object.getOwnPropertyNames(newObject);
+        var actions = [];
+        keys.forEach(function (key) {
+            if (newObject[key] && _this.parent[key]) {
+                if (_this.isKeyOf(_this.parent, key)) {
+                    if (newObject[key] !== _this.parent[key]) {
+                        var action = _this.update(key, newObject[key]);
+                        actions.push(action);
+                    }
+                }
+                if (newObject[key] && !_this.parent[key]) {
+                    if (_this.isKeyOf(_this.parent, key)) {
+                        var action = _this.insert(key, newObject[key]);
+                        actions.push(action);
+                    }
+                }
+            }
+        });
+        return actions;
+    };
+    ActionCreator.prototype.isKeyOf = function (value, key) {
+        return value.hasOwnProperty(key);
+    };
+    /**
      * Delete the property (named 'remove' because 'delete' is a reserved word)
      * @param {K} propertyKey
      * @returns {Action}
@@ -156,20 +187,30 @@ var ArrayActionCreator = /** @class */ (function () {
         // let index = this.getIndexOf(oldValue);
         return new actions_1.ArrayChangeAction(actions_1.ActionId.UPDATE_PROPERTY, this.parent, this.propertyKey, index, this.valuesArray, newValue);
     };
-    ArrayActionCreator.prototype.updateAll = function (array) {
+    /**
+     * Replace the current array's elements with the contents of the newArray.
+     *
+     * Note that if an element at an index is the same in the new and old array, it will be left unchanged (no
+     * actions will be dispatched).
+     *
+     * @param newArray
+     */
+    ArrayActionCreator.prototype.replaceAll = function (newArray) {
         var actions = [];
-        var sup = Math.max(array.length, this.valuesArray.length);
+        var sup = Math.max(newArray.length, this.valuesArray.length);
         for (var i = 0; i < sup; i++) {
-            if (i < array.length && i < this.valuesArray.length) {
-                actions.push(this.updateElement(i, array[i]));
+            if (i < newArray.length && i < this.valuesArray.length) {
+                if (newArray[i] !== this.valuesArray[i]) {
+                    actions.push(this.updateElement(i, newArray[i]));
+                }
             }
-            if (i >= array.length) {
-                actions.push(new actions_1.ArrayChangeAction(actions_1.ActionId.DELETE_PROPERTY, this.parent, this.propertyKey, i, this.valuesArray, array[i]));
+            if (i >= newArray.length) {
+                actions.push(new actions_1.ArrayChangeAction(actions_1.ActionId.DELETE_PROPERTY, this.parent, this.propertyKey, i, this.valuesArray, newArray[i]));
                 // actions.concat(this.removeElement(i));
                 continue;
             }
             if (i >= this.valuesArray.length) {
-                actions.push(new actions_1.ArrayChangeAction(actions_1.ActionId.INSERT_PROPERTY, this.parent, this.propertyKey, i, this.valuesArray, array[i]));
+                actions.push(new actions_1.ArrayChangeAction(actions_1.ActionId.INSERT_PROPERTY, this.parent, this.propertyKey, i, this.valuesArray, newArray[i]));
                 // actions.concat(this.appendElement(array[i]));
                 continue;
             }

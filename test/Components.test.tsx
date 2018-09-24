@@ -384,7 +384,7 @@ describe('ContainerComponent instantiation, mount, update, unmount', () => {
     ];
 
     expect(nameState.addresses.length).toBe(2);
-    let updateAllActions = getArrayActionCreator(nameState, nameState.addresses).updateAll(addresses3);
+    let updateAllActions = getArrayActionCreator(nameState, nameState.addresses).replaceAll(addresses3);
     testStore.dispatch(...updateAllActions);
     // updateAllActions.forEach(action => action.dispatch());
     expect(addresses3.length).toBe(3);

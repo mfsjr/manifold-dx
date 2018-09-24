@@ -46,16 +46,40 @@ var resetTestObjects = function () {
 };
 describe('Add the name container', function () {
     resetTestObjects();
-    var appState = testStore.getState();
-    var insertNameAction = new actions_1.StateCrudAction(actions_1.ActionId.INSERT_STATE_OBJECT, appState, 'name', nameState);
-    // true: console.log(`insertNameAction instanceof Action ${insertNameAction instanceof Action}`);
-    test('state should contain the name container', function () {
-        testStore.getManager().actionProcess(insertNameAction);
-        expect(appState.name).toBe(nameState);
-        expect(nameState.middle).toEqual('F');
+    describe('Add the name', function () {
+        var appState = testStore.getState();
+        var insertNameAction = new actions_1.StateCrudAction(actions_1.ActionId.INSERT_STATE_OBJECT, appState, 'name', nameState);
+        // true: console.log(`insertNameAction instanceof Action ${insertNameAction instanceof Action}`);
+        test('state should contain the name container', function () {
+            testStore.getManager().actionProcess(insertNameAction);
+            expect(appState.name).toBe(nameState);
+            expect(nameState.middle).toEqual('F');
+        });
+        test('nameState\'s parent should be state container', function () {
+            expect(nameState._parent).toBe(appState);
+        });
     });
-    test('nameState\'s parent should be state container', function () {
-        expect(nameState._parent).toBe(appState);
+    describe('use CrudActionCreator\'s assignAll to assign multiple prop values from an object', function () {
+        var addresses = nameState.addresses;
+        var _bowlingScores = nameState.bowlingScores;
+        var _parent = nameState._parent;
+        var _myPropname = nameState._myPropname;
+        var oldName = __assign({}, nameState);
+        var newName = __assign({}, nameState);
+        newName.first = 'Ebenezer';
+        newName.last = 'Scrooge';
+        newName.suffix = undefined;
+        newName.prefix = 'Esq';
+        var actions = src_1.getActionCreator(nameState).assignAll(newName);
+        testStore.dispatch.apply(testStore, actions);
+        expect(nameState.first).toBe(newName.first);
+        expect(nameState.suffix).toBeUndefined();
+        expect(nameState.addresses).toBe(addresses);
+        expect(nameState.bowlingScores).toBe(_bowlingScores);
+        expect(nameState._parent).toBe(_parent);
+        expect(nameState._myPropname).toBe(_myPropname);
+        actions = src_1.getActionCreator(nameState).assignAll(oldName);
+        testStore.dispatch.apply(testStore, actions);
     });
     describe('Modify the name\'s middle initial', function () {
         // let updateMiddleAction = new StateCrudAction(ActionId.UPDATE_PROPERTY, nameState, 'middle', 'J');

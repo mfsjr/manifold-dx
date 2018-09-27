@@ -163,6 +163,8 @@ var resetTestObjects = function () {
     bowlingScores = [111, 121, 131];
     initBowlerProps = { fullName: nameState.first };
     container = new BowlerContainer(initBowlerProps);
+    // this is done in render, which we are not testing here
+    container.setupViewProps();
     // NOTE: do this after setting up the store's initial state, this is where the snapshot is taken
     // if you init state after calling this you will get mutation errors!
     testStore.getManager().getActionProcessorAPI().enableMutationChecking();
@@ -224,6 +226,8 @@ describe('ContainerComponent instantiation, mount, update, unmount', function ()
     });
     test("Create a mapping action to an array index", function () {
         var addr1Container = new AddressContainer({ address: addr1 }, 'addr1Container');
+        // this is done in render, which we are not testing here
+        addr1Container.viewProps = addr1Container.createViewProps();
         address1Container = addr1Container;
         // let keyGen = (address: Address) => address.id;
         // let addr1MappingAction = getMappingCreator(nameState, addr1Container)
@@ -242,6 +246,8 @@ describe('ContainerComponent instantiation, mount, update, unmount', function ()
         expect(mapping1[mapping1.length - 1].fullPath).toBe(fullpath);
         expect(mapping1[mapping1.length - 1].component).toBe(addr1Container);
         var addr2Container = new AddressContainer({ address: addr2 }, 'addr2Container');
+        // this is done in render, which we are not testing here
+        addr2Container.viewProps = addr2Container.createViewProps();
         address2Container = addr2Container;
         var addr2MappingAction = actionCreators_1.getMappingActionCreator(nameState, 'addresses')
             .createArrayIndexMappingAction(nameState.addresses, 1, addr2Container, 'address');

@@ -113,6 +113,7 @@ export declare abstract class ContainerComponent<CP, VP, A extends StateObject, 
      * @returns {boolean}
      */
     shouldComponentUpdate<S, CTX>(nextProps: CP, nextState: S, nextContext: CTX): boolean;
+    setupViewProps(): void;
     render(): ReactNode;
 }
 export declare type AnyContainerComponent = ContainerComponent<any, any, any>;

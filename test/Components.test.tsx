@@ -188,6 +188,9 @@ let resetTestObjects = () => {
   bowlingScores = [111, 121, 131];
   initBowlerProps = { fullName: nameState.first };
   container = new BowlerContainer(initBowlerProps);
+  // this is done in render, which we are not testing here
+  container.setupViewProps();
+
   // NOTE: do this after setting up the store's initial state, this is where the snapshot is taken
   // if you init state after calling this you will get mutation errors!
   testStore.getManager().getActionProcessorAPI().enableMutationChecking();
@@ -218,6 +221,7 @@ describe('ContainerComponent instantiation, mount, update, unmount', () => {
   test('bowler\'s viewProps contains the correct "fullname"', () => {
     expect(container.viewProps.fullName).toEqual(nameState.first);
   });
+
   test('bowler\'s viewComponent.props contains the correct "fullname"', () => {
     expect(container.getView().props.fullName).toEqual(nameState.first);
   });
@@ -253,6 +257,8 @@ describe('ContainerComponent instantiation, mount, update, unmount', () => {
   });
   test(`Create a mapping action to an array index`, () => {
     let addr1Container = new AddressContainer({address: addr1}, 'addr1Container');
+    // this is done in render, which we are not testing here
+    addr1Container.viewProps = addr1Container.createViewProps();
     address1Container = addr1Container;
     // let keyGen = (address: Address) => address.id;
     // let addr1MappingAction = getMappingCreator(nameState, addr1Container)
@@ -275,6 +281,9 @@ describe('ContainerComponent instantiation, mount, update, unmount', () => {
     expect(mapping1[mapping1.length - 1].component).toBe(addr1Container);
 
     let addr2Container = new AddressContainer({address: addr2}, 'addr2Container');
+    // this is done in render, which we are not testing here
+    addr2Container.viewProps = addr2Container.createViewProps();
+
     address2Container = addr2Container;
     let addr2MappingAction = getMappingActionCreator(nameState, 'addresses')
       .createArrayIndexMappingAction(nameState.addresses, 1, addr2Container, 'address');
@@ -389,7 +398,7 @@ describe('ContainerComponent instantiation, mount, update, unmount', () => {
     // updateAllActions.forEach(action => action.dispatch());
     expect(addresses3.length).toBe(3);
     expect(nameState.addresses.length).toBe(3);
-    addresses3.forEach((addr, index) => expect(nameState.addresses[index]).toBe(addresses3[index]))
+    addresses3.forEach((addr, index) => expect(nameState.addresses[index]).toBe(addresses3[index]));
   });
 });
 

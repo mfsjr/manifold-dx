@@ -106,12 +106,8 @@ export abstract class ContainerComponent<CP, VP, A extends StateObject, RS = {} 
       throw new Error(`${sfc ? 2 : 0} functions supplied; you must supply exactly one function`);
     }
 
-    this.viewProps = this.createViewProps();
     this.sfcView = sfc;
     this.viewGenerator = viewGenerator;
-    if (this.viewGenerator) {
-      this.viewComponent = this.viewGenerator(this.viewProps);
-    }
   }
 
   public createMapping<S extends StateObject, K extends keyof S, TP extends keyof VP, V>
@@ -264,7 +260,18 @@ export abstract class ContainerComponent<CP, VP, A extends StateObject, RS = {} 
     return result;
   }
 
+  public setupViewProps() {
+    this.viewProps = this.createViewProps();
+    if (this.viewGenerator) {
+      this.viewComponent = this.viewGenerator(this.viewProps);
+    }
+  }
+
   render(): ReactNode {
+    if (!this.viewProps) {
+      this.setupViewProps();
+    }
+
     if (this.sfcView) {
       let result: ReactElement<VP> | null = this.sfcView(this.viewProps);
       return result;

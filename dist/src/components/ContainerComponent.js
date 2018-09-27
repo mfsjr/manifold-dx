@@ -62,12 +62,8 @@ var ContainerComponent = /** @class */ (function (_super) {
         if ((sfc && viewGenerator) || (!sfc && !viewGenerator)) {
             throw new Error((sfc ? 2 : 0) + " functions supplied; you must supply exactly one function");
         }
-        _this.viewProps = _this.createViewProps();
         _this.sfcView = sfc;
         _this.viewGenerator = viewGenerator;
-        if (_this.viewGenerator) {
-            _this.viewComponent = _this.viewGenerator(_this.viewProps);
-        }
         return _this;
     }
     /**
@@ -219,7 +215,16 @@ var ContainerComponent = /** @class */ (function (_super) {
         result = result || !recompose_1.shallowEqual(this.state, nextState);
         return result;
     };
+    ContainerComponent.prototype.setupViewProps = function () {
+        this.viewProps = this.createViewProps();
+        if (this.viewGenerator) {
+            this.viewComponent = this.viewGenerator(this.viewProps);
+        }
+    };
     ContainerComponent.prototype.render = function () {
+        if (!this.viewProps) {
+            this.setupViewProps();
+        }
         if (this.sfcView) {
             var result = this.sfcView(this.viewProps);
             return result;

@@ -202,6 +202,43 @@ describe('Add the name container', () => {
     });
   });
 
+  test('updating all array elements using addresses3 should update all the addresses in state', () => {
+    let addresses3: Address[] = [
+      {
+        id: 10,
+        city: 'Pawling',
+        street: '4th',
+        state: 'WY',
+        zip: '93837',
+        country: 'US'
+      },
+      {
+        id: 11,
+        city: 'Kingston',
+        street: '5th',
+        state: 'HI',
+        zip: '13227',
+        country: 'US'
+      },
+      {
+        id: 12,
+        city: 'Rome',
+        street: '6th',
+        state: 'CA',
+        zip: '83227',
+        country: 'US'
+      }
+    ];
+
+    expect(nameState.addresses.length).toBe(1);
+    let updateAllActions = getArrayActionCreator(nameState, nameState.addresses).replaceAll(addresses3);
+    testStore.dispatch(...updateAllActions);
+    // updateAllActions.forEach(action => action.dispatch());
+    expect(addresses3.length).toBe(3);
+    expect(nameState.addresses.length).toBe(3);
+    addresses3.forEach((addr, index) => expect(nameState.addresses[index]).toBe(addresses3[index]));
+  });
+
   describe('Verify StateMutationCheck', () => {
     // resetTestObjects();
     test('state should be defined', () => {

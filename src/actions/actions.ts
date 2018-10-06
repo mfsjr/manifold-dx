@@ -468,9 +468,9 @@ export class MappingAction
   protected change(perform: boolean = true): void {
     this.pristine = false;
 
-    // If this action refers to an element at an array index, compute the key
-    // let key = (this.propArray && this.keyGen && this.index > -1) ?
-    // this.keyGen(this.propArray[this.index]) : undefined;
+    // if this action refers to an element at an index, use that
+    // if the index is -1 and the property is an array, set it to null and map the whole array, else
+    // map the simple property
     let _index = this.index !== -1 ? this.index : (this.parent[this.propertyName] instanceof Array ? null : undefined);
     if (perform) {
       let components = Manager.get(this.parent).getMappingState().getOrCreatePathMapping(this.fullPath, _index);

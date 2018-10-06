@@ -281,6 +281,7 @@ export function getMappingActionCreator<S extends StateObject, K extends keyof S
 
   /**
    * Create a mapping from an array element, or the whole array, to a component
+   * @param {S[K] & Array<E>} state array to be mapped
    * @param {number | null} index use number to map from an array element, or null to map the array itself
    * @param {ContainerComponent<CP, VP, A extends StateObject>} _component the component being mapped, typically 'this'
    * @param {TP} targetPropKey the name of the view/target property being updated

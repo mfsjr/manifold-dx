@@ -90,6 +90,15 @@ export class MappingState {
     throw Error(`pathResults from ${path} expected to be instanceof Array, or a Map`);
   }
 
+  /**
+   * Get (find) or create an array of mapping actions, each of which refer to components (typically to be updated).
+   *
+   * Note that index === null implies that an array is being directly mapped into a component, as opposed to the
+   * more usual case, where index >= 0, meaning that one of its elements is being mapped.
+   *
+   * @param propFullPath
+   * @param index
+   */
   public getOrCreatePathMapping(propFullPath: string, index?: number | null): AnyMappingAction[] {
     if (index === null) {
       // TODO: assert value at fullpath is an array (null is used only in ArrayMap)

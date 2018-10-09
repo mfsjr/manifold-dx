@@ -44,7 +44,7 @@ export interface StateConfigOptions {
  */
 export class Store<A> {
 
-  private static StateKeys: string[] = Store.getStateKeys();
+  public static StateKeys: string[] = Store.getStateKeys();
 
   /** the single store of data for this application */
   private state: StateObject & A;

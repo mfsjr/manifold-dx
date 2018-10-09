@@ -8,7 +8,7 @@ var StateMutationCheck_1 = require("./StateMutationCheck");
  * Separating this script from {@link StateMutationCheck} opens up the possibility of
  * doing environment-based initialization at some point in the future.
  *
- * Right now, the only obvious way to do that is impossible, since start.js and test.js
+ * Right now, there's no obvious way to do that, since start.js and test.js
  * scripts are written in JS, and we can't initialize this from those places (easily, yet).
  *
  * @type {DiffPatcher}

@@ -203,10 +203,10 @@ export class StateCrudAction<S extends StateObject, K extends keyof S> extends S
   constructor(actionType: ActionId, _parent: S, _propertyName: K, _value?: S[K]) {
     super(actionType, _parent, _propertyName);
     this.value = _value;
-    if (actionType === ActionId.UPDATE_PROPERTY && _value instanceof Array) {
-      throw new Error(
-        `Arrays may be inserted or deleted, but not updated (you can insert, update or delete array elements)`);
-    }
+    // if (actionType === ActionId.UPDATE_PROPERTY && _value instanceof Array) {
+    //   throw new Error(
+    //     `Arrays may be inserted or deleted, but not updated (you can insert, update or delete array elements)`);
+    // }
   }
 
   protected change(perform: boolean = true): void {

@@ -59,33 +59,34 @@ describe('Add the name container', () => {
     });
   });
 
-  describe('use CrudActionCreator\'s assignAll to assign multiple prop values from an object', () => {
-
-    let addresses = nameState.addresses;
-    let _bowlingScores = nameState.bowlingScores;
-    let _parent = nameState._parent;
-    let _myPropname = nameState._myPropname;
-
-    let oldName: NameState = {...nameState};
-
-    let newName: NameState = {...nameState};
-    newName.first = 'Ebenezer';
-    newName.last = 'Scrooge';
-    newName.suffix = undefined;
-    newName.prefix = 'Esq';
-
-    let actions = getActionCreator(nameState).assignAll(newName);
-    testStore.dispatch(...actions);
-    expect(nameState.first).toBe(newName.first);
-    expect(nameState.suffix).toBeUndefined();
-    expect(nameState.addresses).toBe(addresses);
-    expect(nameState.bowlingScores).toBe(_bowlingScores);
-    expect(nameState._parent).toBe(_parent);
-    expect(nameState._myPropname).toBe(_myPropname);
-
-    actions = getActionCreator(nameState).assignAll(oldName);
-    testStore.dispatch(...actions);
-  });
+  // describe('use CrudActionCreator\'s assignAll to assign multiple prop values from an object', () => {
+  //
+  //   let addresses = nameState.addresses;
+  //   let _bowlingScores = nameState.bowlingScores;
+  //   let _parent = nameState._parent;
+  //   let _myPropname = nameState._myPropname;
+  //
+  //   let oldName: NameState = {...nameState};
+  //
+  //   let newName: NameState = {...nameState};
+  //   newName.first = 'Ebenezer';
+  //   newName.last = 'Scrooge';
+  //   // newName.middle = undefined;
+  //   newName.prefix = undefined; // 'Esq';
+  //
+  //   let actions = getActionCreator(nameState).assignAll(newName);
+  //   testStore.dispatch(...actions);
+  //   expect(nameState.first).toBe(newName.first);
+  //   expect(nameState.prefix).toBeUndefined();
+  //   expect(nameState.addresses).toBe(addresses);
+  //   expect(nameState.bowlingScores).toBe(_bowlingScores);
+  //   expect(nameState._parent).toBe(_parent);
+  //   expect(nameState._myPropname).toBe(_myPropname);
+  //
+  //   actions = getActionCreator(nameState).assignAll(oldName);
+  //   testStore.dispatch(...actions);
+  //   expect(nameState.prefix).toBe(oldName.prefix);
+  // });
 
   describe('Modify the name\'s middle initial', () => {
     // let updateMiddleAction = new StateCrudAction(ActionId.UPDATE_PROPERTY, nameState, 'middle', 'J');
@@ -346,3 +347,11 @@ describe('test stripping StateObject info', () => {
   });
 });
 
+describe('updating a whole array', () => {
+  test('array update api', () => {
+    let oldScores = [...nameState.bowlingScores];
+    let newScores = [...oldScores].reverse();
+    getArrayActionCreator(nameState, bowlingScores).updateArray(newScores).dispatch();
+    expect(newScores).toBe(nameState.bowlingScores);
+  });
+})

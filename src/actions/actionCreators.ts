@@ -53,37 +53,56 @@ export class ActionCreator<S extends StateObject> {
     return new StateCrudAction(ActionId.UPDATE_PROPERTY, this.parent, propertyKey, value);
   }
 
-  /**
-   * Similar to Object.assign, only difference being that if property values happen
-   * to match, nothing is done (no action will be performed).
-   *
-   * @param newObject
-   */
-  public assignAll<K extends keyof S>(newObject: S): StateCrudAction<S, K>[] {
-    let keys: Array<string> = Object.getOwnPropertyNames(newObject);
-    let actions: StateCrudAction<S, K>[] = [];
-    keys.forEach(key => {
-      if (newObject[key] && this.parent[key]) {
-        if (this.isKeyOf(this.parent, key)) {
-          if (newObject[key] !== this.parent[key]) {
-            let action = this.update(key, newObject[key]) as StateCrudAction<S, K>;
-            actions.push(action);
-          }
-        }
-        if (newObject[key] && !this.parent[key]) {
-          if (this.isKeyOf(this.parent, key)) {
-            let action = this.insert(key, newObject[key]) as StateCrudAction<S, K>;
-            actions.push(action);
-          }
-        }
-      }
-    });
-    return actions;
-  }
-
-  public isKeyOf<K extends keyof S>(value: S, key: string): key is K {
-    return value.hasOwnProperty(key);
-  }
+  // This "time-saver" convenience function is actually more trouble than its worth, since there are
+  // all kinds of corner cases that make it highly dependent on the particular types of objects
+  // being dealt with (unlike our array replaceAll).
+  // /**
+  //  * Similar to Object.assign, only difference being that if property values happen
+  //  * to match, nothing is done (no action will be performed).
+  //  *
+  //  * @param newObject
+  //  */
+  // public assignAll<K extends keyof S>(newObject: S): StateCrudAction<S, K>[] {
+  //   let keys: Array<string> = Object.getOwnPropertyNames(newObject);
+  //   // TODO: filter out _parent and _myProperty, also change the name of this method to assignData
+  //   let actions: StateCrudAction<S, K>[] = [];
+  //   let THIS = this;
+  //   keys.forEach(key => {
+  //     if (['_parent', '_myPropname'].indexOf(key) > -1) {
+  //       return;
+  //     }
+  //     if (newObject[key] && THIS.parent[key]) {
+  //       if (THIS.isKeyOf(newObject, key)) {
+  //         if (newObject[key] !== THIS.parent[key]) {
+  //           let action = THIS.update(key, newObject[key]) as StateCrudAction<S, K>;
+  //           actions.push(action);
+  //         }
+  //       }
+  //       return;
+  //     }
+  //     if (newObject[key] && !THIS.parent[key]) {
+  //       if (THIS.isKeyOf(THIS.parent, key)) {
+  //         let action = THIS.insert(key, newObject[key]) as StateCrudAction<S, K>;
+  //         actions.push(action);
+  //       }
+  //       return;
+  //     }
+  //     // TODO: remove items not in newObject and in THIS.parent... and ADD SOME FUCKING TESTS
+  //     if (!newObject[key] && THIS.parent[key]) {
+  //       if (THIS.isKeyOf(THIS.parent, key)) {
+  //         let action = THIS.remove(key) as StateCrudAction<S, K>;
+  //         actions.push(action);
+  //       }
+  //       return;
+  //     }
+  //
+  //   });
+  //   return actions;
+  // }
+  //
+  // public isKeyOf<K extends keyof S>(value: S, key: string): key is K {
+  //   return value.hasOwnProperty(key);
+  // }
 
   /**
    * Delete the property (named 'remove' because 'delete' is a reserved word)
@@ -169,6 +188,10 @@ export class ArrayActionCreator<S extends StateObject, K extends keyof S, V exte
     }
     this.propertyKey = propKey;
     this.valuesArray = array;
+  }
+
+  public updateArray(newArray: Array<V> & S[K]): StateAction<S, K> {
+    return new StateCrudAction(ActionId.UPDATE_PROPERTY, this.parent, this.propertyKey, newArray);
   }
 
   public rerenderArray(): StateAction<S, K> {

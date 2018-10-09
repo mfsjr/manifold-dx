@@ -148,10 +148,11 @@ var StateCrudAction = /** @class */ (function (_super) {
     function StateCrudAction(actionType, _parent, _propertyName, _value) {
         var _this = _super.call(this, actionType, _parent, _propertyName) || this;
         _this.value = _value;
-        if (actionType === ActionId.UPDATE_PROPERTY && _value instanceof Array) {
-            throw new Error("Arrays may be inserted or deleted, but not updated (you can insert, update or delete array elements)");
-        }
         return _this;
+        // if (actionType === ActionId.UPDATE_PROPERTY && _value instanceof Array) {
+        //   throw new Error(
+        //     `Arrays may be inserted or deleted, but not updated (you can insert, update or delete array elements)`);
+        // }
     }
     StateCrudAction.prototype.getOldValue = function () {
         return this.oldValue;

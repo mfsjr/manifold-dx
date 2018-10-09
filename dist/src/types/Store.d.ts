@@ -35,7 +35,7 @@ export interface StateConfigOptions {
  * A: represents the type (structure) of the app data that the state will be initialized to.
  */
 export declare class Store<A> {
-    private static StateKeys;
+    static StateKeys: string[];
     /** the single store of data for this application */
     private state;
     private manager;

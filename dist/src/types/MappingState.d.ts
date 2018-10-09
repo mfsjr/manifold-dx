@@ -31,6 +31,15 @@ export declare class MappingState {
      */
     getSize(): number;
     getPathMappings(path: string, index?: number | null): AnyMappingAction[] | undefined;
+    /**
+     * Get (find) or create an array of mapping actions, each of which refer to components (typically to be updated).
+     *
+     * Note that index === null implies that an array is being directly mapped into a component, as opposed to the
+     * more usual case, where index >= 0, meaning that one of its elements is being mapped.
+     *
+     * @param propFullPath
+     * @param index
+     */
     getOrCreatePathMapping(propFullPath: string, index?: number | null): AnyMappingAction[];
     getPathMappingsArrayMap(fullpath: string): ArrayMap | undefined;
     /**

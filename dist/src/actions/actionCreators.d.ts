@@ -16,14 +16,6 @@ export declare class ActionCreator<S extends StateObject> {
     insert<K extends keyof S>(propertyKey: K, value: S[K]): StateCrudAction<S, K>;
     update<K extends keyof S>(propertyKey: K, value: S[K]): StateCrudAction<S, K>;
     /**
-     * Similar to Object.assign, only difference being that if property values happen
-     * to match, nothing is done (no action will be performed).
-     *
-     * @param newObject
-     */
-    assignAll<K extends keyof S>(newObject: S): StateCrudAction<S, K>[];
-    isKeyOf<K extends keyof S>(value: S, key: string): key is K;
-    /**
      * Delete the property (named 'remove' because 'delete' is a reserved word)
      * @param {K} propertyKey
      * @returns {Action}
@@ -73,6 +65,7 @@ export declare class ArrayActionCreator<S extends StateObject, K extends keyof S
      * @param {ArrayKeyGeneratorFn} keyGenerator
      */
     constructor(parent: S, childArray: Array<V> & S[K]);
+    updateArray(newArray: Array<V> & S[K]): StateAction<S, K>;
     rerenderArray(): StateAction<S, K>;
     appendElement(value: V): StateAction<S, K>[];
     /**

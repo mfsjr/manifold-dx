@@ -291,12 +291,12 @@ describe("test Manager's dispatch args", function () {
             _parent: null,
             _myPropname: ''
         };
-        testStore.addChildStateObject(testStore.getState(), greeting, 'greeting');
+        testStore.addChildToParent(testStore.getState(), greeting, 'greeting');
         expect(testStore.getState().greeting).toBe(greeting);
         var fakeState = {};
         var fakeStore = new Store_1.Store(fakeState, {});
         // try attaching a child to a parent that is not in the store (should throw)
-        expect(function () { return testStore.addChildStateObject(fakeStore.getState(), greeting, 'greeting'); }).toThrow();
+        expect(function () { return testStore.addChildToParent(fakeStore.getState(), greeting, 'greeting'); }).toThrow();
     });
 });
 //# sourceMappingURL=types.test.js.map

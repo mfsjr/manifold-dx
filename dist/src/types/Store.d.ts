@@ -57,7 +57,6 @@ export declare class Store<A> {
      * @returns {boolean}
      */
     static isInstanceOfStateObject(object: any): object is StateObject;
-    addChildStateObject<P extends StateObject, K extends keyof P, C extends P[K]>(parent: P, child: C, childPropName: K): void;
     /**
      * Convert an arbitrary data object of type T to type StateObject & T, and add to the parent.
      *
@@ -99,6 +98,15 @@ export declare class Store<A> {
     static stripStateObject(stateObject: any, includingFunctions?: boolean): any;
     private static getStateKeys;
     constructor(appData: A, options: StateConfigOptions);
+    /**
+     * Add a child state object to the parent state object.  Note that the parent is assumed to be
+     * in this store, and if it isn't this method will throw an error.
+     *
+     * @param parent
+     * @param child
+     * @param childPropName
+     */
+    addChildToParent<P extends StateObject, K extends keyof P, C extends P[K] & StateObject>(parent: P, child: C, childPropName: K): void;
     reset(appData: A, options: StateConfigOptions): void;
     getState(): StateObject & A;
     getManager(): Manager;

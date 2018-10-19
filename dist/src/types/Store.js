@@ -62,13 +62,6 @@ var Store = /** @class */ (function () {
         }
         return true;
     };
-    Store.prototype.addChildStateObject = function (parent, child, childPropName) {
-        var myAppState = Store.getTopState(parent);
-        if (myAppState !== this.getState()) {
-            throw new Error('attempting to add a child to a parent that is not in this appState!');
-        }
-        parent[childPropName] = child;
-    };
     /**
      * Convert an arbitrary data object of type T to type StateObject & T, and add to the parent.
      *
@@ -121,6 +114,21 @@ var Store = /** @class */ (function () {
         // let state = State.createState();
         var appState = new Store({}, {});
         return Object.keys(appState.getState());
+    };
+    /**
+     * Add a child state object to the parent state object.  Note that the parent is assumed to be
+     * in this store, and if it isn't this method will throw an error.
+     *
+     * @param parent
+     * @param child
+     * @param childPropName
+     */
+    Store.prototype.addChildToParent = function (parent, child, childPropName) {
+        var myAppState = Store.getTopState(parent);
+        if (myAppState !== this.getState()) {
+            throw new Error('attempting to add a child to a parent that is not in this appState!');
+        }
+        parent[childPropName] = child;
     };
     Store.prototype.reset = function (appData, options) {
         // appData is modified s.t. its type becomes A & StateObject

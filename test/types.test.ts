@@ -341,13 +341,13 @@ describe(`test Manager's dispatch args`, () => {
       _parent: null,
       _myPropname: ''
     };
-    testStore.addChildStateObject(testStore.getState(), greeting, 'greeting');
+    testStore.addChildToParent(testStore.getState(), greeting, 'greeting');
     expect(testStore.getState().greeting).toBe(greeting);
 
     let fakeState: TestState = { };
     let fakeStore = new Store(fakeState, {});
     // try attaching a child to a parent that is not in the store (should throw)
-    expect(() => testStore.addChildStateObject(fakeStore.getState(), greeting, 'greeting')).toThrow();
+    expect(() => testStore.addChildToParent(fakeStore.getState(), greeting, 'greeting')).toThrow();
   });
 
 });

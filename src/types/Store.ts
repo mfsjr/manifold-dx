@@ -101,15 +101,6 @@ export class Store<A> {
       return true;
   }
 
-  public addChildStateObject<P extends StateObject, K extends keyof P, C extends P[K]>
-      (parent: P, child: C, childPropName: K): void {
-    let myAppState = Store.getTopState(parent);
-    if (myAppState !== this.getState()) {
-      throw new Error('attempting to add a child to a parent that is not in this appState!');
-    }
-    parent[childPropName] = child;
-  }
-
   /**
    * Convert an arbitrary data object of type T to type StateObject & T, and add to the parent.
    *
@@ -201,6 +192,23 @@ export class Store<A> {
 
   constructor(appData: A, options: StateConfigOptions) {
     this.reset(appData, options);
+  }
+
+  /**
+   * Add a child state object to the parent state object.  Note that the parent is assumed to be
+   * in this store, and if it isn't this method will throw an error.
+   *
+   * @param parent
+   * @param child
+   * @param childPropName
+   */
+  public addChildToParent<P extends StateObject, K extends keyof P, C extends P[K] & StateObject>
+  (parent: P, child: C, childPropName: K): void {
+    let myAppState = Store.getTopState(parent);
+    if (myAppState !== this.getState()) {
+      throw new Error('attempting to add a child to a parent that is not in this appState!');
+    }
+    parent[childPropName] = child;
   }
 
   public reset(appData: A, options: StateConfigOptions): void {

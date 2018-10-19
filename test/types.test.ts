@@ -1,7 +1,15 @@
 import { ActionQueue, createActionQueue, } from '../src/types/ActionQueue';
 import { Action, ActionId, ArrayChangeAction, StateCrudAction } from '../src/actions/actions';
 import * as _ from 'lodash';
-import { Address, createTestStore, createNameContainer, createTestState, Name } from './testHarness';
+import {
+  Address,
+  createTestStore,
+  createNameContainer,
+  createTestState,
+  Name,
+  GreetingState,
+  TestState
+} from './testHarness';
 import { Store, StateObject } from '../src/types/Store';
 import { getActionCreator } from '../src';
 
@@ -19,7 +27,7 @@ let resetTestObjects = (): TestStateObjects => {
   let address: Address = {id: 1, street: '54 Upton Lake Rd', city: 'Clinton Corners', state: 'NY', zip: '12514'};
   // let x = State.createStateObject<Name>(testStore.getState(), 'name', name);
   let x = createNameContainer(name, testStore.getState(), 'name');
-  let y = Store.createStateObject<Address>(x, 'address', address);
+  let y = Store.convertAndAdd<Address>(x, 'address', address);
 
   // NOTE: do this after setting up the store's initial state, this is where the snapshot is taken
   // if you init state after calling this you will get mutation errors!
@@ -325,6 +333,21 @@ describe(`test Manager's dispatch args`, () => {
     expect(actions.length).toBe(2);
     expect(dispatchArgs.length).toBe(0);
     expect(nameState.middle).toBe('L');
+  });
+
+  test('attach a greeting using Store instance api', () => {
+    let greeting: GreetingState = {
+      message: 'Hello Stateful World',
+      _parent: null,
+      _myPropname: ''
+    };
+    testStore.addChildStateObject(testStore.getState(), greeting, 'greeting');
+    expect(testStore.getState().greeting).toBe(greeting);
+
+    let fakeState: TestState = { };
+    let fakeStore = new Store(fakeState, {});
+    // try attaching a child to a parent that is not in the store (should throw)
+    expect(() => testStore.addChildStateObject(fakeStore.getState(), greeting, 'greeting')).toThrow();
   });
 
 });

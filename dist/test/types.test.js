@@ -13,7 +13,7 @@ var resetTestObjects = function () {
     var address = { id: 1, street: '54 Upton Lake Rd', city: 'Clinton Corners', state: 'NY', zip: '12514' };
     // let x = State.createStateObject<Name>(testStore.getState(), 'name', name);
     var x = testHarness_1.createNameContainer(name, testStore.getState(), 'name');
-    var y = Store_1.Store.createStateObject(x, 'address', address);
+    var y = Store_1.Store.convertAndAdd(x, 'address', address);
     // NOTE: do this after setting up the store's initial state, this is where the snapshot is taken
     // if you init state after calling this you will get mutation errors!
     testStore.getManager().getActionProcessorAPI().enableMutationChecking();
@@ -284,6 +284,19 @@ describe("test Manager's dispatch args", function () {
         expect(actions.length).toBe(2);
         expect(dispatchArgs.length).toBe(0);
         expect(nameState.middle).toBe('L');
+    });
+    test('attach a greeting using Store instance api', function () {
+        var greeting = {
+            message: 'Hello Stateful World',
+            _parent: null,
+            _myPropname: ''
+        };
+        testStore.addChildStateObject(testStore.getState(), greeting, 'greeting');
+        expect(testStore.getState().greeting).toBe(greeting);
+        var fakeState = {};
+        var fakeStore = new Store_1.Store(fakeState, {});
+        // try attaching a child to a parent that is not in the store (should throw)
+        expect(function () { return testStore.addChildStateObject(fakeStore.getState(), greeting, 'greeting'); }).toThrow();
     });
 });
 //# sourceMappingURL=types.test.js.map

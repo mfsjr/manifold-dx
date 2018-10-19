@@ -91,7 +91,7 @@ export class NameStateCreator {
     };
     parent[myName] = this.nameState;
   }
-  
+
   getActionCreator = (nameState: NameState) => getActionCreator(this.nameState);
 
   getAddressesActionCreator: (nameState: NameState) => ArrayActionCreator<NameState, 'addresses', Address> =
@@ -99,11 +99,16 @@ export class NameStateCreator {
       this.nameState, this.nameState.addresses)
 }
 
+export interface GreetingState extends StateObject {
+  message: string;
+}
+
 export interface TestState {
   name?: Name & StateObject;
   me?: Name & StateObject;
   address?: Address & StateObject;
   appName?: string;
+  greeting?: GreetingState;
   helper?: () => string;
 }
 

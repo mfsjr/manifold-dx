@@ -47,11 +47,15 @@ export declare class NameStateCreator {
     getActionCreator: (nameState: NameState) => ActionCreator<NameState>;
     getAddressesActionCreator: (nameState: NameState) => ArrayActionCreator<NameState, 'addresses', Address>;
 }
+export interface GreetingState extends StateObject {
+    message: string;
+}
 export interface TestState {
     name?: Name & StateObject;
     me?: Name & StateObject;
     address?: Address & StateObject;
     appName?: string;
+    greeting?: GreetingState;
     helper?: () => string;
 }
 export declare function createTestState(): TestState;

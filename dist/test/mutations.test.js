@@ -15,9 +15,9 @@ var bowlingScores;
 var resetTestObjects = function () {
     testStore.reset(testHarness_1.createTestState(), {});
     name = { first: 'Matthew', middle: 'F', last: 'Hooper', prefix: 'Mr', bowlingScores: [], addresses: [] };
-    nameState = Store_2.Store.createStateObject(testStore.getState(), 'name', name);
+    nameState = Store_2.Store.convertAndAdd(testStore.getState(), 'name', name);
     address = { id: 1, street: '54 Upton Lake Rd', city: 'Clinton Corners', state: 'NY', zip: '12514' };
-    addressState = Store_2.Store.createStateObject(nameState, 'address', address);
+    addressState = Store_2.Store.convertAndAdd(nameState, 'address', address);
     bowlingScores = [111, 121, 131];
     // NOTE: do this after setting up the store's initial state, this is where the snapshot is taken
     // if you init state after calling this you will get mutation errors!

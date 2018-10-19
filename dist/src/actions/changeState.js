@@ -117,7 +117,7 @@ function changeValue(actionType, stateObject, value, propertyName) {
             if (!value) {
                 throw new Error('Cannot insert a falsey value, consider using delete instead');
             }
-            Store_1.Store.createStateObject(stateObject, propertyName, value);
+            Store_1.Store.convertAndAdd(stateObject, propertyName, value);
             actionImmutabilityCheck(actionType, undefined, value, propertyName);
             return {};
         }

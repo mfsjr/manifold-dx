@@ -62,8 +62,15 @@ var Store = /** @class */ (function () {
         }
         return true;
     };
+    Store.prototype.addChildStateObject = function (parent, child, childPropName) {
+        var myAppState = Store.getTopState(parent);
+        if (myAppState !== this.getState()) {
+            throw new Error('attempting to add a child to a parent that is not in this appState!');
+        }
+        parent[childPropName] = child;
+    };
     /**
-     * Create a state object given 'data' of type T.
+     * Convert an arbitrary data object of type T to type StateObject & T, and add to the parent.
      *
      * The resulting state object is ready-to-use upon return, having had its own
      * properties set, and inserted into its parent.
@@ -76,7 +83,7 @@ var Store = /** @class */ (function () {
      * @param {T} data
      * @returns {StateObject & T}
      */
-    Store.createStateObject = function (_parent, propertyName, data) {
+    Store.convertAndAdd = function (_parent, propertyName, data) {
         var stateObject = Store.convertToStateObject(data, _parent, propertyName);
         return stateObject;
     };

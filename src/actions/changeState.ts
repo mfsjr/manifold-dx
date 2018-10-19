@@ -133,7 +133,7 @@ export function changeValue<S extends StateObject, K extends keyof S>
       if (!value) {
         throw new Error('Cannot insert a falsey value, consider using delete instead');
       }
-      Store.createStateObject<S[K]>(stateObject, propertyName, value);
+      Store.convertAndAdd<S[K]>(stateObject, propertyName, value);
       actionImmutabilityCheck(actionType, undefined, value, propertyName);
       return {};
     }

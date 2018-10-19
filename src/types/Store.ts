@@ -101,8 +101,17 @@ export class Store<A> {
       return true;
   }
 
+  public addChildStateObject<P extends StateObject, K extends keyof P, C extends P[K]>
+      (parent: P, child: C, childPropName: K): void {
+    let myAppState = Store.getTopState(parent);
+    if (myAppState !== this.getState()) {
+      throw new Error('attempting to add a child to a parent that is not in this appState!');
+    }
+    parent[childPropName] = child;
+  }
+
   /**
-   * Create a state object given 'data' of type T.
+   * Convert an arbitrary data object of type T to type StateObject & T, and add to the parent.
    *
    * The resulting state object is ready-to-use upon return, having had its own
    * properties set, and inserted into its parent.
@@ -115,7 +124,7 @@ export class Store<A> {
    * @param {T} data
    * @returns {StateObject & T}
    */
-  public static createStateObject<T>(_parent: StateObject, propertyName: string, data: T): StateObject & T {
+  public static convertAndAdd<T>(_parent: StateObject, propertyName: string, data: T): StateObject & T {
       let stateObject = Store.convertToStateObject(data, _parent, propertyName);
       return stateObject;
   }

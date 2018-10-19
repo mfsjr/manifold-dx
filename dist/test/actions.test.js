@@ -38,7 +38,7 @@ var resetTestObjects = function () {
     nameState = testHarness_2.createNameContainer(name, testStore.getState(), 'name');
     bowlingScores = [111, 121, 131];
     address = { id: 2, street: '54 Upton Lake Rd', city: 'Clinton Corners', state: 'NY', zip: '12514' };
-    addressState = Store_1.Store.createStateObject(nameState, 'address', address);
+    addressState = Store_1.Store.convertAndAdd(nameState, 'address', address);
     nameState.address = addressState;
     // NOTE: do this after setting up the store's initial state, this is where the snapshot is taken
     // if you init state after calling this you will get mutation errors!

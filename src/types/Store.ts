@@ -6,7 +6,7 @@ import { Action } from '..';
 /**
  * State data is comprised of plain objects that are modified to implement this interface.
  *
- * Note that __parents__ are never null (top level app state is self-referencing)
+ * Note the root/top state object's parent is null.
  */
 export interface StateObject {
   _parent: StateObject | null;
@@ -24,7 +24,7 @@ export interface State<P extends StateObject | null> extends StateObject {
   _myPropname: StateProp<P>;
 }
 
-// conditional types are used to define parent/child relationships OR top-most parents in the state object graph
+// conditional types are used to define parent/child relationships OR root in the state object graph
 export type StateParent<P> = P extends StateObject ? P : null;
 export type StateProp<P> = StateParent<P> extends null ? '' : keyof P;
 
@@ -53,7 +53,7 @@ export class Store<A> {
 
   /**
    * Create state as a plain object.
-   * @param parent container for this container, if undefined it implies this is to be top-level state
+   * @param parent container for this container, if undefined it implies this is to be root/top state
    * @param propertyName of this container in its parent, ie parent[propName] = returnValue (state)
    * @returns {StateObject}
    */
@@ -107,7 +107,7 @@ export class Store<A> {
    * The resulting state object is ready-to-use upon return, having had its own
    * properties set, and inserted into its parent.
    *
-   * Also note that the topmost app state is never initialized here, but
+   * Also note that the root app state is never initialized here, but
    * in the constructor of the State class.
    *
    * @param {StateObject} _parent
@@ -120,7 +120,7 @@ export class Store<A> {
       return stateObject;
   }
 
-  public static getTopState(stateObject: StateObject): StateObject {
+  public static getRootState(stateObject: StateObject): StateObject {
     let result = stateObject;
     while (result._parent !== null)  {
       result = result._parent;
@@ -129,7 +129,7 @@ export class Store<A> {
   }
 
   /**
-   * Iterate through parent containers up to and including the top-level application state.
+   * Iterate through parent containers up to and including the root application state.
    *
    * This reference points out how to make iterators work, basically by including the lib.es6.d.ts, see
    * the very bottom of https://basarat.gitbooks.io/typescript/content/docs/iterators.html.
@@ -204,7 +204,7 @@ export class Store<A> {
    */
   public addChildToParent<P extends StateObject, K extends keyof P, C extends P[K] & StateObject>
   (parent: P, child: C, childPropName: K): void {
-    let myAppState = Store.getTopState(parent);
+    let myAppState = Store.getRootState(parent);
     if (myAppState !== this.getState()) {
       throw new Error('attempting to add a child to a parent that is not in this appState!');
     }

@@ -29,7 +29,7 @@ export type ComponentGenerator<P> = (props: P) => React.Component<P, any>;
  *
  * CP: container props, a plain object (pojo)
  * VP: view component props, also a plain object
- * A: application state (top of the StateObject graph) {@link StateObject}
+ * A: application state (root/top of the StateObject graph) {@link StateObject}
  */
 export abstract class ContainerComponent<CP, VP, A extends StateObject, RS = {} >
     extends React.Component<CP> {

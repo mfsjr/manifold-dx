@@ -28,7 +28,7 @@ var recompose_1 = require("recompose");
  *
  * CP: container props, a plain object (pojo)
  * VP: view component props, also a plain object
- * A: application state (top of the StateObject graph) {@link StateObject}
+ * A: application state (root/top of the StateObject graph) {@link StateObject}
  */
 var ContainerComponent = /** @class */ (function (_super) {
     __extends(ContainerComponent, _super);

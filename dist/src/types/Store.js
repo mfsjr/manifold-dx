@@ -16,7 +16,7 @@ var Store = /** @class */ (function () {
     }
     /**
      * Create state as a plain object.
-     * @param parent container for this container, if undefined it implies this is to be top-level state
+     * @param parent container for this container, if undefined it implies this is to be root/top state
      * @param propertyName of this container in its parent, ie parent[propName] = returnValue (state)
      * @returns {StateObject}
      */
@@ -68,7 +68,7 @@ var Store = /** @class */ (function () {
      * The resulting state object is ready-to-use upon return, having had its own
      * properties set, and inserted into its parent.
      *
-     * Also note that the topmost app state is never initialized here, but
+     * Also note that the root app state is never initialized here, but
      * in the constructor of the State class.
      *
      * @param {StateObject} _parent
@@ -80,7 +80,7 @@ var Store = /** @class */ (function () {
         var stateObject = Store.convertToStateObject(data, _parent, propertyName);
         return stateObject;
     };
-    Store.getTopState = function (stateObject) {
+    Store.getRootState = function (stateObject) {
         var result = stateObject;
         while (result._parent !== null) {
             result = result._parent;
@@ -124,7 +124,7 @@ var Store = /** @class */ (function () {
      * @param childPropName
      */
     Store.prototype.addChildToParent = function (parent, child, childPropName) {
-        var myAppState = Store.getTopState(parent);
+        var myAppState = Store.getRootState(parent);
         if (myAppState !== this.getState()) {
             throw new Error('attempting to add a child to a parent that is not in this appState!');
         }
@@ -185,7 +185,7 @@ var Store = /** @class */ (function () {
     };
     Store.StateKeys = Store.getStateKeys();
     /**
-     * Iterate through parent containers up to and including the top-level application state.
+     * Iterate through parent containers up to and including the root application state.
      *
      * This reference points out how to make iterators work, basically by including the lib.es6.d.ts, see
      * the very bottom of https://basarat.gitbooks.io/typescript/content/docs/iterators.html.

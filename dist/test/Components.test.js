@@ -184,7 +184,7 @@ describe('ContainerComponent instantiation, mount, update, unmount', function ()
             throw new Error('container.nameState is undefined!');
         }
         var so = testStore.getState();
-        var top = Store_1.Store.getTopState(container.nameState);
+        var top = Store_1.Store.getRootState(container.nameState);
         if (so !== top) {
             throw new Error('app state doesn\'t equal top of nameState');
         }

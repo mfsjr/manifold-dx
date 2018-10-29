@@ -119,6 +119,7 @@ export abstract class Action {
 }
 
 export abstract class StateAction<S extends StateObject, K extends keyof S> extends Action {
+
   parent: S;
   propertyName: K;
   mappingActions: AnyMappingAction[];

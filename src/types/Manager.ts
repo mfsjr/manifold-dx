@@ -40,8 +40,8 @@ export class Manager {
   protected actionProcessor: ActionProcessor;
 
   public static get(stateObject: StateObject): Manager {
-    let topState = Store.getTopState(stateObject);
-    let result = Manager.stateManagerMap.get(topState);
+    let rootState = Store.getRootState(stateObject);
+    let result = Manager.stateManagerMap.get(rootState);
     if (!result) {
       let err = `Failed to find manager for stateObject = 
         ${JSON.stringify(stateObject, JSON_replaceCyclicParent, 4)}`;
@@ -141,17 +141,45 @@ export class Manager {
     return this.dispatch(actionMethod, ...actions);
   }
 
+  // NOTE: This commented dispatch code will catch if an action is dispatched while another executes, hold it until the
+  // current action(s) are done executing, and then execute it.  Seems better to rule this out, but not really sure...
+  // /**
+  //  * Dispatch actions if none are being dispatched, else queue them for execution when current dispatch completes
+  //  * @param actionMethod
+  //  * @param actions
+  //  */
+  // protected dispatch(actionMethod: (action: Action) => void, ...actions: Action[]): Action[] {
+  //   if (this.dispatchingActions) {
+  //     this.dispatchArgs.push({actionMethod, actions});
+  //     return [];
+  //   }
+  //
+  //   try {
+  //     this.dispatchingActions = true;
+  //     actions = this.actionProcessor.preProcess(actions);
+  //     actions.forEach((action) => actionMethod(action));
+  //     actions = this.actionProcessor.postProcess(actions);
+  //     this.dispatchingActions = false;
+  //   } catch (err) {
+  //     this.dispatchingActions = false;
+  //     /*tslint:disable:no-console*/
+  //     console.log(`Error during dispatch, action(s) = ${JSON.stringify(actions, JSON_replaceCyclicParent, 4)}`);
+  //     /*tslint:disable:no-console*/
+  //     throw err;
+  //   }
+  //   while (this.dispatchArgs.length > 0) {
+  //     let deferredActions = this.dispatchFromNextArgs(this.dispatchArgs);
+  //     actions.push(...deferredActions);
+  //   }
+  //   return actions;
+  // }
+
   /**
-   * Dispatch actions if none are being dispatched, else queue them for execution when current dispatch completes
+   * Strictly enforce that no action can be executed while another is executing.
    * @param actionMethod
    * @param actions
    */
   protected dispatch(actionMethod: (action: Action) => void, ...actions: Action[]): Action[] {
-    if (this.dispatchingActions) {
-      this.dispatchArgs.push({actionMethod, actions});
-      return [];
-    }
-
     try {
       this.dispatchingActions = true;
       actions = this.actionProcessor.preProcess(actions);
@@ -160,14 +188,11 @@ export class Manager {
       this.dispatchingActions = false;
     } catch (err) {
       this.dispatchingActions = false;
+      // TODO: serialization mechanism for actions to provide more info
       /*tslint:disable:no-console*/
-      console.log(`Error during dispatch, action(s) = ${JSON.stringify(actions, JSON_replaceCyclicParent, 4)}`);
+      console.log(`Error dispatching ${actions.length} ${actions.length === 1 ? 'action' : 'actions'}`);
       /*tslint:disable:no-console*/
       throw err;
-    }
-    while (this.dispatchArgs.length > 0) {
-      let deferredActions = this.dispatchFromNextArgs(this.dispatchArgs);
-      actions.push(...deferredActions);
     }
     return actions;
   }

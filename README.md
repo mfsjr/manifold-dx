@@ -47,7 +47,7 @@ using plain objects:
 	by traversing to the top of the application state, e.g., 'appState.bowler.first'.
 
 	3. Since every piece of the application state has a unique name, we can use it as a key in a map where the
-	values are React components that need to update when that property is changed by an action.  
+	values contain React components that need to update when that property is changed by an action.  
 
 	4. Our HOC has generic api's for populating the map as well.
 
@@ -61,7 +61,8 @@ using plain objects:
 - Simplified middleware - functions that receive actions, can be ordered before or after 
   actions are performed.
 - State can always be represented by a flat mapping using property keys, regardless of how deeply nested.
-- Type-safe action API eliminates need to code either actions or reducers, simply call API
+- Type-safe generic API's eliminate the need to code action types, actions, action creators, reducers.
+  Just call the generic API's.
 - Immutable React data
 - Mutable state application nodes (state objects) 
    
@@ -80,14 +81,14 @@ using plain objects:
 #### Building an App
 - Look at our demo apps, these are built with create-react-app and react-script-ts.
  
-#### What's Next
-- Larger, real-world example applications
-- Rendering optimizations
+#### Recent work has centered on:
+- Adding optional render props to ContainerComponent HOC
+- Optimizing user-facing API's for ease-of-use
+- Real-world apps with Material-UI v1, Formik, GraphQL
+- Organizing state initialization, design, and enforcing structure using TypeScript conditional types 
 
-#### This is BETA software
-- Its tested, it works, but hasn't been used in heavy duty apps yet (but its intended for that)  
-- Recent work has centered on:
-	- Optimizing user-facing API's for ease-of-use
-	- Real-world apps with Material-UI v1, Formik, GraphQL
-	- Organizing state initialization, design, and enforcing structure using TypeScript conditional types 
+#### What's Next
+- Dev tools, starting with action logging and replay
+- Larger, real-world example applications
+- More rendering optimizations
 

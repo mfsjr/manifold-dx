@@ -16,7 +16,6 @@ var _ = require("lodash");
 var Manager_1 = require("../types/Manager");
 var __1 = require("../");
 var recompose_1 = require("recompose");
-/* tslint:enable:no-any */
 /**
  *
  * A kind of React.Component HOC designed to function as a container/controller (constructor takes a component
@@ -58,6 +57,9 @@ var ContainerComponent = /** @class */ (function (_super) {
         else {
             // console.log(`appData in base container: ${JSON.stringify(this.appData, JSON_replaceCyclicParent, 4)}`);
         }
+        // assign render props if they're there
+        sfc = _props.sfc || sfc;
+        viewGenerator = _props.viewGenerator || viewGenerator;
         // examine the component functions
         if ((sfc && viewGenerator) || (!sfc && !viewGenerator)) {
             throw new Error((sfc ? 2 : 0) + " functions supplied; you must supply exactly one function");

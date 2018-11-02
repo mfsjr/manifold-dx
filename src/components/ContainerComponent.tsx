@@ -18,6 +18,11 @@ import { shallowEqual } from 'recompose';
 export type ComponentGenerator<P> = (props: P) => React.Component<P, any>;
 /* tslint:enable:no-any */
 
+export interface ContainerRenderProps<VP> {
+  viewGenerator?: ComponentGenerator<VP>;
+  sfc?: SFC<VP>;
+}
+
 /**
  *
  * A kind of React.Component HOC designed to function as a container/controller (constructor takes a component
@@ -31,7 +36,7 @@ export type ComponentGenerator<P> = (props: P) => React.Component<P, any>;
  * VP: view component props, also a plain object
  * A: application state (root/top of the StateObject graph) {@link StateObject}
  */
-export abstract class ContainerComponent<CP, VP, A extends StateObject, RS = {} >
+export abstract class ContainerComponent<CP extends ContainerRenderProps<VP>, VP, A extends StateObject, RS = {} >
     extends React.Component<CP> {
 
   // this class will be managing/creating the props to hand to the view, writable here, readonly in the view
@@ -100,6 +105,10 @@ export abstract class ContainerComponent<CP, VP, A extends StateObject, RS = {} 
     } else {
       // console.log(`appData in base container: ${JSON.stringify(this.appData, JSON_replaceCyclicParent, 4)}`);
     }
+
+    // assign render props if they're there
+    sfc = _props.sfc || sfc;
+    viewGenerator = _props.viewGenerator || viewGenerator;
 
     // examine the component functions
     if ( (sfc && viewGenerator) || (!sfc && !viewGenerator)) {

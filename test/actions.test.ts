@@ -354,4 +354,4 @@ describe('updating a whole array', () => {
     getArrayActionCreator(nameState, bowlingScores).updateArray(newScores).dispatch();
     expect(newScores).toBe(nameState.bowlingScores);
   });
-})
+});

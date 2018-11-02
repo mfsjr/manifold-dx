@@ -10,6 +10,7 @@ export interface Address {
   state: string;
   zip: string;
   country?: string;
+
 }
 
 export interface Name {

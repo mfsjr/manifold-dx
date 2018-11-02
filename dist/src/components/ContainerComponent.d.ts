@@ -3,6 +3,12 @@ import { ReactNode, SFC } from 'react';
 import { Action, MappingHook, MappingAction, AnyMappingAction } from '../actions/actions';
 import { StateObject } from '../types/Store';
 export declare type ComponentGenerator<P> = (props: P) => React.Component<P, any>;
+export interface ContainerRenderProps<VP> {
+    viewGenerator?: ComponentGenerator<VP>;
+    sfc?: SFC<VP>;
+}
+export declare function isContainerRenderProps<CP, VP, RP extends CP & ContainerRenderProps<VP>>(props: CP | RP): props is RP;
+export declare type ContainerProps<CP, VP> = (CP & ContainerRenderProps<VP>) | CP;
 /**
  *
  * A kind of React.Component HOC designed to function as a container/controller (constructor takes a component
@@ -14,7 +20,7 @@ export declare type ComponentGenerator<P> = (props: P) => React.Component<P, any
  *
  * CP: container props, a plain object (pojo)
  * VP: view component props, also a plain object
- * A: application state (top of the StateObject graph) {@link StateObject}
+ * A: application state (root/top of the StateObject graph) {@link StateObject}
  */
 export declare abstract class ContainerComponent<CP, VP, A extends StateObject, RS = {}> extends React.Component<CP> {
     viewProps: VP;
@@ -51,7 +57,7 @@ export declare abstract class ContainerComponent<CP, VP, A extends StateObject, 
      * @param {React.SFC<VP> | undefined} sfc
      * @param {ComponentGenerator<VP> | undefined} viewGenerator
      */
-    constructor(_props: CP, appData: StateObject & A, sfc: SFC<VP> | undefined, viewGenerator?: ComponentGenerator<VP> | undefined, reactState?: RS);
+    constructor(_props: ContainerProps<CP, VP>, appData: StateObject & A, sfc: SFC<VP> | undefined, viewGenerator?: ComponentGenerator<VP> | undefined, reactState?: RS);
     createMapping<S extends StateObject, K extends keyof S, TP extends keyof VP, V>(stateObject: S, stateObjectProperty: K, targetViewProp: TP, ...mappingHooks: MappingHook[]): MappingAction<S, K, CP, VP, TP, A, V>;
     /**
      * This is only used for testing

@@ -3,7 +3,7 @@ import { Action } from '..';
 /**
  * State data is comprised of plain objects that are modified to implement this interface.
  *
- * Note that __parents__ are never null (top level app state is self-referencing)
+ * Note the root/top state object's parent is null.
  */
 export interface StateObject {
     _parent: StateObject | null;
@@ -41,7 +41,7 @@ export declare class Store<A> {
     private manager;
     /**
      * Create state as a plain object.
-     * @param parent container for this container, if undefined it implies this is to be top-level state
+     * @param parent container for this container, if undefined it implies this is to be root/top state
      * @param propertyName of this container in its parent, ie parent[propName] = returnValue (state)
      * @returns {StateObject}
      */
@@ -63,7 +63,7 @@ export declare class Store<A> {
      * The resulting state object is ready-to-use upon return, having had its own
      * properties set, and inserted into its parent.
      *
-     * Also note that the topmost app state is never initialized here, but
+     * Also note that the root app state is never initialized here, but
      * in the constructor of the State class.
      *
      * @param {StateObject} _parent
@@ -72,9 +72,9 @@ export declare class Store<A> {
      * @returns {StateObject & T}
      */
     static convertAndAdd<T>(_parent: StateObject, propertyName: string, data: T): StateObject & T;
-    static getTopState(stateObject: StateObject): StateObject;
+    static getRootState(stateObject: StateObject): StateObject;
     /**
-     * Iterate through parent containers up to and including the top-level application state.
+     * Iterate through parent containers up to and including the root application state.
      *
      * This reference points out how to make iterators work, basically by including the lib.es6.d.ts, see
      * the very bottom of https://basarat.gitbooks.io/typescript/content/docs/iterators.html.

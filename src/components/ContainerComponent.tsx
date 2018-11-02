@@ -23,6 +23,13 @@ export interface ContainerRenderProps<VP> {
   sfc?: SFC<VP>;
 }
 
+export function isContainerRenderProps<CP, VP, RP extends CP & ContainerRenderProps<VP>>
+  (props: CP | RP ): props is RP {
+  return props[`sfc`] || props[`viewGenerator`];
+}
+
+export type ContainerProps<CP, VP> = CP & ContainerRenderProps<VP> | CP;
+
 /**
  *
  * A kind of React.Component HOC designed to function as a container/controller (constructor takes a component
@@ -36,7 +43,7 @@ export interface ContainerRenderProps<VP> {
  * VP: view component props, also a plain object
  * A: application state (root/top of the StateObject graph) {@link StateObject}
  */
-export abstract class ContainerComponent<CP extends ContainerRenderProps<VP>, VP, A extends StateObject, RS = {} >
+export abstract class ContainerComponent<CP, VP, A extends StateObject, RS = {} >
     extends React.Component<CP> {
 
   // this class will be managing/creating the props to hand to the view, writable here, readonly in the view
@@ -93,7 +100,7 @@ export abstract class ContainerComponent<CP extends ContainerRenderProps<VP>, VP
    * @param {React.SFC<VP> | undefined} sfc
    * @param {ComponentGenerator<VP> | undefined} viewGenerator
    */
-  constructor(_props: CP, appData: StateObject & A, sfc: SFC<VP> | undefined,
+  constructor(_props: ContainerProps<CP, VP>, appData: StateObject & A, sfc: SFC<VP> | undefined,
               viewGenerator?: ComponentGenerator<VP> | undefined, reactState?: RS) {
     super(_props, reactState);
     if (!_.isPlainObject(_props)) {
@@ -106,9 +113,12 @@ export abstract class ContainerComponent<CP extends ContainerRenderProps<VP>, VP
       // console.log(`appData in base container: ${JSON.stringify(this.appData, JSON_replaceCyclicParent, 4)}`);
     }
 
-    // assign render props if they're there
-    sfc = _props.sfc || sfc;
-    viewGenerator = _props.viewGenerator || viewGenerator;
+    // hackish - we require that sfc or viewGenerator props imply they are render props of the correct type
+    if (isContainerRenderProps(_props)) {
+      // assign render props if they're there
+      sfc = _props[`sfc`] || sfc;
+      viewGenerator = _props[`viewGenerator`] || viewGenerator;
+    }
 
     // examine the component functions
     if ( (sfc && viewGenerator) || (!sfc && !viewGenerator)) {

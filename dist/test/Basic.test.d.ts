@@ -5,3 +5,7 @@ export interface Global {
         userAgent: string;
     };
 }
+import { Address } from './testHarness';
+import { ContainerRenderProps } from '../src/components/RenderPropsComponent';
+export interface AddressRenderProps extends Address, ContainerRenderProps<Address> {
+}

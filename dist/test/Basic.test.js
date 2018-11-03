@@ -28,6 +28,7 @@ var src_1 = require("../src");
 var testHarness_1 = require("./testHarness");
 var actionCreators_1 = require("../src/actions/actionCreators");
 var React = require("react");
+var RenderPropsComponent_1 = require("../src/components/RenderPropsComponent");
 enzyme.configure({ adapter: new Adapter() });
 var testStore = testHarness_1.createTestStore();
 // DEFINE COMPONENTS
@@ -54,6 +55,26 @@ var AddressContainer = /** @class */ (function (_super) {
     };
     return AddressContainer;
 }(src_1.ContainerComponent));
+var AddressRenderPropsContainer = /** @class */ (function (_super) {
+    __extends(AddressRenderPropsContainer, _super);
+    function AddressRenderPropsContainer(props) {
+        return _super.call(this, props, testStore.getState()) || this;
+    }
+    AddressRenderPropsContainer.prototype.appendToMappingActions = function (mappingActions) {
+        // pass
+    };
+    AddressRenderPropsContainer.prototype.createViewProps = function () {
+        var result = {
+            id: 1,
+            street: 'Walnut St',
+            city: 'Philadelphia',
+            state: 'PA',
+            zip: '19106'
+        };
+        return result;
+    };
+    return AddressRenderPropsContainer;
+}(RenderPropsComponent_1.RenderPropsComponent));
 /**
  * SFC for AddressContainer
  * @param props
@@ -193,7 +214,7 @@ var nameState = {
 var bowlingScores = [111, 121, 131];
 describe('enzyme tests for lifecycle methods', function () {
     it('renders the correct text when no enthusiasm level is given', function () {
-        var hello = enzyme.mount(React.createElement(AddressContainer, { id: 2, street: 'Genung Ct', city: 'Hopewell', state: 'NY', zip: '12545' }));
+        var hello = enzyme.mount(React.createElement(AddressRenderPropsContainer, { id: 2, street: 'Genung Ct', city: 'Hopewell', state: 'NY', zip: '12545', _sfc: AddressSfc }));
         expect(hello.find('.address1').text()).toContain('Walnut');
         // TODO: verify lifecycle methods
     });

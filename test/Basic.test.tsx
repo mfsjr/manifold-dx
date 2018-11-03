@@ -31,6 +31,7 @@ import { ReactElement, SFC } from 'react';
 import { getMappingActionCreator } from '../src/actions/actionCreators';
 import { BowlerProps, ScoreCardProps } from './Components.test';
 import * as React from 'react';
+import { ContainerRenderProps, RenderPropsComponent } from '../src/components/RenderPropsComponent';
 
 enzyme.configure({ adapter: new Adapter() });
 
@@ -43,6 +44,29 @@ const testStore = createTestStore();
 class AddressContainer extends ContainerComponent<Address, Address, TestState & StateObject> {
   constructor(props: Address) {
     super(props, testStore.getState(), AddressSfc);
+  }
+
+  protected appendToMappingActions(mappingActions: AnyMappingAction[]): void {
+    // pass
+  }
+
+  createViewProps(): Address {
+    let result: Address = {
+      id: 1,
+      street: 'Walnut St',
+      city: 'Philadelphia',
+      state: 'PA',
+      zip: '19106'
+    };
+    return result;
+  }
+}
+
+export interface AddressRenderProps extends Address, ContainerRenderProps<Address> { }
+
+class AddressRenderPropsContainer extends RenderPropsComponent<AddressRenderProps, Address, TestState & StateObject> {
+  constructor(props: Address) {
+    super(props, testStore.getState());
   }
 
   protected appendToMappingActions(mappingActions: AnyMappingAction[]): void {
@@ -211,12 +235,13 @@ let bowlingScores = [111, 121, 131];
 describe('enzyme tests for lifecycle methods', () => {
   it('renders the correct text when no enthusiasm level is given', () => {
     const hello = enzyme.mount(
-      <AddressContainer
+      <AddressRenderPropsContainer
         id={2}
         street={'Genung Ct'}
         city={'Hopewell'}
         state={'NY'}
         zip={'12545'}
+        _sfc={AddressSfc}
       />);
     expect(hello.find('.address1').text()).toContain('Walnut');
     // TODO: verify lifecycle methods

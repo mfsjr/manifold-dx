@@ -22,12 +22,18 @@ function isContainerRenderProps(props) {
     return props["sfc"] || props["viewGenerator"];
 }
 exports.isContainerRenderProps = isContainerRenderProps;
-var RenderComponent = /** @class */ (function (_super) {
-    __extends(RenderComponent, _super);
-    function RenderComponent(_props, appData, sfc, viewGenerator, reactState) {
+var RenderPropsComponent = /** @class */ (function (_super) {
+    __extends(RenderPropsComponent, _super);
+    function RenderPropsComponent(_props, appData, reactState) {
         return _super.call(this, _props, appData, _props._sfc, _props._viewGenerator, reactState) || this;
     }
-    return RenderComponent;
+    RenderPropsComponent.prototype.render = function () {
+        // reassign sfc and viewGenerator every time we render...
+        this.sfcView = this.props._sfc || this.sfcView;
+        this.viewGenerator = this.props._viewGenerator || this.viewGenerator;
+        return _super.prototype.render.call(this);
+    };
+    return RenderPropsComponent;
 }(ContainerComponent_1.ContainerComponent));
-exports.RenderComponent = RenderComponent;
-//# sourceMappingURL=RenderComponent.js.map
+exports.RenderPropsComponent = RenderPropsComponent;
+//# sourceMappingURL=RenderPropsComponent.js.map

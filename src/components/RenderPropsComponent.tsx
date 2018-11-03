@@ -1,6 +1,6 @@
 import { ComponentGenerator, ContainerComponent } from './ContainerComponent';
 import { StateObject } from '..';
-import { SFC } from 'react';
+import { ReactNode, SFC } from 'react';
 
 export interface ContainerRenderProps<VP> {
   _viewGenerator?: ComponentGenerator<VP>;
@@ -19,11 +19,17 @@ export function isContainerRenderProps<CP, VP, RP extends CP & ContainerRenderPr
   return props[`sfc`] || props[`viewGenerator`];
 }
 
-export abstract class RenderComponent<CP extends ContainerRenderProps<VP>, VP, A extends StateObject, RS = {} >
+export abstract class RenderPropsComponent<CP extends ContainerRenderProps<VP>, VP, A extends StateObject, RS = {} >
   extends ContainerComponent<CP, VP, A> {
 
-  constructor(_props: CP, appData: StateObject & A, sfc: SFC<VP> | undefined,
-              viewGenerator?: ComponentGenerator<VP> | undefined, reactState?: RS) {
+  constructor(_props: CP, appData: StateObject & A, reactState?: RS) {
     super(_props, appData, _props._sfc, _props._viewGenerator, reactState);
+  }
+
+  public render(): ReactNode {
+    // reassign sfc and viewGenerator every time we render...
+    this.sfcView = this.props._sfc || this.sfcView;
+    this.viewGenerator = this.props._viewGenerator || this.viewGenerator;
+    return super.render();
   }
 }

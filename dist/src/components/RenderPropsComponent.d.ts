@@ -1,6 +1,6 @@
 import { ComponentGenerator, ContainerComponent } from './ContainerComponent';
 import { StateObject } from '..';
-import { SFC } from 'react';
+import { ReactNode, SFC } from 'react';
 export interface ContainerRenderProps<VP> {
     _viewGenerator?: ComponentGenerator<VP>;
     _sfc?: SFC<VP>;
@@ -13,6 +13,7 @@ export interface ContainerRenderProps<VP> {
  * @param props
  */
 export declare function isContainerRenderProps<CP, VP, RP extends CP & ContainerRenderProps<VP>>(props: CP | RP): props is RP;
-export declare abstract class RenderComponent<CP extends ContainerRenderProps<VP>, VP, A extends StateObject, RS = {}> extends ContainerComponent<CP, VP, A> {
-    constructor(_props: CP, appData: StateObject & A, sfc: SFC<VP> | undefined, viewGenerator?: ComponentGenerator<VP> | undefined, reactState?: RS);
+export declare abstract class RenderPropsComponent<CP extends ContainerRenderProps<VP>, VP, A extends StateObject, RS = {}> extends ContainerComponent<CP, VP, A> {
+    constructor(_props: CP, appData: StateObject & A, reactState?: RS);
+    render(): ReactNode;
 }

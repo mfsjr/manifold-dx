@@ -52,7 +52,10 @@ using plain objects:
 	4. Our HOC has generic api's for populating the map as well.
 
 	5. If you're not getting the updates you expect after dispatching an action, just look at the map.
-
+3. State changes are performed by pure, invertible functions, so we can undo and redo actions easily.
+  1. Updates can be inverted by updating with the previous value
+  2. Inserts can be inverted by deletions
+  3. Deletions can be inverted by insertions
 	 
 ### Key Features
 - Predictable, synchronous single-store state management using pure invertible functions,
@@ -82,6 +85,7 @@ using plain objects:
 - Look at our demo apps, these are built with create-react-app and react-script-ts.
  
 #### Recent work has centered on:
+- Verifying Hot Module Replacement using manifold-dx in applications
 - Adding optional render props to ContainerComponent HOC
 - Optimizing user-facing API's for ease-of-use
 - Real-world apps with Material-UI v1, Formik, GraphQL

@@ -330,17 +330,12 @@ describe('updating a whole array', function () {
     });
 });
 /**
- * The purpose of these tests is to identify how we can create TypeScript source code that can
+ * The purpose of these tests is to identify how we can invoke TypeScript source code that can
  * replay actions.
  */
 describe('get objects using path', function () {
     // get the street using the path
     var testState = testStore.getState();
-    // let first = _.get(nameState, 'first');
-    /* tslint:disable:no-console */
-    // console.log(`first name = ${first}`);
-    // let street = _.get(testState, 'name.address.street');
-    // console.log(`street = ${street}`);
     var newAddress = _.get(testState, 'name.address');
     var street = newAddress.street;
     var newStreet = '6 Genung Court';
@@ -355,14 +350,11 @@ describe('get objects using path', function () {
     test('newStreet is in state', function () {
         expect(st).toBe(newStreet);
     });
-    // console.log(`newStreet = ${testState.name.address.street}`);
-    // TODO: test array api's
     // note that the action creator finds the property name for the given array in the parent
     var ra = _.get(nameState, 'addresses');
     // let creator = getArrayActionCreator(nameState, nameState.addresses);
     var creator = src_1.getArrayActionCreator(nameState, ra);
     testStore.dispatch.apply(testStore, creator.appendElement(newAddress));
-    console.log("nameState.addresses[0] = " + nameState.addresses[0].street);
     // other tests are mucking with nameState.addresses, so copy here for comparison
     var testAddress = __assign({}, nameState.addresses[0]);
     test('addresses[0] should be newAddress', function () {
@@ -371,6 +363,5 @@ describe('get objects using path', function () {
         expect(testAddress.zip).toBe(newAddress.zip);
     });
     testStore.dispatch.apply(testStore, creator.removeElement(0));
-    /* tslint:enable:no-console */
 });
 //# sourceMappingURL=actions.test.js.map

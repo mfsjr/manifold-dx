@@ -69,11 +69,15 @@ function addressRowSfc(addressProps: AddressProps): React.ReactElement<AddressPr
   );
 }
 
+interface ReactState {
+  editing: boolean;
+}
+
 /**
  * This child container is deliberately over-engineered since we want to test the behavior of a more likely
  * "real-world" example.
  */
-class AddressContainer extends ContainerComponent<AddressProps, AddressProps, TestState & StateObject> {
+class AddressContainer extends ContainerComponent<AddressProps, AddressProps, TestState & StateObject, ReactState> {
   address: Address;
 
   public displayName: string;
@@ -81,6 +85,7 @@ class AddressContainer extends ContainerComponent<AddressProps, AddressProps, Te
   constructor(addressProps: AddressProps, _displayName: string) {
     super(addressProps, testStore.getState(), addressRowSfc);
     this.displayName = _displayName;
+    this.state = { editing: false };
   }
 
   /**

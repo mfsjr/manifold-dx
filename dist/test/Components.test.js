@@ -69,6 +69,7 @@ var AddressContainer = /** @class */ (function (_super) {
     function AddressContainer(addressProps, _displayName) {
         var _this = _super.call(this, addressProps, testStore.getState(), addressRowSfc) || this;
         _this.displayName = _displayName;
+        _this.state = { editing: false };
         return _this;
     }
     /**

@@ -86,9 +86,9 @@ using plain objects:
  
 #### Recent work has centered on:
 - Verifying Hot Module Replacement using manifold-dx in applications
-- Adding optional render props to ContainerComponent HOC
+- Adding optional render props to our ContainerComponent (RenderPropComponent)
 - Optimizing user-facing API's for ease-of-use
-- Real-world apps with Material-UI v1, Formik, GraphQL
+- Real-world apps with Material-UI v1+, Formik, React Router v4
 - Organizing state initialization, design, and enforcing structure using TypeScript conditional types 
 
 #### What's Next

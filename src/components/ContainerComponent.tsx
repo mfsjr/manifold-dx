@@ -25,7 +25,7 @@ export type ComponentGenerator<P> = (props: P) => React.Component<P, any>;
  * A: application state (root/top of the StateObject graph) {@link StateObject}
  */
 export abstract class ContainerComponent<CP, VP, A extends StateObject, RS = {} >
-    extends React.Component<CP> {
+    extends React.Component<CP, RS> {
 
   // this class will be managing/creating the props to hand to the view, writable here, readonly in the view
   public viewProps: VP;

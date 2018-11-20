@@ -46,7 +46,7 @@ export declare class Manager {
      */
     actionProcess(...actions: Action[]): Action[];
     /**
-     * Strictly enforce that no action can be executed while another is executing.
+     * Strictly enforce that no action can be dispatched while another is dispatching.
      * @param actionMethod
      * @param actions
      */

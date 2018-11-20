@@ -175,11 +175,15 @@ export class Manager {
   // }
 
   /**
-   * Strictly enforce that no action can be executed while another is executing.
+   * Strictly enforce that no action can be dispatched while another is dispatching.
    * @param actionMethod
    * @param actions
    */
   protected dispatch(actionMethod: (action: Action) => void, ...actions: Action[]): Action[] {
+    if (this.dispatchingActions) {
+      this.dispatchingActions = false;
+      throw new Error(`Dispatch must be completed before another action can be dispatched`);
+    }
     try {
       this.dispatchingActions = true;
       actions = this.actionProcessor.preProcess(actions);

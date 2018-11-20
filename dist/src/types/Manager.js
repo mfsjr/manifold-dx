@@ -151,7 +151,7 @@ var Manager = /** @class */ (function () {
     //   return actions;
     // }
     /**
-     * Strictly enforce that no action can be executed while another is executing.
+     * Strictly enforce that no action can be dispatched while another is dispatching.
      * @param actionMethod
      * @param actions
      */
@@ -159,6 +159,10 @@ var Manager = /** @class */ (function () {
         var actions = [];
         for (var _i = 1; _i < arguments.length; _i++) {
             actions[_i - 1] = arguments[_i];
+        }
+        if (this.dispatchingActions) {
+            this.dispatchingActions = false;
+            throw new Error("Dispatch must be completed before another action can be dispatched");
         }
         try {
             this.dispatchingActions = true;

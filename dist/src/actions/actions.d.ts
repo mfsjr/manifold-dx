@@ -66,7 +66,7 @@ export declare abstract class Action {
     protected undoChange(): void;
     containersToRender(containersBeingRendered: AnyContainerComponent[]): void;
 }
-export declare abstract class StateAction<S extends StateObject, K extends keyof S> extends Action {
+export declare abstract class StateAction<S extends StateObject, K extends Extract<keyof S, string>> extends Action {
     parent: S;
     propertyName: K;
     mappingActions: AnyMappingAction[];
@@ -91,7 +91,7 @@ export declare type GenericStateCrudAction = StateCrudAction<any, any>;
  * Action classes contain instructions for changing state, in the form
  * of StateObjects.
  */
-export declare class StateCrudAction<S extends StateObject, K extends keyof S> extends StateAction<S, K> {
+export declare class StateCrudAction<S extends StateObject, K extends Extract<keyof S, string>> extends StateAction<S, K> {
     changeResult?: {
         oldValue?: S[K];
     };
@@ -106,7 +106,7 @@ export declare class StateCrudAction<S extends StateObject, K extends keyof S> e
 /**
  * For mutating the elements in the array.
  */
-export declare class ArrayChangeAction<S extends StateObject, K extends keyof S, V> extends StateAction<S, K> {
+export declare class ArrayChangeAction<S extends StateObject, K extends Extract<keyof S, string>, V> extends StateAction<S, K> {
     changeResult?: {
         oldValue?: V;
     };
@@ -137,7 +137,7 @@ export declare class ArrayChangeAction<S extends StateObject, K extends keyof S,
  * A: application state
  * E: array element type, if the property type is an array
  */
-export declare class MappingAction<S extends StateObject, K extends keyof S, CP, VP, TP extends keyof VP, A extends StateObject, E> extends StateAction<S, K> {
+export declare class MappingAction<S extends StateObject, K extends Extract<keyof S, string>, CP, VP, TP extends Extract<keyof VP, string>, A extends StateObject, E> extends StateAction<S, K> {
     component: ContainerComponent<CP, VP, A>;
     fullPath: string;
     targetPropName: TP;
@@ -149,7 +149,7 @@ export declare class MappingAction<S extends StateObject, K extends keyof S, CP,
     /**
      * Clone the action and modify the clone so that it 'undoes' this, i.e., unmaps this mapping.
      * @returns {MappingAction
-     * <S extends StateObject, K extends keyof S, CP, VP, TP extends keyof VP, A extends StateObject, E>}
+     * <S extends StateObject, K extends Extract<keyof S, string>, CP, VP, TP extends keyof VP, A extends StateObject, E>}
      */
     getUndoAction(): MappingAction<S, K, CP, VP, TP, A, E>;
     /**

@@ -26,7 +26,7 @@ export interface State<P extends StateObject | null> extends StateObject {
 
 // conditional types are used to define parent/child relationships OR root in the state object graph
 export type StateParent<P> = P extends StateObject ? P : null;
-export type StateProp<P> = StateParent<P> extends null ? '' : keyof P;
+export type StateProp<P> = StateParent<P> extends null ? '' : Extract<keyof P, string>;
 
 /**
  * Options which may be passed directly to the State constructor
@@ -202,7 +202,7 @@ export class Store<A> {
    * @param child
    * @param childPropName
    */
-  public addChildToParent<P extends StateObject, K extends keyof P, C extends P[K] & StateObject>
+  public addChildToParent<P extends StateObject, K extends Extract<keyof P, string>, C extends P[K] & StateObject>
   (parent: P, child: C, childPropName: K): void {
     let myAppState = Store.getRootState(parent);
     if (myAppState !== this.getState()) {

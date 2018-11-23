@@ -64,7 +64,8 @@ export abstract class ContainerComponent<CP, VP, A extends StateObject, RS = {} 
 
   public getMappingActions() { return this.mappingActions; }
 
-  createMappingAction<S extends StateObject, K extends keyof S, TP extends keyof VP, V>
+  createMappingAction
+  <S extends StateObject, K extends Extract<keyof S, string>, TP extends Extract<keyof VP, string>, V>
   (parentState: S, _propKey: K, targetPropKey: TP, ...mappingHooks: MappingHook[])
     : MappingAction<S, K, CP, VP, TP, A, V> {
     return new MappingAction(parentState, _propKey, this, targetPropKey, ...mappingHooks);
@@ -103,7 +104,8 @@ export abstract class ContainerComponent<CP, VP, A extends StateObject, RS = {} 
     this.viewGenerator = viewGenerator;
   }
 
-  public createMapping<S extends StateObject, K extends keyof S, TP extends keyof VP, V>
+  public createMapping
+          <S extends StateObject, K extends Extract<keyof S, string>, TP extends Extract<keyof VP, string>, V>
           (stateObject: S, stateObjectProperty: K, targetViewProp: TP, ...mappingHooks: MappingHook[])
           : MappingAction<S, K, CP, VP, TP, A, V> {
     return new MappingAction(stateObject, stateObjectProperty, this, targetViewProp, ...mappingHooks);

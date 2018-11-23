@@ -20,7 +20,7 @@ export interface State<P extends StateObject | null> extends StateObject {
     _myPropname: StateProp<P>;
 }
 export declare type StateParent<P> = P extends StateObject ? P : null;
-export declare type StateProp<P> = StateParent<P> extends null ? '' : keyof P;
+export declare type StateProp<P> = StateParent<P> extends null ? '' : Extract<keyof P, string>;
 /**
  * Options which may be passed directly to the State constructor
  */
@@ -106,7 +106,7 @@ export declare class Store<A> {
      * @param child
      * @param childPropName
      */
-    addChildToParent<P extends StateObject, K extends keyof P, C extends P[K] & StateObject>(parent: P, child: C, childPropName: K): void;
+    addChildToParent<P extends StateObject, K extends Extract<keyof P, string>, C extends P[K] & StateObject>(parent: P, child: C, childPropName: K): void;
     reset(appData: A, options: StateConfigOptions): void;
     getState(): StateObject & A;
     getManager(): Manager;

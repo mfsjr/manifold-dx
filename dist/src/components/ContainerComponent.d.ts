@@ -39,7 +39,7 @@ export declare abstract class ContainerComponent<CP, VP, A extends StateObject, 
      */
     static newArray<T>(oldArray: Array<T>, index: number, newElement: T): Array<T>;
     getMappingActions(): MappingAction<any, any, any, any, any, any, any>[];
-    createMappingAction<S extends StateObject, K extends keyof S, TP extends keyof VP, V>(parentState: S, _propKey: K, targetPropKey: TP, ...mappingHooks: MappingHook[]): MappingAction<S, K, CP, VP, TP, A, V>;
+    createMappingAction<S extends StateObject, K extends Extract<keyof S, string>, TP extends Extract<keyof VP, string>, V>(parentState: S, _propKey: K, targetPropKey: TP, ...mappingHooks: MappingHook[]): MappingAction<S, K, CP, VP, TP, A, V>;
     /**
      * There are two types of views this can create.  The preferred way is with
      * an 'SFC' (stateless functional component), the other way is by creating
@@ -52,7 +52,7 @@ export declare abstract class ContainerComponent<CP, VP, A extends StateObject, 
      * @param {ComponentGenerator<VP> | undefined} viewGenerator
      */
     constructor(_props: CP, appData: StateObject & A, sfc: SFC<VP> | undefined, viewGenerator?: ComponentGenerator<VP> | undefined, reactState?: RS);
-    createMapping<S extends StateObject, K extends keyof S, TP extends keyof VP, V>(stateObject: S, stateObjectProperty: K, targetViewProp: TP, ...mappingHooks: MappingHook[]): MappingAction<S, K, CP, VP, TP, A, V>;
+    createMapping<S extends StateObject, K extends Extract<keyof S, string>, TP extends Extract<keyof VP, string>, V>(stateObject: S, stateObjectProperty: K, targetViewProp: TP, ...mappingHooks: MappingHook[]): MappingAction<S, K, CP, VP, TP, A, V>;
     /**
      * This is only used for testing
      * @returns {React.Component<VP, any>}

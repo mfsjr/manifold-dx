@@ -118,7 +118,7 @@ export abstract class Action {
   public containersToRender(containersBeingRendered: AnyContainerComponent[]): void { return; }
 }
 
-export abstract class StateAction<S extends StateObject, K extends keyof S> extends Action {
+export abstract class StateAction<S extends StateObject, K extends Extract<keyof S, string>> extends Action {
 
   parent: S;
   propertyName: K;
@@ -179,7 +179,7 @@ export type GenericStateCrudAction = StateCrudAction<any, any>;
  * Action classes contain instructions for changing state, in the form
  * of StateObjects.
  */
-export class StateCrudAction<S extends StateObject, K extends keyof S> extends StateAction<S, K> {
+export class StateCrudAction<S extends StateObject, K extends Extract<keyof S, string>> extends StateAction<S, K> {
   changeResult?: {oldValue?: S[K]};
   oldValue?: S[K];
   value: S[K] | undefined;
@@ -236,7 +236,7 @@ export class StateCrudAction<S extends StateObject, K extends keyof S> extends S
  * For mutating the elements in the array.
  */
 export class ArrayChangeAction
-  <S extends StateObject, K extends keyof S, V> extends StateAction<S, K> {
+  <S extends StateObject, K extends Extract<keyof S, string>, V> extends StateAction<S, K> {
 
   changeResult?: {oldValue?: V};
   oldValue?: V | undefined;
@@ -356,7 +356,8 @@ export class ArrayChangeAction
  */
 
 export class MappingAction
-  <S extends StateObject, K extends keyof S, CP, VP, TP extends keyof VP, A extends StateObject, E>
+  <S extends StateObject,
+    K extends Extract<keyof S, string>, CP, VP, TP extends Extract<keyof VP, string>, A extends StateObject, E>
   extends StateAction<S, K> {
 
   component: ContainerComponent<CP, VP, A>;
@@ -391,7 +392,7 @@ export class MappingAction
   /**
    * Clone the action and modify the clone so that it 'undoes' this, i.e., unmaps this mapping.
    * @returns {MappingAction
-   * <S extends StateObject, K extends keyof S, CP, VP, TP extends keyof VP, A extends StateObject, E>}
+   * <S extends StateObject, K extends Extract<keyof S, string>, CP, VP, TP extends keyof VP, A extends StateObject, E>}
    */
   public getUndoAction() {
     let unmappingAction = this.clone();

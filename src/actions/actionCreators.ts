@@ -33,22 +33,22 @@ export class ActionCreator<S extends StateObject> {
     throw new Error(`Failed to find property value ${value} in parent`);
   }
 
-  protected throwIfArray<K extends keyof S>(propValue: S[K]): void {
+  protected throwIfArray<K extends Extract<keyof S, string>>(propValue: S[K]): void {
     if (propValue instanceof Array) {
       throw new Error(`Invalid action type for ActionCreator using an array, try using ArrayActionCreator`);
     }
   }
 
-  public rerender<K extends keyof S>(propertyKey: K): StateCrudAction<S, K> {
+  public rerender<K extends Extract<keyof S, string>>(propertyKey: K): StateCrudAction<S, K> {
     // this.throwIfArray(this.parent[propertyKey]);
     return new StateCrudAction(ActionId.RERENDER, this.parent, propertyKey, this.parent[propertyKey]);
   }
 
-  public insert<K extends keyof S>(propertyKey: K, value: S[K]): StateCrudAction<S, K> {
+  public insert<K extends Extract<keyof S, string>>(propertyKey: K, value: S[K]): StateCrudAction<S, K> {
     // this.throwIfArray(this.parent[propertyKey]);
     return new StateCrudAction(ActionId.INSERT_PROPERTY, this.parent, propertyKey, value);
   }
-  public update<K extends keyof S>(propertyKey: K, value: S[K]): StateCrudAction<S, K> {
+  public update<K extends Extract<keyof S, string>>(propertyKey: K, value: S[K]): StateCrudAction<S, K> {
     // this.throwIfArray(this.parent[propertyKey]);
     return new StateCrudAction(ActionId.UPDATE_PROPERTY, this.parent, propertyKey, value);
   }
@@ -62,7 +62,7 @@ export class ActionCreator<S extends StateObject> {
   //  *
   //  * @param newObject
   //  */
-  // public assignAll<K extends keyof S>(newObject: S): StateCrudAction<S, K>[] {
+  // public assignAll<K extends Extract<keyof S, string>>(newObject: S): StateCrudAction<S, K>[] {
   //   let keys: Array<string> = Object.getOwnPropertyNames(newObject);
   //   // TODO: filter out _parent and _myProperty, also change the name of this method to assignData
   //   let actions: StateCrudAction<S, K>[] = [];
@@ -100,7 +100,7 @@ export class ActionCreator<S extends StateObject> {
   //   return actions;
   // }
   //
-  // public isKeyOf<K extends keyof S>(value: S, key: string): key is K {
+  // public isKeyOf<K extends Extract<keyof S, string>>(value: S, key: string): key is K {
   //   return value.hasOwnProperty(key);
   // }
 
@@ -109,15 +109,15 @@ export class ActionCreator<S extends StateObject> {
    * @param {K} propertyKey
    * @returns {Action}
    */
-  public remove<K extends keyof S>(propertyKey: K): StateCrudAction<S, K> {
+  public remove<K extends Extract<keyof S, string>>(propertyKey: K): StateCrudAction<S, K> {
     // this.throwIfArray(this.parent[propertyKey]);
     return new StateCrudAction(ActionId.DELETE_PROPERTY, this.parent, propertyKey);
   }
   // TODO: can this and the crudInsert above actually work when defined in terms of non-existent keys?
-  public insertStateObject<K extends keyof S>(value: S[K] & StateObject, propertyKey: K): StateCrudAction<S, K> {
+  public insertStateObject<K extends Extract<keyof S, string>>(value: S[K] & StateObject, propertyKey: K): StateCrudAction<S, K> {
     return new StateCrudAction(ActionId.INSERT_STATE_OBJECT, this.parent, propertyKey, value);
   }
-  public removeStateObject<K extends keyof S>(propertyKey: K): StateCrudAction<S, K> {
+  public removeStateObject<K extends Extract<keyof S, string>>(propertyKey: K): StateCrudAction<S, K> {
     this.throwIfArray(this.parent[propertyKey]);
     return new StateCrudAction(ActionId.DELETE_STATE_OBJECT, this.parent, propertyKey, this.parent[propertyKey]);
   }
@@ -132,7 +132,7 @@ export function getActionCreator<S extends StateObject>(parent: S): ActionCreato
   return new ActionCreator(parent);
 }
 
-export function getArrayActionCreator<S extends StateObject, K extends keyof S, V extends Object>
+export function getArrayActionCreator<S extends StateObject, K extends Extract<keyof S, string>, V extends Object>
 (parent: S, childArray: Array<V> & S[K])
 : ArrayActionCreator<S, K, V> {
   return new ArrayActionCreator(parent, childArray);
@@ -148,7 +148,7 @@ export function getArrayActionCreator<S extends StateObject, K extends keyof S, 
  *
  * S is the StateObject which the array is a property of
  */
-export class ArrayActionCreator<S extends StateObject, K extends keyof S, V extends Object> {
+export class ArrayActionCreator<S extends StateObject, K extends Extract<keyof S, string>, V extends Object> {
   private parent: S;
   private propertyKey: K;
 
@@ -284,7 +284,7 @@ export class ArrayActionCreator<S extends StateObject, K extends keyof S, V exte
   }
 }
 
-export function getMappingActionCreator<S extends StateObject, K extends keyof S, A extends StateObject, E>
+export function getMappingActionCreator<S extends StateObject, K extends Extract<keyof S, string>, A extends StateObject, E>
 (_parent: S, _propKey: K) {
 
   /**
@@ -293,10 +293,10 @@ export function getMappingActionCreator<S extends StateObject, K extends keyof S
    * @param {ContainerComponent<CP, VP, A extends StateObject>} _component
    * @param {TP} targetPropKey
    * @param {MappingHook} functions that are executed after mapping but before rendering
-   * @returns {MappingAction<S extends StateObject, K extends keyof S, CP, VP, TP extends keyof VP,
+   * @returns {MappingAction<S extends StateObject, K extends Extract<keyof S, string>, CP, VP, TP extends keyof VP,
    * A extends StateObject, E>}
    */
-  let createPropertyMappingAction = function<CP, VP, TP extends keyof VP>
+  let createPropertyMappingAction = function<CP, VP, TP extends Extract<keyof VP, string>>
   (_component: ContainerComponent<CP, VP, A>, targetPropKey: TP, ...mappingHooks: MappingHook[])
   : MappingAction<S, K, CP, VP, TP, A, E> {
     return new MappingAction(_parent, _propKey, _component, targetPropKey, ...mappingHooks);
@@ -311,10 +311,10 @@ export function getMappingActionCreator<S extends StateObject, K extends keyof S
    * @param {MappingHook} optional functions executed after the action but before rendering.  View props
    *    may be updated here
    * @returns {MappingAction
-   *  <S extends StateObject, K extends keyof S, CP, VP, TP extends keyof VP, A extends StateObject, E>}
+   * <S extends StateObject, K extends Extract<keyof S, string>, CP, VP, TP extends keyof VP, A extends StateObject, E>}
    *  the mapping action
    */
-  let createArrayIndexMappingAction = function<CP, VP, TP extends keyof VP>
+  let createArrayIndexMappingAction = function<CP, VP, TP extends Extract<keyof VP, string>>
   (
     _array: S[K] & Array<E>,
     index: number | null,

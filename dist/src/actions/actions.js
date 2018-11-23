@@ -337,7 +337,7 @@ var MappingAction = /** @class */ (function (_super) {
     /**
      * Clone the action and modify the clone so that it 'undoes' this, i.e., unmaps this mapping.
      * @returns {MappingAction
-     * <S extends StateObject, K extends keyof S, CP, VP, TP extends keyof VP, A extends StateObject, E>}
+     * <S extends StateObject, K extends Extract<keyof S, string>, CP, VP, TP extends keyof VP, A extends StateObject, E>}
      */
     MappingAction.prototype.getUndoAction = function () {
         var unmappingAction = this.clone();

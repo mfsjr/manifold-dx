@@ -11,18 +11,18 @@ export declare class ActionCreator<S extends StateObject> {
     private parent;
     constructor(parent: S);
     protected getPropertyKeyForValue<V>(value: V): keyof S;
-    protected throwIfArray<K extends keyof S>(propValue: S[K]): void;
-    rerender<K extends keyof S>(propertyKey: K): StateCrudAction<S, K>;
-    insert<K extends keyof S>(propertyKey: K, value: S[K]): StateCrudAction<S, K>;
-    update<K extends keyof S>(propertyKey: K, value: S[K]): StateCrudAction<S, K>;
+    protected throwIfArray<K extends Extract<keyof S, string>>(propValue: S[K]): void;
+    rerender<K extends Extract<keyof S, string>>(propertyKey: K): StateCrudAction<S, K>;
+    insert<K extends Extract<keyof S, string>>(propertyKey: K, value: S[K]): StateCrudAction<S, K>;
+    update<K extends Extract<keyof S, string>>(propertyKey: K, value: S[K]): StateCrudAction<S, K>;
     /**
      * Delete the property (named 'remove' because 'delete' is a reserved word)
      * @param {K} propertyKey
      * @returns {Action}
      */
-    remove<K extends keyof S>(propertyKey: K): StateCrudAction<S, K>;
-    insertStateObject<K extends keyof S>(value: S[K] & StateObject, propertyKey: K): StateCrudAction<S, K>;
-    removeStateObject<K extends keyof S>(propertyKey: K): StateCrudAction<S, K>;
+    remove<K extends Extract<keyof S, string>>(propertyKey: K): StateCrudAction<S, K>;
+    insertStateObject<K extends Extract<keyof S, string>>(value: S[K] & StateObject, propertyKey: K): StateCrudAction<S, K>;
+    removeStateObject<K extends Extract<keyof S, string>>(propertyKey: K): StateCrudAction<S, K>;
 }
 /**
  * Factory method for CrudActionCreator, rather than exposing implementation details
@@ -30,7 +30,7 @@ export declare class ActionCreator<S extends StateObject> {
  * @returns {ActionCreator<S extends StateObject>}
  */
 export declare function getActionCreator<S extends StateObject>(parent: S): ActionCreator<S>;
-export declare function getArrayActionCreator<S extends StateObject, K extends keyof S, V extends Object>(parent: S, childArray: Array<V> & S[K]): ArrayActionCreator<S, K, V>;
+export declare function getArrayActionCreator<S extends StateObject, K extends Extract<keyof S, string>, V extends Object>(parent: S, childArray: Array<V> & S[K]): ArrayActionCreator<S, K, V>;
 /**
  * Class for creating CRUD actions for arrays of objects (not primitives).
  *
@@ -42,7 +42,7 @@ export declare function getArrayActionCreator<S extends StateObject, K extends k
  *
  * S is the StateObject which the array is a property of
  */
-export declare class ArrayActionCreator<S extends StateObject, K extends keyof S, V extends Object> {
+export declare class ArrayActionCreator<S extends StateObject, K extends Extract<keyof S, string>, V extends Object> {
     private parent;
     private propertyKey;
     private valuesArray;
@@ -96,7 +96,7 @@ export declare class ArrayActionCreator<S extends StateObject, K extends keyof S
     replaceAll(newArray: Array<V>): StateAction<S, K>[];
     removeElement(index: number): StateAction<S, K>[];
 }
-export declare function getMappingActionCreator<S extends StateObject, K extends keyof S, A extends StateObject, E>(_parent: S, _propKey: K): {
-    createPropertyMappingAction: <CP, VP, TP extends keyof VP>(_component: ContainerComponent<CP, VP, A, {}>, targetPropKey: TP, ...mappingHooks: MappingHook[]) => MappingAction<S, K, CP, VP, TP, A, E>;
-    createArrayIndexMappingAction: <CP, VP, TP extends keyof VP>(_array: S[K] & E[], index: number | null, _component: ContainerComponent<CP, VP, A, {}>, targetPropKey: TP, ...mappingHooks: MappingHook[]) => MappingAction<S, K, CP, VP, TP, A, E>;
+export declare function getMappingActionCreator<S extends StateObject, K extends Extract<keyof S, string>, A extends StateObject, E>(_parent: S, _propKey: K): {
+    createPropertyMappingAction: <CP, VP, TP extends Extract<keyof VP, string>>(_component: ContainerComponent<CP, VP, A, {}>, targetPropKey: TP, ...mappingHooks: MappingHook[]) => MappingAction<S, K, CP, VP, TP, A, E>;
+    createArrayIndexMappingAction: <CP, VP, TP extends Extract<keyof VP, string>>(_array: S[K] & E[], index: number | null, _component: ContainerComponent<CP, VP, A, {}>, targetPropKey: TP, ...mappingHooks: MappingHook[]) => MappingAction<S, K, CP, VP, TP, A, E>;
 };

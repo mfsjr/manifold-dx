@@ -51,7 +51,7 @@ var ActionCreator = /** @class */ (function () {
     //  *
     //  * @param newObject
     //  */
-    // public assignAll<K extends keyof S>(newObject: S): StateCrudAction<S, K>[] {
+    // public assignAll<K extends Extract<keyof S, string>>(newObject: S): StateCrudAction<S, K>[] {
     //   let keys: Array<string> = Object.getOwnPropertyNames(newObject);
     //   // TODO: filter out _parent and _myProperty, also change the name of this method to assignData
     //   let actions: StateCrudAction<S, K>[] = [];
@@ -89,7 +89,7 @@ var ActionCreator = /** @class */ (function () {
     //   return actions;
     // }
     //
-    // public isKeyOf<K extends keyof S>(value: S, key: string): key is K {
+    // public isKeyOf<K extends Extract<keyof S, string>>(value: S, key: string): key is K {
     //   return value.hasOwnProperty(key);
     // }
     /**
@@ -257,7 +257,7 @@ function getMappingActionCreator(_parent, _propKey) {
      * @param {ContainerComponent<CP, VP, A extends StateObject>} _component
      * @param {TP} targetPropKey
      * @param {MappingHook} functions that are executed after mapping but before rendering
-     * @returns {MappingAction<S extends StateObject, K extends keyof S, CP, VP, TP extends keyof VP,
+     * @returns {MappingAction<S extends StateObject, K extends Extract<keyof S, string>, CP, VP, TP extends keyof VP,
      * A extends StateObject, E>}
      */
     var createPropertyMappingAction = function (_component, targetPropKey) {
@@ -276,7 +276,7 @@ function getMappingActionCreator(_parent, _propKey) {
      * @param {MappingHook} optional functions executed after the action but before rendering.  View props
      *    may be updated here
      * @returns {MappingAction
-     *  <S extends StateObject, K extends keyof S, CP, VP, TP extends keyof VP, A extends StateObject, E>}
+     * <S extends StateObject, K extends Extract<keyof S, string>, CP, VP, TP extends keyof VP, A extends StateObject, E>}
      *  the mapping action
      */
     var createArrayIndexMappingAction = function (_array, index, _component, targetPropKey) {

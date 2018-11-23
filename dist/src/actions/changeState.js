@@ -74,6 +74,9 @@ function changeArray(actionType, stateObject, values, value, propertyName, index
 }
 exports.changeArray = changeArray;
 function changeValue(actionType, stateObject, value, propertyName) {
+    if (!propertyName) {
+        throw new Error("propertyName must be a string!");
+    }
     switch (actionType) {
         case actions_1.ActionId.RERENDER: {
             return { oldValue: stateObject[propertyName] };

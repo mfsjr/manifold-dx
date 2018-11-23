@@ -50,7 +50,7 @@ let actionImmutabilityCheck = function(actionId: ActionId, oldValue: any, newVal
  * @param {number} index
  * @returns {{oldValue?: V}}
  */
-export function changeArray<S extends StateObject, K extends keyof S, V>
+export function changeArray<S extends StateObject, K extends Extract<keyof S, string>, V>
 (actionType: ActionId, stateObject: S, values: Array<V>,
  value: V,  propertyName: K, index: number)
 : {oldValue?: V} {
@@ -82,9 +82,12 @@ export function changeArray<S extends StateObject, K extends keyof S, V>
   }
 }
 
-export function changeValue<S extends StateObject, K extends keyof S>
-(actionType: ActionId, stateObject: S, value: S[K] | undefined, propertyName: K)
+export function changeValue<S extends StateObject, K extends Extract<keyof S, string>>
+(actionType: ActionId, stateObject: S, value: S[K], propertyName: K)
 : { oldValue?: S[K] } {
+  if (!propertyName) {
+    throw new Error(`propertyName must be a string!`);
+  }
   switch (actionType) {
     case ActionId.RERENDER: {
       return { oldValue: stateObject[propertyName] };

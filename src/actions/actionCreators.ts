@@ -114,7 +114,8 @@ export class ActionCreator<S extends StateObject> {
     return new StateCrudAction(ActionId.DELETE_PROPERTY, this.parent, propertyKey);
   }
   // TODO: can this and the crudInsert above actually work when defined in terms of non-existent keys?
-  public insertStateObject<K extends Extract<keyof S, string>>(value: S[K] & StateObject, propertyKey: K): StateCrudAction<S, K> {
+  public insertStateObject<K extends Extract<keyof S, string>>(value: S[K] & StateObject, propertyKey: K)
+      : StateCrudAction<S, K> {
     return new StateCrudAction(ActionId.INSERT_STATE_OBJECT, this.parent, propertyKey, value);
   }
   public removeStateObject<K extends Extract<keyof S, string>>(propertyKey: K): StateCrudAction<S, K> {
@@ -284,7 +285,8 @@ export class ArrayActionCreator<S extends StateObject, K extends Extract<keyof S
   }
 }
 
-export function getMappingActionCreator<S extends StateObject, K extends Extract<keyof S, string>, A extends StateObject, E>
+export function getMappingActionCreator
+  <S extends StateObject, K extends Extract<keyof S, string>, A extends StateObject, E>
 (_parent: S, _propKey: K) {
 
   /**

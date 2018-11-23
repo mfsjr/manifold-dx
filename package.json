@@ -1,6 +1,6 @@
 {
   "name": "manifold-dx",
-  "version": "0.8.4",
+  "version": "0.8.5",
   "private": false,
   "license": "MIT",
   "main": "dist/src/index.js",
@@ -54,7 +54,7 @@
     "tslint": "^5.7.0",
     "tslint-loader": "^3.5.3",
     "tslint-react": "^3.2.0",
-    "typescript": "^2.9.2"
+    "typescript": "^3.1.6"
   },
   "jest": {
     "collectCoverageFrom": [

@@ -83,7 +83,7 @@ export function changeArray<S extends StateObject, K extends Extract<keyof S, st
 }
 
 export function changeValue<S extends StateObject, K extends Extract<keyof S, string>>
-(actionType: ActionId, stateObject: S, value: S[K], propertyName: K)
+(actionType: ActionId, stateObject: S, value: S[K] | undefined, propertyName: K)
 : { oldValue?: S[K] } {
   if (!propertyName) {
     throw new Error(`propertyName must be a string!`);

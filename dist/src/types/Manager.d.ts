@@ -46,7 +46,10 @@ export declare class Manager {
      */
     actionProcess(...actions: Action[]): Action[];
     /**
-     * Strictly enforce that no action can be dispatched while another is dispatching.
+     * Strictly enforce that no data action can be dispatched while another is dispatching.
+     * Mapping actions are invoked on rendering, so are dependent on React, which is async,
+     * so we cannot enforce that here.
+     *
      * @param actionMethod
      * @param actions
      */

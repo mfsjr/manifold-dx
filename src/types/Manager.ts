@@ -1,5 +1,5 @@
 import { Store, StateObject, StateConfigOptions, JSON_replaceCyclicParent } from './Store';
-import { Action } from '../actions/actions';
+import { Action, MappingAction } from '../actions/actions';
 import { MappingState } from './MappingState';
 import { createActionQueue, ActionQueue } from './ActionQueue';
 import { ActionProcessor } from './ActionProcessor';
@@ -175,21 +175,29 @@ export class Manager {
   // }
 
   /**
-   * Strictly enforce that no action can be dispatched while another is dispatching.
+   * Strictly enforce that no data action can be dispatched while another is dispatching.
+   * Mapping actions are invoked on rendering, so are dependent on React, which is async,
+   * so we cannot enforce that here.
+   *
    * @param actionMethod
    * @param actions
    */
   protected dispatch(actionMethod: (action: Action) => void, ...actions: Action[]): Action[] {
-    if (this.dispatchingActions) {
+    let isDataAction: boolean = !(actions[0] instanceof MappingAction);
+    if (isDataAction && this.dispatchingActions === true) {
       this.dispatchingActions = false;
       throw new Error(`Dispatch must be completed before another action can be dispatched`);
     }
     try {
-      this.dispatchingActions = true;
+      if (isDataAction) {
+        this.dispatchingActions = true;
+      }
       actions = this.actionProcessor.preProcess(actions);
       actions.forEach((action) => actionMethod(action));
       actions = this.actionProcessor.postProcess(actions);
-      this.dispatchingActions = false;
+      if (isDataAction) {
+        this.dispatchingActions = false;
+      }
     } catch (err) {
       this.dispatchingActions = false;
       // TODO: serialization mechanism for actions to provide more info

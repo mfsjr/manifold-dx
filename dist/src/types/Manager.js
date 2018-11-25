@@ -151,7 +151,10 @@ var Manager = /** @class */ (function () {
     //   return actions;
     // }
     /**
-     * Strictly enforce that no action can be dispatched while another is dispatching.
+     * Strictly enforce that no data action can be dispatched while another is dispatching.
+     * Mapping actions are invoked on rendering, so are dependent on React, which is async,
+     * so we cannot enforce that here.
+     *
      * @param actionMethod
      * @param actions
      */
@@ -160,16 +163,21 @@ var Manager = /** @class */ (function () {
         for (var _i = 1; _i < arguments.length; _i++) {
             actions[_i - 1] = arguments[_i];
         }
-        if (this.dispatchingActions) {
+        var isDataAction = !(actions[0] instanceof actions_1.MappingAction);
+        if (isDataAction && this.dispatchingActions === true) {
             this.dispatchingActions = false;
             throw new Error("Dispatch must be completed before another action can be dispatched");
         }
         try {
-            this.dispatchingActions = true;
+            if (isDataAction) {
+                this.dispatchingActions = true;
+            }
             actions = this.actionProcessor.preProcess(actions);
             actions.forEach(function (action) { return actionMethod(action); });
             actions = this.actionProcessor.postProcess(actions);
-            this.dispatchingActions = false;
+            if (isDataAction) {
+                this.dispatchingActions = false;
+            }
         }
         catch (err) {
             this.dispatchingActions = false;

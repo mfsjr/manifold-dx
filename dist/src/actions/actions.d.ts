@@ -191,5 +191,14 @@ export interface ActionLoggingObject {
     processor: ActionProcessorFunctionType;
     logging?: string[];
 }
-export declare function actionLogging(actions: Action[], _logging?: string[], _toConsole?: boolean): ActionLoggingObject;
-export declare const actionLogger: ActionProcessorFunctionType;
+/**
+ * Pure function that returns an object containing a logging ActionProcessorFunctionType.
+ *
+ * This optionally allows you to output to the console, and to retain the logging in an array.
+ *
+ * @param actions
+ * @param _logging
+ * @param _toConsole
+ */
+export declare function actionLogging(_logging?: string[], _toConsole?: boolean): ActionLoggingObject;
+export declare const actionDescription: (action: Action) => string;

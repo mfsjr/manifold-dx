@@ -1,5 +1,5 @@
 import { Store, StateObject, StateConfigOptions, JSON_replaceCyclicParent } from './Store';
-import { Action, actionDescription, actionLogger, MappingAction } from '../actions/actions';
+import { Action, actionDescription, MappingAction } from '../actions/actions';
 import { MappingState } from './MappingState';
 import { createActionQueue, ActionQueue } from './ActionQueue';
 import { ActionProcessor } from './ActionProcessor';
@@ -175,7 +175,6 @@ export class Manager {
   //   }
   //   return actions;
   // }
-
 
   /**
    * Strictly enforce that no data action can be dispatched while another is dispatching.

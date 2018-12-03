@@ -1,5 +1,5 @@
 import { Store, StateObject, StateConfigOptions, JSON_replaceCyclicParent } from './Store';
-import { Action, MappingAction } from '../actions/actions';
+import { Action, actionLogger, MappingAction } from '../actions/actions';
 import { MappingState } from './MappingState';
 import { createActionQueue, ActionQueue } from './ActionQueue';
 import { ActionProcessor } from './ActionProcessor';
@@ -34,6 +34,8 @@ export class Manager {
   /* tslint:disable:no-any */
   protected state: Store<any>;
   /* tslint:disable:no-any */
+
+  protected currentDataAction: Action | null;
 
   protected actionQueue: ActionQueue;
   protected mappingState: MappingState;
@@ -174,6 +176,7 @@ export class Manager {
   //   return actions;
   // }
 
+
   /**
    * Strictly enforce that no data action can be dispatched while another is dispatching.
    * Mapping actions are invoked on rendering, so are dependent on React, which is async,
@@ -183,19 +186,22 @@ export class Manager {
    * @param actions
    */
   protected dispatch(actionMethod: (action: Action) => void, ...actions: Action[]): Action[] {
-    let isDataAction: boolean = !(actions[0] instanceof MappingAction);
-    if (isDataAction && this.dispatchingActions === true) {
+    this.currentDataAction = (actions[0] instanceof MappingAction) ? this.currentDataAction : actions[0];
+    if (this.currentDataAction && this.dispatchingActions === true) {
       this.dispatchingActions = false;
-      throw new Error(`Dispatch must be completed before another action can be dispatched`);
+      // TODO: error will include action message, and we need to move action message routine from
+      //  pgguide into manifold-dx.  Also need to print out old and new values where possible
+      let message = `Dispatch ${this.currentDataAction} interrupted by another: ${actionLogger(actions)}`;
+      throw new Error(message);
     }
     try {
-      if (isDataAction) {
+      if (this.currentDataAction) {
         this.dispatchingActions = true;
       }
       actions = this.actionProcessor.preProcess(actions);
       actions.forEach((action) => actionMethod(action));
       actions = this.actionProcessor.postProcess(actions);
-      if (isDataAction) {
+      if (this.currentDataAction) {
         this.dispatchingActions = false;
       }
     } catch (err) {

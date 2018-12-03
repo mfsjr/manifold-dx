@@ -367,4 +367,55 @@ describe('get objects using path', function () {
     });
     testStore.dispatch.apply(testStore, creator.removeElement(0));
 });
+describe('actionLogging tests', function () {
+    var logging = [];
+    var loggerObject = actions_1.actionLogging(logging, false);
+    testStore.getManager().getActionProcessorAPI().appendPreProcessor(loggerObject.processor);
+    test('updating all array elements using addresses3 should update all the addresses in state', function () {
+        var addresses3 = [
+            {
+                id: 10,
+                city: 'Pawling',
+                street: '4th',
+                state: 'WY',
+                zip: '93837',
+                country: 'US'
+            },
+            {
+                id: 11,
+                city: 'Kingston',
+                street: '5th',
+                state: 'HI',
+                zip: '13227',
+                country: 'US'
+            },
+            {
+                id: 12,
+                city: 'Rome',
+                street: '6th',
+                state: 'CA',
+                zip: '83227',
+                country: 'US'
+            }
+        ];
+        var deleteActions = [];
+        deleteActions.splice.apply(deleteActions, [0, 0].concat(src_1.getArrayActionCreator(nameState, nameState.addresses).removeElement(2)));
+        deleteActions.splice.apply(deleteActions, [deleteActions.length, 0].concat(src_1.getArrayActionCreator(nameState, nameState.addresses).removeElement(1)));
+        expect(nameState.addresses.length).toBe(3);
+        testStore.dispatch.apply(testStore, deleteActions);
+        expect(nameState.addresses.length).toBe(1);
+        expect(logging.length).toBeGreaterThan(0);
+        var loggingLength = logging.length;
+        var updateAllActions = src_1.getArrayActionCreator(nameState, nameState.addresses).replaceAll(addresses3);
+        testStore.dispatch.apply(testStore, updateAllActions);
+        // updateAllActions.forEach(action => action.dispatch());
+        expect(addresses3.length).toBe(3);
+        expect(nameState.addresses.length).toBe(3);
+        addresses3.forEach(function (addr, index) { return expect(nameState.addresses[index]).toBe(addresses3[index]); });
+        expect(loggerObject.logging).toBeTruthy();
+        if (loggerObject.logging) {
+            expect(loggerObject.logging.length).toBeGreaterThan(loggingLength);
+        }
+    });
+});
 //# sourceMappingURL=actions.test.js.map

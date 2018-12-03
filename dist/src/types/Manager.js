@@ -163,19 +163,22 @@ var Manager = /** @class */ (function () {
         for (var _i = 1; _i < arguments.length; _i++) {
             actions[_i - 1] = arguments[_i];
         }
-        var isDataAction = !(actions[0] instanceof actions_1.MappingAction);
-        if (isDataAction && this.dispatchingActions === true) {
+        this.currentDataAction = (actions[0] instanceof actions_1.MappingAction) ? this.currentDataAction : actions[0];
+        if (this.currentDataAction && this.dispatchingActions === true) {
             this.dispatchingActions = false;
-            throw new Error("Dispatch must be completed before another action can be dispatched");
+            // TODO: error will include action message, and we need to move action message routine from
+            //  pgguide into manifold-dx.  Also need to print out old and new values where possible
+            var message = "Dispatch " + this.currentDataAction + " interrupted by another: " + actions_1.actionLogger(actions);
+            throw new Error(message);
         }
         try {
-            if (isDataAction) {
+            if (this.currentDataAction) {
                 this.dispatchingActions = true;
             }
             actions = this.actionProcessor.preProcess(actions);
             actions.forEach(function (action) { return actionMethod(action); });
             actions = this.actionProcessor.postProcess(actions);
-            if (isDataAction) {
+            if (this.currentDataAction) {
                 this.dispatchingActions = false;
             }
         }

@@ -1,5 +1,5 @@
 import {
-  Action, ActionId, ArrayChangeAction,
+  Action, ActionId, actionLogging, ActionLoggingObject, ArrayChangeAction,
   StateCrudAction
 } from '../src/actions/actions';
 import { Store } from '../src/types/Store';
@@ -394,4 +394,65 @@ describe('get objects using path', () => {
     expect(testAddress.zip).toBe(newAddress.zip);
   });
   testStore.dispatch(...creator.removeElement(0));
+});
+
+describe('actionLogging tests', () => {
+
+  let logging: string[] = [];
+  let loggerObject: ActionLoggingObject = actionLogging(logging, false);
+  testStore.getManager().getActionProcessorAPI().appendPreProcessor(loggerObject.processor);
+
+  test('updating all array elements using addresses3 should update all the addresses in state', () => {
+    let addresses3: Address[] = [
+      {
+        id: 10,
+        city: 'Pawling',
+        street: '4th',
+        state: 'WY',
+        zip: '93837',
+        country: 'US'
+      },
+      {
+        id: 11,
+        city: 'Kingston',
+        street: '5th',
+        state: 'HI',
+        zip: '13227',
+        country: 'US'
+      },
+      {
+        id: 12,
+        city: 'Rome',
+        street: '6th',
+        state: 'CA',
+        zip: '83227',
+        country: 'US'
+      }
+    ];
+    let deleteActions: Action[] = [];
+    deleteActions.splice(0, 0, ...getArrayActionCreator(nameState, nameState.addresses).removeElement(2));
+    deleteActions.splice(deleteActions.length, 0,
+      ...getArrayActionCreator(nameState, nameState.addresses).removeElement(1));
+
+    expect(nameState.addresses.length).toBe(3);
+    testStore.dispatch(...deleteActions);
+    expect(nameState.addresses.length).toBe(1);
+
+    expect(logging.length).toBeGreaterThan(0);
+    let loggingLength = logging.length;
+
+    let updateAllActions = getArrayActionCreator(nameState, nameState.addresses).replaceAll(addresses3);
+    testStore.dispatch(...updateAllActions);
+
+    // updateAllActions.forEach(action => action.dispatch());
+    expect(addresses3.length).toBe(3);
+    expect(nameState.addresses.length).toBe(3);
+    addresses3.forEach((addr, index) => expect(nameState.addresses[index]).toBe(addresses3[index]));
+
+    expect(loggerObject.logging).toBeTruthy();
+    if (loggerObject.logging) {
+      expect(loggerObject.logging.length).toBeGreaterThan(loggingLength);
+    }
+
+  });
 });

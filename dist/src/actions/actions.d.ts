@@ -1,5 +1,6 @@
 import { AnyContainerComponent, ContainerComponent } from '../components/ContainerComponent';
 import { StateObject } from '../types/Store';
+import { ActionProcessorFunctionType } from '../types/ActionProcessor';
 /**
  * ActionId's for calling api's that change state.
  *
@@ -186,3 +187,9 @@ export declare class MappingAction<S extends StateObject, K extends Extract<keyo
     redo(): void;
 }
 export declare type AnyMappingAction = MappingAction<any, any, any, any, any, any, any>;
+export interface ActionLoggingObject {
+    processor: ActionProcessorFunctionType;
+    logging?: string[];
+}
+export declare function actionLogging(actions: Action[], _logging?: string[], _toConsole?: boolean): ActionLoggingObject;
+export declare const actionLogger: ActionProcessorFunctionType;

@@ -3,6 +3,7 @@ import { AnyContainerComponent, ContainerComponent } from '../components/Contain
 import { StateObject } from '../types/Store';
 import { Manager } from '../types/Manager';
 import { arrayMapDelete, arrayMapInsert } from '../types/MappingState';
+import { ActionProcessorFunctionType } from '../types/ActionProcessor';
 
 /**
  * ActionId's for calling api's that change state.
@@ -498,3 +499,133 @@ export class MappingAction
 /* tslint:disable:no-any */
 export type AnyMappingAction = MappingAction<any, any, any, any, any, any, any>;
 /* tslint:enable:no-any */
+
+export interface ActionLoggingObject {
+  processor: ActionProcessorFunctionType;
+  logging?: string[];
+}
+
+/**
+ * Pure function that returns an object containing a logging ActionProcessorFunctionType.
+ *
+ * This optionally allows you to output to the console, and to retain the logging in an array.
+ *
+ * @param actions
+ * @param _logging
+ * @param _toConsole
+ */
+export function actionLogging(_logging?: string[], _toConsole?: boolean): ActionLoggingObject {
+  let logging: string[] | undefined = _logging;
+
+  let processor: ActionProcessorFunctionType = (actions: Action[]) => {
+    let lines: string[] = [];
+    actions.forEach(action => {
+      // let isDataAction: boolean = !(actions[0] instanceof MappingAction);
+      // lines.push(`isDataAction = ${isDataAction}`);
+      if (action instanceof ArrayChangeAction) {
+        let value: string = '';
+        switch (action.type) {
+          case ActionId.INSERT_PROPERTY:
+            value = `new value = ${action.value}`;
+            break;
+          case ActionId.UPDATE_PROPERTY:
+            value = `new value = ${action.value}`;
+            break;
+          default: value = '';
+        }
+
+        let path = Manager.get(action.parent).getFullPath(action.parent, action.propertyName);
+        let log = `StateCrudAction[${ActionId[action.type]}]: path: ${path}, index=${action.index}`;
+        log += value ? ' value: ' + value : '';
+        lines.push(log);
+      }
+      if (action instanceof StateCrudAction) {
+        let path = Manager.get(action.parent).getFullPath(action.parent, action.propertyName);
+        let value: string = '';
+        switch (action.type) {
+          case ActionId.INSERT_PROPERTY:
+            value = `new value = ${action.value}`;
+            break;
+          case ActionId.UPDATE_PROPERTY:
+            value = `new value = ${action.value}`;
+            break;
+          default: value = '';
+        }
+        lines.push(`StateCrudAction[${ActionId[action.type]}]: path: ${path} ${value ? 'value: ' + value : ''}`);
+      }
+      if (action instanceof MappingAction) {
+        let path = Manager.get(action.parent).getFullPath(action.parent, action.propertyName);
+        let indexMessage = action.index !== null && action.index > -1 ? `, index=${action.index}` : '';
+        let message = `MappingAction[${path} => ${action.targetPropName}]${indexMessage}`;
+        lines.push(message);
+      }
+    });
+    if (_toConsole) {
+      lines.forEach(line => {
+        /*tslint:disable:no-console*/
+        console.log(line);
+        /*tslint:enable:no-console*/
+      });
+    }
+    if (logging) {
+      logging.splice(logging.length, 0, ...lines);
+    }
+    return actions;
+  };
+
+  return {
+    processor,
+    logging
+  };
+}
+
+// export const actionLogger: ActionProcessorFunctionType = (actions: Action[], options?: {}) => {
+//   let lines: string[] = [];
+//   actions.forEach(action => {
+//     let isDataAction: boolean = !(actions[0] instanceof MappingAction);
+//     lines.push(`isDataAction = ${isDataAction}`);
+//     if (action instanceof ArrayChangeAction) {
+//       let value: string = '';
+//       switch (action.type) {
+//         case ActionId.INSERT_PROPERTY:
+//           value = `new value = ${action.value}`;
+//           break;
+//         case ActionId.UPDATE_PROPERTY:
+//           value = `new value = ${action.value}`;
+//           break;
+//         default: value = '';
+//       }
+//
+//       let path = Manager.get(action.parent).getFullPath(action.parent, action.propertyName);
+//       let log = `StateCrudAction[${ActionId[action.type]}]: path: ${path}, index=${action.index}`;
+//       log += value ? ' value: ' + value : '';
+//       lines.push(log);
+//     }
+//     if (action instanceof StateCrudAction) {
+//       let path = Manager.get(action.parent).getFullPath(action.parent, action.propertyName);
+//       let value: string = '';
+//       switch (action.type) {
+//         case ActionId.INSERT_PROPERTY:
+//           value = `new value = ${action.value}`;
+//           break;
+//         case ActionId.UPDATE_PROPERTY:
+//           value = `new value = ${action.value}`;
+//           break;
+//         default: value = '';
+//       }
+//       lines.push(`StateCrudAction[${ActionId[action.type]}]: path: ${path} ${value ? 'value: ' + value : ''}`);
+//     }
+//     if (action instanceof MappingAction) {
+//       let path = Manager.get(action.parent).getFullPath(action.parent, action.propertyName);
+//       let indexMessage = action.index !== null && action.index > -1 ? `, index=${action.index}` : '';
+//       let message = `MappingAction[${path} => ${action.targetPropName}]${indexMessage}`;
+//       lines.push(message);
+//     }
+//   });
+//   lines.forEach(line => {
+//     /*tslint:disable:no-console*/
+//     console.log(line);
+//     /*tslint:enable:no-console*/
+//   });
+//   return actions;
+// };

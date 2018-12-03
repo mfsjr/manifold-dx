@@ -25,6 +25,7 @@ export declare class Manager {
     protected dispatchingActions: boolean;
     protected dispatchArgs: DispatchArgs[];
     protected state: Store<any>;
+    protected currentDataAction: Action | null;
     protected actionQueue: ActionQueue;
     protected mappingState: MappingState;
     protected actionProcessor: ActionProcessor;

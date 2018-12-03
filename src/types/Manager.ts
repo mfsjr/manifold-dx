@@ -1,5 +1,5 @@
 import { Store, StateObject, StateConfigOptions, JSON_replaceCyclicParent } from './Store';
-import { Action, actionLogger, MappingAction } from '../actions/actions';
+import { Action, actionDescription, actionLogger, MappingAction } from '../actions/actions';
 import { MappingState } from './MappingState';
 import { createActionQueue, ActionQueue } from './ActionQueue';
 import { ActionProcessor } from './ActionProcessor';
@@ -189,9 +189,9 @@ export class Manager {
     this.currentDataAction = (actions[0] instanceof MappingAction) ? this.currentDataAction : actions[0];
     if (this.currentDataAction && this.dispatchingActions === true) {
       this.dispatchingActions = false;
-      // TODO: error will include action message, and we need to move action message routine from
-      //  pgguide into manifold-dx.  Also need to print out old and new values where possible
-      let message = `Dispatch ${this.currentDataAction} interrupted by another: ${actionLogger(actions)}`;
+      // TODO: test this conditional branch
+      let currentDescription = actionDescription(this.currentDataAction);
+      let message = `Dispatch ${currentDescription} interrupted by another: ${actionDescription(actions[0])}`;
       throw new Error(message);
     }
     try {
@@ -206,9 +206,9 @@ export class Manager {
       }
     } catch (err) {
       this.dispatchingActions = false;
-      // TODO: serialization mechanism for actions to provide more info
+      let actionMessage = actionDescription(actions[0]);
       /*tslint:disable:no-console*/
-      console.log(`Error dispatching ${actions.length} ${actions.length === 1 ? 'action' : 'actions'}`);
+      console.log(`Error dispatching ${actionMessage}, actions length = ${actions.length}`);
       /*tslint:disable:no-console*/
       throw err;
     }

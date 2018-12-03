@@ -522,43 +522,7 @@ export function actionLogging(_logging?: string[], _toConsole?: boolean): Action
     actions.forEach(action => {
       // let isDataAction: boolean = !(actions[0] instanceof MappingAction);
       // lines.push(`isDataAction = ${isDataAction}`);
-      if (action instanceof ArrayChangeAction) {
-        let value: string = '';
-        switch (action.type) {
-          case ActionId.INSERT_PROPERTY:
-            value = `new value = ${action.value}`;
-            break;
-          case ActionId.UPDATE_PROPERTY:
-            value = `new value = ${action.value}`;
-            break;
-          default: value = '';
-        }
-
-        let path = Manager.get(action.parent).getFullPath(action.parent, action.propertyName);
-        let log = `StateCrudAction[${ActionId[action.type]}]: path: ${path}, index=${action.index}`;
-        log += value ? ' value: ' + value : '';
-        lines.push(log);
-      }
-      if (action instanceof StateCrudAction) {
-        let path = Manager.get(action.parent).getFullPath(action.parent, action.propertyName);
-        let value: string = '';
-        switch (action.type) {
-          case ActionId.INSERT_PROPERTY:
-            value = `new value = ${action.value}`;
-            break;
-          case ActionId.UPDATE_PROPERTY:
-            value = `new value = ${action.value}`;
-            break;
-          default: value = '';
-        }
-        lines.push(`StateCrudAction[${ActionId[action.type]}]: path: ${path} ${value ? 'value: ' + value : ''}`);
-      }
-      if (action instanceof MappingAction) {
-        let path = Manager.get(action.parent).getFullPath(action.parent, action.propertyName);
-        let indexMessage = action.index !== null && action.index > -1 ? `, index=${action.index}` : '';
-        let message = `MappingAction[${path} => ${action.targetPropName}]${indexMessage}`;
-        lines.push(message);
-      }
+      lines.push(actionDescription(action));
     });
     if (_toConsole) {
       lines.forEach(line => {
@@ -578,6 +542,47 @@ export function actionLogging(_logging?: string[], _toConsole?: boolean): Action
     logging
   };
 }
+
+export const actionDescription = (action: Action): string => {
+  if (action instanceof ArrayChangeAction) {
+    let value: string = '';
+    switch (action.type) {
+      case ActionId.INSERT_PROPERTY:
+        value = `new value = ${action.value}`;
+        break;
+      case ActionId.UPDATE_PROPERTY:
+        value = `new value = ${action.value}`;
+        break;
+      default: value = '';
+    }
+
+    let path = Manager.get(action.parent).getFullPath(action.parent, action.propertyName);
+    let log = `StateCrudAction[${ActionId[action.type]}]: path: ${path}, index=${action.index}`;
+    log += value ? ' value: ' + value : '';
+    return log;
+  }
+  if (action instanceof StateCrudAction) {
+    let path = Manager.get(action.parent).getFullPath(action.parent, action.propertyName);
+    let value: string = '';
+    switch (action.type) {
+      case ActionId.INSERT_PROPERTY:
+        value = `new value = ${action.value}`;
+        break;
+      case ActionId.UPDATE_PROPERTY:
+        value = `new value = ${action.value}`;
+        break;
+      default: value = '';
+    }
+    return `StateCrudAction[${ActionId[action.type]}]: path: ${path} ${value ? 'value: ' + value : ''}`;
+  }
+  if (action instanceof MappingAction) {
+    let path = Manager.get(action.parent).getFullPath(action.parent, action.propertyName);
+    let indexMessage = action.index !== null && action.index > -1 ? `, index=${action.index}` : '';
+    let message = `MappingAction[${path} => ${action.targetPropName}]${indexMessage}`;
+    return message;
+  }
+  return '';
+};
 
 // export const actionLogger: ActionProcessorFunctionType = (actions: Action[], options?: {}) => {
 //   let lines: string[] = [];

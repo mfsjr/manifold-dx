@@ -166,9 +166,9 @@ var Manager = /** @class */ (function () {
         this.currentDataAction = (actions[0] instanceof actions_1.MappingAction) ? this.currentDataAction : actions[0];
         if (this.currentDataAction && this.dispatchingActions === true) {
             this.dispatchingActions = false;
-            // TODO: error will include action message, and we need to move action message routine from
-            //  pgguide into manifold-dx.  Also need to print out old and new values where possible
-            var message = "Dispatch " + this.currentDataAction + " interrupted by another: " + actions_1.actionLogger(actions);
+            // TODO: test this conditional branch
+            var currentDescription = actions_1.actionDescription(this.currentDataAction);
+            var message = "Dispatch " + currentDescription + " interrupted by another: " + actions_1.actionDescription(actions[0]);
             throw new Error(message);
         }
         try {
@@ -184,9 +184,9 @@ var Manager = /** @class */ (function () {
         }
         catch (err) {
             this.dispatchingActions = false;
-            // TODO: serialization mechanism for actions to provide more info
+            var actionMessage = actions_1.actionDescription(actions[0]);
             /*tslint:disable:no-console*/
-            console.log("Error dispatching " + actions.length + " " + (actions.length === 1 ? 'action' : 'actions'));
+            console.log("Error dispatching " + actionMessage + ", actions length = " + actions.length);
             /*tslint:disable:no-console*/
             throw err;
         }

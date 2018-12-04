@@ -13,8 +13,10 @@ var ActionProcessor_1 = require("./ActionProcessor");
  */
 var Manager = /** @class */ (function () {
     function Manager(state, options) {
-        this.dispatchingActions = false;
+        // protected dispatchingActions: boolean = false;
         this.dispatchArgs = [];
+        /* tslint:disable:no-any */
+        this.currentDataAction = null;
         this.resetManager(state, {});
         Manager.manager = this;
     }
@@ -163,32 +165,32 @@ var Manager = /** @class */ (function () {
         for (var _i = 1; _i < arguments.length; _i++) {
             actions[_i - 1] = arguments[_i];
         }
-        this.currentDataAction = (actions[0] instanceof actions_1.MappingAction) ? this.currentDataAction : actions[0];
-        if (this.currentDataAction && this.dispatchingActions === true) {
-            this.dispatchingActions = false;
-            // TODO: test this conditional branch
+        var dataAction = !(actions[0] instanceof actions_1.MappingAction);
+        // this.currentDataAction = dataAction ? this.currentDataAction : actions[0];
+        if (dataAction && this.currentDataAction) {
             var currentDescription = actions_1.actionDescription(this.currentDataAction);
             var message = "Dispatch " + currentDescription + " interrupted by another: " + actions_1.actionDescription(actions[0]);
             throw new Error(message);
         }
         try {
-            if (this.currentDataAction) {
-                this.dispatchingActions = true;
+            if (dataAction) {
+                this.currentDataAction = actions[0];
             }
             actions = this.actionProcessor.preProcess(actions);
             actions.forEach(function (action) { return actionMethod(action); });
             actions = this.actionProcessor.postProcess(actions);
-            if (this.currentDataAction) {
-                this.dispatchingActions = false;
-            }
         }
         catch (err) {
-            this.dispatchingActions = false;
             var actionMessage = actions_1.actionDescription(actions[0]);
             /*tslint:disable:no-console*/
             console.log("Error dispatching " + actionMessage + ", actions length = " + actions.length);
             /*tslint:disable:no-console*/
             throw err;
+        }
+        finally {
+            if (dataAction) {
+                this.currentDataAction = null;
+            }
         }
         return actions;
     };

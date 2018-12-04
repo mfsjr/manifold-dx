@@ -22,7 +22,6 @@ export declare class Manager {
      */
     protected static manager: Manager;
     protected static stateManagerMap: Map<StateObject, Manager>;
-    protected dispatchingActions: boolean;
     protected dispatchArgs: DispatchArgs[];
     protected state: Store<any>;
     protected currentDataAction: Action | null;

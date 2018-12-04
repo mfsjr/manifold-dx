@@ -27,7 +27,7 @@ export class Manager {
 
   protected static stateManagerMap: Map<StateObject, Manager> = new Map();
 
-  protected dispatchingActions: boolean = false;
+  // protected dispatchingActions: boolean = false;
 
   protected dispatchArgs: DispatchArgs[] = [];
 
@@ -35,7 +35,7 @@ export class Manager {
   protected state: Store<any>;
   /* tslint:disable:no-any */
 
-  protected currentDataAction: Action | null;
+  protected currentDataAction: Action | null = null;
 
   protected actionQueue: ActionQueue;
   protected mappingState: MappingState;
@@ -185,31 +185,30 @@ export class Manager {
    * @param actions
    */
   protected dispatch(actionMethod: (action: Action) => void, ...actions: Action[]): Action[] {
-    this.currentDataAction = (actions[0] instanceof MappingAction) ? this.currentDataAction : actions[0];
-    if (this.currentDataAction && this.dispatchingActions === true) {
-      this.dispatchingActions = false;
-      // TODO: test this conditional branch
+    let dataAction = !(actions[0] instanceof MappingAction);
+    // this.currentDataAction = dataAction ? this.currentDataAction : actions[0];
+    if (dataAction && this.currentDataAction) {
       let currentDescription = actionDescription(this.currentDataAction);
       let message = `Dispatch ${currentDescription} interrupted by another: ${actionDescription(actions[0])}`;
       throw new Error(message);
     }
     try {
-      if (this.currentDataAction) {
-        this.dispatchingActions = true;
+      if (dataAction) {
+        this.currentDataAction = actions[0];
       }
       actions = this.actionProcessor.preProcess(actions);
       actions.forEach((action) => actionMethod(action));
       actions = this.actionProcessor.postProcess(actions);
-      if (this.currentDataAction) {
-        this.dispatchingActions = false;
-      }
     } catch (err) {
-      this.dispatchingActions = false;
       let actionMessage = actionDescription(actions[0]);
       /*tslint:disable:no-console*/
       console.log(`Error dispatching ${actionMessage}, actions length = ${actions.length}`);
       /*tslint:disable:no-console*/
       throw err;
+    } finally {
+      if (dataAction) {
+        this.currentDataAction = null;
+      }
     }
     return actions;
   }

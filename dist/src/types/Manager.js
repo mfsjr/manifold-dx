@@ -165,8 +165,10 @@ var Manager = /** @class */ (function () {
         for (var _i = 1; _i < arguments.length; _i++) {
             actions[_i - 1] = arguments[_i];
         }
+        if (!actions || actions.length === 0) {
+            return actions;
+        }
         var dataAction = !(actions[0] instanceof actions_1.MappingAction);
-        // this.currentDataAction = dataAction ? this.currentDataAction : actions[0];
         if (dataAction && this.currentDataAction) {
             var currentDescription = actions_1.actionDescription(this.currentDataAction);
             var message = "Dispatch " + currentDescription + " interrupted by another: " + actions_1.actionDescription(actions[0]);

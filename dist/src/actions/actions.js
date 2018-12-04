@@ -484,8 +484,8 @@ exports.actionDescription = function (action) {
         var indexMessage = action.index !== null && action.index > -1 ? ", index=" + action.index : '';
         var message = "MappingAction[" + path + " => " + action.targetPropName + "]" + indexMessage;
         return message;
-    }
-    return '';
+    } // TODO: throw?
+    return "Not StateCrud, Array or Mapping; action.type === " + ActionId[action.type];
 };
 // export const actionLogger: ActionProcessorFunctionType = (actions: Action[], options?: {}) => {
 //   let lines: string[] = [];

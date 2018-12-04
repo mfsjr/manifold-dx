@@ -185,8 +185,11 @@ export class Manager {
    * @param actions
    */
   protected dispatch(actionMethod: (action: Action) => void, ...actions: Action[]): Action[] {
+    if (!actions || actions.length === 0) {
+      return actions;
+    }
     let dataAction = !(actions[0] instanceof MappingAction);
-    // this.currentDataAction = dataAction ? this.currentDataAction : actions[0];
+
     if (dataAction && this.currentDataAction) {
       let currentDescription = actionDescription(this.currentDataAction);
       let message = `Dispatch ${currentDescription} interrupted by another: ${actionDescription(actions[0])}`;

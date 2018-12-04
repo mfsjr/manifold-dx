@@ -7,6 +7,11 @@ import { StateObject } from '../types/Store';
 import { ArrayChangeAction } from '../';
 import { shallowEqual } from 'recompose';
 
+/**
+ * A signature for creating React components.
+ *
+ * Note that this function can be of many forms, including various forms of React's {@link createFactory}.
+ */
 /* tslint:disable:no-any */
 export type ComponentGenerator<P> = (props: P) => React.Component<P, any>;
 /* tslint:enable:no-any */

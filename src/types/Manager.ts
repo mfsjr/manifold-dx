@@ -185,7 +185,7 @@ export class Manager {
    * @param actions
    */
   protected dispatch(actionMethod: (action: Action) => void, ...actions: Action[]): Action[] {
-    if (!actions || actions.length === 0) {
+    if (actions.length === 0) {
       return actions;
     }
     let dataAction = !(actions[0] instanceof MappingAction);

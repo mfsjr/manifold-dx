@@ -165,7 +165,7 @@ var Manager = /** @class */ (function () {
         for (var _i = 1; _i < arguments.length; _i++) {
             actions[_i - 1] = arguments[_i];
         }
-        if (!actions || actions.length === 0) {
+        if (actions.length === 0) {
             return actions;
         }
         var dataAction = !(actions[0] instanceof actions_1.MappingAction);

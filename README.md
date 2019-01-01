@@ -49,7 +49,7 @@ using plain objects:
 	3. Since every piece of the application state has a unique name, we can use it as a key in a map where the
 	values contain React components that need to update when that property is changed by an action.  
 
-	4. Our HOC has generic api's for populating the map as well.
+	4. Our container component has generic api's for populating the map as well.
 
 	5. If you're not getting the updates you expect after dispatching an action, just look at the map.
 3. State changes are performed by pure, invertible functions, so we can undo and redo actions easily.

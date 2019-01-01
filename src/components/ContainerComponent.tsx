@@ -18,7 +18,7 @@ export type ComponentGenerator<P> = (props: P) => React.Component<P, any>;
 
 /**
  *
- * A kind of React.Component HOC designed to function as a container/controller (constructor takes a component
+ * A kind of React.Component container/controller (constructor takes a component
  * and uses it to compose/present).
  *
  * It wraps a react component, which performs the actual rendering

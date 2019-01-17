@@ -253,10 +253,41 @@ describe('Test perform/undo/redo actions marking the app state, mutating, and th
     test('the size of the action queue', function () {
         expect(testStore.getManager().getActionQueue().size()).toBe(1);
     });
+    // repeat with disaptches
+    test('expect the action queue to contain our action', function () {
+        expect(testStore.getManager().getActionQueue().incrementCurrentIndex(0)).toBe(1);
+    });
+    test('expect dispatch undo to work', function () {
+        var undoMiddleResult = testStore.dispatchUndo(1);
+        expect(undoMiddleResult.length).toBe(1);
+    });
+    test('after undo, action queue\'s current index should be decremented by 1', function () {
+        expect(testStore.getManager().getActionQueue().incrementCurrentIndex(0)).toBe(0);
+    });
+    test('after undo, middle name should be the original', function () {
+        expect(nameState.middle).toBe('F');
+    });
+    test('redo action should succeed', function () {
+        var redoMiddleResult = testStore.dispatchRedo(1);
+        expect(redoMiddleResult.length).toBe(1);
+    });
+    test('after redo middle name should be restored', function () {
+        expect(nameState.middle).toBe('J');
+    });
+    test('after redo action queue index should be restored', function () {
+        expect(testStore.getManager().getActionQueue().incrementCurrentIndex(0)).toBe(1);
+    });
+    test('the size of the action queue', function () {
+        expect(testStore.getManager().getActionQueue().size()).toBe(1);
+    });
+    // end repeat with dispatches
     test('insert name container', function () {
         var insertName = new actions_1.StateCrudAction(actions_1.ActionId.INSERT_STATE_OBJECT, testStore.getState(), 'name', nameState);
-        testStore.getManager().actionProcess(insertName);
-        expect(testStore.getState().name).toBeDefined();
+        // testStore.getManager().actionProcess(insertName);
+        // expect(testStore.getState().name).toBeDefined();
+        testStore.dispatchNext(insertName).then(function (_actions) {
+            expect(testStore.getState().name).toBeDefined();
+        });
     });
 });
 describe("test Manager's dispatch args", function () {

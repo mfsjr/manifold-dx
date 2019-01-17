@@ -172,16 +172,36 @@ var Store = /** @class */ (function () {
     };
     Store.prototype.dispatchUndo = function (nActions) {
         if (nActions === void 0) { nActions = 1; }
-        var _undoActions = [];
-        for (var _i = 1; _i < arguments.length; _i++) {
-            _undoActions[_i - 1] = arguments[_i];
-        }
-        var _a;
-        return (_a = this.manager).actionUndo.apply(_a, [nActions].concat(_undoActions));
+        return this.manager.actionUndo(nActions);
     };
     Store.prototype.dispatchRedo = function (nActions) {
         if (nActions === void 0) { nActions = 1; }
         return this.manager.actionRedo(nActions);
+    };
+    /**
+     * This method should only be called during action dispatch, which means you should do your
+     * best to avoid calling it at all.
+     *
+     * A use-case for calling this would be when you start to render something that requires
+     * authorization that the user doesn't have, so at the start of that render other actions
+     * may need to be dispatched to prevent rendering sensitive information, inform the user,
+     * redirect elsewhere, etc.
+     *
+     * @param actions
+     */
+    Store.prototype.dispatchNext = function () {
+        var actions = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            actions[_i] = arguments[_i];
+        }
+        var dispatcher = this.dispatch.bind(this);
+        /*tslint:disable:no-any*/
+        return new Promise(function (resolve, reject) {
+            setTimeout(function () {
+                resolve(dispatcher.apply(void 0, actions));
+            }, 0);
+        });
+        /*tslint:enable:no-any*/
     };
     Store.StateKeys = Store.getStateKeys();
     /**

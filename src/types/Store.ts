@@ -249,12 +249,35 @@ export class Store<A> {
     return this.manager.actionProcess(...actions);
   }
 
-  public dispatchUndo(nActions: number = 1, ..._undoActions: Action[]): Action[] {
-    return this.manager.actionUndo(nActions, ..._undoActions);
+  public dispatchUndo(nActions: number = 1): Action[] {
+    return this.manager.actionUndo(nActions);
   }
 
   public dispatchRedo(nActions: number = 1): Action[] {
     return this.manager.actionRedo(nActions);
+  }
+
+  /**
+   * This method should only be called during action dispatch, which means you should do your
+   * best to avoid calling it at all.
+   *
+   * A use-case for calling this would be when you start to render something that requires
+   * authorization that the user doesn't have, so at the start of that render other actions
+   * may need to be dispatched to prevent rendering sensitive information, inform the user,
+   * redirect elsewhere, etc.
+   *
+   * @param actions
+   */
+  public dispatchNext(...actions: Action[]): Promise<Action[]> {
+    let dispatcher = this.dispatch.bind(this);
+    /*tslint:disable:no-any*/
+    return new Promise(
+      function(resolve: (values?: Action[]) => void, reject: (reason?: any) => void) {
+        setTimeout(() => {
+          resolve(dispatcher(...actions));
+      }, 0);
+    });
+    /*tslint:enable:no-any*/
   }
 
 }

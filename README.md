@@ -85,14 +85,20 @@ using plain objects:
 - Look at our demo apps, these are built with create-react-app and react-script-ts.
  
 #### Recent work has centered on:
-- Verifying Hot Module Replacement using manifold-dx in applications
+- Real world apps using... 
+  - Material-UI v1+, Formik, React Router v4, as well as...
+  - Hot Module Replacement
+  - action logging
+  - React Router integration
+  - Deferred action dispatch ("dispatchNext")
 - Adding optional render props to our ContainerComponent (RenderPropComponent)
 - Optimizing user-facing API's for ease-of-use
-- Real-world apps with Material-UI v1+, Formik, React Router v4
 - Organizing state initialization, design, and enforcing structure using TypeScript conditional types 
 
 #### What's Next
-- Dev tools, starting with action logging and replay
+- Updates for React v16.7, including deprecation/replacement of SFC's
+- Dev tools for action replay
+- React Router integration for state-based nav
 - Larger, real-world example applications
 - More rendering optimizations
 

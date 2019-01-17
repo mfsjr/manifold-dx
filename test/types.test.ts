@@ -300,10 +300,48 @@ describe('Test perform/undo/redo actions marking the app state, mutating, and th
     expect(testStore.getManager().getActionQueue().size()).toBe(1);
   });
 
+  // repeat with disaptches
+  test('expect the action queue to contain our action', () => {
+    expect(testStore.getManager().getActionQueue().incrementCurrentIndex(0)).toBe(1);
+  });
+  test('expect dispatch undo to work', () => {
+    let undoMiddleResult = testStore.dispatchUndo(1);
+    expect(undoMiddleResult.length).toBe(1);
+  });
+
+  test('after undo, action queue\'s current index should be decremented by 1', () => {
+    expect(testStore.getManager().getActionQueue().incrementCurrentIndex(0)).toBe(0);
+  });
+
+  test('after undo, middle name should be the original', () => {
+    expect(nameState.middle).toBe('F');
+  });
+
+  test('redo action should succeed', () => {
+    let redoMiddleResult = testStore.dispatchRedo(1);
+    expect(redoMiddleResult.length).toBe(1);
+  });
+
+  test('after redo middle name should be restored', () => {
+    expect(nameState.middle).toBe('J');
+  });
+
+  test('after redo action queue index should be restored', () => {
+    expect(testStore.getManager().getActionQueue().incrementCurrentIndex(0)).toBe(1);
+  });
+
+  test('the size of the action queue', () => {
+    expect(testStore.getManager().getActionQueue().size()).toBe(1);
+  });
+  // end repeat with dispatches
+
   test('insert name container', () => {
     let insertName = new StateCrudAction(ActionId.INSERT_STATE_OBJECT, testStore.getState(), 'name', nameState);
-    testStore.getManager().actionProcess(insertName);
-    expect(testStore.getState().name).toBeDefined();
+    // testStore.getManager().actionProcess(insertName);
+    // expect(testStore.getState().name).toBeDefined();
+    testStore.dispatchNext(insertName).then( (_actions: Action[]) => {
+        expect(testStore.getState().name).toBeDefined();
+    });
   });
 });
 

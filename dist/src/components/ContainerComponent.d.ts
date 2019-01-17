@@ -2,10 +2,15 @@ import * as React from 'react';
 import { ReactNode, SFC } from 'react';
 import { Action, AnyMappingAction, MappingAction, MappingHook } from '../actions/actions';
 import { StateObject } from '../types/Store';
+/**
+ * A signature for creating React components.
+ *
+ * Note that this function can be of many forms, including various forms of React's {@link createFactory}.
+ */
 export declare type ComponentGenerator<P> = (props: P) => React.Component<P, any>;
 /**
  *
- * A kind of React.Component HOC designed to function as a container/controller (constructor takes a component
+ * A kind of React.Component container/controller (constructor takes a component
  * and uses it to compose/present).
  *
  * It wraps a react component, which performs the actual rendering

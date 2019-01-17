@@ -116,8 +116,20 @@ export declare class Store<A> {
      * @returns {Action[]}
      */
     dispatch(...actions: Action[]): Action[];
-    dispatchUndo(nActions?: number, ..._undoActions: Action[]): Action[];
+    dispatchUndo(nActions?: number): Action[];
     dispatchRedo(nActions?: number): Action[];
+    /**
+     * This method should only be called during action dispatch, which means you should do your
+     * best to avoid calling it at all.
+     *
+     * A use-case for calling this would be when you start to render something that requires
+     * authorization that the user doesn't have, so at the start of that render other actions
+     * may need to be dispatched to prevent rendering sensitive information, inform the user,
+     * redirect elsewhere, etc.
+     *
+     * @param actions
+     */
+    dispatchNext(...actions: Action[]): Promise<Action[]>;
 }
 /**
  * This is only used in JSON.stringify, to prevent cyclic errors arising from

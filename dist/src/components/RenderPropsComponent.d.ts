@@ -1,12 +1,12 @@
 import { ComponentGenerator, ContainerComponent } from './ContainerComponent';
 import { StateObject } from '..';
-import { ReactNode, SFC } from 'react';
+import { ReactNode, FunctionComponent } from 'react';
 export interface ContainerRenderProps<VP> {
     _viewGenerator?: ComponentGenerator<VP>;
-    _sfc?: SFC<VP>;
+    _functionComp?: FunctionComponent<VP>;
 }
 /**
- * We assume that if props contains either a '_sfc' or '_viewGenerator' prop, that they
+ * We assume that if props contains either a '_functionComp' or '_viewGenerator' prop, that they
  * are of the correct type and props implement the ContainerRenderProps<VP> interface.
  *
  * This is necessary because of weak type detection, which may make sense to me someday.

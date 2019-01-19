@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ReactNode, SFC } from 'react';
+import { FunctionComponent, ReactNode } from 'react';
 import { Action, AnyMappingAction, MappingAction, MappingHook } from '../actions/actions';
 import { StateObject } from '../types/Store';
 /**
@@ -29,7 +29,7 @@ export declare abstract class ContainerComponent<CP, VP, A extends StateObject, 
     /**
      * stateless functional component, this is a function that returns a view typically
      */
-    protected sfcView: SFC<VP> | undefined;
+    protected functionCompView: FunctionComponent<VP> | undefined;
     /**
      * An instance of a React.Component class created by the {@link ComponentGenerator} passed into the constructor.
      */
@@ -47,16 +47,16 @@ export declare abstract class ContainerComponent<CP, VP, A extends StateObject, 
     createMappingAction<S extends StateObject, K extends Extract<keyof S, string>, TP extends Extract<keyof VP, string>, V>(parentState: S, _propKey: K, targetPropKey: TP, ...mappingHooks: MappingHook[]): MappingAction<S, K, CP, VP, TP, A, V>;
     /**
      * There are two types of views this can create.  The preferred way is with
-     * an 'SFC' (stateless functional component), the other way is by creating
+     * a FunctionComponent, the other way is by creating
      * an instance of a React.Component class.  The constructor accepts either one
      * or the other.
      *
      * @param {CP} _props
      * @param {StateObject & A} appData
-     * @param {React.SFC<VP> | undefined} sfc
+     * @param {React.FunctionComponent<VP> | undefined} function component
      * @param {ComponentGenerator<VP> | undefined} viewGenerator
      */
-    constructor(_props: CP, appData: StateObject & A, sfc: SFC<VP> | undefined, viewGenerator?: ComponentGenerator<VP> | undefined, reactState?: RS);
+    constructor(_props: CP, appData: StateObject & A, functionComp: FunctionComponent<VP> | undefined, viewGenerator?: ComponentGenerator<VP> | undefined, reactState?: RS);
     createMapping<S extends StateObject, K extends Extract<keyof S, string>, TP extends Extract<keyof VP, string>, V>(stateObject: S, stateObjectProperty: K, targetViewProp: TP, ...mappingHooks: MappingHook[]): MappingAction<S, K, CP, VP, TP, A, V>;
     /**
      * This is only used for testing
@@ -73,7 +73,7 @@ export declare abstract class ContainerComponent<CP, VP, A extends StateObject, 
     protected abstract appendToMappingActions(mappingActions: AnyMappingAction[]): void;
     /**
      * Create default view properties, used to initialize {@link viewProps} and passed
-     * into this container's presentational component, either {@link sfcView} or
+     * into this container's presentational component, either {@link functionCompView} or
      * {@link viewComponent} via {@link viewGenerator}
      * @returns {VP}
      */

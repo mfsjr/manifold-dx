@@ -56,7 +56,7 @@ const ScoreCardGenerator = function(props: ScoreCardProps): React.Component<Scor
   return new React.Component<ScoreCardProps>(props);
 };
 
-function addressRowSfc(addressProps: AddressProps): React.ReactElement<AddressProps> {
+function addressRowFunctionComp(addressProps: AddressProps): React.ReactElement<AddressProps> {
   return (
     <div>
       <div>
@@ -83,7 +83,7 @@ class AddressContainer extends ContainerComponent<AddressProps, AddressProps, Te
   public displayName: string;
 
   constructor(addressProps: AddressProps, _displayName: string) {
-    super(addressProps, testStore.getState(), addressRowSfc);
+    super(addressProps, testStore.getState(), addressRowFunctionComp);
     this.displayName = _displayName;
     this.state = { editing: false };
   }

@@ -37,16 +37,16 @@ var ContainerComponent = /** @class */ (function (_super) {
     __extends(ContainerComponent, _super);
     /**
      * There are two types of views this can create.  The preferred way is with
-     * an 'SFC' (stateless functional component), the other way is by creating
+     * a FunctionComponent, the other way is by creating
      * an instance of a React.Component class.  The constructor accepts either one
      * or the other.
      *
      * @param {CP} _props
      * @param {StateObject & A} appData
-     * @param {React.SFC<VP> | undefined} sfc
+     * @param {React.FunctionComponent<VP> | undefined} function component
      * @param {ComponentGenerator<VP> | undefined} viewGenerator
      */
-    function ContainerComponent(_props, appData, sfc, viewGenerator, reactState) {
+    function ContainerComponent(_props, appData, functionComp, viewGenerator, reactState) {
         var _this = _super.call(this, _props, reactState) || this;
         _this.viewPropsUpdated = false;
         /* tslint:enable:no-any */
@@ -62,10 +62,10 @@ var ContainerComponent = /** @class */ (function (_super) {
             // console.log(`appData in base container: ${JSON.stringify(this.appData, JSON_replaceCyclicParent, 4)}`);
         }
         // examine the component functions
-        if ((sfc && viewGenerator) || (!sfc && !viewGenerator)) {
-            throw new Error((sfc ? 2 : 0) + " functions supplied; you must supply exactly one function");
+        if ((functionComp && viewGenerator) || (!functionComp && !viewGenerator)) {
+            throw new Error((functionComp ? 2 : 0) + " functions supplied; you must supply exactly one function");
         }
-        _this.sfcView = sfc;
+        _this.functionCompView = functionComp;
         _this.viewGenerator = viewGenerator;
         return _this;
     }
@@ -228,15 +228,15 @@ var ContainerComponent = /** @class */ (function (_super) {
         if (!this.viewProps) {
             this.setupViewProps();
         }
-        if (this.sfcView) {
-            var result = this.sfcView(this.viewProps);
+        if (this.functionCompView) {
+            var result = this.functionCompView(this.viewProps);
             return result;
         }
         if (this.viewGenerator) {
             this.viewComponent = this.viewGenerator(this.viewProps);
             return this.viewComponent.render();
         }
-        throw new Error('Neither SFC nor React.Component is available for rendering');
+        throw new Error('Neither FunctionComponent nor React.Component is available for rendering');
     };
     return ContainerComponent;
 }(React.Component));

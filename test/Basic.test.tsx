@@ -27,7 +27,7 @@ import * as Adapter from 'enzyme-adapter-react-16';
 import { ContainerComponent, getActionCreator, getArrayActionCreator, StateObject } from '../src';
 import { Address, createTestStore, Name, TestState } from './testHarness';
 import { Action, AnyMappingAction, StateCrudAction } from '../src/actions/actions';
-import { ReactElement, SFC } from 'react';
+import { ReactElement, FunctionComponent } from 'react';
 import { getMappingActionCreator } from '../src/actions/actionCreators';
 import { BowlerProps, ScoreCardProps } from './Components.test';
 import * as React from 'react';
@@ -43,7 +43,7 @@ const testStore = createTestStore();
  */
 class AddressContainer extends ContainerComponent<Address, Address, TestState & StateObject> {
   constructor(props: Address) {
-    super(props, testStore.getState(), AddressSfc);
+    super(props, testStore.getState(), AddressFunctionComp);
   }
 
   protected appendToMappingActions(mappingActions: AnyMappingAction[]): void {
@@ -86,12 +86,12 @@ class AddressRenderPropsContainer extends RenderPropsComponent<AddressRenderProp
 }
 
 /**
- * SFC for AddressContainer
+ * FunctionComponent for AddressContainer
  * @param props
  * @constructor
  */
-const AddressSfc: SFC<Address> = (props: Address): ReactElement<Address> => {
-// function AddressSfc(props: Address): ReactElement<Address> {
+const AddressFunctionComp: FunctionComponent<Address> = (props: Address): ReactElement<Address> => {
+// function AddressFunctionComp(props: Address): ReactElement<Address> {
   return (
     <div>
       <div className={'address1'}>{props.street} {props.city}</div>
@@ -185,11 +185,12 @@ class BowlerContainer extends ContainerComponent<BowlerProps, ScoreCardProps, Te
 }
 
 /**
- * SFC view for BowlerContainer
+ * FunctionComponent view for BowlerContainer
  * @param _props
  * @constructor
  */
-const BowlerContainerView: SFC<ScoreCardProps> = (_props: ScoreCardProps): ReactElement<ScoreCardProps> => {
+const BowlerContainerView: FunctionComponent<ScoreCardProps> =
+    (_props: ScoreCardProps): ReactElement<ScoreCardProps> => {
   const scoreView = _props.scores.map((score, index) => {
     let key = `${index} ${score}`;
     return ( <div key={key}>{1 + index}. {score}</div> );
@@ -241,7 +242,7 @@ describe('enzyme tests for lifecycle methods', () => {
         city={'Hopewell'}
         state={'NY'}
         zip={'12545'}
-        _sfc={AddressSfc}
+        _functionComp={AddressFunctionComp}
       />);
     expect(hello.find('.address1').text()).toContain('Walnut');
     // TODO: verify lifecycle methods

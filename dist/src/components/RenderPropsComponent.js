@@ -15,24 +15,24 @@ var __extends = (this && this.__extends) || (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 var ContainerComponent_1 = require("./ContainerComponent");
 /**
- * We assume that if props contains either a '_sfc' or '_viewGenerator' prop, that they
+ * We assume that if props contains either a '_functionComp' or '_viewGenerator' prop, that they
  * are of the correct type and props implement the ContainerRenderProps<VP> interface.
  *
  * This is necessary because of weak type detection, which may make sense to me someday.
  * @param props
  */
 function isContainerRenderProps(props) {
-    return props["sfc"] || props["viewGenerator"];
+    return props["functionComp"] || props["viewGenerator"];
 }
 exports.isContainerRenderProps = isContainerRenderProps;
 var RenderPropsComponent = /** @class */ (function (_super) {
     __extends(RenderPropsComponent, _super);
     function RenderPropsComponent(_props, appData, reactState) {
-        return _super.call(this, _props, appData, _props._sfc, _props._viewGenerator, reactState) || this;
+        return _super.call(this, _props, appData, _props._functionComp, _props._viewGenerator, reactState) || this;
     }
     RenderPropsComponent.prototype.render = function () {
-        // reassign sfc and viewGenerator every time we render...
-        this.sfcView = this.props._sfc || this.sfcView;
+        // reassign functionComponent and viewGenerator every time we render...
+        this.functionCompView = this.props._functionComp || this.functionCompView;
         this.viewGenerator = this.props._viewGenerator || this.viewGenerator;
         return _super.prototype.render.call(this);
     };

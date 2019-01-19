@@ -56,7 +56,7 @@ var addr2 = {
 var ScoreCardGenerator = function (props) {
     return new React.Component(props);
 };
-function addressRowSfc(addressProps) {
+function addressRowFunctionComp(addressProps) {
     return (React.createElement("div", null,
         React.createElement("div", null, addressProps.address.street),
         React.createElement("div", null,
@@ -73,7 +73,7 @@ function addressRowSfc(addressProps) {
 var AddressContainer = /** @class */ (function (_super) {
     __extends(AddressContainer, _super);
     function AddressContainer(addressProps, _displayName) {
-        var _this = _super.call(this, addressProps, testStore.getState(), addressRowSfc) || this;
+        var _this = _super.call(this, addressProps, testStore.getState(), addressRowFunctionComp) || this;
         _this.displayName = _displayName;
         _this.state = { editing: false };
         return _this;

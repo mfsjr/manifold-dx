@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ReactElement, ReactNode, SFC } from 'react';
+import { FunctionComponent, ReactElement, ReactNode } from 'react';
 import { Action, AnyMappingAction, MappingAction, MappingHook, StateAction, StateCrudAction } from '../actions/actions';
 import * as _ from 'lodash';
 import { Manager } from '../types/Manager';
@@ -43,7 +43,7 @@ export abstract class ContainerComponent<CP, VP, A extends StateObject, RS = {} 
   /**
    * stateless functional component, this is a function that returns a view typically
    */
-  protected sfcView: SFC<VP> | undefined;
+  protected functionCompView: FunctionComponent<VP> | undefined;
 
   /**
    * An instance of a React.Component class created by the {@link ComponentGenerator} passed into the constructor.
@@ -78,16 +78,16 @@ export abstract class ContainerComponent<CP, VP, A extends StateObject, RS = {} 
 
   /**
    * There are two types of views this can create.  The preferred way is with
-   * an 'SFC' (stateless functional component), the other way is by creating
+   * a FunctionComponent, the other way is by creating
    * an instance of a React.Component class.  The constructor accepts either one
    * or the other.
    *
    * @param {CP} _props
    * @param {StateObject & A} appData
-   * @param {React.SFC<VP> | undefined} sfc
+   * @param {React.FunctionComponent<VP> | undefined} function component
    * @param {ComponentGenerator<VP> | undefined} viewGenerator
    */
-  constructor(_props: CP, appData: StateObject & A, sfc: SFC<VP> | undefined,
+  constructor(_props: CP, appData: StateObject & A, functionComp: FunctionComponent<VP> | undefined,
               viewGenerator?: ComponentGenerator<VP> | undefined, reactState?: RS) {
     super(_props, reactState);
     if (!_.isPlainObject(_props)) {
@@ -101,11 +101,11 @@ export abstract class ContainerComponent<CP, VP, A extends StateObject, RS = {} 
     }
 
     // examine the component functions
-    if ( (sfc && viewGenerator) || (!sfc && !viewGenerator)) {
-      throw new Error(`${sfc ? 2 : 0} functions supplied; you must supply exactly one function`);
+    if ( (functionComp && viewGenerator) || (!functionComp && !viewGenerator)) {
+      throw new Error(`${functionComp ? 2 : 0} functions supplied; you must supply exactly one function`);
     }
 
-    this.sfcView = sfc;
+    this.functionCompView = functionComp;
     this.viewGenerator = viewGenerator;
   }
 
@@ -137,7 +137,7 @@ export abstract class ContainerComponent<CP, VP, A extends StateObject, RS = {} 
 
   /**
    * Create default view properties, used to initialize {@link viewProps} and passed
-   * into this container's presentational component, either {@link sfcView} or
+   * into this container's presentational component, either {@link functionCompView} or
    * {@link viewComponent} via {@link viewGenerator}
    * @returns {VP}
    */
@@ -272,15 +272,15 @@ export abstract class ContainerComponent<CP, VP, A extends StateObject, RS = {} 
       this.setupViewProps();
     }
 
-    if (this.sfcView) {
-      let result: ReactElement<VP> | null = this.sfcView(this.viewProps);
+    if (this.functionCompView) {
+      let result: ReactElement<VP> | null = this.functionCompView(this.viewProps);
       return result;
     }
     if (this.viewGenerator) {
       this.viewComponent = this.viewGenerator(this.viewProps);
       return this.viewComponent.render();
     }
-    throw new Error('Neither SFC nor React.Component is available for rendering');
+    throw new Error('Neither FunctionComponent nor React.Component is available for rendering');
   }
 }
 

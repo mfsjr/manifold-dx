@@ -41,7 +41,7 @@ var testStore = testHarness_1.createTestStore();
 var AddressContainer = /** @class */ (function (_super) {
     __extends(AddressContainer, _super);
     function AddressContainer(props) {
-        return _super.call(this, props, testStore.getState(), AddressSfc) || this;
+        return _super.call(this, props, testStore.getState(), AddressFunctionComp) || this;
     }
     AddressContainer.prototype.appendToMappingActions = function (mappingActions) {
         // pass
@@ -79,12 +79,12 @@ var AddressRenderPropsContainer = /** @class */ (function (_super) {
     return AddressRenderPropsContainer;
 }(RenderPropsComponent_1.RenderPropsComponent));
 /**
- * SFC for AddressContainer
+ * FunctionComponent for AddressContainer
  * @param props
  * @constructor
  */
-var AddressSfc = function (props) {
-    // function AddressSfc(props: Address): ReactElement<Address> {
+var AddressFunctionComp = function (props) {
+    // function AddressFunctionComp(props: Address): ReactElement<Address> {
     return (React.createElement("div", null,
         React.createElement("div", { className: 'address1' },
             props.street,
@@ -169,7 +169,7 @@ var BowlerContainer = /** @class */ (function (_super) {
     return BowlerContainer;
 }(src_1.ContainerComponent));
 /**
- * SFC view for BowlerContainer
+ * FunctionComponent view for BowlerContainer
  * @param _props
  * @constructor
  */
@@ -217,7 +217,7 @@ var nameState = {
 var bowlingScores = [111, 121, 131];
 describe('enzyme tests for lifecycle methods', function () {
     it('renders the correct text when no enthusiasm level is given', function () {
-        var hello = enzyme.mount(React.createElement(AddressRenderPropsContainer, { id: 2, street: 'Genung Ct', city: 'Hopewell', state: 'NY', zip: '12545', _sfc: AddressSfc }));
+        var hello = enzyme.mount(React.createElement(AddressRenderPropsContainer, { id: 2, street: 'Genung Ct', city: 'Hopewell', state: 'NY', zip: '12545', _functionComp: AddressFunctionComp }));
         expect(hello.find('.address1').text()).toContain('Walnut');
         // TODO: verify lifecycle methods
     });

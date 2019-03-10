@@ -418,4 +418,20 @@ describe('actionLogging tests', function () {
         }
     });
 });
+describe('Update if changed', function () {
+    test('updateIfChanged', function () {
+        var ns = testStore.getState().name;
+        expect(ns).toBeTruthy();
+        expect(ns === nameState).toBe(true);
+        expect(nameState.middle).toBe('J');
+        var nameActionCreator = src_1.getActionCreator(nameState);
+        // update should throw if you try to update with the same value
+        expect(function () { return nameActionCreator.update('middle', 'J').dispatch(); }).toThrow();
+        // updateIfChanged should not...
+        expect(function () { return nameActionCreator.updateIfChanged('middle', 'J').dispatch(); }).not.toThrow();
+        // updateIfChanged should update if the value is changed...
+        nameActionCreator.updateIfChanged('middle', 'Z').dispatch();
+        expect(nameState.middle).toBe('Z');
+    });
+});
 //# sourceMappingURL=actions.test.js.map

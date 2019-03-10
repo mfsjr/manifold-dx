@@ -42,6 +42,10 @@ var ActionCreator = /** @class */ (function () {
         // this.throwIfArray(this.parent[propertyKey]);
         return new actions_1.StateCrudAction(actions_1.ActionId.UPDATE_PROPERTY, this.parent, propertyKey, value);
     };
+    ActionCreator.prototype.updateIfChanged = function (propertyKey, value) {
+        var actionId = this.parent[propertyKey] !== value ? actions_1.ActionId.UPDATE_PROPERTY : actions_1.ActionId.UPDATE_PROPERTY_NO_OP;
+        return new actions_1.StateCrudAction(actionId, this.parent, propertyKey, value);
+    };
     // This "time-saver" convenience function is actually more trouble than its worth, since there are
     // all kinds of corner cases that make it highly dependent on the particular types of objects
     // being dealt with (unlike our array replaceAll).

@@ -165,6 +165,10 @@ var Manager = /** @class */ (function () {
         for (var _i = 1; _i < arguments.length; _i++) {
             actions[_i - 1] = arguments[_i];
         }
+        // if a no-op exists, filter it and any others out of the array
+        if (actions.find(function (action) { return action.type === actions_1.ActionId.UPDATE_PROPERTY_NO_OP; })) {
+            actions = actions.filter(function (action) { return action.type !== actions_1.ActionId.UPDATE_PROPERTY_NO_OP; });
+        }
         if (actions.length === 0) {
             return actions;
         }

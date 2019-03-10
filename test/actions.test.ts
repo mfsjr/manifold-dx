@@ -456,3 +456,20 @@ describe('actionLogging tests', () => {
 
   });
 });
+
+describe('Update if changed', () => {
+  test('updateIfChanged', () => {
+    let ns = testStore.getState().name;
+    expect(ns).toBeTruthy();
+    expect(ns === nameState).toBe(true);
+    expect(nameState.middle).toBe('J');
+    let nameActionCreator = getActionCreator(nameState);
+    // update should throw if you try to update with the same value
+    expect(() => nameActionCreator.update('middle', 'J').dispatch()).toThrow();
+    // updateIfChanged should not...
+    expect(() => nameActionCreator.updateIfChanged('middle', 'J').dispatch()).not.toThrow();
+    // updateIfChanged should update if the value is changed...
+    nameActionCreator.updateIfChanged('middle', 'Z').dispatch();
+    expect(nameState.middle).toBe('Z');
+  });
+});

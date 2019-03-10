@@ -22,6 +22,7 @@ export enum ActionId {
   UPDATE_PROPERTY,
   DELETE_PROPERTY,
   MAP_STATE_TO_PROP,
+  UPDATE_PROPERTY_NO_OP, // typically due to newValue === oldValue
 }
 
 /**

@@ -34,6 +34,7 @@ var ActionId;
     ActionId[ActionId["UPDATE_PROPERTY"] = 4] = "UPDATE_PROPERTY";
     ActionId[ActionId["DELETE_PROPERTY"] = 5] = "DELETE_PROPERTY";
     ActionId[ActionId["MAP_STATE_TO_PROP"] = 6] = "MAP_STATE_TO_PROP";
+    ActionId[ActionId["UPDATE_PROPERTY_NO_OP"] = 7] = "UPDATE_PROPERTY_NO_OP";
 })(ActionId = exports.ActionId || (exports.ActionId = {}));
 /* tslint:enable:no-any */
 var Action = /** @class */ (function () {

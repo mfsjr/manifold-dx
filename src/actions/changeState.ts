@@ -92,6 +92,8 @@ export function changeValue<S extends StateObject, K extends Extract<keyof S, st
     case ActionId.RERENDER: {
       return { oldValue: stateObject[propertyName] };
     }
+    case ActionId.UPDATE_PROPERTY_NO_OP:
+      return {oldValue: value};
     case ActionId.UPDATE_PROPERTY: {
       let isStateObject = Store.isInstanceOfStateObject(value);
       throwIf(isStateObject, `${ActionId[actionType]} action isn't applicable to state objects`);

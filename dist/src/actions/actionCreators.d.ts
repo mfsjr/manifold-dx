@@ -15,6 +15,7 @@ export declare class ActionCreator<S extends StateObject> {
     rerender<K extends Extract<keyof S, string>>(propertyKey: K): StateCrudAction<S, K>;
     insert<K extends Extract<keyof S, string>>(propertyKey: K, value: S[K]): StateCrudAction<S, K>;
     update<K extends Extract<keyof S, string>>(propertyKey: K, value: S[K]): StateCrudAction<S, K>;
+    updateIfChanged<K extends Extract<keyof S, string>>(propertyKey: K, value: S[K]): StateCrudAction<S, K>;
     /**
      * Delete the property (named 'remove' because 'delete' is a reserved word)
      * @param {K} propertyKey

@@ -52,6 +52,10 @@ export class ActionCreator<S extends StateObject> {
     // this.throwIfArray(this.parent[propertyKey]);
     return new StateCrudAction(ActionId.UPDATE_PROPERTY, this.parent, propertyKey, value);
   }
+  public updateIfChanged<K extends Extract<keyof S, string>>(propertyKey: K, value: S[K]): StateCrudAction<S, K> {
+    let actionId = this.parent[propertyKey] !== value ? ActionId.UPDATE_PROPERTY : ActionId.UPDATE_PROPERTY_NO_OP;
+    return new StateCrudAction(actionId, this.parent, propertyKey, value);
+  }
 
   // This "time-saver" convenience function is actually more trouble than its worth, since there are
   // all kinds of corner cases that make it highly dependent on the particular types of objects

@@ -112,8 +112,8 @@ var Store = /** @class */ (function () {
     };
     Store.getStateKeys = function () {
         // let state = State.createState();
-        var appState = new Store({}, {});
-        return Object.keys(appState.getState());
+        var appStore = new Store({}, {});
+        return Object.keys(appStore.getState());
     };
     /**
      * Add a child state object to the parent state object.  Note that the parent is assumed to be

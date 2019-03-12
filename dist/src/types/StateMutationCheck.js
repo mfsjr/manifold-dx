@@ -51,9 +51,9 @@ var onFailureWarn = function (baseline, failure) {
  *
  */
 var StateMutationCheck = /** @class */ (function () {
-    function StateMutationCheck(state, onFailure) {
+    function StateMutationCheck(store, onFailure) {
         this.enabled = false;
-        this.state = state;
+        this.store = store;
         this.onFailure = onFailure ? onFailure : onFailureWarn;
         // this.enableMutationChecks();
     }
@@ -61,7 +61,7 @@ var StateMutationCheck = /** @class */ (function () {
         return this.enabled;
     };
     StateMutationCheck.prototype.enableMutationChecks = function () {
-        this.lastGood = _.cloneDeep(this.state.getState());
+        this.lastGood = _.cloneDeep(this.store.getState());
         this.enabled = true;
     };
     StateMutationCheck.prototype.disableMutationChecks = function () {
@@ -73,11 +73,11 @@ var StateMutationCheck = /** @class */ (function () {
         }
     };
     StateMutationCheck.prototype.postActionCopyState = function (actions) {
-        this.lastGood = _.cloneDeep(this.state.getState());
+        this.lastGood = _.cloneDeep(this.store.getState());
         return actions;
     };
     StateMutationCheck.prototype.preActionStateCheck = function (actions) {
-        this.check(this.state.getState());
+        this.check(this.store.getState());
         return actions;
     };
     return StateMutationCheck;

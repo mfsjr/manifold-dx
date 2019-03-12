@@ -186,8 +186,8 @@ export class Store<A> {
 
   private static getStateKeys(): string[] {
     // let state = State.createState();
-    let appState = new Store({}, {});
-    return Object.keys(appState.getState());
+    let appStore = new Store({}, {});
+    return Object.keys(appStore.getState());
   }
 
   constructor(appData: A, options: StateConfigOptions) {

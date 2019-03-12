@@ -142,7 +142,7 @@ exports.getArrayActionCreator = getArrayActionCreator;
  */
 var ArrayActionCreator = /** @class */ (function () {
     /**
-     * Construct an array crud creator.  We require a somewhat redundant 'valuesArray'
+     * Construct an array crud creator.  We require a somewhat redundant 'childArray'
      * parameter in order to provide TypeScript with a strongly typed object that
      * we can use in conjunction with a typeguard so that the array element's property is an
      * appropriately typed value.
@@ -154,10 +154,8 @@ var ArrayActionCreator = /** @class */ (function () {
      *
      * S extends StateObject
      *
-     * @param {S} parent
-     * @param {keyof S} propertyKey
-     * @param {Array<V>} childArray
-     * @param {ArrayKeyGeneratorFn} keyGenerator
+     * @param parent
+     * @param childArray
      */
     function ArrayActionCreator(parent, childArray) {
         this.parent = parent;

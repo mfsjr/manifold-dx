@@ -45,10 +45,10 @@ export class StateMutationCheck<S> {
 
   private enabled: boolean = false;
 
-  private state: Store<S>;
+  private store: Store<S>;
 
-  constructor(state: Store<S>, onFailure?: (baseline: S, failure: S) => string) {
-    this.state = state;
+  constructor(store: Store<S>, onFailure?: (baseline: S, failure: S) => string) {
+    this.store = store;
     this.onFailure = onFailure ? onFailure : onFailureWarn;
     // this.enableMutationChecks();
   }
@@ -58,7 +58,7 @@ export class StateMutationCheck<S> {
   }
 
   public enableMutationChecks() {
-    this.lastGood = _.cloneDeep( this.state.getState() );
+    this.lastGood = _.cloneDeep( this.store.getState() );
     this.enabled = true;
   }
 
@@ -73,12 +73,12 @@ export class StateMutationCheck<S> {
   }
 
   public postActionCopyState(actions: Action[]): Action[] {
-    this.lastGood = _.cloneDeep(this.state.getState());
+    this.lastGood = _.cloneDeep(this.store.getState());
     return actions;
   }
 
   public preActionStateCheck(actions: Action[]): Action[] {
-    this.check(this.state.getState());
+    this.check(this.store.getState());
     return actions;
   }
 }

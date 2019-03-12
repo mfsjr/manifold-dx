@@ -160,7 +160,7 @@ export class ArrayActionCreator<S extends StateObject, K extends Extract<keyof S
   private valuesArray: Array<V> & S[K];
 
   /**
-   * Construct an array crud creator.  We require a somewhat redundant 'valuesArray'
+   * Construct an array crud creator.  We require a somewhat redundant 'childArray'
    * parameter in order to provide TypeScript with a strongly typed object that
    * we can use in conjunction with a typeguard so that the array element's property is an
    * appropriately typed value.
@@ -172,10 +172,8 @@ export class ArrayActionCreator<S extends StateObject, K extends Extract<keyof S
    *
    * S extends StateObject
    *
-   * @param {S} parent
-   * @param {keyof S} propertyKey
-   * @param {Array<V>} childArray
-   * @param {ArrayKeyGeneratorFn} keyGenerator
+   * @param parent
+   * @param childArray
    */
   constructor(parent: S, childArray: Array<V> & S[K]) {
     this.parent = parent;

@@ -457,8 +457,8 @@ describe('actionLogging tests', () => {
   });
 });
 
-describe('Update if changed', () => {
-  test('updateIfChanged', () => {
+describe('safe operations, updateIfChanged, insertIfEmpty, removeIfHasData', () => {
+  test('property updateIfChanged', () => {
     let ns = testStore.getState().name;
     expect(ns).toBeTruthy();
     expect(ns === nameState).toBe(true);
@@ -471,5 +471,35 @@ describe('Update if changed', () => {
     // updateIfChanged should update if the value is changed...
     nameActionCreator.updateIfChanged('middle', 'Z').dispatch();
     expect(nameState.middle).toBe('Z');
+  });
+  test('array updateIfChanged', () => {
+    // we need nameState.addresses to be populated
+    expect(nameState.addresses.length > 0);
+    const addr0 = nameState.addresses[0];
+    const addressesActionCreator = getArrayActionCreator(nameState, nameState.addresses);
+    expect(() => addressesActionCreator.updateElement(0, addr0).dispatch()).toThrow();
+    expect(() => addressesActionCreator.updateElementIfChanged(0, addr0)).not.toThrow();
+    let addr01 = {...addr0};
+    addr01.id -= 10000;
+    addr01.zip = '0';
+    expect(() => addressesActionCreator.updateElementIfChanged(0, addr01).dispatch()).not.toThrow();
+    expect(nameState.addresses[0] === addr01).toBe(true);
+  });
+  test('property insertDeleteIfHasData', () => {
+    expect(nameState.middle.length > 0).toBe(true);
+    let actionCreator = getActionCreator(nameState);
+    actionCreator.removeIfHasData('middle').dispatch();
+    expect( nameState.middle).toBeFalsy();
+    expect(() => actionCreator.remove('middle').dispatch()).toThrow();
+    expect( () => actionCreator.removeIfHasData('middle').dispatch()).not.toThrow();
+
+  });
+  // TODO: our insert method already fails to throw in there is data in the property!  Seems like we need to fix this
+  test( 'property insertIfEmpty', () => {
+    expect(nameState.middle).toBeFalsy();
+    let actionCreator = getActionCreator(nameState);
+    actionCreator.insertIfEmpty('middle', 'J').dispatch();
+    expect(nameState.middle).toBeTruthy();
+    expect(() => actionCreator.insertIfEmpty('middle', 'R').dispatch()).not.toThrow();
   });
 });

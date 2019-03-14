@@ -44,12 +44,27 @@ export class ActionCreator<S extends StateObject> {
     return new StateCrudAction(ActionId.RERENDER, this.parent, propertyKey, this.parent[propertyKey]);
   }
 
+  /**
+   * Insert the truthy value into the falsey property, throwing if either are not the case.
+   * @param propertyKey
+   * @param value
+   */
   public insert<K extends Extract<keyof S, string>>(propertyKey: K, value: S[K]): StateCrudAction<S, K> {
-    // this.throwIfArray(this.parent[propertyKey]);
     return new StateCrudAction(ActionId.INSERT_PROPERTY, this.parent, propertyKey, value);
   }
+
+  /**
+   * Insert the value if the current property is empty, else provide a no-op action type so that
+   * dispatch will ignore it.
+   * {@see insert}, {@see update}
+   * @param propertyKey
+   * @param value
+   */
+  public insertIfEmpty<K extends Extract<keyof S, string>>(propertyKey: K, value: S[K]): StateCrudAction<S, K> {
+    const type = !this.parent[propertyKey] ? ActionId.INSERT_PROPERTY : ActionId.INSERT_PROPERTY_NO_OP;
+    return new StateCrudAction(type, this.parent, propertyKey, value);
+  }
   public update<K extends Extract<keyof S, string>>(propertyKey: K, value: S[K]): StateCrudAction<S, K> {
-    // this.throwIfArray(this.parent[propertyKey]);
     return new StateCrudAction(ActionId.UPDATE_PROPERTY, this.parent, propertyKey, value);
   }
   public updateIfChanged<K extends Extract<keyof S, string>>(propertyKey: K, value: S[K]): StateCrudAction<S, K> {
@@ -109,7 +124,9 @@ export class ActionCreator<S extends StateObject> {
   // }
 
   /**
-   * Delete the property (named 'remove' because 'delete' is a reserved word)
+   * Delete the property (named 'remove' because 'delete' is a reserved word).
+   *
+   * If it is not empty, throw
    * @param {K} propertyKey
    * @returns {Action}
    */
@@ -117,6 +134,18 @@ export class ActionCreator<S extends StateObject> {
     // this.throwIfArray(this.parent[propertyKey]);
     return new StateCrudAction(ActionId.DELETE_PROPERTY, this.parent, propertyKey);
   }
+
+  /**
+   * If the value of the property is not undefined or null, remove it, else return a no-op action.
+   * @param propertyKey
+   */
+  public removeIfHasData<K extends Extract<keyof S, string>>(propertyKey: K): StateCrudAction<S, K> {
+    const type = this.parent[propertyKey] === undefined || this.parent[propertyKey] === null ?
+      ActionId.DELETE_PROPERTY_NO_OP :
+      ActionId.DELETE_PROPERTY;
+    return new StateCrudAction(type, this.parent, propertyKey);
+  }
+
   // TODO: can this and the crudInsert above actually work when defined in terms of non-existent keys?
   public insertStateObject<K extends Extract<keyof S, string>>(value: S[K] & StateObject, propertyKey: K)
       : StateCrudAction<S, K> {
@@ -239,6 +268,12 @@ export class ArrayActionCreator<S extends StateObject, K extends Extract<keyof S
     // let index = this.getIndexOf(oldValue);
     return new ArrayChangeAction(
       ActionId.UPDATE_PROPERTY, this.parent, this.propertyKey, index, this.valuesArray, newValue);
+  }
+
+  public updateElementIfChanged(index: number, newValue: V): ArrayChangeAction<S, K, V> {
+    const type = newValue !== this.valuesArray[index] ? ActionId.UPDATE_PROPERTY : ActionId.UPDATE_PROPERTY_NO_OP;
+    return new ArrayChangeAction(
+      type, this.parent, this.propertyKey, index, this.valuesArray, newValue);
   }
 
   /**

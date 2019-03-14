@@ -35,7 +35,12 @@ var ActionId;
     ActionId[ActionId["DELETE_PROPERTY"] = 5] = "DELETE_PROPERTY";
     ActionId[ActionId["MAP_STATE_TO_PROP"] = 6] = "MAP_STATE_TO_PROP";
     ActionId[ActionId["UPDATE_PROPERTY_NO_OP"] = 7] = "UPDATE_PROPERTY_NO_OP";
+    ActionId[ActionId["INSERT_PROPERTY_NO_OP"] = 8] = "INSERT_PROPERTY_NO_OP";
+    ActionId[ActionId["DELETE_PROPERTY_NO_OP"] = 9] = "DELETE_PROPERTY_NO_OP";
 })(ActionId = exports.ActionId || (exports.ActionId = {}));
+exports.ActionTypeIsNoOp = function (actionId) {
+    return actionId >= ActionId.UPDATE_PROPERTY_NO_OP;
+};
 /* tslint:enable:no-any */
 var Action = /** @class */ (function () {
     function Action(actionType) {

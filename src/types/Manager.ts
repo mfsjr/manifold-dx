@@ -1,5 +1,5 @@
 import { Store, StateObject, StateConfigOptions, JSON_replaceCyclicParent } from './Store';
-import { Action, actionDescription, ActionId, MappingAction } from '../actions/actions';
+import { Action, actionDescription, ActionTypeIsNoOp, MappingAction } from '../actions/actions';
 import { MappingState } from './MappingState';
 import { createActionQueue, ActionQueue } from './ActionQueue';
 import { ActionProcessor } from './ActionProcessor';
@@ -186,8 +186,8 @@ export class Manager {
    */
   protected dispatch(actionMethod: (action: Action) => void, ...actions: Action[]): Action[] {
     // if a no-op exists, filter it and any others out of the array
-    if (actions.find(action => action.type === ActionId.UPDATE_PROPERTY_NO_OP)) {
-      actions = actions.filter(action => action.type !== ActionId.UPDATE_PROPERTY_NO_OP);
+    if (actions.find(action => ActionTypeIsNoOp(action.type))) {
+      actions = actions.filter(action => !ActionTypeIsNoOp(action.type));
     }
     if (actions.length === 0) {
       return actions;

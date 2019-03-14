@@ -60,6 +60,10 @@ export function changeArray<S extends StateObject, K extends Extract<keyof S, st
   }
   validateArrayIndex(actionType, values, index, propertyName);
   switch (actionType) {
+    case ActionId.UPDATE_PROPERTY_NO_OP ||
+         ActionId.INSERT_PROPERTY_NO_OP ||
+         ActionId.DELETE_PROPERTY_NO_OP:
+      return {oldValue: value};
     case ActionId.UPDATE_PROPERTY: {
       let oldValue: V = values[index];
       values[index] = value;
@@ -92,7 +96,9 @@ export function changeValue<S extends StateObject, K extends Extract<keyof S, st
     case ActionId.RERENDER: {
       return { oldValue: stateObject[propertyName] };
     }
-    case ActionId.UPDATE_PROPERTY_NO_OP:
+    case ActionId.UPDATE_PROPERTY_NO_OP ||
+         ActionId.INSERT_PROPERTY_NO_OP ||
+         ActionId.DELETE_PROPERTY_NO_OP:
       return {oldValue: value};
     case ActionId.UPDATE_PROPERTY: {
       let isStateObject = Store.isInstanceOfStateObject(value);
@@ -109,6 +115,10 @@ export function changeValue<S extends StateObject, K extends Extract<keyof S, st
       if (value === undefined || value == null) {
         throw new Error('Cannot insert an undefined/null value, consider deleting instead');
       }
+      // let oldValue: S[K] = stateObject[propertyName];
+      // if (oldValue !== undefined && oldValue !== null) {
+      //   throw new Error('Cannot insert where data already exists');
+      // }
       // TODO: seems this should be uncommented, unless we decide ease-of-use is more important, and we document it
       // if (stateObject[propertyName]) {
       //   throw new Error('Cannot insert, a value already exists, use update instead');

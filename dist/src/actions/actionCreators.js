@@ -34,12 +34,26 @@ var ActionCreator = /** @class */ (function () {
         // this.throwIfArray(this.parent[propertyKey]);
         return new actions_1.StateCrudAction(actions_1.ActionId.RERENDER, this.parent, propertyKey, this.parent[propertyKey]);
     };
+    /**
+     * Insert the truthy value into the falsey property, throwing if either are not the case.
+     * @param propertyKey
+     * @param value
+     */
     ActionCreator.prototype.insert = function (propertyKey, value) {
-        // this.throwIfArray(this.parent[propertyKey]);
         return new actions_1.StateCrudAction(actions_1.ActionId.INSERT_PROPERTY, this.parent, propertyKey, value);
     };
+    /**
+     * Insert the value if the current property is empty, else provide a no-op action type so that
+     * dispatch will ignore it.
+     * {@see insert}, {@see update}
+     * @param propertyKey
+     * @param value
+     */
+    ActionCreator.prototype.insertIfEmpty = function (propertyKey, value) {
+        var type = !this.parent[propertyKey] ? actions_1.ActionId.INSERT_PROPERTY : actions_1.ActionId.INSERT_PROPERTY_NO_OP;
+        return new actions_1.StateCrudAction(type, this.parent, propertyKey, value);
+    };
     ActionCreator.prototype.update = function (propertyKey, value) {
-        // this.throwIfArray(this.parent[propertyKey]);
         return new actions_1.StateCrudAction(actions_1.ActionId.UPDATE_PROPERTY, this.parent, propertyKey, value);
     };
     ActionCreator.prototype.updateIfChanged = function (propertyKey, value) {
@@ -97,13 +111,25 @@ var ActionCreator = /** @class */ (function () {
     //   return value.hasOwnProperty(key);
     // }
     /**
-     * Delete the property (named 'remove' because 'delete' is a reserved word)
+     * Delete the property (named 'remove' because 'delete' is a reserved word).
+     *
+     * If it is not empty, throw
      * @param {K} propertyKey
      * @returns {Action}
      */
     ActionCreator.prototype.remove = function (propertyKey) {
         // this.throwIfArray(this.parent[propertyKey]);
         return new actions_1.StateCrudAction(actions_1.ActionId.DELETE_PROPERTY, this.parent, propertyKey);
+    };
+    /**
+     * If the value of the property is not undefined or null, remove it, else return a no-op action.
+     * @param propertyKey
+     */
+    ActionCreator.prototype.removeIfHasData = function (propertyKey) {
+        var type = this.parent[propertyKey] === undefined || this.parent[propertyKey] === null ?
+            actions_1.ActionId.DELETE_PROPERTY_NO_OP :
+            actions_1.ActionId.DELETE_PROPERTY;
+        return new actions_1.StateCrudAction(type, this.parent, propertyKey);
     };
     // TODO: can this and the crudInsert above actually work when defined in terms of non-existent keys?
     ActionCreator.prototype.insertStateObject = function (value, propertyKey) {
@@ -210,6 +236,10 @@ var ArrayActionCreator = /** @class */ (function () {
     ArrayActionCreator.prototype.updateElement = function (index, newValue) {
         // let index = this.getIndexOf(oldValue);
         return new actions_1.ArrayChangeAction(actions_1.ActionId.UPDATE_PROPERTY, this.parent, this.propertyKey, index, this.valuesArray, newValue);
+    };
+    ArrayActionCreator.prototype.updateElementIfChanged = function (index, newValue) {
+        var type = newValue !== this.valuesArray[index] ? actions_1.ActionId.UPDATE_PROPERTY : actions_1.ActionId.UPDATE_PROPERTY_NO_OP;
+        return new actions_1.ArrayChangeAction(type, this.parent, this.propertyKey, index, this.valuesArray, newValue);
     };
     /**
      * Replace the current array's elements with the contents of the newArray.

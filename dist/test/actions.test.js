@@ -418,8 +418,8 @@ describe('actionLogging tests', function () {
         }
     });
 });
-describe('Update if changed', function () {
-    test('updateIfChanged', function () {
+describe('safe operations, updateIfChanged, insertIfEmpty, removeIfHasData', function () {
+    test('property updateIfChanged', function () {
         var ns = testStore.getState().name;
         expect(ns).toBeTruthy();
         expect(ns === nameState).toBe(true);
@@ -432,6 +432,35 @@ describe('Update if changed', function () {
         // updateIfChanged should update if the value is changed...
         nameActionCreator.updateIfChanged('middle', 'Z').dispatch();
         expect(nameState.middle).toBe('Z');
+    });
+    test('array updateIfChanged', function () {
+        // we need nameState.addresses to be populated
+        expect(nameState.addresses.length > 0);
+        var addr0 = nameState.addresses[0];
+        var addressesActionCreator = src_1.getArrayActionCreator(nameState, nameState.addresses);
+        expect(function () { return addressesActionCreator.updateElement(0, addr0).dispatch(); }).toThrow();
+        expect(function () { return addressesActionCreator.updateElementIfChanged(0, addr0); }).not.toThrow();
+        var addr01 = __assign({}, addr0);
+        addr01.id -= 10000;
+        addr01.zip = '0';
+        expect(function () { return addressesActionCreator.updateElementIfChanged(0, addr01).dispatch(); }).not.toThrow();
+        expect(nameState.addresses[0] === addr01).toBe(true);
+    });
+    test('property insertDeleteIfHasData', function () {
+        expect(nameState.middle.length > 0).toBe(true);
+        var actionCreator = src_1.getActionCreator(nameState);
+        actionCreator.removeIfHasData('middle').dispatch();
+        expect(nameState.middle).toBeFalsy();
+        expect(function () { return actionCreator.remove('middle').dispatch(); }).toThrow();
+        expect(function () { return actionCreator.removeIfHasData('middle').dispatch(); }).not.toThrow();
+    });
+    // TODO: our insert method already fails to throw in there is data in the property!  Seems like we need to fix this
+    test('property insertIfEmpty', function () {
+        expect(nameState.middle).toBeFalsy();
+        var actionCreator = src_1.getActionCreator(nameState);
+        actionCreator.insertIfEmpty('middle', 'J').dispatch();
+        expect(nameState.middle).toBeTruthy();
+        expect(function () { return actionCreator.insertIfEmpty('middle', 'R').dispatch(); }).not.toThrow();
     });
 });
 //# sourceMappingURL=actions.test.js.map

@@ -23,7 +23,13 @@ export enum ActionId {
   DELETE_PROPERTY,
   MAP_STATE_TO_PROP,
   UPDATE_PROPERTY_NO_OP, // typically due to newValue === oldValue
+  INSERT_PROPERTY_NO_OP, // typically due to newValue === oldValue
+  DELETE_PROPERTY_NO_OP, // typically due to newValue === oldValue
 }
+
+export const ActionTypeIsNoOp = (actionId: ActionId): boolean => {
+  return actionId >= ActionId.UPDATE_PROPERTY_NO_OP;
+};
 
 /**
  * Mapping hooks are functions that can optionally be attached to mappings (see {@link MappingAction}.

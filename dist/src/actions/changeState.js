@@ -51,6 +51,10 @@ function changeArray(actionType, stateObject, values, value, propertyName, index
     }
     validateArrayIndex(actionType, values, index, propertyName);
     switch (actionType) {
+        case actions_1.ActionId.UPDATE_PROPERTY_NO_OP ||
+            actions_1.ActionId.INSERT_PROPERTY_NO_OP ||
+            actions_1.ActionId.DELETE_PROPERTY_NO_OP:
+            return { oldValue: value };
         case actions_1.ActionId.UPDATE_PROPERTY: {
             var oldValue = values[index];
             values[index] = value;
@@ -81,7 +85,9 @@ function changeValue(actionType, stateObject, value, propertyName) {
         case actions_1.ActionId.RERENDER: {
             return { oldValue: stateObject[propertyName] };
         }
-        case actions_1.ActionId.UPDATE_PROPERTY_NO_OP:
+        case actions_1.ActionId.UPDATE_PROPERTY_NO_OP ||
+            actions_1.ActionId.INSERT_PROPERTY_NO_OP ||
+            actions_1.ActionId.DELETE_PROPERTY_NO_OP:
             return { oldValue: value };
         case actions_1.ActionId.UPDATE_PROPERTY: {
             var isStateObject = Store_1.Store.isInstanceOfStateObject(value);
@@ -98,6 +104,10 @@ function changeValue(actionType, stateObject, value, propertyName) {
             if (value === undefined || value == null) {
                 throw new Error('Cannot insert an undefined/null value, consider deleting instead');
             }
+            // let oldValue: S[K] = stateObject[propertyName];
+            // if (oldValue !== undefined && oldValue !== null) {
+            //   throw new Error('Cannot insert where data already exists');
+            // }
             // TODO: seems this should be uncommented, unless we decide ease-of-use is more important, and we document it
             // if (stateObject[propertyName]) {
             //   throw new Error('Cannot insert, a value already exists, use update instead');

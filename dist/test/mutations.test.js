@@ -97,6 +97,7 @@ describe('mutate object values', function () {
     });
     describe('insert array of bowling scores to name', function () {
         test('result of adding scores should be {}', function () {
+            changeState_1.changeValue(actions_1.ActionId.DELETE_PROPERTY, nameState, bowlingScores, 'bowlingScores');
             var addScoresResult = changeState_1.changeValue(actions_1.ActionId.INSERT_PROPERTY, nameState, bowlingScores, 'bowlingScores');
             expect(addScoresResult).toEqual({});
         });

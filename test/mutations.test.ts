@@ -106,6 +106,7 @@ describe('mutate object values', () => {
 
   describe('insert array of bowling scores to name', () => {
     test('result of adding scores should be {}', () => {
+      changeValue(ActionId.DELETE_PROPERTY, nameState, bowlingScores, 'bowlingScores');
       let addScoresResult = changeValue(ActionId.INSERT_PROPERTY, nameState, bowlingScores, 'bowlingScores');
       expect(addScoresResult).toEqual({});
     });

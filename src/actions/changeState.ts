@@ -120,9 +120,9 @@ export function changeValue<S extends StateObject, K extends Extract<keyof S, st
       //   throw new Error('Cannot insert where data already exists');
       // }
       // TODO: seems this should be uncommented, unless we decide ease-of-use is more important, and we document it
-      // if (stateObject[propertyName]) {
-      //   throw new Error('Cannot insert, a value already exists, use update instead');
-      // }
+      if (stateObject[propertyName]) {
+        throw new Error('Cannot insert, a value already exists, use update instead');
+      }
       stateObject[propertyName] = value;
 
       actionImmutabilityCheck(actionType, undefined, value, propertyName);

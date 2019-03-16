@@ -218,7 +218,7 @@ describe('ContainerComponent instantiation, mount, update, unmount', function ()
     });
     test('an update action', function () {
         expect(container.average).toBeUndefined();
-        var action = new actions_1.StateCrudAction(actions_1.ActionId.INSERT_PROPERTY, nameState, 'bowlingScores', bowlingScores);
+        var action = new actions_1.StateCrudAction(actions_1.ActionId.UPDATE_PROPERTY, nameState, 'bowlingScores', bowlingScores);
         testStore.getManager().actionProcess(action);
         expect(container.average).toBeGreaterThan(100);
     });

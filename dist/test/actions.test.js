@@ -345,6 +345,7 @@ describe('get objects using path', function () {
     test('new and old streets do not match', function () {
         expect(street).not.toBe(newStreet);
     });
+    src_1.getActionCreator(newAddress).remove('street').dispatch();
     src_1.getActionCreator(newAddress).insert('street', newStreet).dispatch();
     if (!testState || !testState.name || !testState.name.address) {
         throw new Error('testState.name.address must be defined');

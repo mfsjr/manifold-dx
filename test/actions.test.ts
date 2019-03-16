@@ -370,6 +370,7 @@ describe('get objects using path', () => {
   test('new and old streets do not match', () => {
     expect(street).not.toBe(newStreet);
   });
+  getActionCreator(newAddress).remove('street').dispatch();
   getActionCreator(newAddress).insert('street', newStreet).dispatch();
 
   if (!testState || !testState.name || !testState.name.address) {

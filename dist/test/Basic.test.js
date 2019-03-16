@@ -224,6 +224,7 @@ describe('enzyme tests for lifecycle methods', function () {
     it('calls forceUpdate only on the mapped component, not the children', function () {
         src_1.getActionCreator(testStore.getState()).insertStateObject(addr1, 'address').dispatch();
         src_1.getActionCreator(testStore.getState()).insertStateObject(nameState, 'name').dispatch();
+        src_1.getActionCreator(nameState).remove('bowlingScores').dispatch();
         src_1.getActionCreator(nameState).insert('bowlingScores', bowlingScores).dispatch();
         src_1.getArrayActionCreator(nameState, bowlingScores).appendElement(151).forEach(function (action) { return action.dispatch(); });
         expect(nameState.bowlingScores[nameState.bowlingScores.length - 1]).toBe(151);

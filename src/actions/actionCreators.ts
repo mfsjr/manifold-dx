@@ -72,6 +72,21 @@ export class ActionCreator<S extends StateObject> {
     return new StateCrudAction(actionId, this.parent, propertyKey, value);
   }
 
+  /**
+   * Set the new value.  If the new value is 'undefined', then this is equivalent to removal.  This method figures
+   * out whether to insert, update or remove, and will not throw a d
+   * @param propertyKey
+   * @param value
+   */
+  public set<K extends Extract<keyof S, string>>(propertyKey: K, value?: S[K]): StateCrudAction<S, K> {
+    if (value === undefined) {
+      return this.removeIfHasData(propertyKey);
+    } else if (this.parent[propertyKey] === null || this.parent[propertyKey] === undefined) {
+      return this.insert(propertyKey, value);
+    }
+    return this.updateIfChanged(propertyKey, value);
+  }
+
   // This "time-saver" convenience function is actually more trouble than its worth, since there are
   // all kinds of corner cases that make it highly dependent on the particular types of objects
   // being dealt with (unlike our array replaceAll).

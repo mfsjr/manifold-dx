@@ -495,12 +495,24 @@ describe('safe operations, updateIfChanged, insertIfEmpty, removeIfHasData', () 
     expect( () => actionCreator.removeIfHasData('middle').dispatch()).not.toThrow();
 
   });
-  // TODO: our insert method already fails to throw in there is data in the property!  Seems like we need to fix this
   test( 'property insertIfEmpty', () => {
     expect(nameState.middle).toBeFalsy();
     let actionCreator = getActionCreator(nameState);
     actionCreator.insertIfEmpty('middle', 'J').dispatch();
     expect(nameState.middle).toBeTruthy();
+    expect(() => actionCreator.insert('middle', 'R').dispatch()).toThrow();
     expect(() => actionCreator.insertIfEmpty('middle', 'R').dispatch()).not.toThrow();
+  });
+
+  test( 'property set', () => {
+    expect(nameState.middle).toBe('J');
+    const actionCreator = getActionCreator(nameState);
+    actionCreator.set('middle', 'Z').dispatch();
+    expect(nameState.middle).toBe('Z');
+    actionCreator.set('middle', undefined).dispatch();
+    expect(nameState.middle).toBeUndefined();
+    actionCreator.set('middle', 'R').dispatch();
+    expect(nameState.middle).toBe('R');
+    expect(() => actionCreator.set('middle', 'R').dispatch()).not.toThrow();
   });
 });

@@ -18,8 +18,11 @@ export declare enum ActionId {
     UPDATE_PROPERTY = 4,
     DELETE_PROPERTY = 5,
     MAP_STATE_TO_PROP = 6,
-    UPDATE_PROPERTY_NO_OP = 7
+    UPDATE_PROPERTY_NO_OP = 7,
+    INSERT_PROPERTY_NO_OP = 8,
+    DELETE_PROPERTY_NO_OP = 9
 }
+export declare const ActionTypeIsNoOp: (actionId: ActionId) => boolean;
 /**
  * Mapping hooks are functions that can optionally be attached to mappings (see {@link MappingAction}.
  *

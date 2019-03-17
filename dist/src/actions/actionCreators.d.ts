@@ -13,15 +13,57 @@ export declare class ActionCreator<S extends StateObject> {
     protected getPropertyKeyForValue<V>(value: V): keyof S;
     protected throwIfArray<K extends Extract<keyof S, string>>(propValue: S[K]): void;
     rerender<K extends Extract<keyof S, string>>(propertyKey: K): StateCrudAction<S, K>;
+    /**
+     * Insert the value.  If the current value exists, an error will be thrown.
+     * @param propertyKey
+     * @param value
+     */
     insert<K extends Extract<keyof S, string>>(propertyKey: K, value: S[K]): StateCrudAction<S, K>;
+    /**
+     * Insert the value if the current property is empty, else provide a no-op action type so that
+     * dispatch will ignore it.
+     * {@see insert}, {@see update}
+     * @param propertyKey
+     * @param value
+     */
+    insertIfEmpty<K extends Extract<keyof S, string>>(propertyKey: K, value: S[K]): StateCrudAction<S, K>;
+    /**
+     * Update the existing value.  If the value being passed in is the same as the current value, an
+     * error will be thrown.  If there is no existing value, an error will be thrown.
+     * @param propertyKey
+     * @param value
+     */
     update<K extends Extract<keyof S, string>>(propertyKey: K, value: S[K]): StateCrudAction<S, K>;
+    /**
+     * Tests to see if the update is using the same object as the current value; if it is, the resulting action
+     * is a no-op (does nothing), else a regular update is created.
+     *
+     * @param propertyKey
+     * @param value
+     */
     updateIfChanged<K extends Extract<keyof S, string>>(propertyKey: K, value: S[K]): StateCrudAction<S, K>;
     /**
-     * Delete the property (named 'remove' because 'delete' is a reserved word)
+     * Set the new value.  If the new value is 'undefined', then this is equivalent to removal.  This method figures
+     * out whether to insert, update or remove, or return a no-op, but will not throw errors related to the underlying
+     * insert, update or remove methods.
+     * @param propertyKey
+     * @param value
+     */
+    set<K extends Extract<keyof S, string>>(propertyKey: K, value?: S[K]): StateCrudAction<S, K>;
+    isKeyOf<K extends Extract<keyof S, string>>(value: S, key: string): key is K;
+    /**
+     * Delete the property (named 'remove' because 'delete' is a reserved word).
+     *
+     * If it is not empty, throw
      * @param {K} propertyKey
      * @returns {Action}
      */
     remove<K extends Extract<keyof S, string>>(propertyKey: K): StateCrudAction<S, K>;
+    /**
+     * If the value of the property is not undefined or null, remove it, else return a no-op action.
+     * @param propertyKey
+     */
+    removeIfHasData<K extends Extract<keyof S, string>>(propertyKey: K): StateCrudAction<S, K>;
     insertStateObject<K extends Extract<keyof S, string>>(value: S[K] & StateObject, propertyKey: K): StateCrudAction<S, K>;
     removeStateObject<K extends Extract<keyof S, string>>(propertyKey: K): StateCrudAction<S, K>;
 }
@@ -48,7 +90,7 @@ export declare class ArrayActionCreator<S extends StateObject, K extends Extract
     private propertyKey;
     private valuesArray;
     /**
-     * Construct an array crud creator.  We require a somewhat redundant 'valuesArray'
+     * Construct an array crud creator.  We require a somewhat redundant 'childArray'
      * parameter in order to provide TypeScript with a strongly typed object that
      * we can use in conjunction with a typeguard so that the array element's property is an
      * appropriately typed value.
@@ -60,10 +102,8 @@ export declare class ArrayActionCreator<S extends StateObject, K extends Extract
      *
      * S extends StateObject
      *
-     * @param {S} parent
-     * @param {keyof S} propertyKey
-     * @param {Array<V>} childArray
-     * @param {ArrayKeyGeneratorFn} keyGenerator
+     * @param parent
+     * @param childArray
      */
     constructor(parent: S, childArray: Array<V> & S[K]);
     updateArray(newArray: Array<V> & S[K]): StateAction<S, K>;
@@ -86,6 +126,7 @@ export declare class ArrayActionCreator<S extends StateObject, K extends Extract
     insertElement(index: number, value: V): StateAction<S, K>[];
     rerenderElement(index: number): StateAction<S, K>;
     updateElement(index: number, newValue: V): ArrayChangeAction<S, K, V>;
+    updateElementIfChanged(index: number, newValue: V): ArrayChangeAction<S, K, V>;
     /**
      * Replace the current array's elements with the contents of the newArray.
      *

@@ -35,7 +35,7 @@ var ActionCreator = /** @class */ (function () {
         return new actions_1.StateCrudAction(actions_1.ActionId.RERENDER, this.parent, propertyKey, this.parent[propertyKey]);
     };
     /**
-     * Insert the truthy value into the falsey property, throwing if either are not the case.
+     * Insert the value.  If the current value exists, an error will be thrown.
      * @param propertyKey
      * @param value
      */
@@ -53,16 +53,30 @@ var ActionCreator = /** @class */ (function () {
         var type = !this.parent[propertyKey] ? actions_1.ActionId.INSERT_PROPERTY : actions_1.ActionId.INSERT_PROPERTY_NO_OP;
         return new actions_1.StateCrudAction(type, this.parent, propertyKey, value);
     };
+    /**
+     * Update the existing value.  If the value being passed in is the same as the current value, an
+     * error will be thrown.  If there is no existing value, an error will be thrown.
+     * @param propertyKey
+     * @param value
+     */
     ActionCreator.prototype.update = function (propertyKey, value) {
         return new actions_1.StateCrudAction(actions_1.ActionId.UPDATE_PROPERTY, this.parent, propertyKey, value);
     };
+    /**
+     * Tests to see if the update is using the same object as the current value; if it is, the resulting action
+     * is a no-op (does nothing), else a regular update is created.
+     *
+     * @param propertyKey
+     * @param value
+     */
     ActionCreator.prototype.updateIfChanged = function (propertyKey, value) {
         var actionId = this.parent[propertyKey] !== value ? actions_1.ActionId.UPDATE_PROPERTY : actions_1.ActionId.UPDATE_PROPERTY_NO_OP;
         return new actions_1.StateCrudAction(actionId, this.parent, propertyKey, value);
     };
     /**
      * Set the new value.  If the new value is 'undefined', then this is equivalent to removal.  This method figures
-     * out whether to insert, update or remove, and will not throw a d
+     * out whether to insert, update or remove, or return a no-op, but will not throw errors related to the underlying
+     * insert, update or remove methods.
      * @param propertyKey
      * @param value
      */
@@ -75,56 +89,9 @@ var ActionCreator = /** @class */ (function () {
         }
         return this.updateIfChanged(propertyKey, value);
     };
-    // This "time-saver" convenience function is actually more trouble than its worth, since there are
-    // all kinds of corner cases that make it highly dependent on the particular types of objects
-    // being dealt with (unlike our array replaceAll).
-    // /**
-    //  * Similar to Object.assign, only difference being that if property values happen
-    //  * to match, nothing is done (no action will be performed).
-    //  *
-    //  * @param newObject
-    //  */
-    // public assignAll<K extends Extract<keyof S, string>>(newObject: S): StateCrudAction<S, K>[] {
-    //   let keys: Array<string> = Object.getOwnPropertyNames(newObject);
-    //   // TODO: filter out _parent and _myProperty, also change the name of this method to assignData
-    //   let actions: StateCrudAction<S, K>[] = [];
-    //   let THIS = this;
-    //   keys.forEach(key => {
-    //     if (['_parent', '_myPropname'].indexOf(key) > -1) {
-    //       return;
-    //     }
-    //     if (newObject[key] && THIS.parent[key]) {
-    //       if (THIS.isKeyOf(newObject, key)) {
-    //         if (newObject[key] !== THIS.parent[key]) {
-    //           let action = THIS.update(key, newObject[key]) as StateCrudAction<S, K>;
-    //           actions.push(action);
-    //         }
-    //       }
-    //       return;
-    //     }
-    //     if (newObject[key] && !THIS.parent[key]) {
-    //       if (THIS.isKeyOf(THIS.parent, key)) {
-    //         let action = THIS.insert(key, newObject[key]) as StateCrudAction<S, K>;
-    //         actions.push(action);
-    //       }
-    //       return;
-    //     }
-    //     // TODO: remove items not in newObject and in THIS.parent... and ADD SOME FUCKING TESTS
-    //     if (!newObject[key] && THIS.parent[key]) {
-    //       if (THIS.isKeyOf(THIS.parent, key)) {
-    //         let action = THIS.remove(key) as StateCrudAction<S, K>;
-    //         actions.push(action);
-    //       }
-    //       return;
-    //     }
-    //
-    //   });
-    //   return actions;
-    // }
-    //
-    // public isKeyOf<K extends Extract<keyof S, string>>(value: S, key: string): key is K {
-    //   return value.hasOwnProperty(key);
-    // }
+    ActionCreator.prototype.isKeyOf = function (value, key) {
+        return value.hasOwnProperty(key);
+    };
     /**
      * Delete the property (named 'remove' because 'delete' is a reserved word).
      *

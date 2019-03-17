@@ -56,21 +56,60 @@ using plain objects:
   1. Updates can be inverted by updating with the previous value
   2. Inserts can be inverted by deletions
   3. Deletions can be inverted by insertions
+4. The 'set' api provides easy-to-use action creation to relieve you of having to concern yourself about 
+   the particular kind of action (eg update vs insert) or whether the new value is the same as the old.
+   So if the values are the same, the resulting action is just a no-op.  
 	 
 ### Key Features
 - Predictable, synchronous single-store state management using pure invertible functions,
-  including time-travel.
+  allowing for 'time-travel'.
 - Configurable mutation checking for development and testing (prevent accidental mutations outside of actions)   
-- Simplified middleware - functions that receive actions, can be ordered before or after 
+- Simplified middleware - developer-provided functions can be invoked before or after 
   actions are performed.
 - State can always be represented by a flat mapping using property keys, regardless of how deeply nested.
-- Type-safe generic API's eliminate the need to code action types, actions, action creators, reducers.
-  Just call the generic API's.
-- Immutable React data
-- Mutable state application nodes (state objects) 
-   
+- Type-safe generic api's mean developers never code any action types, actions, action creators, reducers, etc.
+- Render props
+- React Router (v4) integration via RedirectDx [https://github.com/mfsjr/manifold-dx-redirect-dx]
+
 **To Install:**
 `npm install --save manifold-dx`   
+
+### Defining Application State
+
+This is really "job #1" for developers anyway, so manifold-dx piggybacks on top of your usual efforts.
+
+Note that application state is by definition dynamic, whether you're talking about asynchronously retrieving or 
+modifying data, or at the coding level, where state may be assigned to an object on a line-by-line basis.
+
+For these reasons, for anything more complicated than a demo (i.e., real-world apps), we typically define all state 
+to be optional in the formal TypeScript way, e.g., the user below:
+
+```typescript jsx
+interface AppState {
+  user?: {
+    name: string;
+  };
+}
+```
+
+Note that manifold-dx requires that you define your state container objects as objects that implement the 
+StateObject interface.  All this means is that they must have two properties...
+1. _parent - the parent state object, or null if it is the top/root level application state container
+2. _myPropname - the name of the container, such that `_parent[_myPropname] === this`
+
+There are helpers provided by manifold-dx to enforce these relationships, namely the State interface.  This 
+allows you to define these StateObjects in a way that enforces parent-child relationships, including the
+top/root level application state.  For example:
+```typescript jsx
+export interface AppState extends AppData, State<null> { }
+export interface NavState extends Nav, State<AppState> { }
+export interface FetchState extends FetchData<any>, State<AppState> { }
+export interface DrawerState extends DrawerProps, State<NavState> { }
+```
+For this example we don't care about (or provide) the details of the various interfaces (AppState, NavState, etc), 
+the things to notice are:
+1. Top level app state is indicate by the <null> generic (makes sense since its parent is null)
+2. Nested state objects refer to the type of their parent, eg `interface NavState extends Nav, State<AppState>
    
 #### Demo Apps
 - See the todo app at [https://github.com/mfsjr/manifold-dx-todo](https://github.com/mfsjr/manifold-dx-todo). 
@@ -86,11 +125,9 @@ using plain objects:
  
 #### Recent work has centered on:
 - Real world apps using... 
-  - Material-UI v1+, Formik, React Router v4, as well as...
   - Hot Module Replacement
+  - Material-UI v1+, Formik, React Router v4
   - action logging
-  - React Router integration
-  - Deferred action dispatch ("dispatchNext")
 - Adding optional render props to our ContainerComponent (RenderPropComponent)
 - Optimizing user-facing API's for ease-of-use
 - Organizing state initialization, design, and enforcing structure using TypeScript conditional types 

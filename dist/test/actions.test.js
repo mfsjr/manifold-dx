@@ -419,7 +419,7 @@ describe('actionLogging tests', function () {
         }
     });
 });
-describe('safe operations, updateIfChanged, insertIfEmpty, removeIfHasData', function () {
+describe('safe operations, updateIfChanged, insertIfEmpty, removeIfHasData, and set', function () {
     test('property updateIfChanged', function () {
         var ns = testStore.getState().name;
         expect(ns).toBeTruthy();

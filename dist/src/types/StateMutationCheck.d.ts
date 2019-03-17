@@ -22,8 +22,8 @@ export declare class StateMutationCheck<S> {
     onFailure: (baseline: S, failure: S) => string;
     private lastGood;
     private enabled;
-    private state;
-    constructor(state: Store<S>, onFailure?: (baseline: S, failure: S) => string);
+    private store;
+    constructor(store: Store<S>, onFailure?: (baseline: S, failure: S) => string);
     isEnabled(): boolean;
     enableMutationChecks(): void;
     disableMutationChecks(): void;

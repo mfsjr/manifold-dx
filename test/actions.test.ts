@@ -458,7 +458,7 @@ describe('actionLogging tests', () => {
   });
 });
 
-describe('safe operations, updateIfChanged, insertIfEmpty, removeIfHasData', () => {
+describe('safe operations, updateIfChanged, insertIfEmpty, removeIfHasData, and set', () => {
   test('property updateIfChanged', () => {
     let ns = testStore.getState().name;
     expect(ns).toBeTruthy();

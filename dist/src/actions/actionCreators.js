@@ -53,6 +53,7 @@ var ActionCreator = /** @class */ (function () {
         var type = !this.parent[propertyKey] ? actions_1.ActionId.INSERT_PROPERTY : actions_1.ActionId.INSERT_PROPERTY_NO_OP;
         return new actions_1.StateCrudAction(type, this.parent, propertyKey, value);
     };
+    // NOTE: 'assignAll'?  Seems unnecessary, we can simply insert/update the parent
     /**
      * Update the existing value.  If the value being passed in is the same as the current value, an
      * error will be thrown.  If there is no existing value, an error will be thrown.

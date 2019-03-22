@@ -65,6 +65,8 @@ export class ActionCreator<S extends StateObject> {
     return new StateCrudAction(type, this.parent, propertyKey, value);
   }
 
+  // NOTE: 'assignAll'?  Seems unnecessary, we can simply insert/update the parent
+
   /**
    * Update the existing value.  If the value being passed in is the same as the current value, an
    * error will be thrown.  If there is no existing value, an error will be thrown.

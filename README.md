@@ -65,8 +65,8 @@ using plain objects:
   allowing for 'time-travel'.
 - Configurable mutation checking for development and testing (prevent accidental mutations outside of actions)   
 - Simplified middleware - developer-provided functions can be invoked before or after 
+- ActionLoggingObject interface and actionLogging implementation to be used by middleware
   actions are performed.
-- State can always be represented by a flat mapping using property keys, regardless of how deeply nested.
 - Type-safe generic api's mean developers never code any action types, actions, action creators, reducers, etc.
 - Render props
 - React Router (v4) integration via RedirectDx [https://github.com/mfsjr/manifold-dx-redirect-dx]
@@ -95,7 +95,7 @@ interface AppState {
 Note that manifold-dx requires that you define your state container objects as objects that implement the 
 StateObject interface.  All this means is that they must have two properties...
 1. _parent - the parent state object, or null if it is the top/root level application state container
-2. _myPropname - the name of the container, such that `_parent[_myPropname] === this`
+2. _myPropname - the name of the container, such that `this._parent[this._myPropname] === this`
 
 There are helpers provided by manifold-dx to enforce these relationships, namely the State interface.  This 
 allows you to define these StateObjects in a way that enforces parent-child relationships, including the
@@ -133,9 +133,7 @@ the things to notice are:
 - Organizing state initialization, design, and enforcing structure using TypeScript conditional types 
 
 #### What's Next
-- Updates for React v16.7, including deprecation/replacement of SFC's
 - Dev tools for action replay
-- React Router integration for state-based nav
 - Larger, real-world example applications
 - More rendering optimizations
 

@@ -197,6 +197,7 @@ export class Manager {
     if (dataAction && this.currentDataAction) {
       let currentDescription = actionDescription(this.currentDataAction);
       let message = `Dispatch ${currentDescription} interrupted by another: ${actionDescription(actions[0])}`;
+      message += `\nNOTE: use the dispatchNext api to avoid this error (waits until current dispatch completes)`;
       throw new Error(message);
     }
     try {

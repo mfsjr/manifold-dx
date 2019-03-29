@@ -1,14 +1,17 @@
 # Manifold-dx for React
 
-The goal here is to provide Flux mechanics similar to those of Redux, 
-while providing the ease of use of MobX.
+The goal here is to provide Flux mechanics similar to Redux, offering developers something
+much simpler to use, where they never have to define action ID's, action objects or creators,
+reducers, etc.
 
-We get the job done by applying new, TypeScript-first data-driven design approaches.
+The main tools Redux uses are immutability and functional programming.  TypeScript allows us 
+to implement Flux differently, using strongly typed data structures and generics, offering a hugely 
+simplified developer experience.
 
 ### The Basic Idea
 There are two key capabilities that TypeScript provides that we take advantage of.
 
-1. We can write type-safe, generic updates, that enforce valid property names and value types:
+1. **Generics** We can write type-safe, generic updates, that enforce valid property names and value types:
 	```typescript jsx
 	function update<T, K extends keyof T>(object: T, propertyName: string, newValue: K): void {
 	  object[propertyName] = newValue;
@@ -21,9 +24,10 @@ There are two key capabilities that TypeScript provides that we take advantage o
 	2. The developer just calls a generic api, and gets all the IDE assistance you'd expect:
 	   ![alt text](./docs/api_autocomplete.png)
 
-2. We can define a graph consisting of mutable graph nodes that contain (1) immutable raw data used by 
-React, and (2) other mutable graph nodes.  TypeScript forces this to be done in a type-safe, reliable way, 
-using plain objects: 
+1. **Strongly Typed Data Structures** 
+	1. We can define a graph consisting of mutable graph nodes that contain (1) immutable raw data used by 
+	React, and (2) other mutable graph nodes.  TypeScript forces this to be done in a type-safe, reliable way, 
+	using plain objects: 
 
 	```typescript jsx
 	export interface Bowler extends StateObject {
@@ -43,20 +47,20 @@ using plain objects:
 	1. So a developer can use TypeScript to define a state application object graph:
 	   ![alt text](./docs/stateDiagram.png)   
 
-	2. After a state object's property has been changed by an action, their property names can be identified  
+	1. After a state object's property has been changed by an action, their property names can be identified  
 	by traversing to the top of the application state, e.g., 'appState.bowler.first'.
 
-	3. Since every piece of the application state has a unique name, we can use it as a key in a map where the
+	1. Since every piece of the application state has a unique name, we can use it as a key in a map where the
 	values contain React components that need to update when that property is changed by an action.  
 
-	4. Our container component has generic api's for populating the map as well.
+	1. Our container component has generic api's for populating the map as well.
 
-	5. If you're not getting the updates you expect after dispatching an action, just look at the map.
-3. State changes are performed by pure, invertible functions, so we can undo and redo actions easily.
+	1. If you're not getting the updates you expect after dispatching an action, just look at the map.
+1. State changes are performed by pure, invertible functions, so we can undo and redo actions easily.
   1. Updates can be inverted by updating with the previous value
-  2. Inserts can be inverted by deletions
-  3. Deletions can be inverted by insertions
-4. The 'set' api provides easy-to-use action creation to relieve you of having to concern yourself about 
+  1. Inserts can be inverted by deletions
+  1. Deletions can be inverted by insertions
+1. The 'set' api provides easy-to-use action creation so you don't have to concern yourself about 
    the particular kind of action (eg update vs insert) or whether the new value is the same as the old.
    So if the values are the same, the resulting action is just a no-op.  
 	 

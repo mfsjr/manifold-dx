@@ -176,6 +176,7 @@ var Manager = /** @class */ (function () {
         if (dataAction && this.currentDataAction) {
             var currentDescription = actions_1.actionDescription(this.currentDataAction);
             var message = "Dispatch " + currentDescription + " interrupted by another: " + actions_1.actionDescription(actions[0]);
+            message += "\nNOTE: use the dispatchNext api to avoid this error (waits until current dispatch completes)";
             throw new Error(message);
         }
         try {

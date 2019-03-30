@@ -163,11 +163,11 @@ var Store = /** @class */ (function () {
      * @returns {Action[]}
      */
     Store.prototype.dispatch = function () {
+        var _a;
         var actions = [];
         for (var _i = 0; _i < arguments.length; _i++) {
             actions[_i] = arguments[_i];
         }
-        var _a;
         return (_a = this.manager).actionProcess.apply(_a, actions);
     };
     Store.prototype.dispatchUndo = function (nActions) {

@@ -60,15 +60,15 @@ There are two key capabilities that TypeScript provides that we take advantage o
   1. Updates can be inverted by updating with the previous value
   1. Inserts can be inverted by deletions
   1. Deletions can be inverted by insertions
-1. The 'set' api provides easy-to-use action creation so you don't have to concern yourself about 
+1. The **set api** provides easy-to-use action creation so you don't have to concern yourself about 
    the particular kind of action (eg update vs insert) or whether the new value is the same as the old.
    So if the values are the same, the resulting action is just a no-op.  
 	 
 ### Key Features
 - Predictable, synchronous single-store state management using pure invertible functions,
   allowing for 'time-travel'.
-- Configurable mutation checking for development and testing (prevent accidental mutations outside of actions)   
-- Simplified middleware - developer-provided functions can be invoked before or after 
+- Configurable mutation checking for development and testing (throw errors if state is mutated other than by actions).   
+- Simplified middleware - developer-provided functions can be invoked before or after actions are dispatched.
 - ActionLoggingObject interface and actionLogging implementation to be used by middleware
   actions are performed.
 - Type-safe generic api's mean developers never code any action types, actions, action creators, reducers, etc.

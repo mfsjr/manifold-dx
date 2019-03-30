@@ -43,9 +43,18 @@ export declare class ActionCreator<S extends StateObject> {
      */
     updateIfChanged<K extends Extract<keyof S, string>>(propertyKey: K, value: S[K]): StateCrudAction<S, K>;
     /**
-     * Set the new value.  If the new value is 'undefined', then this is equivalent to removal.  This method figures
-     * out whether to insert, update or remove, or return a no-op, but will not throw errors related to the underlying
-     * insert, update or remove methods.
+     * This is the preferred action creation api, capable of performing inserts, updates and deletes.
+     * If the new value is 'undefined', then this is equivalent to deletion/removal.
+     *
+     * This method works by determining whether it needs to call {@link insert}, {@link update} or {@link remove}.
+     * It will not throw errors, but it may create actions that are no-ops (e.g., update the same value, delete
+     * a property that is undefined, etc).
+     *
+     * If the developer knows what a value is, then using insert, update or remove directly is perfectly valid.
+     *
+     * If you need to squeeze out the highest possible levels of performance, using insert, update or remove
+     * directly might make things a little faster.
+     *
      * @param propertyKey
      * @param value
      */
@@ -139,6 +148,6 @@ export declare class ArrayActionCreator<S extends StateObject, K extends Extract
     removeElement(index: number): StateAction<S, K>[];
 }
 export declare function getMappingActionCreator<S extends StateObject, K extends Extract<keyof S, string>, A extends StateObject, E>(_parent: S, _propKey: K): {
-    createPropertyMappingAction: <CP, VP, TP extends Extract<keyof VP, string>>(_component: ContainerComponent<CP, VP, A, {}>, targetPropKey: TP, ...mappingHooks: MappingHook[]) => MappingAction<S, K, CP, VP, TP, A, E>;
-    createArrayIndexMappingAction: <CP, VP, TP extends Extract<keyof VP, string>>(_array: S[K] & E[], index: number | null, _component: ContainerComponent<CP, VP, A, {}>, targetPropKey: TP, ...mappingHooks: MappingHook[]) => MappingAction<S, K, CP, VP, TP, A, E>;
+    createPropertyMappingAction: <CP, VP, TP extends keyof VP>(_component: ContainerComponent<CP, VP, A, {}>, targetPropKey: TP, ...mappingHooks: MappingHook[]) => MappingAction<S, K, CP, VP, TP, A, E>;
+    createArrayIndexMappingAction: <CP, VP, TP extends keyof VP>(_array: S[K] & E[], index: number | null, _component: ContainerComponent<CP, VP, A, {}>, targetPropKey: TP, ...mappingHooks: MappingHook[]) => MappingAction<S, K, CP, VP, TP, A, E>;
 };

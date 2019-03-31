@@ -148,6 +148,6 @@ export declare class ArrayActionCreator<S extends StateObject, K extends Extract
     removeElement(index: number): StateAction<S, K>[];
 }
 export declare function getMappingActionCreator<S extends StateObject, K extends Extract<keyof S, string>, A extends StateObject, E>(_parent: S, _propKey: K): {
-    createPropertyMappingAction: <CP, VP, TP extends keyof VP>(_component: ContainerComponent<CP, VP, A, {}>, targetPropKey: TP, ...mappingHooks: MappingHook[]) => MappingAction<S, K, CP, VP, TP, A, E>;
-    createArrayIndexMappingAction: <CP, VP, TP extends keyof VP>(_array: S[K] & E[], index: number | null, _component: ContainerComponent<CP, VP, A, {}>, targetPropKey: TP, ...mappingHooks: MappingHook[]) => MappingAction<S, K, CP, VP, TP, A, E>;
+    createPropertyMappingAction: <CP, VP, TP extends Extract<keyof VP, string>>(_component: ContainerComponent<CP, VP, A, {}>, targetPropKey: TP, ...mappingHooks: MappingHook[]) => MappingAction<S, K, CP, VP, TP, A, E>;
+    createArrayIndexMappingAction: <CP, VP, TP extends Extract<keyof VP, string>>(_array: S[K] & E[], index: number | null, _component: ContainerComponent<CP, VP, A, {}>, targetPropKey: TP, ...mappingHooks: MappingHook[]) => MappingAction<S, K, CP, VP, TP, A, E>;
 };

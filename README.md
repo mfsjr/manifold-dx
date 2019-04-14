@@ -60,14 +60,14 @@ There are two key capabilities that TypeScript provides that we take advantage o
   1. Updates can be inverted by updating with the previous value
   1. Inserts can be inverted by deletions
   1. Deletions can be inverted by insertions
-1. The **set api** provides easy-to-use action creation so you don't have to concern yourself about 
+1. The **set api** is the simplest way to create actions, so you don't have to concern yourself about 
    the particular kind of action (eg update vs insert) or whether the new value is the same as the old.
-   So if the values are the same, the resulting action is just a no-op.  
+   So for example, if the values are the same, the resulting action is just a no-op, and never gets dispatched.  
 	 
 ### Key Features
 - Predictable, synchronous single-store state management using pure invertible functions,
   allowing for 'time-travel'.
-- Configurable mutation checking for development and testing (throw errors if state is mutated other than by actions).   
+- Strict mode, which will throw errors if state is mutated other than by actions (careful - development only!)   
 - Simplified middleware - developer-provided functions can be invoked before or after actions are dispatched.
 - ActionLoggingObject interface and actionLogging implementation to be used by middleware
   actions are performed.
@@ -80,13 +80,13 @@ There are two key capabilities that TypeScript provides that we take advantage o
 
 ### Defining Application State
 
-This is really "job #1" for developers anyway, so manifold-dx piggybacks on top of your usual efforts.
+This is really "job #1" for developers anyway, so manifold-dx just piggybacks on top of your usual efforts.
 
 Note that application state is by definition dynamic, whether you're talking about asynchronously retrieving or 
-modifying data, or at the coding level, where state may be assigned to an object on a line-by-line basis.
+modifying data, or all the way down to the coding level, where state may be assigned to an object on a line-by-line basis.
 
 For these reasons, for anything more complicated than a demo (i.e., real-world apps), we typically define all state 
-to be optional in the formal TypeScript way, e.g., the user below:
+to be optional, e.g., the user below:
 
 ```typescript jsx
 interface AppState {
@@ -107,12 +107,12 @@ top/root level application state.  For example:
 ```typescript jsx
 export interface AppState extends AppData, State<null> { }
 export interface NavState extends Nav, State<AppState> { }
-export interface FetchState extends FetchData<any>, State<AppState> { }
 export interface DrawerState extends DrawerProps, State<NavState> { }
+export interface FetchState extends FetchData<any>, State<AppState> { }
 ```
 For this example we don't care about (or provide) the details of the various interfaces (AppState, NavState, etc), 
 the things to notice are:
-1. Top level app state is indicate by the <null> generic (makes sense since its parent is null)
+1. Top level app state is indicated by the <null> generic (makes sense since its parent is null)
 2. Nested state objects refer to the type of their parent, eg `interface NavState extends Nav, State<AppState>
    
 #### Demo Apps

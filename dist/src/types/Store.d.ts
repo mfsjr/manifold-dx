@@ -123,9 +123,10 @@ export declare class Store<A> {
      * best to avoid calling it at all.
      *
      * A use-case for calling this would be when you start to render something that requires
-     * authorization that the user doesn't have, so at the start of that render other actions
-     * may need to be dispatched to prevent rendering sensitive information, inform the user,
-     * redirect elsewhere, etc.
+     * authorization, so you can check to see whether the user is authorized, so you can
+     * respond accordingly, eg render if authorized, redirect elsewhere, pop up a message for the user, etc.
+     *
+     * Note that this only allows simple dispatches, no undo or redo.
      *
      * @param actions
      */

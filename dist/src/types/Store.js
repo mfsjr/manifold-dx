@@ -147,6 +147,11 @@ var Store = /** @class */ (function () {
             // console.log(`process defined = ${!!process}`);
         }
         if (stateMutateChecking) {
+            /*tslint:disable:no-console*/
+            console.log("WARNING: strict mode - REACT_APP_STATE_MUTATION_CHECKING - is on (intended for dev debugging only)");
+            /*tslint:enable:no-console*/
+        }
+        if (stateMutateChecking) {
             this.manager.getActionProcessorAPI().enableMutationChecking();
             this.manager.getActionProcessorAPI().setMutationCheckOnFailureFunction(StateMutationDiagnostics_1.onFailureDiff);
         }
@@ -183,9 +188,10 @@ var Store = /** @class */ (function () {
      * best to avoid calling it at all.
      *
      * A use-case for calling this would be when you start to render something that requires
-     * authorization that the user doesn't have, so at the start of that render other actions
-     * may need to be dispatched to prevent rendering sensitive information, inform the user,
-     * redirect elsewhere, etc.
+     * authorization, so you can check to see whether the user is authorized, so you can
+     * respond accordingly, eg render if authorized, redirect elsewhere, pop up a message for the user, etc.
+     *
+     * Note that this only allows simple dispatches, no undo or redo.
      *
      * @param actions
      */

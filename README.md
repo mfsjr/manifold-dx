@@ -19,7 +19,7 @@ There are two key capabilities that TypeScript provides that we take advantage o
 	```
 	1. Functions like this allow us to write generic API's, using database semantics (update,
 	insert and delete), that apply to every piece of application state, so the developer doesn't have to 
-	write anything (no action ids, action objects, action creators, reducers or dispatches).
+	write anything (no action ids, action objects, action creators, reducers or dispatch).
 
 	2. The developer just calls a generic api, and gets all the IDE assistance you'd expect:
 	   ![alt text](./docs/api_autocomplete.png)
@@ -74,6 +74,17 @@ There are two key capabilities that TypeScript provides that we take advantage o
 - Type-safe generic api's mean developers never code any action types, actions, action creators, reducers, etc.
 - Render props
 - React Router (v4) integration via RedirectDx [https://github.com/mfsjr/manifold-dx-redirect-dx]
+
+### Prior Art
+Obviously Redux has been our frame of reference, but Vuex should be mentioned, as it influenced this design in
+a couple of ways:
+- State is synchronous, async aspects should be handled elsewhere (separation of concerns).
+- Since state is global, we have no need for declarative/nested access, we just declare it globally, eg:
+	`export const appStore = new AppStore(new AppStateCreator().appState, {});`
+
+Also note, a coincidental similarity with Vuex is a somewhat nested/compositional approach to state, as opposed 
+to Redux's preferred 'flat' shape.
+
 
 **To Install:**
 `npm install --save manifold-dx`   

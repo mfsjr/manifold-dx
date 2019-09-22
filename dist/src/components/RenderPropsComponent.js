@@ -25,6 +25,14 @@ function isContainerRenderProps(props) {
     return props["functionComp"] || props["viewGenerator"];
 }
 exports.isContainerRenderProps = isContainerRenderProps;
+/**
+ * ContainerComponent that defines the render function as a property.
+ *
+ * CP: container props, a plain object (pojo)
+ * VP: view component props, also a plain object
+ * A: application state (root/top of the StateObject graph) {@link StateObject}
+ * RS: React State
+ */
 var RenderPropsComponent = /** @class */ (function (_super) {
     __extends(RenderPropsComponent, _super);
     function RenderPropsComponent(_props, appData, reactState) {

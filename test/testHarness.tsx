@@ -25,7 +25,7 @@ export interface Name {
 }
 
 export interface NameState extends Name, StateObject {
-  getActionCreator: (nameState: NameState) => ActionCreator<Name & StateObject>;
+  getActionCreator: (nameState: NameState) => ActionCreator<NameState>;
   getAddressesActionCreator: (nameState: NameState) => ArrayActionCreator<NameState, 'addresses', Address>;
 }
 

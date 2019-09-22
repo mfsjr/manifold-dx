@@ -20,6 +20,7 @@ export declare type ComponentGenerator<P> = (props: P) => React.Component<P, any
  * CP: container props, a plain object (pojo)
  * VP: view component props, also a plain object
  * A: application state (root/top of the StateObject graph) {@link StateObject}
+ * RS: React State
  */
 export declare abstract class ContainerComponent<CP, VP, A extends StateObject, RS = {}> extends React.Component<CP, RS> {
     viewProps: VP;

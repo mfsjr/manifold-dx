@@ -19,6 +19,14 @@ export function isContainerRenderProps<CP, VP, RP extends CP & ContainerRenderPr
   return props[`functionComp`] || props[`viewGenerator`];
 }
 
+/**
+ * ContainerComponent that defines the render function as a property.
+ *
+ * CP: container props, a plain object (pojo)
+ * VP: view component props, also a plain object
+ * A: application state (root/top of the StateObject graph) {@link StateObject}
+ * RS: React State
+ */
 export abstract class RenderPropsComponent<CP extends ContainerRenderProps<VP>, VP, A extends StateObject, RS = {} >
   extends ContainerComponent<CP, VP, A> {
 

@@ -13,6 +13,14 @@ export interface ContainerRenderProps<VP> {
  * @param props
  */
 export declare function isContainerRenderProps<CP, VP, RP extends CP & ContainerRenderProps<VP>>(props: CP | RP): props is RP;
+/**
+ * ContainerComponent that defines the render function as a property.
+ *
+ * CP: container props, a plain object (pojo)
+ * VP: view component props, also a plain object
+ * A: application state (root/top of the StateObject graph) {@link StateObject}
+ * RS: React State
+ */
 export declare abstract class RenderPropsComponent<CP extends ContainerRenderProps<VP>, VP, A extends StateObject, RS = {}> extends ContainerComponent<CP, VP, A> {
     constructor(_props: CP, appData: StateObject & A, reactState?: RS);
     render(): ReactNode;

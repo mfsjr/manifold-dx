@@ -21,7 +21,7 @@ export declare function isContainerRenderProps<CP, VP, RP extends CP & Container
  * A: application state (root/top of the StateObject graph) {@link StateObject}
  * RS: React State
  */
-export declare abstract class RenderPropsComponent<CP extends ContainerRenderProps<VP>, VP, A extends StateObject, RS = {}> extends ContainerComponent<CP, VP, A> {
+export declare abstract class RenderPropsComponent<CP extends ContainerRenderProps<VP>, VP, A extends StateObject, RS = {}> extends ContainerComponent<CP, VP, A, RS> {
     constructor(_props: CP, appData: StateObject & A, reactState?: RS);
     render(): ReactNode;
 }

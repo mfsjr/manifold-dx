@@ -28,7 +28,7 @@ export function isContainerRenderProps<CP, VP, RP extends CP & ContainerRenderPr
  * RS: React State
  */
 export abstract class RenderPropsComponent<CP extends ContainerRenderProps<VP>, VP, A extends StateObject, RS = {} >
-  extends ContainerComponent<CP, VP, A> {
+  extends ContainerComponent<CP, VP, A, RS> {
 
   constructor(_props: CP, appData: StateObject & A, reactState?: RS) {
     super(_props, appData, _props._functionComp, _props._viewGenerator, reactState);

@@ -23,15 +23,15 @@ export declare class Manager {
     protected static manager: Manager;
     protected static stateManagerMap: Map<StateObject, Manager>;
     protected dispatchArgs: DispatchArgs[];
-    protected state: Store<any>;
+    protected store: Store<any>;
     protected currentDataAction: Action | null;
     protected actionQueue: ActionQueue;
     protected mappingState: MappingState;
     protected actionProcessor: ActionProcessor;
     static get(stateObject: StateObject): Manager;
     static set(stateObject: StateObject, manager: Manager): void;
-    constructor(state: Store<any>, options: StateConfigOptions);
-    resetManager(state: Store<any>, options: StateConfigOptions): void;
+    constructor(_store: Store<any>, options: StateConfigOptions);
+    resetManager(_store: Store<any>, options: StateConfigOptions): void;
     getActionProcessorAPI(): ActionProcessor;
     resetActionProcessors(state: Store<any>, options: StateConfigOptions): void;
     getActionQueue(): ActionQueue;

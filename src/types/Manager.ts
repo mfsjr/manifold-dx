@@ -32,7 +32,7 @@ export class Manager {
   protected dispatchArgs: DispatchArgs[] = [];
 
   /* tslint:disable:no-any */
-  protected state: Store<any>;
+  protected store: Store<any>;
   /* tslint:disable:no-any */
 
   protected currentDataAction: Action | null = null;
@@ -61,16 +61,16 @@ export class Manager {
     Manager.stateManagerMap.set(stateObject, manager);
   }
 
-  constructor(state: Store<any>, options: StateConfigOptions) {
-    this.resetManager(state, {});
+  constructor(_store: Store<any>, options: StateConfigOptions) {
+    this.resetManager(_store, {});
     Manager.manager = this;
   }
 
-  public resetManager(state: Store<any>, options: StateConfigOptions): void {
-    this.state = state;
+  public resetManager(_store: Store<any>, options: StateConfigOptions): void {
+    this.store = _store;
     this.actionQueue = createActionQueue(options.actionQueueSize);
     this.mappingState = new MappingState();
-    this.resetActionProcessors(state, options);
+    this.resetActionProcessors(_store, options);
   }
 
   public getActionProcessorAPI(): ActionProcessor {
@@ -195,10 +195,13 @@ export class Manager {
     let dataAction = !(actions[0] instanceof MappingAction);
 
     if (dataAction && this.currentDataAction) {
-      let currentDescription = actionDescription(this.currentDataAction);
-      let message = `Dispatch ${currentDescription} interrupted by another: ${actionDescription(actions[0])}`;
-      message += `\nNOTE: use the dispatchNext api to avoid this error (waits until current dispatch completes)`;
-      throw new Error(message);
+      // attempting to dispatch actions while another is dispatching, so handle by deferring until we're done.
+      this.store.dispatchNext(...actions);
+      // let currentDescription = actionDescription(this.currentDataAction);
+      // let message = `Dispatch ${currentDescription} interrupted by another: ${actionDescription(actions[0])}`;
+      // console.log(`Warning: ${message}`);
+      // message += `\nNOTE: use the dispatchNext api to avoid this error (waits until current dispatch completes)`;
+      // throw new Error(message);
     }
     try {
       if (dataAction) {

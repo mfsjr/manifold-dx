@@ -123,8 +123,7 @@ function changeValue(actionType, stateObject, value, propertyName) {
             // Let's be rigorous until we can't be (or until VM's address this, and they've started to)
             var oldValue = stateObject[propertyName];
             _.unset(stateObject, propertyName);
-            // TODO: is this really necessary?
-            actionImmutabilityCheck(actionType, oldValue, value, propertyName);
+            actionImmutabilityCheck(actionType, oldValue, undefined, propertyName);
             return { oldValue: oldValue };
         }
         case actions_1.ActionId.INSERT_STATE_OBJECT: {
@@ -142,7 +141,7 @@ function changeValue(actionType, stateObject, value, propertyName) {
             throwIf(!isStateObject, actions_1.ActionId[actionType] + " action is applicable to state objects; value = " + oldValue);
             var valueStateObject = _.get(stateObject, propertyName);
             if (Store_1.Store.isInstanceOfStateObject(valueStateObject)) {
-                actionImmutabilityCheck(actionType, oldValue, value, propertyName);
+                actionImmutabilityCheck(actionType, oldValue, undefined, propertyName);
                 // delete the valueStateObject from the app state graph
                 _.unset(stateObject, propertyName);
                 // delete the stateObject from mappings of state to react commentsUI

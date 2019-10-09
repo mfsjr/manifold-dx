@@ -135,8 +135,8 @@ export function changeValue<S extends StateObject, K extends Extract<keyof S, st
       // Let's be rigorous until we can't be (or until VM's address this, and they've started to)
       let oldValue: S[K] = stateObject[propertyName];
       _.unset(stateObject, propertyName);
-      // TODO: is this really necessary?
-      actionImmutabilityCheck(actionType, oldValue, value, propertyName);
+
+      actionImmutabilityCheck(actionType, oldValue, undefined, propertyName);
 
       return {oldValue: oldValue};
     }
@@ -158,7 +158,7 @@ export function changeValue<S extends StateObject, K extends Extract<keyof S, st
       throwIf(!isStateObject, `${ActionId[actionType]} action is applicable to state objects; value = ${oldValue}`);
       let valueStateObject = _.get(stateObject, propertyName);
       if (Store.isInstanceOfStateObject(valueStateObject)) {
-        actionImmutabilityCheck(actionType, oldValue, value, propertyName);
+        actionImmutabilityCheck(actionType, oldValue, undefined, propertyName);
 
         // delete the valueStateObject from the app state graph
         _.unset(stateObject, propertyName);

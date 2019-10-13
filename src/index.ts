@@ -4,7 +4,7 @@ import { RenderPropsComponent, ContainerRenderProps } from './components/RenderP
 import { Store, StateObject, State, StateParent, StateProp } from './types/Store';
 import { ArrayChangeAction } from './actions/actions';
 import { getActionCreator, getArrayActionCreator, getMappingActionCreator } from './actions/actionCreators';
-import { Manager } from 'types/Manager';
+import { Manager } from './types/Manager';
 
 /**
  * This is intended to be a list of objects you will need to use the library as-is.

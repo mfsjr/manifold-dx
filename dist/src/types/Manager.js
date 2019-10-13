@@ -12,12 +12,12 @@ var ActionProcessor_1 = require("./ActionProcessor");
  * Note that the state class contains an instance of this class.
  */
 var Manager = /** @class */ (function () {
-    function Manager(state, options) {
+    function Manager(_store, options) {
         // protected dispatchingActions: boolean = false;
         this.dispatchArgs = [];
         /* tslint:disable:no-any */
         this.currentDataAction = null;
-        this.resetManager(state, {});
+        this.resetManager(_store, {});
         Manager.manager = this;
     }
     Manager.get = function (stateObject) {
@@ -36,11 +36,11 @@ var Manager = /** @class */ (function () {
         }
         Manager.stateManagerMap.set(stateObject, manager);
     };
-    Manager.prototype.resetManager = function (state, options) {
-        this.state = state;
+    Manager.prototype.resetManager = function (_store, options) {
+        this.store = _store;
         this.actionQueue = ActionQueue_1.createActionQueue(options.actionQueueSize);
         this.mappingState = new MappingState_1.MappingState();
-        this.resetActionProcessors(state, options);
+        this.resetActionProcessors(_store, options);
     };
     Manager.prototype.getActionProcessorAPI = function () {
         return this.actionProcessor;
@@ -161,6 +161,7 @@ var Manager = /** @class */ (function () {
      * @param actions
      */
     Manager.prototype.dispatch = function (actionMethod) {
+        var _a;
         var actions = [];
         for (var _i = 1; _i < arguments.length; _i++) {
             actions[_i - 1] = arguments[_i];
@@ -174,10 +175,13 @@ var Manager = /** @class */ (function () {
         }
         var dataAction = !(actions[0] instanceof actions_1.MappingAction);
         if (dataAction && this.currentDataAction) {
-            var currentDescription = actions_1.actionDescription(this.currentDataAction);
-            var message = "Dispatch " + currentDescription + " interrupted by another: " + actions_1.actionDescription(actions[0]);
-            message += "\nNOTE: use the dispatchNext api to avoid this error (waits until current dispatch completes)";
-            throw new Error(message);
+            // attempting to dispatch actions while another is dispatching, so handle by deferring until we're done.
+            (_a = this.store).dispatchNext.apply(_a, actions);
+            // let currentDescription = actionDescription(this.currentDataAction);
+            // let message = `Dispatch ${currentDescription} interrupted by another: ${actionDescription(actions[0])}`;
+            // console.log(`Warning: ${message}`);
+            // message += `\nNOTE: use the dispatchNext api to avoid this error (waits until current dispatch completes)`;
+            // throw new Error(message);
         }
         try {
             if (dataAction) {

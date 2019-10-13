@@ -30,7 +30,7 @@ So to make all this happen, you simply call API's that manifold-dx provides for 
 Just to reiterate, you didn't have to write anything, these API's are provided by the library:
 - `getActionCreator` builds and invokes an action creator for you
 - `update` defines the action according to what you put in (intellisense and type-checking courtesy of TypeScript)
-- `dispatch` updates state and the UI
+- `dispatch` updates application state and the UI
 
 **To Install:**
 We generally assume (but don't require) that people are using create-react-app.
@@ -185,6 +185,7 @@ export const getUser = (): GroupUserState => {
 - Type-safe generic api's mean developers never code any action types, actions, action creators, reducers, etc.
 - Render props
 - React Router (v4) integration via RedirectDx [https://github.com/mfsjr/manifold-dx-redirect-dx]
+- Batched updates for efficient rendering: `getAppStore().dispatch(...actions);`
 
 ### Prior Art
 Obviously Redux has been our frame of reference, but Vuex should be mentioned, as it influenced this design in

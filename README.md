@@ -1,17 +1,46 @@
 # Manifold-dx for React
 
-The goal here is to provide Flux mechanics similar to Redux, offering developers something
-much simpler to use, where they never have to define action ID's, action objects or creators,
-reducers, etc.
+## A TypeScript Ipmlementation of Flux
 
-The main tools Redux uses are immutability and functional programming.  TypeScript allows us 
-to implement Flux differently, using strongly typed data structures and generics, offering a hugely 
-simplified developer experience.
+The goal here is to provide a fantastic developer experience, using simple Flux mechanics.
+The framework provides API's so developers don't have to define 
+action ID's, action objects, action creators, reducers, etc.
 
-### The Basic Idea
-There are two key capabilities that TypeScript provides that we take advantage of.
+Where Redux's implementation is based on functional programming and immutability, we use 
+TypeScript's strongly typed data structures and generics.
 
-1. **Generics** We can write type-safe, generic updates, that enforce valid property names and value types:
+### How It Works
+
+Let's say we have used TypeScript to define application state that looks like this:
+
+ ![alt text](./StateDiagram.png) 
+
+
+Now suppose we want to update the user's given_name, from 'Joe' to 'Joseph'.
+
+
+ ![alt text](./Action%20Flow.png) 
+
+
+So to make all this happen, you simply call API's that manifold-dx provides for you:
+
+ ![alt text](./createDefineDispatchAction.png) 
+
+
+Just to reiterate, you didn't have to write anything, these API's are provided by the library:
+- `getActionCreator` builds and invokes an action creator for you
+- `update` defines the action according to what you put in (intellisense and type-checking courtesy of TypeScript)
+- `dispatch` updates state and the UI
+
+**To Install:**
+We generally assume (but don't require) that people are using create-react-app.
+`npm install --save manifold-dx`   
+
+### How could it be this easy?
+
+1. **Generics** We can write type-safe, generic updates, that enforce valid property names and value types.
+   Once again, this just a standard feature of TypeScript...
+   
 	```typescript jsx
 	function update<T, K extends keyof T>(object: T, propertyName: string, newValue: K): void {
 	  object[propertyName] = newValue;
@@ -22,51 +51,133 @@ There are two key capabilities that TypeScript provides that we take advantage o
 	write anything (no action ids, action objects, action creators, reducers or dispatch).
 
 	2. The developer just calls a generic api, and gets all the IDE assistance you'd expect:
-	   ![alt text](./docs/api_autocomplete.png)
+	   ![alt text](./typeChecking.png)
 
 1. **Strongly Typed Data Structures** 
-	1. We can define a graph consisting of mutable graph nodes that contain (1) immutable raw data used by 
-	React, and (2) other mutable graph nodes.  TypeScript forces this to be done in a type-safe, reliable way, 
-	using plain objects: 
-
+	1. Developers should spend a lot of time figuring out what their application state should look like.
+	   Given that developers have defined their state, we just add in a couple properties in the nodes
+	   of their state graph:
+	   1. `_parent` is the node that contains this one, or null if it the topmost node (application state)
+	   2. `_myPropname` is what my parent calls me, or an empty string if the topmost node (application state)
+	1. Example - what initial state might look like 
 	```typescript jsx
-	export interface Bowler extends StateObject {
+	let user: UserState = {
 	  // properties of the StateObject
 	  // parent in the state application graph
-	  _parent: StateObject | null;
+	  _parent: userMaintenance,
 	  // parent's name for this object, ie this === this._parent[this._myPropname]
-	  _myPropname: string;
+	  _myPropname: 'user',
 	  // raw data properties
-	  first: string;
-	  middle: string;
-	  last: string;
-	  address: Address;
-	  scores: number[];
+	  given_name: '',
+	  family_name: '',
+	  email: ''
 	}
 	```
-	1. So a developer can use TypeScript to define a state application object graph:
-	   ![alt text](./docs/stateDiagram.png)   
 
-	1. After a state object's property has been changed by an action, their property names can be identified  
-	by traversing to the top of the application state, e.g., 'appState.bowler.first'.
+**In other words, the only thing a developer has to do is to add two properties to the nodes of their 
+application state.**  This makes it easy for us to generate the property path (`'userMaintenance.user.given_name"`),
+given only the node in the application state.
 
-	1. Since every piece of the application state has a unique name, we can use it as a key in a map where the
-	values contain React components that need to update when that property is changed by an action.  
+### How to build your application state
+This is actually a more general question that applies to writing any UI, and it seems that the hard part is that
+there are a million ways to do it.  I'll outline here what has worked well, along with some helper interfaces 
+that make sure that the objects we build agree with the interfaces we have defined.
 
-	1. Our container component has generic api's for populating the map as well.
+1. The main observation here is that state is dynamic so everything besides the top node (application state) itself is
+    optional (possibly undefined).  Whether we are waiting for async results or simply writing code line-by-line
+    state can always be optional.
+2. Accessors can always be defined to return a real object, ie non-optionally, by throwing an exception 
+   if the object is undefined.  So your app uses accessors to grab state objects which do the checking once.
+3. We provide helper intefaces that enforce parent child relationships.  They're easy to code and TypeScript 
+   will use them to provide intellisense and flag mistakes.
+4. **Examples**
+  1. How to define AppState
+```typescript jsx
+export interface AppData {
+  userMaintenance?: UserMaintenanceState;
+  cognito?: AppCognitoState;
+}
 
-	1. If you're not getting the updates you expect after dispatching an action, just look at the map.
-1. State changes are performed by pure, invertible functions, so we can undo and redo actions easily.
-  1. Updates can be inverted by updating with the previous value
-  1. Inserts can be inverted by deletions
-  1. Deletions can be inverted by insertions
-1. The **set api** is the simplest way to create actions, so you don't have to concern yourself about 
-   the particular kind of action (eg update vs insert) or whether the new value is the same as the old.
-   So for example, if the values are the same, the resulting action is just a no-op, and never gets dispatched.  
+export interface AppState extends AppData, State<null> { }
+
+export interface UserMaintenanceState extends UserMaintenance, State<AppState> {
+  user?: GroupUserState;
+  open: boolean;
+}
+
+export interface GroupUserState extends GroupUser, State<UserMaintenanceState> { }
+
+export interface AppCognitoState extends AppCognitoState, State<AppState> { }  // phases of cognito login and person
+```
+  2. How to build AppState
+```typescript jsx
+export class AppStateCreator {
+  appState: AppState;
+
+  constructor() {
+    this.appState = {
+      _parent: null,
+      _myPropname: '',
+    };
+    this.appState.cognito = {
+      _parent: this.appState,
+      _myPropname: 'cognito',
+      groups: []
+    };
+    this.appState.userMaintenance = {
+      _myPropname: 'userMaintenance',
+      _parent: this.appState,
+      groups: [],
+      user_in_groups: [],
+      users: [],
+    };
+    this.appState.userMaintenance.user = {
+      _parent: this.appState.userMaintenance,
+      _myPropname: 'user',
+      last_login: '',
+      Username: '',
+      family_name: '',
+      given_name: '',
+      email: '',
+      open: false
+    };
+  }
+}
+```  
+  3. How to hook up AppState to manifold-dx.  Note that we define mutation checking for development,
+     so if anything other than an action touches our state, we fail fast with an error/exception.
+```typescript jsx
+export class AppStore extends Store<AppState> {
+
+  constructor(_appData: AppState, _configOptions: StateConfigOptions) {
+    super(_appData, _configOptions);
+    // process.env[`REACT_APP_STATE_MUTATION_CHECKING`] = 'true';
+    let strictMode: boolean = process.env.REACT_APP_STATE_MUTATION_CHECKING ?
+      process.env.REACT_APP_STATE_MUTATION_CHECKING === 'true' :
+      false;
+    let detection = this.getManager().getActionProcessorAPI().isMutationCheckingEnabled();
+    console.log(`strictMode = ${strictMode}, mutation detection=${detection}`);
+  }
+}
+
+let appStore = new AppStore(new AppStateCreator().appState, {});
+
+export const getAppStore = (): AppStore => appStore;
+```  
+  4. Accessors
+```typescript jsx
+export const getUser = (): GroupUserState => {
+  const _user = getUserMaintenance().user;
+  if (!_user) {
+    throw new Error('user must be defined');
+  }
+  return _user;
+};
+```  
 	 
 ### Key Features
-- Predictable, synchronous single-store state management using pure invertible functions,
-  allowing for 'time-travel'.
+- You may have noticed above, where the action contains both the old and the new value.  This allows actions
+  to be 'unapplied', kind of like a database, allowing us to do time-travel.
 - Strict mode, which will throw errors if state is mutated other than by actions (careful - development only!)   
 - Simplified middleware - developer-provided functions can be invoked before or after actions are dispatched.
 - ActionLoggingObject interface and actionLogging implementation to be used by middleware
@@ -85,46 +196,6 @@ a couple of ways:
 Also note, a coincidental similarity with Vuex is a somewhat nested/compositional approach to state, as opposed 
 to Redux's preferred 'flat' shape.
 
-
-**To Install:**
-`npm install --save manifold-dx`   
-
-### Defining Application State
-
-This is really "job #1" for developers anyway, so manifold-dx just piggybacks on top of your usual efforts.
-
-Note that application state is by definition dynamic, whether you're talking about asynchronously retrieving or 
-modifying data, or all the way down to the coding level, where state may be assigned to an object on a line-by-line basis.
-
-For these reasons, for anything more complicated than a demo (i.e., real-world apps), we typically define all state 
-to be optional, e.g., the user below:
-
-```typescript jsx
-interface AppState {
-  user?: {
-    name: string;
-  };
-}
-```
-
-Note that manifold-dx requires that you define your state container objects as objects that implement the 
-StateObject interface.  All this means is that they must have two properties...
-1. _parent - the parent state object, or null if it is the top/root level application state container
-2. _myPropname - the name of the container, such that `this._parent[this._myPropname] === this`
-
-There are helpers provided by manifold-dx to enforce these relationships, namely the State interface.  This 
-allows you to define these StateObjects in a way that enforces parent-child relationships, including the
-top/root level application state.  For example:
-```typescript jsx
-export interface AppState extends AppData, State<null> { }
-export interface NavState extends Nav, State<AppState> { }
-export interface DrawerState extends DrawerProps, State<NavState> { }
-export interface FetchState extends FetchData<any>, State<AppState> { }
-```
-For this example we don't care about (or provide) the details of the various interfaces (AppState, NavState, etc), 
-the things to notice are:
-1. Top level app state is indicated by the <null> generic (makes sense since its parent is null)
-2. Nested state objects refer to the type of their parent, eg `interface NavState extends Nav, State<AppState>
    
 #### Demo Apps
 - See the todo app at [https://github.com/mfsjr/manifold-dx-todo](https://github.com/mfsjr/manifold-dx-todo). 
@@ -139,16 +210,12 @@ the things to notice are:
 - Look at our demo apps, these are built with create-react-app and react-script-ts.
  
 #### Recent work has centered on:
-- Real world apps using... 
-  - Hot Module Replacement
-  - Material-UI v1+, Formik, React Router v4
-  - action logging
-- Adding optional render props to our ContainerComponent (RenderPropComponent)
-- Optimizing user-facing API's for ease-of-use
-- Organizing state initialization, design, and enforcing structure using TypeScript conditional types 
+- Putting manifold-dx into production (it is in production!)
+- enhancing usability
+- keeping up to date with recent TypeScript and React releases
 
 #### What's Next
 - Dev tools for action replay
-- Larger, real-world example applications
+- More production apps
 - More rendering optimizations
 

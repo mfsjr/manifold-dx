@@ -16,4 +16,6 @@ var actionCreators_1 = require("./actions/actionCreators");
 exports.getActionCreator = actionCreators_1.getActionCreator;
 exports.getArrayActionCreator = actionCreators_1.getArrayActionCreator;
 exports.getMappingActionCreator = actionCreators_1.getMappingActionCreator;
+var Manager_1 = require("types/Manager");
+exports.Manager = Manager_1.Manager;
 //# sourceMappingURL=index.js.map

@@ -1,13 +1,13 @@
 {
   "name": "manifold-dx",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "private": false,
   "license": "MIT",
   "main": "dist/src/index.js",
   "types": "dist/src/index.d.ts",
   "repository": {
     "type" : "git",
-    "url" : "https://github.com/mfsjr/manifold-dx/git"
+    "url" : "https://github.com/mfsjr/manifold-dx"
   },  "author": {
     "name": "Matt Schleindl",
     "email": "mattschleindl@yahoo.com"

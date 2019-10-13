@@ -1,6 +1,6 @@
 # Manifold-dx for React
 
-## A TypeScript Ipmlementation of Flux
+## A TypeScript Implementation of Flux
 
 The goal here is to provide a fantastic developer experience, using simple Flux mechanics.
 The framework provides API's so developers don't have to define 
@@ -164,7 +164,7 @@ let appStore = new AppStore(new AppStateCreator().appState, {});
 
 export const getAppStore = (): AppStore => appStore;
 ```  
-  4. Accessors
+  4. How to build accessors.
 ```typescript jsx
 export const getUser = (): GroupUserState => {
   const _user = getUserMaintenance().user;

@@ -16,7 +16,7 @@ Let's say we have used TypeScript to define application state that looks like th
  ![alt text](./StateDiagram.png) 
 
 
-Now suppose we want to update the user's given_name, from 'Joe' to 'Joseph'.
+Now suppose we want to update the user's given_name, from 'Joe' to 'Joseph' (the property on the top right).
 
 
  ![alt text](./Action%20Flow.png) 
@@ -32,31 +32,23 @@ Just to reiterate, you didn't have to write anything, these API's are provided b
 - `update` defines the action according to what you put in (intellisense and type-checking courtesy of TypeScript)
 - `dispatch` updates application state and the UI
 
-**To Install:**
-We generally assume (but don't require) that people are using create-react-app.
-`npm install --save manifold-dx`   
+### To Install
+- `npm install --save manifold-dx`   
 
 ### How could it be this easy?
 
-1. **Generics** We can write type-safe, generic updates, that enforce valid property names and value types.
-   Once again, this just a standard feature of TypeScript...
+1. **TypeScript Generics** are a powerful feature, and we take full advantage of them, without requiring
+   developers to know much about them.  We can write type-safe, generic updates, that enforce valid property names 
+   and value types.  
    
-	```typescript jsx
-	function update<T, K extends keyof T>(object: T, propertyName: string, newValue: K): void {
-	  object[propertyName] = newValue;
-	}
-	```
-	1. Functions like this allow us to write generic API's, using database semantics (update,
-	insert and delete), that apply to every piece of application state, so the developer doesn't have to 
-	write anything (no action ids, action objects, action creators, reducers or dispatch).
-
-	2. The developer just calls a generic api, and gets all the IDE assistance you'd expect:
+	1. The developer just calls a generic api, and gets all the IDE assistance you'd expect. 
 	   ![alt text](./typeChecking.png)
-
+    2. Also note that IDE's provide autocomplete for the property names, and flag property name misspellings.
+    
 1. **Strongly Typed Data Structures** 
-	1. Developers should spend a lot of time figuring out what their application state should look like.
+	1. Developers often spend a lot of time figuring out what their application state should look like.
 	   Given that developers have defined their state, we just add in a couple properties in the nodes
-	   of their state graph:
+	   of their state graph (the blue circles in the diagrams above):
 	   1. `_parent` is the node that contains this one, or null if it the topmost node (application state)
 	   2. `_myPropname` is what my parent calls me, or an empty string if the topmost node (application state)
 	1. Example - what initial state might look like 
@@ -70,7 +62,9 @@ We generally assume (but don't require) that people are using create-react-app.
 	  // raw data properties
 	  given_name: '',
 	  family_name: '',
-	  email: ''
+	  email: '',
+      UserState: '',
+      cell: ''
 	}
 	```
 
@@ -134,11 +128,11 @@ export class AppStateCreator {
     this.appState.userMaintenance.user = {
       _parent: this.appState.userMaintenance,
       _myPropname: 'user',
-      last_login: '',
-      Username: '',
       family_name: '',
       given_name: '',
       email: '',
+      cell: '',
+      UserStatus: '',
       open: false
     };
   }
@@ -177,7 +171,7 @@ export const getUser = (): GroupUserState => {
 	 
 ### Key Features
 - You may have noticed above, where the action contains both the old and the new value.  This allows actions
-  to be 'unapplied', kind of like a database, allowing us to do time-travel.
+  to be 'unapplied', like a database transaction log, allowing us to do time-travel.
 - Strict mode, which will throw errors if state is mutated other than by actions (careful - development only!)   
 - Simplified middleware - developer-provided functions can be invoked before or after actions are dispatched.
 - ActionLoggingObject interface and actionLogging implementation to be used by middleware
@@ -186,6 +180,7 @@ export const getUser = (): GroupUserState => {
 - Render props
 - React Router (v4) integration via RedirectDx [https://github.com/mfsjr/manifold-dx-redirect-dx]
 - Batched updates for efficient rendering: `getAppStore().dispatch(...actions);`
+- **'set' API** a convenience method that will do insert, update or delete depending on old and new data values.
 
 ### Prior Art
 Obviously Redux has been our frame of reference, but Vuex should be mentioned, as it influenced this design in

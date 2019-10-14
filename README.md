@@ -84,8 +84,9 @@ that make sure that the objects we build agree with the interfaces we have defin
    if the object is undefined.  So your app uses accessors to grab state objects which do the checking once.
 3. We provide helper intefaces that enforce parent child relationships.  They're easy to code and TypeScript 
    will use them to provide intellisense and flag mistakes.
-4. **Examples**
-  1. How to define AppState
+
+### Examples
+- How to define AppState
 ```typescript jsx
 export interface AppData {
   userMaintenance?: UserMaintenanceState;
@@ -103,7 +104,7 @@ export interface GroupUserState extends GroupUser, State<UserMaintenanceState> {
 
 export interface AppCognitoState extends AppCognitoState, State<AppState> { }  // phases of cognito login and person
 ```
-  2. How to build AppState
+- How to build AppState
 ```typescript jsx
 export class AppStateCreator {
   appState: AppState;
@@ -138,7 +139,7 @@ export class AppStateCreator {
   }
 }
 ```  
-  3. How to hook up AppState to manifold-dx.  Note that we define mutation checking for development,
+- How to hook up AppState to manifold-dx.  Note that we define mutation checking for development,
      so if anything other than an action touches our state, we fail fast with an error/exception.
 ```typescript jsx
 export class AppStore extends Store<AppState> {
@@ -158,7 +159,7 @@ let appStore = new AppStore(new AppStateCreator().appState, {});
 
 export const getAppStore = (): AppStore => appStore;
 ```  
-  4. How to build accessors.
+- How to build accessors.
 ```typescript jsx
 export const getUser = (): GroupUserState => {
   const _user = getUserMaintenance().user;

@@ -28,7 +28,7 @@ import { ContainerComponent, getActionCreator, getArrayActionCreator, StateObjec
 import { Address, createTestStore, Name, TestState } from './testHarness';
 import { Action, AnyMappingAction, StateCrudAction } from '../src/actions/actions';
 import { ReactElement, FunctionComponent } from 'react';
-import { getMappingActionCreator } from '../src/actions/actionCreators';
+import { ExtractMatching, getMappingActionCreator } from '../src/actions/actionCreators';
 import { BowlerProps, ScoreCardProps } from './Components.test';
 import * as React from 'react';
 import { ContainerRenderProps, RenderPropsComponent } from '../src/components/RenderPropsComponent';
@@ -128,7 +128,8 @@ class BowlerContainer extends ContainerComponent<BowlerProps, ScoreCardProps, Te
         street: '',
         city: '',
         state: '',
-        calcAverage: () => 0.0
+        calcAverage: () => 0.0,
+        addresses: []
       };
     } else {
       return {
@@ -137,7 +138,8 @@ class BowlerContainer extends ContainerComponent<BowlerProps, ScoreCardProps, Te
         street: this.nameState.address ? this.nameState.address.street : '',
         city: this.nameState.address ? this.nameState.address.city : '',
         state: this.nameState.address ? this.nameState.address.state : '',
-        calcAverage: () => 0.0
+        calcAverage: () => 0.0,
+        addresses: []
       };
     }
   }
@@ -148,6 +150,11 @@ class BowlerContainer extends ContainerComponent<BowlerProps, ScoreCardProps, Te
 
   appendToMappingActions(actions: AnyMappingAction[])
     : void {
+    //
+    let test: ExtractMatching<Name, 'first', ScoreCardProps> = 'fullName';
+    if (!test) {
+      throw new Error('This should never throw, and ExtractMatching above should always compile');
+    }
     let nameStateMapper = getMappingActionCreator(this.nameState, 'first');
     let bowlingMapper = getMappingActionCreator(this.nameState, 'bowlingScores');
     actions.push( nameStateMapper.createPropertyMappingAction(this, 'fullName') );

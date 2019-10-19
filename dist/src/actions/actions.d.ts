@@ -142,7 +142,7 @@ export declare class ArrayChangeAction<S extends StateObject, K extends Extract<
  * A: application state
  * E: array element type, if the property type is an array
  */
-export declare class MappingAction<S extends StateObject, K extends Extract<keyof S, string>, CP, VP, TP extends Extract<keyof VP, string>, A extends StateObject, E> extends StateAction<S, K> {
+export declare class MappingAction<S extends StateObject, K extends Extract<keyof S, string>, CP, VP, TP extends Extract<keyof VP, string>, A extends StateObject, E extends unknown> extends StateAction<S, K> {
     component: ContainerComponent<CP, VP, A>;
     fullPath: string;
     targetPropName: TP;

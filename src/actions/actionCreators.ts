@@ -101,7 +101,7 @@ export class ActionCreator<S extends StateObject> {
    *
    * If you need to squeeze out the highest possible levels of performance, using insert, update or remove
    * directly might make things a little faster.
-   * 
+   *
    * @param propertyKey
    * @param value
    */
@@ -317,8 +317,22 @@ export class ArrayActionCreator<S extends StateObject, K extends Extract<keyof S
   }
 }
 
+/**
+ * Extract keys (which are strings) whose value's types match the type of S[K].
+ * See "Conditional types are particularly useful when combined with mapped types:"
+ * in https://www.typescriptlang.org/docs/handbook/release-notes/typescript-2-8.html
+ */
+export type ExtractMatching<S, K extends Extract<keyof S, string>, VP> =
+  { [TP in Extract<keyof VP, string>]: VP[TP] extends S[K] ? TP : never; } [Extract<keyof VP, string>];
+
+/**
+ * Extract keys (which are strings) whose value match E, the specific unknown type of an array.
+ */
+export type ExtractMatchingArrayType<E, VP> =
+  { [TP in Extract<keyof VP, string>]: VP[TP] extends E ? TP : never; } [Extract<keyof VP, string>];
+
 export function getMappingActionCreator
-  <S extends StateObject, K extends Extract<keyof S, string>, A extends StateObject, E>
+  <S extends StateObject, K extends Extract<keyof S, string>, A extends StateObject, E extends unknown>
 (_parent: S, _propKey: K) {
 
   /**
@@ -330,7 +344,7 @@ export function getMappingActionCreator
    * @returns {MappingAction<S extends StateObject, K extends Extract<keyof S, string>, CP, VP, TP extends keyof VP,
    * A extends StateObject, E>}
    */
-  let createPropertyMappingAction = function<CP, VP, TP extends Extract<keyof VP, string>>
+  let createPropertyMappingAction = function<CP, VP, TP extends ExtractMatching<S, K, VP>>
   (_component: ContainerComponent<CP, VP, A>, targetPropKey: TP, ...mappingHooks: MappingHook[])
   : MappingAction<S, K, CP, VP, TP, A, E> {
     return new MappingAction(_parent, _propKey, _component, targetPropKey, ...mappingHooks);
@@ -348,7 +362,7 @@ export function getMappingActionCreator
    * <S extends StateObject, K extends Extract<keyof S, string>, CP, VP, TP extends keyof VP, A extends StateObject, E>}
    *  the mapping action
    */
-  let createArrayIndexMappingAction = function<CP, VP, TP extends Extract<keyof VP, string>>
+  let createArrayIndexMappingAction = function<CP, VP, TP extends ExtractMatchingArrayType<E, VP>>
   (
     _array: S[K] & Array<E>,
     index: number | null,

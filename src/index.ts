@@ -3,7 +3,8 @@ import { ContainerComponent } from './components/ContainerComponent';
 import { RenderPropsComponent, ContainerRenderProps } from './components/RenderPropsComponent';
 import { Store, StateObject, State, StateParent, StateProp } from './types/Store';
 import { ArrayChangeAction } from './actions/actions';
-import { getActionCreator, getArrayActionCreator, getMappingActionCreator } from './actions/actionCreators';
+import { getActionCreator, getArrayActionCreator, getMappingActionCreator, getArrayMappingActionCreator }
+  from './actions/actionCreators';
 import { Manager } from './types/Manager';
 
 /**
@@ -21,6 +22,7 @@ export {
   getActionCreator,
   getArrayActionCreator,
   getMappingActionCreator,
+  getArrayMappingActionCreator,
   StateCrudAction,
   ArrayChangeAction,
   Manager,

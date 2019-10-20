@@ -365,7 +365,7 @@ export function getMappingActionCreator
 }
 
 export function getArrayMappingActionCreator
-<S extends StateObject, K extends ExtractArrayKeys<unknown, S>, A extends StateObject>
+<S extends StateObject, E extends unknown, K extends ExtractArrayKeys<E, S>, A extends StateObject>
 (_parent: S, _propKey: K) {
 
   /**
@@ -381,7 +381,7 @@ export function getArrayMappingActionCreator
    *  the mapping action
    */
   const createArrayIndexMappingAction =
-    function <CP, VP, TP extends ExtractMatchingArrayType<E, VP>, E extends unknown>
+    function <CP, VP, TP extends ExtractMatchingArrayType<E, VP>>
     (
       _array: S[K] & Array<E>,
       index: number | null,

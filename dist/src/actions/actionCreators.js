@@ -291,6 +291,12 @@ function getMappingActionCreator(_parent, _propKey) {
         }
         return new (actions_1.MappingAction.bind.apply(actions_1.MappingAction, [void 0, _parent, _propKey, _component, targetPropKey].concat(mappingHooks)))();
     };
+    return {
+        createPropertyMappingAction: createPropertyMappingAction,
+    };
+}
+exports.getMappingActionCreator = getMappingActionCreator;
+function getArrayMappingActionCreator(_parent, _propKey) {
     /**
      * Create a mapping from an array element, or the whole array, to a component
      * @param {S[K] & Array<E>} state array to be mapped
@@ -323,9 +329,8 @@ function getMappingActionCreator(_parent, _propKey) {
         return result;
     };
     return {
-        createPropertyMappingAction: createPropertyMappingAction,
         createArrayIndexMappingAction: createArrayIndexMappingAction
     };
 }
-exports.getMappingActionCreator = getMappingActionCreator;
+exports.getArrayMappingActionCreator = getArrayMappingActionCreator;
 //# sourceMappingURL=actionCreators.js.map

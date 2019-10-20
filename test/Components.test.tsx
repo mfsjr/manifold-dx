@@ -7,7 +7,7 @@ import { Store, StateObject } from '../src/types/Store';
 import { Manager } from '../src/types/Manager';
 import {
   ExtractMatchingArrayType,
-  getArrayActionCreator,
+  getArrayActionCreator, getArrayMappingActionCreator,
   getMappingActionCreator
 } from '../src/actions/actionCreators';
 import { arrayMapDelete, arrayMapInsert, MappingState } from '../src/types/MappingState';
@@ -52,8 +52,8 @@ let addr2: Address = {
   zip: '19532'
 };
 
-interface AddressProps {
-  address: Address;
+interface AddressProps<A> {
+  address: A;
   region?: string;
 }
 
@@ -61,7 +61,7 @@ const ScoreCardGenerator = function(props: ScoreCardProps): React.Component<Scor
   return new React.Component<ScoreCardProps>(props);
 };
 
-function addressRowFunctionComp(addressProps: AddressProps): React.ReactElement<AddressProps> {
+function addressRowFunctionComp(addressProps: AddressProps<Address>): React.ReactElement<AddressProps<Address>> {
   return (
     <div>
       <div>
@@ -82,12 +82,13 @@ interface ReactState {
  * This child container is deliberately over-engineered since we want to test the behavior of a more likely
  * "real-world" example.
  */
-class AddressContainer extends ContainerComponent<AddressProps, AddressProps, TestState & StateObject, ReactState> {
+class AddressContainer
+  extends ContainerComponent<AddressProps<Address>, AddressProps<Address>, TestState & StateObject, ReactState> {
   address: Address;
 
   public displayName: string;
 
-  constructor(addressProps: AddressProps, _displayName: string) {
+  constructor(addressProps: AddressProps<Address>, _displayName: string) {
     super(addressProps, testStore.getState(), addressRowFunctionComp);
     this.displayName = _displayName;
     this.state = { editing: false };
@@ -102,7 +103,7 @@ class AddressContainer extends ContainerComponent<AddressProps, AddressProps, Te
     // return this.mappingActions;
   }
 
-  createViewProps(): AddressProps {
+  createViewProps(): AddressProps<Address> {
     return {address: this.address};
   }
 }
@@ -276,7 +277,7 @@ describe('ContainerComponent instantiation, mount, update, unmount', () => {
     // let addr1MappingAction = getMappingCreator(nameState, addr1Container)
     // .createMappingAction('addresses', 'address');
     // let addressesOptions = {keyGen: keyGen, array: nameState.addresses};
-    let addr1MappingAction = getMappingActionCreator(nameState, 'addresses')
+    let addr1MappingAction = getArrayMappingActionCreator(nameState, 'addresses')
       .createArrayIndexMappingAction(nameState.addresses, 0, addr1Container, 'address');
 
     addr1MappingAction.dispatch();
@@ -301,7 +302,7 @@ describe('ContainerComponent instantiation, mount, update, unmount', () => {
       throw new Error('this code should never execute and the type above should never have a TS error');
     }
     address2Container = addr2Container;
-    let addr2MappingAction = getMappingActionCreator(nameState, 'addresses')
+    let addr2MappingAction = getArrayMappingActionCreator(nameState, 'addresses')
       .createArrayIndexMappingAction(nameState.addresses, 1, addr2Container, 'address');
     addr2MappingAction.dispatch();
 

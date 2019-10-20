@@ -4,7 +4,6 @@ import { StateObject } from '../types/Store';
 import { Manager } from '../types/Manager';
 import { arrayMapDelete, arrayMapInsert } from '../types/MappingState';
 import { ActionProcessorFunctionType } from '../types/ActionProcessor';
-// import { ExtractMatching, ExtractMatchingArrayType } from './actionCreators';
 
 /**
  * ActionId's for calling api's that change state.
@@ -369,6 +368,7 @@ export class MappingAction
     K extends Extract<keyof S, string>, CP, VP,
     // TP extends ExtractMatching<S, K, VP> | ExtractMatchingArrayType<E, VP>,
     TP extends Extract<keyof VP, string>,
+    // TP extends (E extends void ? ExtractMatching<S, K, VP> : ExtractMatchingArrayType<E, VP>),
     A extends StateObject,
     E extends unknown>
   extends StateAction<S, K> {

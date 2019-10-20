@@ -341,7 +341,7 @@ export type ExtractMatchingConditional<S, K extends Extract<keyof S, string>, VP
   E extends void ? ExtractMatching<S, K, VP> : ExtractMatchingArrayType<E, VP>;
 
 export function getMappingActionCreator
-  <S extends StateObject, K extends Extract<keyof S, string>, A extends StateObject>
+  <S extends StateObject, K extends Extract<keyof S, string>, A extends StateObject, E extends void>
 (_parent: S, _propKey: K) {
 
   /**
@@ -355,7 +355,7 @@ export function getMappingActionCreator
    */
   const createPropertyMappingAction = function<CP, VP, TP extends ExtractMatching<S, K, VP>>
   (_component: ContainerComponent<CP, VP, A>, targetPropKey: TP, ...mappingHooks: MappingHook[])
-  : MappingAction<S, K, CP, VP, TP, A, void> {
+  : MappingAction<S, K, CP, VP, TP, A, E> {
     return new MappingAction(_parent, _propKey, _component, targetPropKey, ...mappingHooks);
   };
 
@@ -365,7 +365,7 @@ export function getMappingActionCreator
 }
 
 export function getArrayMappingActionCreator
-<S extends StateObject, E extends unknown, K extends ExtractArrayKeys<E, S>, A extends StateObject>
+<S extends StateObject, K extends ExtractArrayKeys<unknown, S>, A extends StateObject>
 (_parent: S, _propKey: K) {
 
   /**
@@ -381,7 +381,7 @@ export function getArrayMappingActionCreator
    *  the mapping action
    */
   const createArrayIndexMappingAction =
-    function <CP, VP, TP extends ExtractMatchingArrayType<E, VP>>
+    function <CP, VP, E extends unknown, TP extends ExtractMatchingArrayType<E, VP>>
     (
       _array: S[K] & Array<E>,
       index: number | null,

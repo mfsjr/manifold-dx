@@ -52,8 +52,8 @@ let addr2: Address = {
   zip: '19532'
 };
 
-interface AddressProps {
-  address: Address;
+interface AddressProps<A> {
+  address: A;
   region?: string;
 }
 
@@ -61,7 +61,7 @@ const ScoreCardGenerator = function(props: ScoreCardProps): React.Component<Scor
   return new React.Component<ScoreCardProps>(props);
 };
 
-function addressRowFunctionComp(addressProps: AddressProps): React.ReactElement<AddressProps> {
+function addressRowFunctionComp(addressProps: AddressProps<Address>): React.ReactElement<AddressProps<Address>> {
   return (
     <div>
       <div>
@@ -82,12 +82,13 @@ interface ReactState {
  * This child container is deliberately over-engineered since we want to test the behavior of a more likely
  * "real-world" example.
  */
-class AddressContainer extends ContainerComponent<AddressProps, AddressProps, TestState & StateObject, ReactState> {
+class AddressContainer
+  extends ContainerComponent<AddressProps<Address>, AddressProps<Address>, TestState & StateObject, ReactState> {
   address: Address;
 
   public displayName: string;
 
-  constructor(addressProps: AddressProps, _displayName: string) {
+  constructor(addressProps: AddressProps<Address>, _displayName: string) {
     super(addressProps, testStore.getState(), addressRowFunctionComp);
     this.displayName = _displayName;
     this.state = { editing: false };
@@ -102,7 +103,7 @@ class AddressContainer extends ContainerComponent<AddressProps, AddressProps, Te
     // return this.mappingActions;
   }
 
-  createViewProps(): AddressProps {
+  createViewProps(): AddressProps<Address> {
     return {address: this.address};
   }
 }

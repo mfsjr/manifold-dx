@@ -331,6 +331,9 @@ export type ExtractMatching<S, K extends Extract<keyof S, string>, VP> =
 export type ExtractMatchingArrayType<E, VP> =
   { [TP in Extract<keyof VP, string>]: VP[TP] extends E ? TP : never; } [Extract<keyof VP, string>];
 
+export type ExtractArrayKeys<E, VP> =
+  { [TP in Extract<keyof VP, string>]: VP[TP] extends Array<E> ? TP : never; } [Extract<keyof VP, string>];
+
 /**
  * This seems like it should work for declaring TP in MappingAction class, but doesn't
  */
@@ -362,7 +365,7 @@ export function getMappingActionCreator
 }
 
 export function getArrayMappingActionCreator
-<S extends StateObject, K extends ExtractMatchingArrayType<unknown, S>, A extends StateObject>
+<S extends StateObject, K extends ExtractArrayKeys<unknown, S>, A extends StateObject>
 (_parent: S, _propKey: K) {
 
   /**

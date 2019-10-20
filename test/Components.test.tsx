@@ -5,7 +5,11 @@ import { ContainerComponent } from '../src/components/ContainerComponent';
 import { Action, ActionId, AnyMappingAction, StateCrudAction } from '../src/actions/actions';
 import { Store, StateObject } from '../src/types/Store';
 import { Manager } from '../src/types/Manager';
-import { getArrayActionCreator, getMappingActionCreator } from '../src/actions/actionCreators';
+import {
+  ExtractMatchingArrayType,
+  getArrayActionCreator,
+  getMappingActionCreator
+} from '../src/actions/actionCreators';
 import { arrayMapDelete, arrayMapInsert, MappingState } from '../src/types/MappingState';
 
 const testStore = createTestStore();
@@ -27,7 +31,7 @@ export interface ScoreCardProps {
   state: string;
   scores: number[];
   calcAverage: () => number;
-  addresses?: Array<Address>;
+  addresses: Array<Address>;
 }
 
 let addr1: Address = {
@@ -50,6 +54,7 @@ let addr2: Address = {
 
 interface AddressProps {
   address: Address;
+  region?: string;
 }
 
 const ScoreCardGenerator = function(props: ScoreCardProps): React.Component<ScoreCardProps> {
@@ -126,7 +131,8 @@ class BowlerContainer extends ContainerComponent<BowlerProps, ScoreCardProps, Te
         street: '',
         city: '',
         state: '',
-        calcAverage: () => 0.0
+        calcAverage: () => 0.0,
+        addresses: []
       };
     } else {
       return {
@@ -135,7 +141,8 @@ class BowlerContainer extends ContainerComponent<BowlerProps, ScoreCardProps, Te
         street: this.nameState.address ? this.nameState.address.street : '',
         city: this.nameState.address ? this.nameState.address.city : '',
         state: this.nameState.address ? this.nameState.address.state : '',
-        calcAverage: () => 0.0
+        calcAverage: () => 0.0,
+        addresses: []
       };
     }
   }
@@ -289,6 +296,10 @@ describe('ContainerComponent instantiation, mount, update, unmount', () => {
     // this is done in render, which we are not testing here
     addr2Container.viewProps = addr2Container.createViewProps();
 
+    let test: ExtractMatchingArrayType<string, ScoreCardProps> = 'fullName';
+    if (!test) {
+      throw new Error('this code should never execute and the type above should never have a TS error');
+    }
     address2Container = addr2Container;
     let addr2MappingAction = getMappingActionCreator(nameState, 'addresses')
       .createArrayIndexMappingAction(nameState.addresses, 1, addr2Container, 'address');

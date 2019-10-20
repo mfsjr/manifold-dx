@@ -331,6 +331,12 @@ export type ExtractMatching<S, K extends Extract<keyof S, string>, VP> =
 export type ExtractMatchingArrayType<E, VP> =
   { [TP in Extract<keyof VP, string>]: VP[TP] extends E ? TP : never; } [Extract<keyof VP, string>];
 
+/**
+ * This seems like it should work for declaring TP in MappingAction class, but doesn't
+ */
+export type ExtractMatchingConditional<S, K extends Extract<keyof S, string>, VP, E extends unknown> =
+  E extends void ? ExtractMatching<S, K, VP> : ExtractMatchingArrayType<E, VP>;
+
 export function getMappingActionCreator
   <S extends StateObject, K extends Extract<keyof S, string>, A extends StateObject>
 (_parent: S, _propKey: K) {
@@ -350,6 +356,15 @@ export function getMappingActionCreator
     return new MappingAction(_parent, _propKey, _component, targetPropKey, ...mappingHooks);
   };
 
+  return {
+    createPropertyMappingAction,
+  };
+}
+
+export function getArrayMappingActionCreator
+<S extends StateObject, K extends ExtractMatchingArrayType<unknown, S>, A extends StateObject>
+(_parent: S, _propKey: K) {
+
   /**
    * Create a mapping from an array element, or the whole array, to a component
    * @param {S[K] & Array<E>} state array to be mapped
@@ -362,34 +377,34 @@ export function getMappingActionCreator
    * <S extends StateObject, K extends Extract<keyof S, string>, CP, VP, TP extends keyof VP, A extends StateObject, E>}
    *  the mapping action
    */
-  const createArrayIndexMappingAction = function<CP, VP, E extends unknown, TP extends ExtractMatchingArrayType<E, VP>>
-  (
-    _array: S[K] & Array<E>,
-    index: number | null,
-    _component: ContainerComponent<CP, VP, A>,
-    targetPropKey: TP,
-    ...mappingHooks: MappingHook[]
-  )
+  const createArrayIndexMappingAction =
+    function <CP, VP, TP extends ExtractMatchingArrayType<E, VP>, E extends unknown>
+    (
+      _array: S[K] & Array<E>,
+      index: number | null,
+      _component: ContainerComponent<CP, VP, A>,
+      targetPropKey: TP,
+      ...mappingHooks: MappingHook[]
+    )
       : MappingAction<S, K, CP, VP, TP, A, E> {
 
-    let mappingAction = new MappingAction(_parent, _propKey, _component, targetPropKey, ...mappingHooks);
-    // TODO: try building a custom type guard for Array<E>
-    let propKey: K | undefined;
-    for (let key in _parent) {
-      if (_array === _parent[key] && _array instanceof Array) {
-        propKey = key as K;
+      let mappingAction = new MappingAction(_parent, _propKey, _component, targetPropKey, ...mappingHooks);
+      // TODO: try building a custom type guard for Array<E>
+      let propKey: K | undefined;
+      for (let key in _parent) {
+        if (_array === _parent[key] && _array instanceof Array) {
+          propKey = key as K;
+        }
       }
-    }
-    if (!propKey) {
-      throw Error(`Failed to find array in parent`);
-    }
+      if (!propKey) {
+        throw Error(`Failed to find array in parent`);
+      }
 
-    let result = mappingAction.setArrayElement(index, _array);
-    return result as MappingAction<S, K, CP, VP, TP, A, E>;
-  };
+      let result = mappingAction.setArrayElement(index, _array);
+      return result as MappingAction<S, K, CP, VP, TP, A, E>;
+    };
 
   return {
-    createPropertyMappingAction,
     createArrayIndexMappingAction
   };
 }

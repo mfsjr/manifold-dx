@@ -332,7 +332,7 @@ export type ExtractMatchingArrayType<E, VP> =
   { [TP in Extract<keyof VP, string>]: VP[TP] extends E ? TP : never; } [Extract<keyof VP, string>];
 
 export function getMappingActionCreator
-  <S extends StateObject, K extends Extract<keyof S, string>, A extends StateObject, E extends unknown>
+  <S extends StateObject, K extends Extract<keyof S, string>, A extends StateObject>
 (_parent: S, _propKey: K) {
 
   /**
@@ -344,9 +344,9 @@ export function getMappingActionCreator
    * @returns {MappingAction<S extends StateObject, K extends Extract<keyof S, string>, CP, VP, TP extends keyof VP,
    * A extends StateObject, E>}
    */
-  let createPropertyMappingAction = function<CP, VP, TP extends ExtractMatching<S, K, VP>>
+  const createPropertyMappingAction = function<CP, VP, TP extends ExtractMatching<S, K, VP>>
   (_component: ContainerComponent<CP, VP, A>, targetPropKey: TP, ...mappingHooks: MappingHook[])
-  : MappingAction<S, K, CP, VP, TP, A, E> {
+  : MappingAction<S, K, CP, VP, TP, A, void> {
     return new MappingAction(_parent, _propKey, _component, targetPropKey, ...mappingHooks);
   };
 
@@ -362,7 +362,7 @@ export function getMappingActionCreator
    * <S extends StateObject, K extends Extract<keyof S, string>, CP, VP, TP extends keyof VP, A extends StateObject, E>}
    *  the mapping action
    */
-  let createArrayIndexMappingAction = function<CP, VP, TP extends ExtractMatchingArrayType<E, VP>>
+  const createArrayIndexMappingAction = function<CP, VP, E extends unknown, TP extends ExtractMatchingArrayType<E, VP>>
   (
     _array: S[K] & Array<E>,
     index: number | null,

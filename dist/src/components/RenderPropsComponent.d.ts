@@ -1,20 +1,18 @@
 import { ComponentGenerator, ContainerComponent } from './ContainerComponent';
 import { StateObject } from '..';
 import { ReactNode, FunctionComponent } from 'react';
+/**
+ * Render props are a function that the developer must supply, and exactly one of them
+ * must be defined.  If both are undefined (or defined), the component will throw an error
+ * in its constructor (fail fast).
+ */
 export interface ContainerRenderProps<VP> {
     _viewGenerator?: ComponentGenerator<VP>;
     _functionComp?: FunctionComponent<VP>;
 }
 /**
- * We assume that if props contains either a '_functionComp' or '_viewGenerator' prop, that they
- * are of the correct type and props implement the ContainerRenderProps<VP> interface.
- *
- * This is necessary because of weak type detection, which may make sense to me someday.
- * @param props
- */
-export declare function isContainerRenderProps<CP, VP, RP extends CP & ContainerRenderProps<VP>>(props: CP | RP): props is RP;
-/**
- * ContainerComponent that defines the render function as a property.
+ * ContainerComponent that defines the render function as a property using {@link ContainerRenderProps}.
+ * This is generally preferable to using {@link ContainerComponent}.
  *
  * CP: container props, a plain object (pojo)
  * VP: view component props, also a plain object

@@ -14,19 +14,9 @@ var __extends = (this && this.__extends) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 var ContainerComponent_1 = require("./ContainerComponent");
-// /**
-//  * We assume that if props contains either a '_functionComp' or '_viewGenerator' prop, that they
-//  * are of the correct type and props implement the ContainerRenderProps<VP> interface.
-//  *
-//  * This is necessary because of weak type detection, which may make sense to me someday.
-//  * @param props
-//  */
-// export function isContainerRenderProps<CP, VP, RP extends CP & ContainerRenderProps<VP>>
-// (props: CP | RP): props is RP {
-//   return props[`functionComp`] || props[`viewGenerator`];
-// }
 /**
- * ContainerComponent that defines the render function as a property.
+ * ContainerComponent that defines the render function as a property using {@link ContainerRenderProps}.
+ * This is generally preferable to using {@link ContainerComponent}.
  *
  * CP: container props, a plain object (pojo)
  * VP: view component props, also a plain object

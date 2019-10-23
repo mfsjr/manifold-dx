@@ -365,7 +365,12 @@ export class ArrayChangeAction
 
 export class MappingAction
   <S extends StateObject,
-    K extends Extract<keyof S, string>, CP, VP, TP extends Extract<keyof VP, string>, A extends StateObject, E>
+    K extends Extract<keyof S, string>, CP, VP,
+    // TP extends ExtractMatching<S, K, VP> | ExtractMatchingArrayType<E, VP>,
+    TP extends Extract<keyof VP, string>,
+    // TP extends (E extends void ? ExtractMatching<S, K, VP> : ExtractMatchingArrayType<E, VP>),
+    A extends StateObject,
+    E extends unknown>
   extends StateAction<S, K> {
 
   component: ContainerComponent<CP, VP, A>;

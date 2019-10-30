@@ -77,13 +77,20 @@ This is actually a more general question that applies to writing any UI, and it 
 there are a million ways to do it.  I'll outline here what has worked well, along with some helper interfaces 
 that make sure that the objects we build agree with the interfaces we have defined.
 
-1. The main observation here is that state is dynamic so everything besides the top node (application state) itself is
+1. State is comprised of:
+    1. Nodes that are StateObject's
+    2. Properties that are basic JS data types or plain objects
+    3. Properties that are named (indexed by) strings
+    4. No classes, class instances or functions
+2. The main observation here is that state is dynamic so everything besides the top node (application state) itself is
     optional (possibly undefined).  Whether we are waiting for async results or simply writing code line-by-line
     state can always be optional.
-2. Accessors can always be defined to return a real object, ie non-optionally, by throwing an exception 
+3. Accessors can always be defined to return a real object, ie non-optionally, by throwing an exception 
    if the object is undefined.  So your app uses accessors to grab state objects which do the checking once.
-3. We provide helper intefaces that enforce parent child relationships.  They're easy to code and TypeScript 
+4. We provide helper intefaces that enforce parent child relationships.  They're easy to code and TypeScript 
    will use them to provide intellisense and flag mistakes.
+
+**Serialization** application state can be de/serialized using JSOG, an npm that extends JSON to handle cyclic graphs.
 
 ### Examples
 - How to define AppState
@@ -169,7 +176,43 @@ export const getUser = (): GroupUserState => {
   return _user;
 };
 ```  
-	 
+### How to map state to components
+In manifold-dx, components are lightweight classes that invoke renderers (usually functions) and create mappings between 
+application state and renderers.  
+1. RenderPropComponent is the preferred container, where the renderer function (view) is passed in via props
+2. ContainerComponent passes the renderer (view) into the constructor
+
+Both of these classes require the developer to write two functions:
+1. `appendToMappingActions(mappingActions: AnyMappingAction[]): void;` This is how we define the relationship
+   between state and the renderer's properties, so that when an action changes state, the renderer's props are
+   updated and the component re-renders.
+2. `createViewProps(): VP;` is the function that initializes the view properties used by the renderer.
+
+A simple component looks like this:
+```typescript jsx
+export class Alert extends RenderPropsComponent<AlertProps, AlertViewProps, AppState> {
+
+  constructor(_props: AlertProps) {
+    super(_props, getAppStore().getState());
+  }
+
+  protected appendToMappingActions(mappingActions: AnyMappingAction[]): void {
+    mappingActions.push(
+      getMappingActionCreator(getModalState(), 'message').createPropertyMappingAction(this, 'alertMessage')
+    );
+  }
+
+  createViewProps(): AlertViewProps {
+    let alertMessage = getModalState().message || '';
+    return {
+      alertMessage,
+      handleClickClose: handleClickClose
+    };
+  }
+}
+
+```
+
 ### Key Features
 - You may have noticed above, where the action contains both the old and the new value.  This allows actions
   to be 'unapplied', like a database transaction log, allowing us to do time-travel.

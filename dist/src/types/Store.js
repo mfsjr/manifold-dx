@@ -245,8 +245,8 @@ var Store = /** @class */ (function () {
 }());
 exports.Store = Store;
 /**
- * This is only used in JSON.stringify, to prevent cyclic errors arising from
- * container._parent === container
+ * This is only used in {@link JSON.stringify}, to prevent cyclic errors arising from
+ * container._parent === container.  To serialize app state, see the JSOG npm.
  * @param key
  * @param value
  * @returns {string}

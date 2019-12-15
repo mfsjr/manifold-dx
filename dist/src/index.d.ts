@@ -1,7 +1,7 @@
 import { Action, StateCrudAction, MappingAction, MappingHook, AnyMappingAction } from './actions/actions';
 import { ContainerComponent } from './components/ContainerComponent';
 import { RenderPropsComponent, ContainerRenderProps } from './components/RenderPropsComponent';
-import { Store, StateObject, State, StateParent, StateProp } from './types/Store';
+import { Store, StateObject, State, StateParent, StateProp, StateConfigOptions } from './types/Store';
 import { ArrayChangeAction } from './actions/actions';
 import { getActionCreator, getArrayActionCreator, getMappingActionCreator, getArrayMappingActionCreator } from './actions/actionCreators';
 import { Manager } from './types/Manager';
@@ -10,4 +10,4 @@ import { Manager } from './types/Manager';
  * For more advanced usage, others are available via direct reference, and examples
  * of usage should be in the unit tests.
  */
-export { Store, State, StateParent, StateProp, StateObject, Action, getActionCreator, getArrayActionCreator, getMappingActionCreator, getArrayMappingActionCreator, StateCrudAction, ArrayChangeAction, Manager, MappingAction, AnyMappingAction, MappingHook, ContainerComponent, RenderPropsComponent, ContainerRenderProps };
+export { Store, State, StateParent, StateConfigOptions, StateProp, StateObject, Action, getActionCreator, getArrayActionCreator, getMappingActionCreator, getArrayMappingActionCreator, StateCrudAction, ArrayChangeAction, Manager, MappingAction, AnyMappingAction, MappingHook, ContainerComponent, RenderPropsComponent, ContainerRenderProps };

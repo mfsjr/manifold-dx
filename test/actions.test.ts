@@ -6,7 +6,7 @@ import { Store } from '../src/types/Store';
 import { Address, createTestStore, createTestState, Name, NameState } from './testHarness';
 import { createNameContainer } from './testHarness';
 import { StateObject } from '../src/types/Store';
-import { ActionProcessorFunctionType } from '../src/types/ActionProcessor';
+import { ActionProcessorFunctionType, DataTrigger } from '../src/types/ActionProcessor';
 import * as _ from 'lodash';
 import { onFailureDiff } from '../src/types/StateMutationDiagnostics';
 import { getArrayActionCreator, getActionCreator } from '../src';
@@ -505,6 +505,7 @@ describe('safe operations, updateIfChanged, insertIfEmpty, removeIfHasData, and 
   });
 
   test( 'property set', () => {
+    expect(nameState.suffix).toBeFalsy();
     expect(nameState.middle).toBe('J');
     const actionCreator = getActionCreator(nameState);
     actionCreator.set('middle', 'Z').dispatch();
@@ -515,4 +516,48 @@ describe('safe operations, updateIfChanged, insertIfEmpty, removeIfHasData, and 
     expect(nameState.middle).toBe('R');
     expect(() => actionCreator.set('middle', 'R').dispatch()).not.toThrow();
   });
+
+  test( 'data triggers', () => {
+    const actionCreator = getActionCreator(nameState);
+    expect(nameState.suffix).toBeFalsy();
+    expect(nameState.middle).toBe('R');
+    const first = nameState.first;
+
+    const triggerHit: DataTrigger = action => {
+      const propName: keyof typeof action.parent = 'middle';
+      if (action.parent === nameState && action.propertyName === propName) {
+        actionCreator.set('suffix', action.value).dispatch();
+      }
+    };
+    const triggerMiss: DataTrigger = action => {
+      const propName: keyof typeof action.parent = 'prefix';
+      if (action.parent === nameState && action.propertyName === propName) {
+        actionCreator.set('first', action.value).dispatch();
+      }
+    };
+    const triggerProcessor = testStore.getManager().getActionProcessorAPI()
+      .createDataTriggerProcessor([triggerHit, triggerMiss]);
+    testStore.getManager().getActionProcessorAPI().appendPostProcessor(triggerProcessor);
+
+    actionCreator.set('middle', 'Z').dispatch();
+    expect(nameState.middle).toBe('Z');
+    // triggerHit should have executed
+    expect(nameState.suffix).toBe(nameState.middle);
+    // triggerMiss should not have
+    expect(nameState.first).toBe(first);
+
+    actionCreator.set('middle', undefined).dispatch();
+    expect(nameState.middle).toBeUndefined();
+    expect(nameState.suffix).toBe(nameState.middle);
+    expect(nameState.first).toBe(first);
+
+    actionCreator.set('middle', 'R').dispatch();
+    expect(nameState.middle).toBe('R');
+    expect(() => actionCreator.set('middle', 'R').dispatch()).not.toThrow();
+    expect(nameState.suffix).toBe(nameState.middle);
+    expect(nameState.first).toBe(first);
+
+    testStore.getManager().getActionProcessorAPI().removePostProcessor(triggerProcessor);
+  });
+
 });

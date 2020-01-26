@@ -1,4 +1,4 @@
-import { Action } from '../actions/actions';
+import { Action, ArrayChangeAction, StateCrudAction } from '../actions/actions';
 import { Store, StateConfigOptions } from './Store';
 import { StateMutationCheck } from './StateMutationCheck';
 export declare type ActionProcessorFunctionType = (actions: Action[]) => Action[];
@@ -11,6 +11,7 @@ export declare type ActionProcessorAPI = {
     removePreProcessor: (toBeRemoved: ActionProcessorFunctionType) => void;
     appendPostProcessor: (processor: ActionProcessorFunctionType) => void;
     removePostProcessor: (toBeRemoved: ActionProcessorFunctionType) => void;
+    createDataTriggerProcessor: (triggers: DataTrigger[]) => ActionProcessorFunctionType;
     isMutationCheckingEnabled(): boolean;
     enableMutationChecking(): void;
     disableMutationChecking(): void;
@@ -23,6 +24,7 @@ export declare class ActionProcessor implements ActionProcessorAPI {
     private preProcessors;
     private postProcessors;
     constructor(state: Store<any>, options: StateConfigOptions);
+    createDataTriggerProcessor: (triggers: DataTrigger[]) => ActionProcessorFunctionType;
     setMutationCheckOnFailureFunction<T>(newFunction: (baseline: T, source: T) => string): void;
     getMutationCheckOnFailureFunction<T>(): (baseline: T, source: T) => string;
     isMutationCheckingEnabled(): boolean;
@@ -53,3 +55,16 @@ export declare class ActionProcessor implements ActionProcessorAPI {
     appendPreProcessor(processor: ActionProcessorFunctionType): void;
     getProcessorClones(): ActionProcessors;
 }
+export declare type DataTrigger = (action: StateCrudAction<any, any> | ArrayChangeAction<any, any, any>) => void;
+/**
+ * Create ActionProcessorFunctionType that filters for data actions, and hands them to {@link DataTrigger}s,
+ * which accepts a single {@link StateCrudAction} or {@link ArrayChangeAction}, so that the DataTrigger implementation
+ * can detect when certain properties are changing, and allow them to dispatch actions to other
+ * dependent state properties.
+ *
+ * An example might be an array of objects where array elements of a particular type might be used
+ * in other states, where they are mapped to other components.
+ * @param actions
+ * @return function of type {@link ActionProcessorFunctionType}
+ */
+export declare const createDataTriggerProcessor: (triggers: DataTrigger[]) => ActionProcessorFunctionType;

@@ -1,4 +1,4 @@
-import { Action } from '../actions/actions';
+import { Action, ActionId, ArrayChangeAction, StateCrudAction } from '../actions/actions';
 import { Store, StateConfigOptions } from './Store';
 import { AnyContainerComponent } from '../components/ContainerComponent';
 import { StateMutationCheck } from './StateMutationCheck';
@@ -14,7 +14,8 @@ export type ActionProcessorAPI = {
   appendPreProcessor: (processor: ActionProcessorFunctionType) => void,
   removePreProcessor: (toBeRemoved: ActionProcessorFunctionType) => void
   appendPostProcessor: (processor: ActionProcessorFunctionType) => void,
-  removePostProcessor: (toBeRemoved: ActionProcessorFunctionType) => void
+  removePostProcessor: (toBeRemoved: ActionProcessorFunctionType) => void,
+  createDataTriggerProcessor: (triggers: DataTrigger[]) => ActionProcessorFunctionType,
   isMutationCheckingEnabled(): boolean,
   enableMutationChecking(): void,
   disableMutationChecking(): void,
@@ -37,6 +38,11 @@ export class ActionProcessor implements ActionProcessorAPI {
     this.mutationCheck = new StateMutationCheck<any>(state);
       /* tslint:enable:no-any */
   }
+
+  public createDataTriggerProcessor: (triggers: DataTrigger[]) => ActionProcessorFunctionType
+    = triggers => {
+    return createDataTriggerProcessor(triggers);
+  };
 
   public setMutationCheckOnFailureFunction<T>(newFunction: (baseline: T, source: T) => string): void {
     this.mutationCheck.onFailure = newFunction;
@@ -184,3 +190,43 @@ export class ActionProcessor implements ActionProcessorAPI {
     };
   }
 }
+
+/* tslint:disable:no-any */
+export type DataTrigger = (action: StateCrudAction<any, any> | ArrayChangeAction<any, any, any>) => void;
+/* tslint:enable:no-any */
+
+/**
+ * Create ActionProcessorFunctionType that filters for data actions, and hands them to {@link DataTrigger}s,
+ * which accepts a single {@link StateCrudAction} or {@link ArrayChangeAction}, so that the DataTrigger implementation
+ * can detect when certain properties are changing, and allow them to dispatch actions to other
+ * dependent state properties.
+ *
+ * An example might be an array of objects where array elements of a particular type might be used
+ * in other states, where they are mapped to other components.
+ * @param actions
+ * @return function of type {@link ActionProcessorFunctionType}
+ */
+
+export const createDataTriggerProcessor: (triggers: DataTrigger[]) => ActionProcessorFunctionType = triggers => {
+  const DataTriggerProcessor: ActionProcessorFunctionType = actions => {
+    actions.forEach(action => {
+      if (action.type !== ActionId.RERENDER && action.type !== ActionId.MAP_STATE_TO_PROP) {
+        /* tslint:disable:no-any */
+        let propAction: StateCrudAction<any, any> | undefined
+          = (action instanceof StateCrudAction) ? action : undefined;
+        let arrayAction: ArrayChangeAction<any, any, any> | undefined =
+          !!propAction ? undefined : (action instanceof ArrayChangeAction) ? action : undefined;
+        let stateDataAction: StateCrudAction<any, any> | ArrayChangeAction<any, any, any> | undefined
+          = propAction ? propAction : arrayAction;
+
+        if (stateDataAction) { // execute DataTrigger functions here
+          const sda: StateCrudAction<any, any> | ArrayChangeAction<any, any, any> = stateDataAction;
+          triggers.forEach(trigger => trigger(sda));
+        }
+      }
+    });
+    return actions;
+  };
+  /* tslint:enable:no-any */
+  return DataTriggerProcessor;
+};

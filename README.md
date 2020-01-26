@@ -217,9 +217,23 @@ export class Alert extends RenderPropsComponent<AlertProps, AlertViewProps, AppS
 - You may have noticed above, where the action contains both the old and the new value.  This allows actions
   to be 'unapplied', like a database transaction log, allowing us to do time-travel.
 - Strict mode, which will throw errors if state is mutated other than by actions (careful - development only!)   
-- Simplified middleware - developer-provided functions can be invoked before or after actions are dispatched.
-- ActionLoggingObject interface and actionLogging implementation to be used by middleware
+- Simplified middleware - developer-provided functions can be invoked immediately before or after actions are dispatched.
+  For example, an **ActionLoggingObject** interface and actionLogging implementation to be used by middleware
   actions are performed.
+ ```typescript
+  let logging: string[] = [];
+  let loggerObject: ActionLoggingObject = actionLogging(logging, false);
+  getAppStore().getManager().getActionProcessorAPI().appendPreProcessor(loggerObject.processor);
+```
+- **DataTriggers** are also implemented using the middleware.  This allows you to watch for changes to specific 
+  state data, and dispatch additional actions to modify dependent state values.  So if a user has defined an 
+  array of DataTrigger functions called 'triggers', they are easily applied:
+  ```typescript
+    const triggerProcessor = getAppStore().getManager().getActionProcessorAPI()
+      .createDataTriggerProcessor(triggers);
+    getAppStore().getManager().getActionProcessorAPI().appendPostProcessor(triggerProcessor);
+```
+
 - Type-safe generic api's mean developers never code any action types, actions, action creators, reducers, etc.
 - Render props
 - React Router (v4) integration via RedirectDx [https://github.com/mfsjr/manifold-dx-redirect-dx]

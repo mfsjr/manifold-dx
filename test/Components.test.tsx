@@ -2,7 +2,7 @@ import { createTestStore, TestState, NameState, Address, NameStateCreator } from
 import { Name } from './testHarness';
 import * as React from 'react';
 import { ContainerComponent } from '../src/components/ContainerComponent';
-import { Action, ActionId, AnyMappingAction, StateCrudAction } from '../src/actions/actions';
+import { Action, ActionId, AnyMappingAction, MappingHook, StateCrudAction } from '../src/actions/actions';
 import { Store, StateObject } from '../src/types/Store';
 import { Manager } from '../src/types/Manager';
 import {
@@ -111,7 +111,6 @@ class AddressContainer
 class BowlerContainer extends ContainerComponent<BowlerProps, ScoreCardProps, TestState & StateObject> {
 
   public average: number;
-
     // nameState = state.getState().name;
   nameState: Name & StateObject; // | undefined;
 
@@ -183,7 +182,7 @@ class BowlerContainer extends ContainerComponent<BowlerProps, ScoreCardProps, Te
   }
 
     /* tslint:disable:no-any */
-  public calcAverage(action: StateCrudAction<any, any>): void {
+  public calcAverage: MappingHook = (action: StateCrudAction<any, any>): void => {
       /* tslint:enable:no-any */
     // console.log(`calcAverage dispatched by ${ActionId[action.type]}`);
     this.average = this.viewProps.scores.reduce(

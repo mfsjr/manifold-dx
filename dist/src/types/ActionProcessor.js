@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+var actions_1 = require("../actions/actions");
 var StateMutationCheck_1 = require("./StateMutationCheck");
 var ActionProcessor = /** @class */ (function () {
     // private updatedComponents: AnyContainerComponent[] = [];
@@ -8,6 +9,9 @@ var ActionProcessor = /** @class */ (function () {
         /* tslint:enable:no-any */
         this.preProcessors = [];
         this.postProcessors = [];
+        this.createDataTriggerProcessor = function (triggers) {
+            return exports.createDataTriggerProcessor(triggers);
+        };
         this.mutationCheck = new StateMutationCheck_1.StateMutationCheck(state);
         /* tslint:enable:no-any */
     }
@@ -146,4 +150,35 @@ var ActionProcessor = /** @class */ (function () {
     return ActionProcessor;
 }());
 exports.ActionProcessor = ActionProcessor;
+/* tslint:enable:no-any */
+/**
+ * Create ActionProcessorFunctionType that filters for data actions, and hands them to {@link DataTrigger}s,
+ * which accepts a single {@link StateCrudAction} or {@link ArrayChangeAction}, so that the DataTrigger implementation
+ * can detect when certain properties are changing, and allow them to dispatch actions to other
+ * dependent state properties.
+ *
+ * An example might be an array of objects where array elements of a particular type might be used
+ * in other states, where they are mapped to other components.
+ * @param actions
+ * @return function of type {@link ActionProcessorFunctionType}
+ */
+exports.createDataTriggerProcessor = function (triggers) {
+    var DataTriggerProcessor = function (actions) {
+        actions.forEach(function (action) {
+            if (action.type !== actions_1.ActionId.RERENDER && action.type !== actions_1.ActionId.MAP_STATE_TO_PROP) {
+                /* tslint:disable:no-any */
+                var propAction = (action instanceof actions_1.StateCrudAction) ? action : undefined;
+                var arrayAction = !!propAction ? undefined : (action instanceof actions_1.ArrayChangeAction) ? action : undefined;
+                var stateDataAction = propAction ? propAction : arrayAction;
+                if (stateDataAction) { // execute DataTrigger functions here
+                    var sda_1 = stateDataAction;
+                    triggers.forEach(function (trigger) { return trigger(sda_1); });
+                }
+            }
+        });
+        return actions;
+    };
+    /* tslint:enable:no-any */
+    return DataTriggerProcessor;
+};
 //# sourceMappingURL=ActionProcessor.js.map

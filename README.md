@@ -228,7 +228,7 @@ export class Alert extends RenderPropsComponent<AlertProps, AlertViewProps, AppS
 - **DataTriggers** are also implemented using the middleware.  This allows you to watch for changes to specific 
   state data, and dispatch additional actions to modify dependent state values.  So if a user has defined an 
   array of DataTrigger functions called 'triggers', they are easily applied:
-  ```typescript
+ ```typescript
     const triggerProcessor = getAppStore().getManager().getActionProcessorAPI()
       .createDataTriggerProcessor(triggers);
     getAppStore().getManager().getActionProcessorAPI().appendPostProcessor(triggerProcessor);

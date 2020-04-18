@@ -44,7 +44,7 @@ export declare abstract class ContainerComponent<CP, VP, A extends StateObject, 
      * @returns {Array<T>}
      */
     static newArray<T>(oldArray: Array<T>, index: number, newElement: T): Array<T>;
-    getMappingActions(): MappingAction<any, any, any, any, any, any, any>[];
+    getMappingActions(): AnyMappingAction[];
     createMappingAction<S extends StateObject, K extends Extract<keyof S, string>, TP extends Extract<keyof VP, string>, V>(parentState: S, _propKey: K, targetPropKey: TP, ...mappingHooks: MappingHook[]): MappingAction<S, K, CP, VP, TP, A, V>;
     /**
      * There are two types of views this can create.  The preferred way is with

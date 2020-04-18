@@ -90,7 +90,7 @@ export declare class Store<A> {
      * @param {StateObject} stateObject
      * @returns {Iterator<StateObject>}
      */
-    static createStateObjectIterator: (stateObject: StateObject) => Iterator<StateObject>;
+    static createStateObjectIterator: (stateObject: StateObject) => Iterator<StateObject, any, undefined>;
     /**
      * The intention here is to strip the state object down to a simple object, or optionally go even
      * further and remove all functions so that it is pure data.

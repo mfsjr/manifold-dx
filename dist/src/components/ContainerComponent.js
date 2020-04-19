@@ -26,6 +26,7 @@ var _ = require("lodash");
 var Manager_1 = require("../types/Manager");
 var __1 = require("../");
 var recompose_1 = require("recompose");
+var actionCreators_1 = require("../actions/actionCreators");
 /* tslint:enable:no-any */
 /**
  *
@@ -90,12 +91,44 @@ var ContainerComponent = /** @class */ (function (_super) {
         return newArray;
     };
     ContainerComponent.prototype.getMappingActions = function () { return this.mappingActions; };
+    /**
+     * Create a mapping action for this container.
+     *
+     * To get good code completion in IntelliJ/WebStorm, use this to populate an untyped array then
+     * push that onto another array (sadly, pushing directly to a typed generic array breaks code completion)
+     *
+     * @param parentState
+     * @param _propKey
+     * @param targetPropKey
+     * @param mappingHooks
+     */
     ContainerComponent.prototype.createMappingAction = function (parentState, _propKey, targetPropKey) {
         var mappingHooks = [];
         for (var _i = 3; _i < arguments.length; _i++) {
             mappingHooks[_i - 3] = arguments[_i];
         }
-        return new (actions_1.MappingAction.bind.apply(actions_1.MappingAction, __spreadArrays([void 0, parentState, _propKey, this, targetPropKey], mappingHooks)))();
+        return actionCreators_1.getMappingActionCreator2.apply(void 0, __spreadArrays([parentState, _propKey, this, targetPropKey], mappingHooks));
+        // return new MappingAction(parentState, _propKey, this, targetPropKey, ...mappingHooks);
+    };
+    /**
+     * Create a mapping from a state array element to a view.
+     *
+     * To get good code completion in IntelliJ/WebStorm, use this to populate an untyped array then
+     * push that onto another array (sadly, pushing directly to a typed generic array breaks code completion)
+     *
+     * @param _parent
+     * @param _propKey
+     * @param _array
+     * @param index
+     * @param targetPropKey
+     * @param mappingHooks
+     */
+    ContainerComponent.prototype.createArrayMappingAction = function (_parent, _propKey, _array, index, targetPropKey) {
+        var mappingHooks = [];
+        for (var _i = 5; _i < arguments.length; _i++) {
+            mappingHooks[_i - 5] = arguments[_i];
+        }
+        return actionCreators_1.getArrayMappingActionCreator2.apply(void 0, __spreadArrays([_parent, _propKey, _array, index, this, targetPropKey], mappingHooks));
     };
     ContainerComponent.prototype.createMapping = function (stateObject, stateObjectProperty, targetViewProp) {
         var mappingHooks = [];

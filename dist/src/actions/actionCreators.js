@@ -281,6 +281,12 @@ var ArrayActionCreator = /** @class */ (function () {
     return ArrayActionCreator;
 }());
 exports.ArrayActionCreator = ArrayActionCreator;
+/**
+ * For creating a mapping action.
+ * @param _parent
+ * @param _propKey
+ * @deprecated see {@link ContainerComponent#createMappingAction} or {@link getMappingActionCreator2}.
+ */
 function getMappingActionCreator(_parent, _propKey) {
     /**
      * Create a MappingAction from the state defined by this creator, to the component and its view / target property.
@@ -303,6 +309,20 @@ function getMappingActionCreator(_parent, _propKey) {
     };
 }
 exports.getMappingActionCreator = getMappingActionCreator;
+function getMappingActionCreator2(_parent, _propKey, _component, targetPropKey) {
+    var mappingHooks = [];
+    for (var _i = 4; _i < arguments.length; _i++) {
+        mappingHooks[_i - 4] = arguments[_i];
+    }
+    return new (actions_1.MappingAction.bind.apply(actions_1.MappingAction, __spreadArrays([void 0, _parent, _propKey, _component, targetPropKey], mappingHooks)))();
+}
+exports.getMappingActionCreator2 = getMappingActionCreator2;
+/**
+ * For mapping a state array element to a view.
+ * @param _parent
+ * @param _propKey
+ * @deprecated Instead use {@link ContainerComponent#createArrayMappingAction} or {@link getMappingActionCreator2}.
+ */
 function getArrayMappingActionCreator(_parent, _propKey) {
     /**
      * Create a mapping from an array element, or the whole array, to a component
@@ -340,4 +360,36 @@ function getArrayMappingActionCreator(_parent, _propKey) {
     };
 }
 exports.getArrayMappingActionCreator = getArrayMappingActionCreator;
+/**
+ * Create a mapping from an array element, or the whole array, to a component
+ * @param {S[K] & Array<E>} state array to be mapped
+ * @param {number | null} index use number to map from an array element, or null to map the array itself
+ * @param {ContainerComponent<CP, VP, A extends StateObject>} _component the component being mapped, typically 'this'
+ * @param {TP} targetPropKey the name of the view/target property being updated
+ * @param {MappingHook} optional functions executed after the action but before rendering.  View props
+ *    may be updated here
+ * @returns {MappingAction
+ * <S extends StateObject, K extends Extract<keyof S, string>, CP, VP, TP extends keyof VP, A extends StateObject, E>}
+ *  the mapping action
+ */
+function getArrayMappingActionCreator2(_parent, _propKey, _array, index, _component, targetPropKey) {
+    var mappingHooks = [];
+    for (var _i = 6; _i < arguments.length; _i++) {
+        mappingHooks[_i - 6] = arguments[_i];
+    }
+    var mappingAction = new (actions_1.MappingAction.bind.apply(actions_1.MappingAction, __spreadArrays([void 0, _parent, _propKey, _component, targetPropKey], mappingHooks)))();
+    // TODO: try building a custom type guard for Array<E>
+    var propKey;
+    for (var key in _parent) {
+        if (_array === _parent[key] && _array instanceof Array) {
+            propKey = key;
+        }
+    }
+    if (!propKey) {
+        throw Error("Failed to find array in parent");
+    }
+    var result = mappingAction.setArrayElement(index, _array);
+    return result;
+}
+exports.getArrayMappingActionCreator2 = getArrayMappingActionCreator2;
 //# sourceMappingURL=actionCreators.js.map

@@ -7,8 +7,8 @@ import { Store, StateObject } from '../src/types/Store';
 import { Manager } from '../src/types/Manager';
 import {
   ExtractMatchingArrayType,
-  getArrayActionCreator, getArrayMappingActionCreator,
-  getMappingActionCreator
+  getArrayActionCreator, getArrayMappingActionCreator, // getArrayMappingActionCreator2,
+  getMappingActionCreator, getMappingActionCreator2, // getMappingActionCreator2
 } from '../src/actions/actionCreators';
 import { arrayMapDelete, arrayMapInsert, MappingState } from '../src/types/MappingState';
 
@@ -153,10 +153,28 @@ class BowlerContainer extends ContainerComponent<BowlerProps, ScoreCardProps, Te
 
   appendToMappingActions(actions: AnyMappingAction[])
     : void {
-    let nameStateMapper = getMappingActionCreator(this.nameState, 'first');
-    let bowlingMapper = getMappingActionCreator(this.nameState, 'bowlingScores');
-    actions.push( nameStateMapper.createPropertyMappingAction(this, 'fullName') );
-    actions.push( bowlingMapper.createPropertyMappingAction(this, 'scores', this.calcAverage.bind(this)) );
+    // 1 let nameStateMapper = getMappingActionCreator(this.nameState, 'first');
+
+    // 1 actions.push( nameStateMapper.createPropertyMappingAction(this, 'fullName') );
+    // problem:
+    const a = [
+      this.createMappingAction(this.nameState, 'first', 'fullName')
+      ];
+    actions.push(...a);
+    // actions.push(getMappingActionCreator2(this.nameState, ''))
+    actions.push(getMappingActionCreator2(this.nameState, 'first', this, 'fullName'));
+    // 4 actions.push(this.createMappingAction(this.nameState, 'first', 'fullName'));
+
+    let bowlingMappingAction =
+      this.createMappingAction(this.nameState, 'bowlingScores', 'scores', this.calcAverage.bind(this));
+    actions.push(bowlingMappingAction);
+    // let bowlingMapper = getMappingActionCreator(this.nameState, 'bowlingScores');
+    // actions.push( bowlingMapper.createPropertyMappingAction(this, 'scores', this.calcAverage.bind(this)) );
+
+    // 4 actions.push(this.createMappingAction(this.nameState, 'bowlingScores',
+    //   'scores', this.calcAverage.bind(this)));
+    // 4 actions.push(this.createMappingAction(this.nameState, 'first', 'fullName'));
+    // actions.push(this.createMappingAction(this.nameState, 'first'))
     let addressesMapper = getMappingActionCreator(this.nameState, 'addresses');
     actions.push(addressesMapper.createPropertyMappingAction(this, 'addresses'));
     // let addressesMapper = nameStateMapper.createMappingAction('addresses', 'addresses');
@@ -276,8 +294,24 @@ describe('ContainerComponent instantiation, mount, update, unmount', () => {
     // let addr1MappingAction = getMappingCreator(nameState, addr1Container)
     // .createMappingAction('addresses', 'address');
     // let addressesOptions = {keyGen: keyGen, array: nameState.addresses};
-    let addr1MappingAction = getArrayMappingActionCreator(nameState, 'addresses')
-      .createArrayIndexMappingAction(nameState.addresses, 0, addr1Container, 'address');
+
+    // let addr1MappingAction = getArrayMappingActionCreator2(
+    //   nameState,
+    //   'addresses',
+    // nameState.addresses,
+    // 0,
+    // addr1Container,
+    // 'address');
+    let addr1MappingAction = addr1Container.createArrayMappingAction(
+      nameState,
+      'addresses',
+      nameState.addresses,
+      0,
+      'address'
+    );
+
+    // let addr1MappingAction = getArrayMappingActionCreator(nameState, 'addresses')
+    //   .createArrayIndexMappingAction(nameState.addresses, 0, addr1Container, 'address');
 
     addr1MappingAction.dispatch();
 

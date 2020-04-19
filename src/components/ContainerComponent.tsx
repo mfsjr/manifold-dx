@@ -6,6 +6,14 @@ import { Manager } from '../types/Manager';
 import { StateObject } from '../types/Store';
 import { ArrayChangeAction } from '../';
 import { shallowEqual } from 'recompose';
+import {
+  ExtractArrayKeys,
+  ExtractMatching, ExtractMatchingArrayType,
+  getArrayMappingActionCreator2,
+  getMappingActionCreator2
+} from '../actions/actionCreators';
+// import {ExtractMatching} from "../actions/actionCreators";
+// import {ExtractMatching} from "../actions/actionCreators";
 
 /**
  * A signature for creating React components.
@@ -70,11 +78,48 @@ export abstract class ContainerComponent<CP, VP, A extends StateObject, RS = {} 
 
   public getMappingActions() { return this.mappingActions; }
 
-  createMappingAction
-  <S extends StateObject, K extends Extract<keyof S, string>, TP extends Extract<keyof VP, string>, V>
+  /**
+   * Create a mapping action for this container.
+   *
+   * To get good code completion in IntelliJ/WebStorm, use this to populate an untyped array then
+   * push that onto another array (sadly, pushing directly to a typed generic array breaks code completion)
+   *
+   * @param parentState
+   * @param _propKey
+   * @param targetPropKey
+   * @param mappingHooks
+   */
+  public createMappingAction
+  <S extends StateObject, K extends Extract<keyof S, string>, TP extends ExtractMatching<S, K, VP>, V>
   (parentState: S, _propKey: K, targetPropKey: TP, ...mappingHooks: MappingHook[])
     : MappingAction<S, K, CP, VP, TP, A, V> {
-    return new MappingAction(parentState, _propKey, this, targetPropKey, ...mappingHooks);
+    return getMappingActionCreator2(parentState, _propKey, this, targetPropKey, ...mappingHooks);
+    // return new MappingAction(parentState, _propKey, this, targetPropKey, ...mappingHooks);
+  }
+
+  /**
+   * Create a mapping from a state array element to a view.
+   *
+   * To get good code completion in IntelliJ/WebStorm, use this to populate an untyped array then
+   * push that onto another array (sadly, pushing directly to a typed generic array breaks code completion)
+   *
+   * @param _parent
+   * @param _propKey
+   * @param _array
+   * @param index
+   * @param targetPropKey
+   * @param mappingHooks
+   */
+  public createArrayMappingAction
+  <S extends StateObject, K extends ExtractArrayKeys<unknown, S>, TP extends ExtractMatchingArrayType<E, VP>, E>
+  (_parent: S, _propKey: K,
+   _array: S[K] & Array<E>,
+   index: number | null,
+   targetPropKey: TP,
+   ...mappingHooks: MappingHook[]
+  )
+    : MappingAction<S, K, CP, VP, TP, A, E> {
+    return getArrayMappingActionCreator2(_parent, _propKey, _array, index, this, targetPropKey, ...mappingHooks);
   }
 
   /**

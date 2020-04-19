@@ -2,6 +2,7 @@ import * as React from 'react';
 import { FunctionComponent, ReactNode } from 'react';
 import { Action, AnyMappingAction, MappingAction, MappingHook } from '../actions/actions';
 import { StateObject } from '../types/Store';
+import { ExtractArrayKeys, ExtractMatching, ExtractMatchingArrayType } from '../actions/actionCreators';
 /**
  * A signature for creating React components.
  *
@@ -45,7 +46,32 @@ export declare abstract class ContainerComponent<CP, VP, A extends StateObject, 
      */
     static newArray<T>(oldArray: Array<T>, index: number, newElement: T): Array<T>;
     getMappingActions(): AnyMappingAction[];
-    createMappingAction<S extends StateObject, K extends Extract<keyof S, string>, TP extends Extract<keyof VP, string>, V>(parentState: S, _propKey: K, targetPropKey: TP, ...mappingHooks: MappingHook[]): MappingAction<S, K, CP, VP, TP, A, V>;
+    /**
+     * Create a mapping action for this container.
+     *
+     * To get good code completion in IntelliJ/WebStorm, use this to populate an untyped array then
+     * push that onto another array (sadly, pushing directly to a typed generic array breaks code completion)
+     *
+     * @param parentState
+     * @param _propKey
+     * @param targetPropKey
+     * @param mappingHooks
+     */
+    createMappingAction<S extends StateObject, K extends Extract<keyof S, string>, TP extends ExtractMatching<S, K, VP>, V>(parentState: S, _propKey: K, targetPropKey: TP, ...mappingHooks: MappingHook[]): MappingAction<S, K, CP, VP, TP, A, V>;
+    /**
+     * Create a mapping from a state array element to a view.
+     *
+     * To get good code completion in IntelliJ/WebStorm, use this to populate an untyped array then
+     * push that onto another array (sadly, pushing directly to a typed generic array breaks code completion)
+     *
+     * @param _parent
+     * @param _propKey
+     * @param _array
+     * @param index
+     * @param targetPropKey
+     * @param mappingHooks
+     */
+    createArrayMappingAction<S extends StateObject, K extends ExtractArrayKeys<unknown, S>, TP extends ExtractMatchingArrayType<E, VP>, E>(_parent: S, _propKey: K, _array: S[K] & Array<E>, index: number | null, targetPropKey: TP, ...mappingHooks: MappingHook[]): MappingAction<S, K, CP, VP, TP, A, E>;
     /**
      * There are two types of views this can create.  The preferred way is with
      * a FunctionComponent, the other way is by creating

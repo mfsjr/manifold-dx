@@ -340,6 +340,12 @@ export type ExtractArrayKeys<E, VP> =
 export type ExtractMatchingConditional<S, K extends Extract<keyof S, string>, VP, E extends unknown> =
   E extends void ? ExtractMatching<S, K, VP> : ExtractMatchingArrayType<E, VP>;
 
+/**
+ * For creating a mapping action.
+ * @param _parent
+ * @param _propKey
+ * @deprecated see {@link ContainerComponent#createMappingAction} or {@link getMappingActionCreator2}.
+ */
 export function getMappingActionCreator
   <S extends StateObject, K extends Extract<keyof S, string>, A extends StateObject, E extends void>
 (_parent: S, _propKey: K) {
@@ -364,6 +370,21 @@ export function getMappingActionCreator
   };
 }
 
+export function getMappingActionCreator2
+<S extends StateObject, K extends Extract<keyof S, string>, A extends StateObject, E,
+  CP, VP, TP extends ExtractMatching<S, K, VP>>
+(_parent: S, _propKey: K, _component: ContainerComponent<CP, VP, A>, targetPropKey: TP,
+ ...mappingHooks: MappingHook[]): MappingAction<S, K, CP, VP, TP, A, E> {
+
+  return new MappingAction(_parent, _propKey, _component, targetPropKey, ...mappingHooks);
+}
+
+/**
+ * For mapping a state array element to a view.
+ * @param _parent
+ * @param _propKey
+ * @deprecated Instead use {@link ContainerComponent#createArrayMappingAction} or {@link getMappingActionCreator2}.
+ */
 export function getArrayMappingActionCreator
 <S extends StateObject, K extends ExtractArrayKeys<unknown, S>, A extends StateObject>
 (_parent: S, _propKey: K) {
@@ -410,4 +431,44 @@ export function getArrayMappingActionCreator
   return {
     createArrayIndexMappingAction
   };
+}
+
+/**
+ * Create a mapping from an array element, or the whole array, to a component
+ * @param {S[K] & Array<E>} state array to be mapped
+ * @param {number | null} index use number to map from an array element, or null to map the array itself
+ * @param {ContainerComponent<CP, VP, A extends StateObject>} _component the component being mapped, typically 'this'
+ * @param {TP} targetPropKey the name of the view/target property being updated
+ * @param {MappingHook} optional functions executed after the action but before rendering.  View props
+ *    may be updated here
+ * @returns {MappingAction
+ * <S extends StateObject, K extends Extract<keyof S, string>, CP, VP, TP extends keyof VP, A extends StateObject, E>}
+ *  the mapping action
+ */
+export function getArrayMappingActionCreator2
+<S extends StateObject, K extends ExtractArrayKeys<unknown, S>, A extends StateObject,
+  CP, VP, E extends unknown, TP extends ExtractMatchingArrayType<E, VP>>
+(_parent: S, _propKey: K,
+ _array: S[K] & Array<E>,
+ index: number | null,
+ _component: ContainerComponent<CP, VP, A>,
+ targetPropKey: TP,
+ ...mappingHooks: MappingHook[]
+ )
+  : MappingAction<S, K, CP, VP, TP, A, E> {
+
+      let mappingAction = new MappingAction(_parent, _propKey, _component, targetPropKey, ...mappingHooks);
+      // TODO: try building a custom type guard for Array<E>
+      let propKey: K | undefined;
+      for (let key in _parent) {
+        if (_array === _parent[key] && _array instanceof Array) {
+          propKey = key as K;
+        }
+      }
+      if (!propKey) {
+        throw Error(`Failed to find array in parent`);
+      }
+
+      let result = mappingAction.setArrayElement(index, _array);
+      return result as MappingAction<S, K, CP, VP, TP, A, E>;
 }

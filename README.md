@@ -2,9 +2,10 @@
 
 ## A TypeScript Implementation of Flux
 
-The goal here is to provide a fantastic developer experience, using simple Flux mechanics.
-The framework provides API's so developers don't have to define 
-action ID's, action objects, action creators, reducers, etc.
+The goal here is to provide a quick and easy developer experience, using Flux mechanics.
+The TypeScript framework provides high-level API's for developers to define application state,  
+whose type information is then used to infer action ID's, action objects, action creators, 
+reducers, etc.
 
 Where Redux's implementation is based on functional programming and immutability, we use 
 TypeScript's strongly typed data structures and generics.

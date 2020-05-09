@@ -27,7 +27,7 @@ import * as Adapter from 'enzyme-adapter-react-16';
 import { ContainerComponent, getActionCreator, getArrayActionCreator, StateObject } from '../src';
 import { Address, createTestStore, Name, TestState } from './testHarness';
 import { Action, AnyMappingAction, StateCrudAction } from '../src/actions/actions';
-import { ReactElement, FunctionComponent } from 'react';
+import { ReactElement, FunctionComponent, useState } from 'react';
 import { ExtractMatching, getMappingActionCreator } from '../src/actions/actionCreators';
 import { BowlerProps, ScoreCardProps } from './Components.test';
 import * as React from 'react';
@@ -85,17 +85,40 @@ class AddressRenderPropsContainer extends RenderPropsComponent<AddressRenderProp
   }
 }
 
-/**
- * FunctionComponent for AddressContainer
- * @param props
- * @constructor
- */
+// /**
+//  * This is a function but not a component, so if you uncomment this and comment out the
+//  * 'AddressFunctionComp' below it, you will
+//  */
+//
+//   // @ts-ignore
+//   const AddressFunctionCompHookViolation: FunctionComponent<Address> = (props: Address): ReactElement<Address> => {
+//     const [count, setCount] = useState(0);
+//
+//     return (
+//       <div>
+//         <div className={'address1'}>{props.street} {props.city}</div>
+//         <div className={'address2'}>{props.state} {props.zip}</div>
+//         <div>
+//           <input value={'' + count} onChange={(e) => setCount(parseInt(e.target.value, 10))} />
+//         </div>
+//       </div>
+//     );
+//   };
+
 const AddressFunctionComp: FunctionComponent<Address> = (props: Address): ReactElement<Address> => {
-// function AddressFunctionComp(props: Address): ReactElement<Address> {
+  return React.createElement(AddressFunctionCompSub, props);
+};
+
+const AddressFunctionCompSub: FunctionComponent<Address> = (props: Address): ReactElement<Address> => {
+  const [count, setCount] = useState(0);
+
   return (
     <div>
       <div className={'address1'}>{props.street} {props.city}</div>
       <div className={'address2'}>{props.state} {props.zip}</div>
+      <div>
+        <input value={'' + count} onChange={(e) => setCount(parseInt(e.target.value, 10))} />
+      </div>
     </div>
   );
 };
@@ -279,6 +302,36 @@ describe('enzyme tests for lifecycle methods', () => {
       </BowlerContainer>
     );
     expect(bowler.find('#bowlerDiv').text()).toContain(_fullName);
+  });
+
+});
+
+describe('hook functionality', () => {
+  // const rootElement = document.getElementById('root');
+  let addr4: Address = {
+    id: 1,
+    street: '3401 Walnut',
+    city: 'Philadelphia',
+    state: 'PA',
+    zip: '19104'
+  };
+
+  test('Expect createElement to be renderable using a FunctionComponent with hooks', () => {
+    let rendering = enzyme.mount(React.createElement(AddressFunctionCompSub, addr4));
+    expect(rendering).toBeTruthy();
+  });
+
+  test('Expect an invalid hook call when invoking a FunctionComponent with hooks', () => {
+    expect(() => {
+      AddressFunctionCompSub(addr4);
+    }).toThrow();
+  });
+
+  test('Expect no exceptions when createElement uses a FunctionComponent with hooks', () => {
+    // AddressFunctionComp is using AddressFunctionCompSub in React.createElement, hooks should not throw
+    expect(() => {
+      AddressFunctionComp(addr4);
+    }).not.toThrow();
   });
 
 });

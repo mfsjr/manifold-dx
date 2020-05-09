@@ -85,26 +85,6 @@ class AddressRenderPropsContainer extends RenderPropsComponent<AddressRenderProp
   }
 }
 
-// /**
-//  * This is a function but not a component, so if you uncomment this and comment out the
-//  * 'AddressFunctionComp' below it, you will
-//  */
-//
-//   // @ts-ignore
-//   const AddressFunctionCompHookViolation: FunctionComponent<Address> = (props: Address): ReactElement<Address> => {
-//     const [count, setCount] = useState(0);
-//
-//     return (
-//       <div>
-//         <div className={'address1'}>{props.street} {props.city}</div>
-//         <div className={'address2'}>{props.state} {props.zip}</div>
-//         <div>
-//           <input value={'' + count} onChange={(e) => setCount(parseInt(e.target.value, 10))} />
-//         </div>
-//       </div>
-//     );
-//   };
-
 const AddressFunctionComp: FunctionComponent<Address> = (props: Address): ReactElement<Address> => {
   return React.createElement(AddressFunctionCompSub, props);
 };

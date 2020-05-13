@@ -38,7 +38,7 @@ export abstract class ContainerComponent<CP, VP, A extends StateObject, RS = {} 
   protected functionCompView: FunctionComponent<VP> | undefined;
 
   /**
-   * An instance of a React.Component class created by the {@link ComponentGenerator} passed into the constructor.
+   * An instance of a React.Compoent class passed into the constructor.
    */
     /* tslint:disable:no-any */
   protected viewComponent: React.Component<VP, any>;

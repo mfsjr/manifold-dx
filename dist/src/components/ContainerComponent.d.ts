@@ -1,13 +1,7 @@
 import * as React from 'react';
-import { FunctionComponent, ReactNode } from 'react';
+import { ComponentClass, FunctionComponent, ReactNode } from 'react';
 import { Action, AnyMappingAction, MappingAction, MappingHook } from '../actions/actions';
 import { StateObject } from '../types/Store';
-/**
- * A signature for creating React components.
- *
- * Note that this function can be of many forms, including various forms of React's {@link createFactory}.
- */
-export declare type ComponentGenerator<P> = (props: P) => React.Component<P, any>;
 /**
  *
  * A kind of React.Component container/controller (constructor takes a component
@@ -26,13 +20,13 @@ export declare abstract class ContainerComponent<CP, VP, A extends StateObject, 
     viewProps: VP;
     protected viewPropsUpdated: boolean | null;
     protected appState: A;
-    protected viewGenerator: ComponentGenerator<VP> | undefined;
+    protected viewGenerator: ComponentClass<VP> | undefined;
     /**
      * stateless functional component, this is a function that returns a view typically
      */
     protected functionCompView: FunctionComponent<VP> | undefined;
     /**
-     * An instance of a React.Component class created by the {@link ComponentGenerator} passed into the constructor.
+     * An instance of a React.Compoent class passed into the constructor.
      */
     protected viewComponent: React.Component<VP, any>;
     protected mappingActions: AnyMappingAction[];
@@ -57,13 +51,8 @@ export declare abstract class ContainerComponent<CP, VP, A extends StateObject, 
      * @param {React.FunctionComponent<VP> | undefined} function component
      * @param {ComponentGenerator<VP> | undefined} viewGenerator
      */
-    constructor(_props: CP, appData: StateObject & A, functionComp: FunctionComponent<VP> | undefined, viewGenerator?: ComponentGenerator<VP> | undefined, reactState?: RS);
+    constructor(_props: CP, appData: StateObject & A, functionComp: FunctionComponent<VP> | undefined, viewGenerator?: ComponentClass<VP> | undefined, reactState?: RS);
     createMapping<S extends StateObject, K extends Extract<keyof S, string>, TP extends Extract<keyof VP, string>, V>(stateObject: S, stateObjectProperty: K, targetViewProp: TP, ...mappingHooks: MappingHook[]): MappingAction<S, K, CP, VP, TP, A, V>;
-    /**
-     * This is only used for testing
-     * @returns {React.Component<VP, any>}
-     */
-    getView(): React.Component<VP, any>;
     /**
      * Append mappings to the provided array, so that the container will be notified of state changes affecting its props.
      *

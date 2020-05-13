@@ -26,7 +26,6 @@ var _ = require("lodash");
 var Manager_1 = require("../types/Manager");
 var __1 = require("../");
 var recompose_1 = require("recompose");
-/* tslint:enable:no-any */
 /**
  *
  * A kind of React.Component container/controller (constructor takes a component
@@ -103,14 +102,6 @@ var ContainerComponent = /** @class */ (function (_super) {
             mappingHooks[_i - 3] = arguments[_i];
         }
         return new (actions_1.MappingAction.bind.apply(actions_1.MappingAction, __spreadArrays([void 0, stateObject, stateObjectProperty, this, targetViewProp], mappingHooks)))();
-    };
-    /**
-     * This is only used for testing
-     * @returns {React.Component<VP, any>}
-     */
-    /*tslint:disable:no-any*/
-    ContainerComponent.prototype.getView = function () {
-        return this.viewComponent;
     };
     /**
      * Update the properties of the view (presentational component) immediately after the
@@ -228,9 +219,6 @@ var ContainerComponent = /** @class */ (function (_super) {
     };
     ContainerComponent.prototype.setupViewProps = function () {
         this.viewProps = this.createViewProps();
-        if (this.viewGenerator) {
-            this.viewComponent = this.viewGenerator(this.viewProps);
-        }
     };
     ContainerComponent.prototype.render = function () {
         if (!this.viewProps) {
@@ -240,8 +228,7 @@ var ContainerComponent = /** @class */ (function (_super) {
             return React.createElement(this.functionCompView, this.viewProps);
         }
         if (this.viewGenerator) {
-            this.viewComponent = this.viewGenerator(this.viewProps);
-            return this.viewComponent.render();
+            return React.createElement(this.viewGenerator, this.viewProps);
         }
         throw new Error('Neither FunctionComponent nor React.Component is available for rendering');
     };

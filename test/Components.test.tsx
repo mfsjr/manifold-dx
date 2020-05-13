@@ -104,6 +104,16 @@ class AddressContainer
   }
 }
 
+export interface TaxState { tax?: number; }
+export interface TaxProps { }
+
+class StateTest extends React.Component<ScoreCardProps, TaxState> {
+  constructor(props: ScoreCardProps) {
+    super(props);
+    this.state = {tax: 2.3};
+  }
+}
+
 class BowlerContainer extends ContainerComponent<BowlerProps, ScoreCardProps, TestState & StateObject> {
 
   public average: number;
@@ -111,7 +121,7 @@ class BowlerContainer extends ContainerComponent<BowlerProps, ScoreCardProps, Te
   nameState: Name & StateObject; // | undefined;
 
   constructor(bowlerProps: BowlerProps) {
-    super(bowlerProps, testStore.getState(), undefined, React.Component);
+    super(bowlerProps, testStore.getState(), undefined, StateTest);
     if (!this.appState.name) {
       throw new Error('nameState must be defined!');
     }

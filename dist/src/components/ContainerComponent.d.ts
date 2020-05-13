@@ -46,6 +46,7 @@ export declare abstract class ContainerComponent<CP, VP, A extends StateObject, 
      */
     static newArray<T>(oldArray: Array<T>, index: number, newElement: T): Array<T>;
     getMappingActions(): AnyMappingAction[];
+<<<<<<< HEAD
     /**
      * Create a mapping action for this container.
      *
@@ -72,6 +73,9 @@ export declare abstract class ContainerComponent<CP, VP, A extends StateObject, 
      * @param mappingHooks
      */
     createArrayMappingAction<S extends StateObject, K extends ExtractArrayKeys<unknown, S>, TP extends ExtractMatchingArrayType<E, VP>, E>(_parent: S, _propKey: K, _array: S[K] & Array<E>, index: number | null, targetPropKey: TP, ...mappingHooks: MappingHook[]): MappingAction<S, K, CP, VP, TP, A, E>;
+=======
+    createMappingAction<S extends StateObject, K extends Extract<keyof S, string>, TP extends Extract<keyof VP, string>, V>(parentState: S, _propKey: K, targetPropKey: TP, ...mappingHooks: MappingHook[]): MappingAction<S, K, CP, VP, TP, A, V>;
+>>>>>>> master
     /**
      * There are two types of views this can create.  The preferred way is with
      * a FunctionComponent, the other way is by creating

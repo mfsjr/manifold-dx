@@ -107,6 +107,7 @@ var ContainerComponent = /** @class */ (function (_super) {
         for (var _i = 3; _i < arguments.length; _i++) {
             mappingHooks[_i - 3] = arguments[_i];
         }
+<<<<<<< HEAD
         return actionCreators_1.getMappingActionCreator2.apply(void 0, __spreadArrays([parentState, _propKey, this, targetPropKey], mappingHooks));
         // return new MappingAction(parentState, _propKey, this, targetPropKey, ...mappingHooks);
     };
@@ -129,6 +130,9 @@ var ContainerComponent = /** @class */ (function (_super) {
             mappingHooks[_i - 5] = arguments[_i];
         }
         return actionCreators_1.getArrayMappingActionCreator2.apply(void 0, __spreadArrays([_parent, _propKey, _array, index, this, targetPropKey], mappingHooks));
+=======
+        return new (actions_1.MappingAction.bind.apply(actions_1.MappingAction, __spreadArrays([void 0, parentState, _propKey, this, targetPropKey], mappingHooks)))();
+>>>>>>> master
     };
     ContainerComponent.prototype.createMapping = function (stateObject, stateObjectProperty, targetViewProp) {
         var mappingHooks = [];
@@ -270,8 +274,7 @@ var ContainerComponent = /** @class */ (function (_super) {
             this.setupViewProps();
         }
         if (this.functionCompView) {
-            var result = this.functionCompView(this.viewProps);
-            return result;
+            return React.createElement(this.functionCompView, this.viewProps);
         }
         if (this.viewGenerator) {
             this.viewComponent = this.viewGenerator(this.viewProps);

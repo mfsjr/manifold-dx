@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { FunctionComponent, ReactElement, ReactNode } from 'react';
+import { FunctionComponent, ReactNode } from 'react';
 import { Action, AnyMappingAction, MappingAction, MappingHook, StateAction, StateCrudAction } from '../actions/actions';
 import * as _ from 'lodash';
 import { Manager } from '../types/Manager';
@@ -319,8 +319,7 @@ export abstract class ContainerComponent<CP, VP, A extends StateObject, RS = {} 
     }
 
     if (this.functionCompView) {
-      let result: ReactElement<VP> | null = this.functionCompView(this.viewProps);
-      return result;
+      return React.createElement(this.functionCompView, this.viewProps);
     }
     if (this.viewGenerator) {
       this.viewComponent = this.viewGenerator(this.viewProps);

@@ -7,6 +7,7 @@ var __spreadArrays = (this && this.__spreadArrays) || function () {
     return r;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.Manager = void 0;
 var Store_1 = require("./Store");
 var actions_1 = require("../actions/actions");
 var MappingState_1 = require("./MappingState");

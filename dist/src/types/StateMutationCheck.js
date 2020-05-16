@@ -13,6 +13,7 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.StateMutationCheck = exports.MutationError = void 0;
 var _ = require("lodash");
 var MutationError = /** @class */ (function (_super) {
     __extends(MutationError, _super);

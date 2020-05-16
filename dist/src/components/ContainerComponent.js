@@ -20,6 +20,7 @@ var __spreadArrays = (this && this.__spreadArrays) || function () {
     return r;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.ContainerComponent = void 0;
 var React = require("react");
 var actions_1 = require("../actions/actions");
 var _ = require("lodash");
@@ -107,7 +108,6 @@ var ContainerComponent = /** @class */ (function (_super) {
         for (var _i = 3; _i < arguments.length; _i++) {
             mappingHooks[_i - 3] = arguments[_i];
         }
-<<<<<<< HEAD
         return actionCreators_1.getMappingActionCreator2.apply(void 0, __spreadArrays([parentState, _propKey, this, targetPropKey], mappingHooks));
         // return new MappingAction(parentState, _propKey, this, targetPropKey, ...mappingHooks);
     };
@@ -130,9 +130,6 @@ var ContainerComponent = /** @class */ (function (_super) {
             mappingHooks[_i - 5] = arguments[_i];
         }
         return actionCreators_1.getArrayMappingActionCreator2.apply(void 0, __spreadArrays([_parent, _propKey, _array, index, this, targetPropKey], mappingHooks));
-=======
-        return new (actions_1.MappingAction.bind.apply(actions_1.MappingAction, __spreadArrays([void 0, parentState, _propKey, this, targetPropKey], mappingHooks)))();
->>>>>>> master
     };
     ContainerComponent.prototype.createMapping = function (stateObject, stateObjectProperty, targetViewProp) {
         var mappingHooks = [];

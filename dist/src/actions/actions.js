@@ -20,6 +20,7 @@ var __spreadArrays = (this && this.__spreadArrays) || function () {
     return r;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.actionDescription = exports.actionLogging = exports.MappingAction = exports.ArrayChangeAction = exports.StateCrudAction = exports.StateAction = exports.Action = exports.ActionTypeIsNoOp = exports.ActionId = void 0;
 var changeState_1 = require("./changeState");
 var Manager_1 = require("../types/Manager");
 var MappingState_1 = require("../types/MappingState");

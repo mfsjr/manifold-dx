@@ -335,8 +335,9 @@ describe('ContainerComponent instantiation, mount, update, unmount', () => {
       throw new Error('this code should never execute and the type above should never have a TS error');
     }
     address2Container = addr2Container;
-    let addr2MappingAction = getArrayMappingActionCreator(nameState, 'addresses')
-      .createArrayIndexMappingAction(nameState.addresses, 1, addr2Container, 'address');
+    const ac = getArrayMappingActionCreator(nameState, 'addresses');
+    let addr2MappingAction = ac.createArrayIndexMappingAction(
+      nameState.addresses, 1, addr2Container, 'address');
     addr2MappingAction.dispatch();
 
     let mapping2 = Manager.get(nameState).getMappingState().getPathMappings(fullpath, 1);

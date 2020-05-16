@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { FunctionComponent, ReactNode } from 'react';
+import { ComponentClass, FunctionComponent, ReactNode } from 'react';
 import { Action, AnyMappingAction, MappingAction, MappingHook, StateAction, StateCrudAction } from '../actions/actions';
 import * as _ from 'lodash';
 import { Manager } from '../types/Manager';
@@ -14,15 +14,6 @@ import {
 } from '../actions/actionCreators';
 // import {ExtractMatching} from "../actions/actionCreators";
 // import {ExtractMatching} from "../actions/actionCreators";
-
-/**
- * A signature for creating React components.
- *
- * Note that this function can be of many forms, including various forms of React's {@link createFactory}.
- */
-/* tslint:disable:no-any */
-export type ComponentGenerator<P> = (props: P) => React.Component<P, any>;
-/* tslint:enable:no-any */
 
 /**
  *
@@ -47,7 +38,7 @@ export abstract class ContainerComponent<CP, VP, A extends StateObject, RS = {} 
 
   protected appState: A;
 
-  protected viewGenerator: ComponentGenerator<VP> | undefined;
+  protected viewGenerator: ComponentClass<VP> | undefined;
 
   /**
    * stateless functional component, this is a function that returns a view typically
@@ -55,7 +46,7 @@ export abstract class ContainerComponent<CP, VP, A extends StateObject, RS = {} 
   protected functionCompView: FunctionComponent<VP> | undefined;
 
   /**
-   * An instance of a React.Component class created by the {@link ComponentGenerator} passed into the constructor.
+   * An instance of a React.Compoent class passed into the constructor.
    */
     /* tslint:disable:no-any */
   protected viewComponent: React.Component<VP, any>;
@@ -134,7 +125,7 @@ export abstract class ContainerComponent<CP, VP, A extends StateObject, RS = {} 
    * @param {ComponentGenerator<VP> | undefined} viewGenerator
    */
   constructor(_props: CP, appData: StateObject & A, functionComp: FunctionComponent<VP> | undefined,
-              viewGenerator?: ComponentGenerator<VP> | undefined, reactState?: RS) {
+              viewGenerator?: ComponentClass<VP> | undefined, reactState?: RS) {
     super(_props, reactState);
     if (!_.isPlainObject(_props)) {
       throw new Error('container props must be plain objects');
@@ -161,16 +152,6 @@ export abstract class ContainerComponent<CP, VP, A extends StateObject, RS = {} 
           : MappingAction<S, K, CP, VP, TP, A, V> {
     return new MappingAction(stateObject, stateObjectProperty, this, targetViewProp, ...mappingHooks);
   }
-
-  /**
-   * This is only used for testing
-   * @returns {React.Component<VP, any>}
-   */
-  /*tslint:disable:no-any*/
-  public getView(): React.Component<VP, any> {
-    return this.viewComponent;
-  }
-  /*tslint:enable:no-any*/
 
   /**
    * Append mappings to the provided array, so that the container will be notified of state changes affecting its props.
@@ -308,9 +289,6 @@ export abstract class ContainerComponent<CP, VP, A extends StateObject, RS = {} 
 
   public setupViewProps() {
     this.viewProps = this.createViewProps();
-    if (this.viewGenerator) {
-      this.viewComponent = this.viewGenerator(this.viewProps);
-    }
   }
 
   render(): ReactNode {
@@ -322,8 +300,7 @@ export abstract class ContainerComponent<CP, VP, A extends StateObject, RS = {} 
       return React.createElement(this.functionCompView, this.viewProps);
     }
     if (this.viewGenerator) {
-      this.viewComponent = this.viewGenerator(this.viewProps);
-      return this.viewComponent.render();
+      return React.createElement(this.viewGenerator, this.viewProps);
     }
     throw new Error('Neither FunctionComponent nor React.Component is available for rendering');
   }

@@ -57,10 +57,6 @@ interface AddressProps<A> {
   region?: string;
 }
 
-const ScoreCardGenerator = function(props: ScoreCardProps): React.Component<ScoreCardProps> {
-  return new React.Component<ScoreCardProps>(props);
-};
-
 function addressRowFunctionComp(addressProps: AddressProps<Address>): React.ReactElement<AddressProps<Address>> {
   return (
     <div>
@@ -108,6 +104,16 @@ class AddressContainer
   }
 }
 
+export interface TaxState { tax?: number; }
+export interface TaxProps { }
+
+class StateTest extends React.Component<ScoreCardProps, TaxState> {
+  constructor(props: ScoreCardProps) {
+    super(props);
+    this.state = {tax: 2.3};
+  }
+}
+
 class BowlerContainer extends ContainerComponent<BowlerProps, ScoreCardProps, TestState & StateObject> {
 
   public average: number;
@@ -115,7 +121,7 @@ class BowlerContainer extends ContainerComponent<BowlerProps, ScoreCardProps, Te
   nameState: Name & StateObject; // | undefined;
 
   constructor(bowlerProps: BowlerProps) {
-    super(bowlerProps, testStore.getState(), undefined, ScoreCardGenerator);
+    super(bowlerProps, testStore.getState(), undefined, StateTest);
     if (!this.appState.name) {
       throw new Error('nameState must be defined!');
     }
@@ -250,10 +256,6 @@ describe('ContainerComponent instantiation, mount, update, unmount', () => {
   });
   test('bowler\'s viewProps contains the correct "fullname"', () => {
     expect(container.viewProps.fullName).toEqual(nameState.first);
-  });
-
-  test('bowler\'s viewComponent.props contains the correct "fullname"', () => {
-    expect(container.getView().props.fullName).toEqual(nameState.first);
   });
 
   test('container\'s props should contian the correct "fullname"', () => {

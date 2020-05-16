@@ -1,6 +1,6 @@
-import { ComponentGenerator, ContainerComponent } from './ContainerComponent';
+import { ContainerComponent } from './ContainerComponent';
 import { StateObject } from '..';
-import { ReactNode, FunctionComponent } from 'react';
+import { ReactNode, FunctionComponent, ComponentClass } from 'react';
 
 /**
  * Render props are a function that the developer must supply, and exactly one of them
@@ -8,7 +8,7 @@ import { ReactNode, FunctionComponent } from 'react';
  * in its constructor (fail fast).
  */
 export interface ContainerRenderProps<VP> {
-  _viewGenerator?: ComponentGenerator<VP>;
+  _viewGenerator?: ComponentClass<VP>;
   _functionComp?: FunctionComponent<VP>;
 }
 

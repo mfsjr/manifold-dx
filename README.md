@@ -7,8 +7,8 @@ This TypeScript framework relies on developers to define application state based
 whose type information is then used to infer action ID's, action objects, action creators, 
 reducers.
 
-The framework uses these to provide developers with API's for mapping between state and 
-components, action creation and dispatch, and many other features.
+The framework uses these to provide developers with all the API's they need for mapping state to 
+React components, action creation, action dispatch, and many other features.
 
 Where Redux's implementation is based on functional programming and immutability, we use 
 TypeScript's strongly typed data structures and generics.

@@ -1,5 +1,13 @@
 "use strict";
+var __spreadArrays = (this && this.__spreadArrays) || function () {
+    for (var s = 0, i = 0, il = arguments.length; i < il; i++) s += arguments[i].length;
+    for (var r = Array(s), k = 0, i = 0; i < il; i++)
+        for (var a = arguments[i], j = 0, jl = a.length; j < jl; j++, k++)
+            r[k] = a[j];
+    return r;
+};
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.getArrayMappingActionCreator = exports.getMappingActionCreator = exports.ArrayActionCreator = exports.getArrayActionCreator = exports.getActionCreator = exports.ActionCreator = exports.isNotArray = void 0;
 var actions_1 = require("./actions");
 // TODO: figure out how to do type checking with this instead of RTE
 function isNotArray(value) {
@@ -289,7 +297,7 @@ function getMappingActionCreator(_parent, _propKey) {
         for (var _i = 2; _i < arguments.length; _i++) {
             mappingHooks[_i - 2] = arguments[_i];
         }
-        return new (actions_1.MappingAction.bind.apply(actions_1.MappingAction, [void 0, _parent, _propKey, _component, targetPropKey].concat(mappingHooks)))();
+        return new (actions_1.MappingAction.bind.apply(actions_1.MappingAction, __spreadArrays([void 0, _parent, _propKey, _component, targetPropKey], mappingHooks)))();
     };
     return {
         createPropertyMappingAction: createPropertyMappingAction,
@@ -314,7 +322,7 @@ function getArrayMappingActionCreator(_parent, _propKey) {
         for (var _i = 4; _i < arguments.length; _i++) {
             mappingHooks[_i - 4] = arguments[_i];
         }
-        var mappingAction = new (actions_1.MappingAction.bind.apply(actions_1.MappingAction, [void 0, _parent, _propKey, _component, targetPropKey].concat(mappingHooks)))();
+        var mappingAction = new (actions_1.MappingAction.bind.apply(actions_1.MappingAction, __spreadArrays([void 0, _parent, _propKey, _component, targetPropKey], mappingHooks)))();
         // TODO: try building a custom type guard for Array<E>
         var propKey;
         for (var key in _parent) {

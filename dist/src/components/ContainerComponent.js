@@ -12,7 +12,15 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
+var __spreadArrays = (this && this.__spreadArrays) || function () {
+    for (var s = 0, i = 0, il = arguments.length; i < il; i++) s += arguments[i].length;
+    for (var r = Array(s), k = 0, i = 0; i < il; i++)
+        for (var a = arguments[i], j = 0, jl = a.length; j < jl; j++, k++)
+            r[k] = a[j];
+    return r;
+};
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.ContainerComponent = void 0;
 var React = require("react");
 var actions_1 = require("../actions/actions");
 var _ = require("lodash");
@@ -77,7 +85,7 @@ var ContainerComponent = /** @class */ (function (_super) {
      * @returns {Array<T>}
      */
     ContainerComponent.newArray = function (oldArray, index, newElement) {
-        var newArray = oldArray.slice();
+        var newArray = __spreadArrays(oldArray);
         newArray[index] = newElement;
         return newArray;
     };
@@ -87,14 +95,14 @@ var ContainerComponent = /** @class */ (function (_super) {
         for (var _i = 3; _i < arguments.length; _i++) {
             mappingHooks[_i - 3] = arguments[_i];
         }
-        return new (actions_1.MappingAction.bind.apply(actions_1.MappingAction, [void 0, parentState, _propKey, this, targetPropKey].concat(mappingHooks)))();
+        return new (actions_1.MappingAction.bind.apply(actions_1.MappingAction, __spreadArrays([void 0, parentState, _propKey, this, targetPropKey], mappingHooks)))();
     };
     ContainerComponent.prototype.createMapping = function (stateObject, stateObjectProperty, targetViewProp) {
         var mappingHooks = [];
         for (var _i = 3; _i < arguments.length; _i++) {
             mappingHooks[_i - 3] = arguments[_i];
         }
-        return new (actions_1.MappingAction.bind.apply(actions_1.MappingAction, [void 0, stateObject, stateObjectProperty, this, targetViewProp].concat(mappingHooks)))();
+        return new (actions_1.MappingAction.bind.apply(actions_1.MappingAction, __spreadArrays([void 0, stateObject, stateObjectProperty, this, targetViewProp], mappingHooks)))();
     };
     /**
      * Update the properties of the view (presentational component) immediately after the
@@ -182,7 +190,7 @@ var ContainerComponent = /** @class */ (function (_super) {
                 var unmappingAction = action.getUndoAction();
                 unmappingActions_1.push(unmappingAction);
             });
-            (_a = Manager_1.Manager.get(this.appState)).actionUndo.apply(_a, [0].concat(unmappingActions_1));
+            (_a = Manager_1.Manager.get(this.appState)).actionUndo.apply(_a, __spreadArrays([0], unmappingActions_1));
         }
     };
     ContainerComponent.prototype.handleChange = function (executedActions) {

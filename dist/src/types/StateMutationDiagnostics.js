@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.onFailureDiff = void 0;
 var jsondiffpatch_1 = require("jsondiffpatch");
 var _ = require("lodash");
 var Store_1 = require("./Store");

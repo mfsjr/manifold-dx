@@ -3,9 +3,12 @@
 ## A TypeScript Implementation of Flux
 
 The goal here is to provide a quick and easy developer experience, using Flux mechanics.
-The TypeScript framework provides high-level API's for developers to define application state,  
+This TypeScript framework relies on developers to define application state based on interfaces,  
 whose type information is then used to infer action ID's, action objects, action creators, 
-reducers, etc.
+reducers.
+
+The framework uses these to provide developers with all the API's they need for mapping state to 
+React components, action creation, action dispatch, and many other features.
 
 Where Redux's implementation is based on functional programming and immutability, we use 
 TypeScript's strongly typed data structures and generics.
@@ -251,10 +254,8 @@ a couple of ways:
 Also note, a coincidental similarity with Vuex is a somewhat nested/compositional approach to state, as opposed 
 to Redux's preferred 'flat' shape.
 
-   
 #### Demo Apps
 - See the todo app at [https://github.com/mfsjr/manifold-dx-todo](https://github.com/mfsjr/manifold-dx-todo). 
-- See array api's in action at [https://github.com/mfsjr/manifold-dx-editor](https://github.com/mfsjr/manifold-dx-editor)
 
 **Run Tests:** `npm test --runInBand REACT_APP_STATE_MUTATION_CHECKING=true` 
 - `runInBand` since we need to have tests execute in order

@@ -1,5 +1,13 @@
 "use strict";
+var __spreadArrays = (this && this.__spreadArrays) || function () {
+    for (var s = 0, i = 0, il = arguments.length; i < il; i++) s += arguments[i].length;
+    for (var r = Array(s), k = 0, i = 0; i < il; i++)
+        for (var a = arguments[i], j = 0, jl = a.length; j < jl; j++, k++)
+            r[k] = a[j];
+    return r;
+};
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.createDataTriggerProcessor = exports.ActionProcessor = void 0;
 var actions_1 = require("../actions/actions");
 var StateMutationCheck_1 = require("./StateMutationCheck");
 var ActionProcessor = /** @class */ (function () {
@@ -143,8 +151,8 @@ var ActionProcessor = /** @class */ (function () {
     };
     ActionProcessor.prototype.getProcessorClones = function () {
         return {
-            pre: this.preProcessors.slice(),
-            post: this.postProcessors.slice()
+            pre: __spreadArrays(this.preProcessors),
+            post: __spreadArrays(this.postProcessors)
         };
     };
     return ActionProcessor;

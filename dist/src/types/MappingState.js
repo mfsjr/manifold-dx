@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.MappingState = exports.arrayMapInsert = exports.arrayMapDelete = void 0;
 function arrayMapDelete(arrayMap, index, num) {
     var result = arrayMap.get(index);
     var dx = num ? num : 1;

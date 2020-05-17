@@ -13,6 +13,7 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.RenderPropsComponent = void 0;
 var ContainerComponent_1 = require("./ContainerComponent");
 /**
  * ContainerComponent that defines the render function as a property using {@link ContainerRenderProps}.

@@ -62,6 +62,41 @@ class AddressContainer extends ContainerComponent<Address, Address, TestState & 
   }
 }
 
+interface ShortName {
+  first: string;
+  last: string;
+}
+
+class AddressBroken extends ContainerComponent<Address, ShortName, TestState & StateObject> {
+  constructor(props: AddressRenderProps) {
+    super(props, testStore.getState());
+    this.viewProps = this.createViewProps();
+  }
+  protected appendToMappingActions(mappingActions: AnyMappingAction[]): void {
+    // pass
+  }
+
+  createViewProps(): ShortName {
+    let result: ShortName = {
+      first: 'Joseph',
+      last: 'Sixpack',
+
+    };
+    return result;
+  }
+}
+
+class AddressSelfContained extends AddressBroken {
+  render() {
+    return (
+      <div>
+        <div>${`${this.viewProps.first} ${this.viewProps.last}`}</div>
+        <div>${this.props.street}</div>
+      </div>
+    );
+  }
+}
+
 export interface AddressRenderProps extends Address, ContainerRenderProps<Address> { }
 
 class AddressRenderPropsContainer extends RenderPropsComponent<AddressRenderProps, Address, TestState & StateObject> {
@@ -282,8 +317,23 @@ describe('enzyme tests for lifecycle methods', () => {
       </BowlerContainer>
     );
     expect(bowler.find('#bowlerDiv').text()).toContain(_fullName);
-  });
 
+  });
+});
+describe('Override render method', () => {
+  it('should allow ContainerComponent to override render and throw if broken', () => {
+    expect( () => {
+      enzyme.mount(
+        <AddressBroken id={101} street={'123'} city={'Mockingbird Lane'} state={'Illinoi'} zip={'66666'} />
+      );
+    }).toThrow();
+
+    const addressNode = enzyme.mount(
+      <AddressSelfContained id={99} street={'303 S American St'} city={'Philadelphia'} state={'PA'}  zip={'19106'} />
+    );
+    expect(addressNode.text()).toContain('303');
+    expect(addressNode.text()).toContain('Sixpack');
+  });
 });
 
 describe('hook functionality', () => {

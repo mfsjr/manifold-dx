@@ -76,7 +76,7 @@ export abstract class ContainerComponent<CP, VP, A extends StateObject, RS = {} 
    * @param {React.FunctionComponent<VP> | undefined} function component
    * @param {ComponentGenerator<VP> | undefined} viewGenerator
    */
-  constructor(_props: CP, appData: StateObject & A, functionComp: FunctionComponent<VP> | undefined,
+  constructor(_props: CP, appData: StateObject & A, functionComp?: FunctionComponent<VP> | undefined,
               viewGenerator?: ComponentClass<VP> | undefined, reactState?: RS) {
     super(_props, reactState);
     if (!_.isPlainObject(_props)) {

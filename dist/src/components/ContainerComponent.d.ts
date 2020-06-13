@@ -48,7 +48,7 @@ export declare abstract class ContainerComponent<CP, VP, A extends StateObject, 
      * @param {React.FunctionComponent<VP> | undefined} function component
      * @param {ComponentGenerator<VP> | undefined} viewGenerator
      */
-    constructor(_props: CP, appData: StateObject & A, functionComp: FunctionComponent<VP> | undefined, viewGenerator?: ComponentClass<VP> | undefined, reactState?: RS);
+    constructor(_props: CP, appData: StateObject & A, functionComp?: FunctionComponent<VP> | undefined, viewGenerator?: ComponentClass<VP> | undefined, reactState?: RS);
     createMapping<S extends StateObject, K extends Extract<keyof S, string>, TP extends Extract<keyof VP, string>, V>(stateObject: S, stateObjectProperty: K, targetViewProp: TP, ...mappingHooks: MappingHook[]): MappingAction<S, K, CP, VP, TP, A, V>;
     /**
      * Append mappings to the provided array, so that the container will be notified of state changes affecting its props.

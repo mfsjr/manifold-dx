@@ -7,9 +7,8 @@ import { StateObject } from '../types/Store';
  * A kind of React.Component container/controller (constructor takes a component
  * and uses it to compose/present).
  *
- * It wraps a react component, which performs the actual rendering
- * and the view usually contains all the markup and styling.  There is
- * typically no markup or styling in this container.
+ * This component can delegate rendering to another react component, or you can
+ * override this render to render as needed.
  *
  * CP: container props, a plain object (pojo)
  * VP: view component props, also a plain object
@@ -41,10 +40,8 @@ export declare abstract class ContainerComponent<CP, VP, A extends StateObject, 
     getMappingActions(): AnyMappingAction[];
     createMappingAction<S extends StateObject, K extends Extract<keyof S, string>, TP extends Extract<keyof VP, string>, V>(parentState: S, _propKey: K, targetPropKey: TP, ...mappingHooks: MappingHook[]): MappingAction<S, K, CP, VP, TP, A, V>;
     /**
-     * There are two types of views this can create.  The preferred way is with
-     * a FunctionComponent, the other way is by creating
-     * an instance of a React.Component class.  The constructor accepts either one
-     * or the other.
+     * Pass in the props and application state.  Optionally pass in a function component or
+     * class component, or override the render method.
      *
      * @param {CP} _props
      * @param {StateObject & A} appData
@@ -108,7 +105,6 @@ export declare abstract class ContainerComponent<CP, VP, A extends StateObject, 
      * @returns {boolean}
      */
     shouldComponentUpdate<S, CTX>(nextProps: CP, nextState: S, nextContext: CTX): boolean;
-    setupViewProps(): void;
     render(): ReactNode;
 }
 export declare type AnyContainerComponent = ContainerComponent<any, any, any>;

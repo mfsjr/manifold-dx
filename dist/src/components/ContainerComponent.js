@@ -32,9 +32,8 @@ var recompose_1 = require("recompose");
  * A kind of React.Component container/controller (constructor takes a component
  * and uses it to compose/present).
  *
- * It wraps a react component, which performs the actual rendering
- * and the view usually contains all the markup and styling.  There is
- * typically no markup or styling in this container.
+ * This component can delegate rendering to another react component, or you can
+ * override this render to render as needed.
  *
  * CP: container props, a plain object (pojo)
  * VP: view component props, also a plain object
@@ -44,10 +43,8 @@ var recompose_1 = require("recompose");
 var ContainerComponent = /** @class */ (function (_super) {
     __extends(ContainerComponent, _super);
     /**
-     * There are two types of views this can create.  The preferred way is with
-     * a FunctionComponent, the other way is by creating
-     * an instance of a React.Component class.  The constructor accepts either one
-     * or the other.
+     * Pass in the props and application state.  Optionally pass in a function component or
+     * class component, or override the render method.
      *
      * @param {CP} _props
      * @param {StateObject & A} appData
@@ -68,10 +65,6 @@ var ContainerComponent = /** @class */ (function (_super) {
         }
         else {
             // console.log(`appData in base container: ${JSON.stringify(this.appData, JSON_replaceCyclicParent, 4)}`);
-        }
-        // examine the component functions
-        if ((functionComp && viewGenerator) || (!functionComp && !viewGenerator)) {
-            throw new Error((functionComp ? 2 : 0) + " functions supplied; you must supply exactly one function");
         }
         _this.functionCompView = functionComp;
         _this.viewGenerator = viewGenerator;
@@ -218,12 +211,9 @@ var ContainerComponent = /** @class */ (function (_super) {
         result = result || !recompose_1.shallowEqual(this.state, nextState);
         return result;
     };
-    ContainerComponent.prototype.setupViewProps = function () {
-        this.viewProps = this.createViewProps();
-    };
     ContainerComponent.prototype.render = function () {
         if (!this.viewProps) {
-            this.setupViewProps();
+            this.viewProps = this.createViewProps();
         }
         if (this.functionCompView) {
             return React.createElement(this.functionCompView, this.viewProps);
@@ -231,7 +221,7 @@ var ContainerComponent = /** @class */ (function (_super) {
         if (this.viewGenerator) {
             return React.createElement(this.viewGenerator, this.viewProps);
         }
-        throw new Error('Neither FunctionComponent nor React.Component is available for rendering');
+        throw new Error('Neither a FunctionComponent nor a React.Component is available for rendering.  Supply one or the other, or override this method.');
     };
     return ContainerComponent;
 }(React.Component));

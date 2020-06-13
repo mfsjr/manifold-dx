@@ -207,7 +207,7 @@ let resetTestObjects = () => {
   initBowlerProps = { fullName: nameState.first };
   container = new BowlerContainer(initBowlerProps);
   // this is done in render, which we are not testing here
-  container.setupViewProps();
+  container.viewProps = container.createViewProps();
 
   // NOTE: do this after setting up the store's initial state, this is where the snapshot is taken
   // if you init state after calling this you will get mutation errors!

@@ -184,7 +184,7 @@ export const getUser = (): GroupUserState => {
 In manifold-dx, components are lightweight classes that invoke renderers (usually functions) and create mappings between 
 application state and renderers.  
 1. RenderPropComponent is the preferred container, where the renderer function (view) is passed in via props
-2. ContainerComponent passes the renderer (view) into the constructor
+2. ContainerComponent passes the renderer (view) into the constructor, or overrides the render method itself
 
 Both of these classes require the developer to write two functions:
 1. `appendToMappingActions(mappingActions: AnyMappingAction[]): void;` This is how we define the relationship
@@ -266,7 +266,7 @@ to Redux's preferred 'flat' shape.
 - Look at our demo apps, these are built with create-react-app and react-script-ts.
  
 #### Recent work has centered on:
-- Putting manifold-dx into production (it is in production!)
+- Putting manifold-dx into production (and it is)
 - enhancing usability
 - keeping up to date with recent TypeScript and React releases
 

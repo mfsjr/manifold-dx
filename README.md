@@ -36,9 +36,6 @@ Just to reiterate, you didn't have to write anything, these API's are provided b
 - `update` defines the action according to what you put in (intellisense and type-checking courtesy of TypeScript)
 - `dispatch` updates application state and the UI
 
-### To Install
-- `npm install --save manifold-dx`   
-
 ### How could it be this easy?
 
 1. **TypeScript Generics** are a powerful feature, and we take full advantage of them, without requiring
@@ -75,6 +72,11 @@ Just to reiterate, you didn't have to write anything, these API's are provided b
 **In other words, the only thing a developer has to do is to add two properties to the nodes of their 
 application state.**  This makes it easy for us to generate the property path (`'userMaintenance.user.given_name"`),
 given only the node in the application state.
+
+#### To see these simple concepts in action, you should look at https://github.com/mfsjr/manifold-dx-todo
+
+### To Install
+- `npm install --save manifold-dx`   
 
 ### How to build your application state
 This is actually a more general question that applies to writing any UI, and it seems that the hard part is that

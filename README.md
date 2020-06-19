@@ -33,10 +33,10 @@ So to make all this happen, you simply call API's that manifold-dx provides for 
 
 Just to reiterate, you didn't have to write anything, these API's are provided by the library:
 - `getActionCreator` builds and invokes an action creator for you
-- `update` defines the action according to what you put in (intellisense and type-checking courtesy of TypeScript)
+- `update` defines the action according to what you put in (code completion and type-checking courtesy of TypeScript)
 - `dispatch` updates application state and the UI
 
-### How could it be this easy?
+### What makes it easy
 
 1. **TypeScript Generics** are a powerful feature, and we take full advantage of them, without requiring
    developers to know much about them.  We can write type-safe, generic updates, that enforce valid property names 
@@ -73,18 +73,20 @@ Just to reiterate, you didn't have to write anything, these API's are provided b
 application state.**  This makes it easy for us to generate the property path (`'userMaintenance.user.given_name"`),
 given only the node in the application state.
 
-#### To see these simple concepts in action, you should look at https://github.com/mfsjr/manifold-dx-todo
+### Demo App
+- See the todo app at [https://github.com/mfsjr/manifold-dx-todo](https://github.com/mfsjr/manifold-dx-todo).
+- Once you understand this, check out some more robust, scalable techniques provided in the sections below. 
 
 ### To Install
-- `npm install --save manifold-dx`   
+- `npm i manifold-dx`   
 
-### How to build your application state
+### About application state
 This is actually a more general question that applies to writing any UI, and it seems that the hard part is that
 there are a million ways to do it.  I'll outline here what has worked well, along with some helper interfaces 
 that make sure that the objects we build agree with the interfaces we have defined.
 
 1. State is comprised of:
-    1. Nodes that are StateObject's
+    1. Nodes that are StateObjects
     2. Properties that are basic JS data types or plain objects
     3. Properties that are named (indexed by) strings
     4. No classes, class instances or functions
@@ -94,11 +96,11 @@ that make sure that the objects we build agree with the interfaces we have defin
 3. Accessors can always be defined to return a real object, ie non-optionally, by throwing an exception 
    if the object is undefined.  So your app uses accessors to grab state objects which do the checking once.
 4. We provide helper intefaces that enforce parent child relationships.  They're easy to code and TypeScript 
-   will use them to provide intellisense and flag mistakes.
+   will use them to provide code completion and flag mistakes.
 
-**Serialization** application state can be de/serialized using JSOG, an npm that extends JSON to handle cyclic graphs.
+**Serialization** application state can be de/serialized using a library called JSOG, that extends JSON 
+serialization to handle cyclic graphs.
 
-### Examples
 - How to define AppState
 ```typescript jsx
 export interface AppData {
@@ -117,7 +119,7 @@ export interface GroupUserState extends GroupUser, State<UserMaintenanceState> {
 
 export interface AppCognitoState extends AppCognitoState, State<AppState> { }  // phases of cognito login and person
 ```
-- How to build AppState
+- How to initialize AppState
 ```typescript jsx
 export class AppStateCreator {
   appState: AppState;
@@ -153,7 +155,7 @@ export class AppStateCreator {
 }
 ```  
 - How to hook up AppState to manifold-dx.  Note that we define mutation checking for development,
-     so if anything other than an action touches our state, we fail fast with an error/exception.
+     so if anything other than an action modifies our state, we fail fast with descriptive error.
 ```typescript jsx
 export class AppStore extends Store<AppState> {
 
@@ -172,7 +174,7 @@ let appStore = new AppStore(new AppStateCreator().appState, {});
 
 export const getAppStore = (): AppStore => appStore;
 ```  
-- How to build accessors.
+- How to build accessors (suggested).  For convenience, throw if the state doesn't exist, returning an unambiguous value.
 ```typescript jsx
 export const getUser = (): GroupUserState => {
   const _user = getUserMaintenance().user;
@@ -181,8 +183,15 @@ export const getUser = (): GroupUserState => {
   }
   return _user;
 };
-```  
-### How to map state to components
+```
+- How to integrate with React Router v4
+  - You can integrate routing with state management using RedirectDx [https://github.com/mfsjr/manifold-dx-redirect-dx]
+  - So you can define actions to navigate to app URL's using predetermined properties, like so
+```typescript jsx
+getActionCreator(getUiLayout()).set('redirectTo', SceneUrl.MY_GROUP).dispatch()
+```
+  
+### Mapping state to components
 In manifold-dx, components are lightweight classes that invoke renderers (usually functions) and create mappings between 
 application state and renderers.  
 1. RenderPropComponent is the preferred container, where the renderer function (view) is passed in via props
@@ -194,7 +203,8 @@ Both of these classes require the developer to write two functions:
    updated and the component re-renders.
 2. `createViewProps(): VP;` is the function that initializes the view properties used by the renderer.
 
-A simple component looks like this:
+Here is a simple example of mapping state (a property called 'message') to a component a view property called
+'alertMessage'):
 ```typescript jsx
 export class Alert extends RenderPropsComponent<AlertProps, AlertViewProps, AppState> {
 
@@ -216,7 +226,6 @@ export class Alert extends RenderPropsComponent<AlertProps, AlertViewProps, AppS
     };
   }
 }
-
 ```
 
 ### Key Features
@@ -256,24 +265,15 @@ a couple of ways:
 Also note, a coincidental similarity with Vuex is a somewhat nested/compositional approach to state, as opposed 
 to Redux's preferred 'flat' shape.
 
-#### Demo Apps
-- See the todo app at [https://github.com/mfsjr/manifold-dx-todo](https://github.com/mfsjr/manifold-dx-todo). 
-
 **Run Tests:** `npm test --runInBand REACT_APP_STATE_MUTATION_CHECKING=true` 
 - `runInBand` since we need to have tests execute in order
 - and we want REACT_APP_STATE_MUTATION_CHECKING on when testing or debugging.
   - this will also turn on state diff output, when mutations are detected
-  
-#### Building an App
-- Look at our demo apps, these are built with create-react-app and react-script-ts.
- 
-#### Recent work has centered on:
-- Putting manifold-dx into production (and it is)
-- enhancing usability
-- keeping up to date with recent TypeScript and React releases
+   
+#### Recently completed work
+- Putting manifold-dx into production
+- Enhancing usability
+- Keeping up to date with recent TypeScript and React releases
 
 #### What's Next
-- Dev tools for action replay
-- More production apps
-- More rendering optimizations
-
+- Dev tools for action replay (time travel)

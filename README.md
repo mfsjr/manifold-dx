@@ -15,7 +15,7 @@ TypeScript's strongly typed data structures and generics.
 
 ### How It Works
 
-Let's say we have used TypeScript to define application state that looks like this:
+Let's say we have used TypeScript interfaces to define application state that looks like this:
 
  ![alt text](./StateDiagram.png) 
 
@@ -75,7 +75,11 @@ given only the node in the application state.
 
 ### Demo App
 - See the todo app at [https://github.com/mfsjr/manifold-dx-todo](https://github.com/mfsjr/manifold-dx-todo).
-- Once you understand this, check out some more robust, scalable techniques provided in the sections below. 
+- Once you understand this, check out some more robust, scalable techniques provided in the sections below.
+
+### Class Templates
+- These are located in the 'templates' directory, and can be helpful to copy/paste when you are building new components.
+- It contains some recommended patterns, which include FunctionComponents, where you can use hooks.  
 
 ### To Install
 - `npm i manifold-dx`   

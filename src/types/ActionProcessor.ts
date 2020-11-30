@@ -42,7 +42,7 @@ export class ActionProcessor implements ActionProcessorAPI {
   public createDataTriggerProcessor: (triggers: DataTrigger[]) => ActionProcessorFunctionType
     = triggers => {
     return createDataTriggerProcessor(triggers);
-  };
+  }
 
   public setMutationCheckOnFailureFunction<T>(newFunction: (baseline: T, source: T) => string): void {
     this.mutationCheck.onFailure = newFunction;
@@ -128,7 +128,7 @@ export class ActionProcessor implements ActionProcessorAPI {
   }
 
   public postProcess(actions: Action[]): Action[] {
-    // if checking for changes, do it immediately after actions have executed
+    // if checking for mutations done without actions, do it immediately after actions have executed
     if (this.mutationCheck.isEnabled()) {
       this.mutationCheck.postActionCopyState(actions);
     }

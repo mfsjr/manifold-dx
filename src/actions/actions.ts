@@ -31,25 +31,33 @@ export const ActionTypeIsNoOp = (actionId: ActionId): boolean => {
   return actionId >= ActionId.UPDATE_PROPERTY_NO_OP;
 };
 
+/* tslint:disable:no-any */
 /**
- * Mapping hooks are functions that can optionally be attached to mappings (see {@link MappingAction}.
+ * Mapping hooks are functions that can optionally be attached to mappings (see {@link MappingAction}).
  *
- * They are executed after the mapping has updated the component with the new state values, but immediately
+ * They are executed after a dispatched action has updated the component with the new state values, but immediately
  * before the component renders.  So this is a place where the component's view props could be modified.
+ *
+ * These have nothing to do with React hooks, as they were created before them.
+ * To avoid confusion, these will likely be renamed in a backward-compatible way (e.g., deprecated with
+ * a new descriptive name being preferred), without any other changes.
  *
  * See {@link ContainerComponent#handleChange} and {@link ContainerComponent#invokeMappingHooks}
  *
  * Note that these differ from postHooks in that those are attached to specific actions, and postHooks
  * execute immediately before mappingHooks.
  */
-/* tslint:disable:no-any */
 export type MappingHook = (action: StateCrudAction<any, any>) => void;
 /* tslint:enable:no-any */
 
 export abstract class Action {
   /**
-   * Optional action to be performed after the execution of the action,
-   * see {@link ActionProcessor}
+   * Optional action to be performed after an action has been dispatched (after everything),
+   * see {@link ActionProcessor} ar {ActionProcessor#postProcess}.
+   *
+   * This has absolutely nothing to do with React hooks, as it was written before them.
+   * In order to avoid confusion, these may get renamed in a backward compatible way (e.g.,
+   * deprecated in favor of another descriptive name), without any other changes.
    */
   public postHook?: () => void;
   type: ActionId;

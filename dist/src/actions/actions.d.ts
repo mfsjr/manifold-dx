@@ -24,10 +24,14 @@ export declare enum ActionId {
 }
 export declare const ActionTypeIsNoOp: (actionId: ActionId) => boolean;
 /**
- * Mapping hooks are functions that can optionally be attached to mappings (see {@link MappingAction}.
+ * Mapping hooks are functions that can optionally be attached to mappings (see {@link MappingAction}).
  *
- * They are executed after the mapping has updated the component with the new state values, but immediately
+ * They are executed after a dispatched action has updated the component with the new state values, but immediately
  * before the component renders.  So this is a place where the component's view props could be modified.
+ *
+ * These have nothing to do with React hooks, as they were created before them.
+ * To avoid confusion, these will likely be renamed in a backward-compatible way (e.g., deprecated with
+ * a new descriptive name being preferred), without any other changes.
  *
  * See {@link ContainerComponent#handleChange} and {@link ContainerComponent#invokeMappingHooks}
  *
@@ -37,8 +41,12 @@ export declare const ActionTypeIsNoOp: (actionId: ActionId) => boolean;
 export declare type MappingHook = (action: StateCrudAction<any, any>) => void;
 export declare abstract class Action {
     /**
-     * Optional action to be performed after the execution of the action,
-     * see {@link ActionProcessor}
+     * Optional action to be performed after an action has been dispatched (after everything),
+     * see {@link ActionProcessor} ar {ActionProcessor#postProcess}.
+     *
+     * This has absolutely nothing to do with React hooks, as it was written before them.
+     * In order to avoid confusion, these may get renamed in a backward compatible way (e.g.,
+     * deprecated in favor of another descriptive name), without any other changes.
      */
     postHook?: () => void;
     type: ActionId;

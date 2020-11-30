@@ -101,7 +101,7 @@ var ActionProcessor = /** @class */ (function () {
         return actions;
     };
     ActionProcessor.prototype.postProcess = function (actions) {
-        // if checking for changes, do it immediately after actions have executed
+        // if checking for mutations done without actions, do it immediately after actions have executed
         if (this.mutationCheck.isEnabled()) {
             this.mutationCheck.postActionCopyState(actions);
         }

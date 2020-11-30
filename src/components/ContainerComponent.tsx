@@ -36,10 +36,10 @@ export abstract class ContainerComponent<CP, VP, A extends StateObject, RS = {} 
    */
   protected functionCompView: FunctionComponent<VP> | undefined;
 
+  /* tslint:disable:no-any */
   /**
    * An instance of a React.Compoent class passed into the constructor.
    */
-    /* tslint:disable:no-any */
   protected viewComponent: React.Component<VP, any>;
     /* tslint:enable:no-any */
 

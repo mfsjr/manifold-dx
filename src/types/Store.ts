@@ -72,6 +72,7 @@ export class Store<A> {
     return state as T & StateObject;
   }
 
+  /* tslint:disable:no-any */
   /**
    * Is the object an StateObject?  Note this is not the same as an instance of
    * the State class.
@@ -82,7 +83,6 @@ export class Store<A> {
    * @param object
    * @returns {boolean}
    */
-    /* tslint:disable:no-any */
   public static isInstanceOfStateObject(object: any): object is StateObject {
       /* tslint:enable:no-any */
       if (!object) {
@@ -161,11 +161,11 @@ export class Store<A> {
       return {next: next};
   };
 
+  /* tslint:disable:no-any */
   /**
    * The intention here is to strip the state object down to a simple object, or optionally go even
    * further and remove all functions so that it is pure data.
    */
-    /* tslint:disable:no-any */
   public static stripStateObject(stateObject: any, includingFunctions?: boolean): any {
       /* tslint:enable:no-any */
       if (Store.isInstanceOfStateObject(stateObject)) {
@@ -289,6 +289,7 @@ export class Store<A> {
 
 }
 
+/* tslint:disable:no-any */
 /**
  * This is only used in {@link JSON.stringify}, to prevent cyclic errors arising from
  * container._parent === container.  To serialize app state, see the JSOG npm.
@@ -296,7 +297,6 @@ export class Store<A> {
  * @param value
  * @returns {string}
  */
-/* tslint:disable:no-any */
 export function JSON_replaceCyclicParent(key: any, value: any) {
     /* tslint:enable:no-any */
   return key === '_parent' ? '(parent)' : value;

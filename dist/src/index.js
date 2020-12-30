@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.RenderPropsComponent = exports.ContainerComponent = exports.MappingAction = exports.Manager = exports.ArrayChangeAction = exports.StateCrudAction = exports.getArrayMappingActionCreator = exports.getMappingActionCreator = exports.getArrayActionCreator = exports.getActionCreator = exports.Action = exports.Store = void 0;
+exports.RenderPropsComponent = exports.ContainerComponent = exports.MappingAction = exports.Manager = exports.ArrayChangeAction = exports.StateCrudAction = exports.getArrayMappingActionCreator = exports.getMappingActionCreator = exports.getArrayActionCreator = exports.getActionCreator = exports.getStateObject = exports.Action = exports.Store = void 0;
 var actions_1 = require("./actions/actions");
 Object.defineProperty(exports, "Action", { enumerable: true, get: function () { return actions_1.Action; } });
 Object.defineProperty(exports, "StateCrudAction", { enumerable: true, get: function () { return actions_1.StateCrudAction; } });
@@ -11,6 +11,7 @@ var RenderPropsComponent_1 = require("./components/RenderPropsComponent");
 Object.defineProperty(exports, "RenderPropsComponent", { enumerable: true, get: function () { return RenderPropsComponent_1.RenderPropsComponent; } });
 var Store_1 = require("./types/Store");
 Object.defineProperty(exports, "Store", { enumerable: true, get: function () { return Store_1.Store; } });
+Object.defineProperty(exports, "getStateObject", { enumerable: true, get: function () { return Store_1.getStateObject; } });
 var actions_2 = require("./actions/actions");
 Object.defineProperty(exports, "ArrayChangeAction", { enumerable: true, get: function () { return actions_2.ArrayChangeAction; } });
 var actionCreators_1 = require("./actions/actionCreators");

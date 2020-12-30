@@ -140,3 +140,4 @@ export declare class Store<A> {
  * @returns {string}
  */
 export declare function JSON_replaceCyclicParent(key: any, value: any): any;
+export declare function getStateObject<S>(state?: S & StateObject): S & StateObject;

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.JSON_replaceCyclicParent = exports.Store = void 0;
+exports.getStateObject = exports.JSON_replaceCyclicParent = exports.Store = void 0;
 var Manager_1 = require("./Manager");
 var _ = require("lodash");
 var StateMutationDiagnostics_1 = require("./StateMutationDiagnostics");
@@ -258,4 +258,11 @@ function JSON_replaceCyclicParent(key, value) {
     return key === '_parent' ? '(parent)' : value;
 }
 exports.JSON_replaceCyclicParent = JSON_replaceCyclicParent;
+function getStateObject(state) {
+    if (!state) {
+        throw new Error("getStateObject received an undefined state object");
+    }
+    return state;
+}
+exports.getStateObject = getStateObject;
 //# sourceMappingURL=Store.js.map

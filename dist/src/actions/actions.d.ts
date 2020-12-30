@@ -84,7 +84,7 @@ export declare abstract class StateAction<S extends StateObject, K extends Extra
     propertyName: K;
     mappingActions: AnyMappingAction[];
     protected assignProps(from: StateAction<S, K>): void;
-    constructor(actionType: ActionId, _parent: S, _propertyName: K);
+    constructor(actionType: ActionId, _parent: S | undefined, _propertyName: K);
     /**
      * Process the action.  A convenience method that calls Manager.get().actionPerform, which is the correct
      * way to process an action or an array of actions.

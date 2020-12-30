@@ -148,10 +148,19 @@ exports.ActionCreator = ActionCreator;
  * @returns {ActionCreator<S extends StateObject>}
  */
 function getActionCreator(parent) {
+    if (!parent) {
+        throw new Error("getActionCreator received an undefined parent state object");
+    }
     return new ActionCreator(parent);
 }
 exports.getActionCreator = getActionCreator;
 function getArrayActionCreator(parent, childArray) {
+    if (!parent) {
+        throw new Error("getArrayActionCreator received an undefined parent state object");
+    }
+    if (!childArray) {
+        throw new Error("getArrayActionCreator received an undefined childArray");
+    }
     return new ArrayActionCreator(parent, childArray);
 }
 exports.getArrayActionCreator = getArrayActionCreator;
@@ -283,6 +292,9 @@ var ArrayActionCreator = /** @class */ (function () {
 }());
 exports.ArrayActionCreator = ArrayActionCreator;
 function getMappingActionCreator(_parent, _propKey) {
+    if (!_parent) {
+        throw new Error("getMappingActionCreator received an undefined parent state object");
+    }
     /**
      * Create a MappingAction from the state defined by this creator, to the component and its view / target property.
      *
@@ -305,6 +317,9 @@ function getMappingActionCreator(_parent, _propKey) {
 }
 exports.getMappingActionCreator = getMappingActionCreator;
 function getArrayMappingActionCreator(_parent, _propKey) {
+    if (!_parent) {
+        throw new Error("getMappingActionCreator received an undefined parent state object");
+    }
     /**
      * Create a mapping from an array element, or the whole array, to a component
      * @param {S[K] & Array<E>} state array to be mapped
@@ -321,6 +336,9 @@ function getArrayMappingActionCreator(_parent, _propKey) {
         var mappingHooks = [];
         for (var _i = 4; _i < arguments.length; _i++) {
             mappingHooks[_i - 4] = arguments[_i];
+        }
+        if (!_parent) {
+            throw new Error("getArrayMappingActionCreator received an undefined parent state object");
         }
         var mappingAction = new (actions_1.MappingAction.bind.apply(actions_1.MappingAction, __spreadArrays([void 0, _parent, _propKey, _component, targetPropKey], mappingHooks)))();
         // TODO: try building a custom type guard for Array<E>

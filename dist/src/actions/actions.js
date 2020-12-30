@@ -114,6 +114,9 @@ var StateAction = /** @class */ (function (_super) {
     __extends(StateAction, _super);
     function StateAction(actionType, _parent, _propertyName) {
         var _this = _super.call(this, actionType) || this;
+        if (!_parent) {
+            throw new Error("getMappingActionCreator received an undefined parent state object");
+        }
         _this.parent = _parent;
         _this.propertyName = _propertyName;
         return _this;

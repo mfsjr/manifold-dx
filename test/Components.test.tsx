@@ -1,16 +1,17 @@
-import { createTestStore, TestState, NameState, Address, NameStateCreator } from './testHarness';
+import { NameState, Address, NameStateCreator, createTestState, createTestStore, TestState } from './testHarness';
 import { Name } from './testHarness';
 import * as React from 'react';
 import { ContainerComponent } from '../src/components/ContainerComponent';
 import { Action, ActionId, AnyMappingAction, MappingHook, StateCrudAction } from '../src/actions/actions';
-import { Store, StateObject } from '../src/types/Store';
 import { Manager } from '../src/types/Manager';
 import {
-  ExtractMatchingArrayType,
+  ExtractMatchingArrayType, getActionCreator,
   getArrayActionCreator, getArrayMappingActionCreator,
   getMappingActionCreator
 } from '../src/actions/actionCreators';
 import { arrayMapDelete, arrayMapInsert, MappingState } from '../src/types/MappingState';
+import { StateObject, Store } from '../src';
+import { getStateObject } from '../src/types/Store';
 
 const testStore = createTestStore();
 
@@ -546,9 +547,40 @@ describe('ArrayMap insertion and deletion functions', () => {
 
 });
 
-// describe('enzyme-based tests of rendering', () => {
-//   resetTestObjects();
-//   test('initial conditions', () => {
-//     expect(Manager.get(container.nameState).getMappingState().getSize()).toBeGreaterThan(0);
-//   });
-// });
+describe('Optional Chaining tests', () => {
+  // resetTestObjects();
+  const testState = testStore.getState();
+  const undefinedNameState: Name & StateObject = undefined as unknown as Name & StateObject;
+
+  it('getStateObject should retrieve the strongly typed nameState object', () => {
+    expect(getStateObject(testState.name)).toBeTruthy();
+  });
+  it('getStateObject should throw when it receives and undefined nameState object', () => {
+    testState.name = undefined;
+    expect(() => getStateObject(testState.name)).toThrow();
+  });
+  it('getActionCreator should throw when parent object is undefined', () => {
+    expect(undefinedNameState).toBe(undefined);
+    expect(() => getActionCreator(undefinedNameState)).toThrow();
+  });
+  it('getStateObject should throw when the object is undefined', () => {
+    const testState2 = createTestState();
+    expect(testState2.name).toBeFalsy();
+    expect(() => getStateObject(testState2.name)).toThrow('getStateObject received an undefined state object');
+  });
+  it('getArrayActionCreator should throw when array is undefined', () => {
+    expect(() => getArrayActionCreator(nameState, undefined)).toThrow();
+  });
+  it('getArrayActionCreator should throw when parent state object is undefined', () => {
+    expect(undefinedNameState).toBe(undefined);
+    expect(() => getArrayActionCreator(undefinedNameState, undefinedNameState.addresses)).toThrow();
+  });
+  it('getMappingActionCreator should throw when parent is undefined', () => {
+    expect(undefinedNameState).toBe(undefined);
+    expect(() => getMappingActionCreator(undefinedNameState, 'first')).toThrow();
+  });
+  it('getArrayMappingActionCreator should throw when parent is undefined', () => {
+    expect(undefinedNameState).toBe(undefined);
+    expect(() => getArrayMappingActionCreator(undefinedNameState, 'addresses')).toThrow();
+  });
+});

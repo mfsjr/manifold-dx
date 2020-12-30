@@ -157,13 +157,22 @@ export class ActionCreator<S extends StateObject> {
  * @param {S} parent
  * @returns {ActionCreator<S extends StateObject>}
  */
-export function getActionCreator<S extends StateObject>(parent: S): ActionCreator<S> {
+export function getActionCreator<S extends StateObject>(parent?: S): ActionCreator<S> {
+  if (!parent) {
+    throw new Error(`getActionCreator received an undefined parent state object`);
+  }
   return new ActionCreator(parent);
 }
 
 export function getArrayActionCreator<S extends StateObject, K extends Extract<keyof S, string>, V extends Object>
-(parent: S, childArray: Array<V> & S[K])
+(parent?: S, childArray?: Array<V> & S[K])
 : ArrayActionCreator<S, K, V> {
+  if (!parent) {
+    throw new Error(`getArrayActionCreator received an undefined parent state object`);
+  }
+  if (!childArray) {
+    throw new Error(`getArrayActionCreator received an undefined childArray`);
+  }
   return new ArrayActionCreator(parent, childArray);
 }
 /**
@@ -342,8 +351,10 @@ export type ExtractMatchingConditional<S, K extends Extract<keyof S, string>, VP
 
 export function getMappingActionCreator
   <S extends StateObject, K extends Extract<keyof S, string>, A extends StateObject, E extends void>
-(_parent: S, _propKey: K) {
-
+(_parent: S | undefined, _propKey: K) {
+  if (!_parent) {
+    throw new Error(`getMappingActionCreator received an undefined parent state object`);
+  }
   /**
    * Create a MappingAction from the state defined by this creator, to the component and its view / target property.
    *
@@ -366,7 +377,11 @@ export function getMappingActionCreator
 
 export function getArrayMappingActionCreator
 <S extends StateObject, K extends ExtractArrayKeys<unknown, S>, A extends StateObject>
-(_parent: S, _propKey: K) {
+(_parent: S | undefined, _propKey: K) {
+
+  if (!_parent) {
+    throw new Error(`getMappingActionCreator received an undefined parent state object`);
+  }
 
   /**
    * Create a mapping from an array element, or the whole array, to a component
@@ -390,6 +405,9 @@ export function getArrayMappingActionCreator
       ...mappingHooks: MappingHook[]
     )
       : MappingAction<S, K, CP, VP, TP, A, E> {
+      if (!_parent) {
+        throw new Error(`getArrayMappingActionCreator received an undefined parent state object`);
+      }
 
       let mappingAction = new MappingAction(_parent, _propKey, _component, targetPropKey, ...mappingHooks);
       // TODO: try building a custom type guard for Array<E>

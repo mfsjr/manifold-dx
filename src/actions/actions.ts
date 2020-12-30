@@ -147,8 +147,11 @@ export abstract class StateAction<S extends StateObject, K extends Extract<keyof
     this.mappingActions = from.mappingActions;
   }
 
-  constructor(actionType: ActionId, _parent: S, _propertyName: K) {
+  constructor(actionType: ActionId, _parent: S | undefined, _propertyName: K) {
     super(actionType);
+    if (!_parent) {
+      throw new Error(`getMappingActionCreator received an undefined parent state object`);
+    }
     this.parent = _parent;
     this.propertyName = _propertyName;
   }

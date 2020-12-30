@@ -1,7 +1,7 @@
 import { Action, StateCrudAction, MappingAction, MappingHook, AnyMappingAction } from './actions/actions';
 import { ContainerComponent } from './components/ContainerComponent';
 import { RenderPropsComponent, ContainerRenderProps } from './components/RenderPropsComponent';
-import { Store, StateObject, State, StateParent, StateProp, StateConfigOptions } from './types/Store';
+import { Store, StateObject, State, StateParent, StateProp, StateConfigOptions, getStateObject } from './types/Store';
 import { ArrayChangeAction } from './actions/actions';
 import { getActionCreator, getArrayActionCreator, getMappingActionCreator, getArrayMappingActionCreator }
   from './actions/actionCreators';
@@ -23,6 +23,7 @@ export {
   Action,
   ActionProcessorFunctionType,
   DataTrigger,
+  getStateObject,
   getActionCreator,
   getArrayActionCreator,
   getMappingActionCreator,

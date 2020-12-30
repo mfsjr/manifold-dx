@@ -97,8 +97,10 @@ that make sure that the objects we build agree with the interfaces we have defin
 2. The main observation here is that state is dynamic so everything besides the top node (application state) itself is
     optional (possibly undefined).  Whether we are waiting for async results or simply writing code line-by-line
     state can always be optional.
-3. Accessors can always be defined to return a real object, ie non-optionally, by throwing an exception 
-   if the object is undefined.  So your app uses accessors to grab state objects which do the checking once.
+3. State Objects can always be obtained using optional chaining: `getStateObject(getAppStore().state.uiLayout`, where
+   the function will throw if the state object is undefined (action creators can use optional chaining too).
+   1. You can also define accessors to return a real object, ie non-optionally, by throwing an exception 
+      if the object is undefined.  So you can define accessors to grab state objects which do the checking once.
 4. We provide helper intefaces that enforce parent child relationships.  They're easy to code and TypeScript 
    will use them to provide code completion and flag mistakes.
 
@@ -178,7 +180,7 @@ let appStore = new AppStore(new AppStateCreator().appState, {});
 
 export const getAppStore = (): AppStore => appStore;
 ```  
-- How to build accessors (suggested).  For convenience, throw if the state doesn't exist, returning an unambiguous value.
+- How to build accessors; throw if the state doesn't exist, returning an unambiguous type/value.
 ```typescript jsx
 export const getUser = (): GroupUserState => {
   const _user = getUserMaintenance().user;
@@ -188,11 +190,16 @@ export const getUser = (): GroupUserState => {
   return _user;
 };
 ```
+- An easier accessor using our getStateObject api with optional chaining.  Note that all our action creators
+  also allow optional chaining (see below).
+```typescript
+const _user = getStateObject(getAppStore().state.userMaintenance?.user);
+```
 - How to integrate with React Router v4
   - You can integrate routing with state management using RedirectDx [https://github.com/mfsjr/manifold-dx-redirect-dx]
   - So you can define actions to navigate to app URL's using predetermined properties, like so
 ```typescript jsx
-getActionCreator(getUiLayout()).set('redirectTo', SceneUrl.MY_GROUP).dispatch()
+getActionCreator(getAppStore().state.uiLayout).set('redirectTo', SceneUrl.MY_GROUP).dispatch()
 ```
   
 ### Mapping state to components
@@ -218,12 +225,12 @@ export class Alert extends RenderPropsComponent<AlertProps, AlertViewProps, AppS
 
   protected appendToMappingActions(mappingActions: AnyMappingAction[]): void {
     mappingActions.push(
-      getMappingActionCreator(getModalState(), 'message').createPropertyMappingAction(this, 'alertMessage')
+      getMappingActionCreator(getAppStore().state.uiLayout?.modal, 'message').createPropertyMappingAction(this, 'alertMessage')
     );
   }
 
   createViewProps(): AlertViewProps {
-    let alertMessage = getModalState().message || '';
+    let alertMessage = getStateObject(getAppStore().state.uiLayout?.modal).message || '';
     return {
       alertMessage,
       handleClickClose: handleClickClose
@@ -258,6 +265,8 @@ export class Alert extends RenderPropsComponent<AlertProps, AlertViewProps, AppS
 - React Router (v4) integration via RedirectDx [https://github.com/mfsjr/manifold-dx-redirect-dx]
 - Batched updates for efficient rendering: `getAppStore().dispatch(...actions);`
 - **'set' API** a convenience method that will do insert, update or delete depending on old and new data values.
+- **Optional Chaining** our getStateObject and action creator api's can verify the existence of dynamically 
+  created state objects, allowing you to use optional chaining (eg `getAppStore().state.uiLayout?.modal`).
 
 ### Prior Art
 Obviously Redux has been our frame of reference, but Vuex should be mentioned, as it influenced this design in
@@ -276,7 +285,7 @@ to Redux's preferred 'flat' shape.
    
 #### Recently completed work
 - Putting manifold-dx into production
-- Enhancing usability
+- Enhancing usability, optional chaining
 - Keeping up to date with recent TypeScript and React releases
 
 #### What's Next

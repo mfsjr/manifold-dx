@@ -301,3 +301,11 @@ export function JSON_replaceCyclicParent(key: any, value: any) {
     /* tslint:enable:no-any */
   return key === '_parent' ? '(parent)' : value;
 }
+
+export function getStateObject<S>(state?: S & StateObject): S & StateObject {
+  if (!state) {
+    throw new Error(`getStateObject received an undefined state object`);
+  }
+  return state;
+}
+

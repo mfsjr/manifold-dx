@@ -66,3 +66,4 @@ export declare function createTestState(): TestState;
  * @returns {Store<TestState>}
  */
 export declare function createTestStore(): Store<TestState>;
+export declare function timerPromise(millis: number, resolve?: () => void): Promise<number>;

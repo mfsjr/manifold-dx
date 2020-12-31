@@ -135,7 +135,7 @@ var Manager = /** @class */ (function () {
     //  * @param actionMethod
     //  * @param actions
     //  */
-    // protected dispatch(actionMethod: (action: Action) => void, ...actions: Action[]): Action[] {
+    // protected dispatch2(actionMethod: (action: Action) => void, ...actions: Action[]): Action[] {
     //   if (this.dispatchingActions) {
     //     this.dispatchArgs.push({actionMethod, actions});
     //     return [];
@@ -185,6 +185,7 @@ var Manager = /** @class */ (function () {
         if (dataAction && this.currentDataAction) {
             // attempting to dispatch actions while another is dispatching, so handle by deferring until we're done.
             (_a = this.store).dispatchNext.apply(_a, actions);
+            return [];
             // let currentDescription = actionDescription(this.currentDataAction);
             // let message = `Dispatch ${currentDescription} interrupted by another: ${actionDescription(actions[0])}`;
             // console.log(`Warning: ${message}`);

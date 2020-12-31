@@ -517,7 +517,7 @@ describe('safe operations, updateIfChanged, insertIfEmpty, removeIfHasData, and 
     expect(() => actionCreator.set('middle', 'R').dispatch()).not.toThrow();
   });
 
-  test( 'data triggers', () => {
+  test( 'data triggers, concurrent dispatch and dispatchNext', () => {
     const actionCreator = getActionCreator(nameState);
     expect(nameState.suffix).toBeFalsy();
     expect(nameState.middle).toBe('R');
@@ -539,23 +539,41 @@ describe('safe operations, updateIfChanged, insertIfEmpty, removeIfHasData, and 
       .createDataTriggerProcessor([triggerHit, triggerMiss]);
     testStore.getManager().getActionProcessorAPI().appendPostProcessor(triggerProcessor);
 
+    const preSuffix = nameState.suffix;
+    const lastDeferredDispatchCount = testStore.deferredDispatchCount;
     actionCreator.set('middle', 'Z').dispatch();
     expect(nameState.middle).toBe('Z');
-    // triggerHit should have executed
-    expect(nameState.suffix).toBe(nameState.middle);
-    // triggerMiss should not have
-    expect(nameState.first).toBe(first);
+    // trigger has not executed yet, its execution has been deferred, this will be checked below in setTimeout
+    expect(nameState.suffix).toBe(preSuffix);
+    expect(testStore.deferredDispatchCount).toBe(1 + lastDeferredDispatchCount);
+    /**
+     * Note that the middle name change is triggering a suffix dispatch during its dispatch, so testing triggers
+     * is also testing concurrent dispatch handling; ie dispatchNext and its implementation, putting concurrent
+     * actions on a zero setTimeout to be executed 'next'.
+     *
+     * This can be observice in a
+     * see {@link Manager#dispatch} and {@link Manager#dispatchNext}.
+     */
+    function testExpect(): void {
+      // triggerHit should have executed
+      expect(nameState.suffix).toBe(nameState.middle);
+      // triggerMiss should not have
+      expect(nameState.first).toBe(first);
 
-    actionCreator.set('middle', undefined).dispatch();
-    expect(nameState.middle).toBeUndefined();
-    expect(nameState.suffix).toBe(nameState.middle);
-    expect(nameState.first).toBe(first);
+      actionCreator.set('middle', undefined).dispatch();
+      expect(nameState.middle).toBeUndefined();
+      expect(nameState.suffix).toBe(nameState.middle);
+      expect(nameState.first).toBe(first);
+      // NOTE that where these were equal before setTimeout above, they are different now
+      expect(nameState.suffix).not.toBe(preSuffix);
 
-    actionCreator.set('middle', 'R').dispatch();
-    expect(nameState.middle).toBe('R');
-    expect(() => actionCreator.set('middle', 'R').dispatch()).not.toThrow();
-    expect(nameState.suffix).toBe(nameState.middle);
-    expect(nameState.first).toBe(first);
+      actionCreator.set('middle', 'R').dispatch();
+      expect(nameState.middle).toBe('R');
+      expect(() => actionCreator.set('middle', 'R').dispatch()).not.toThrow();
+      expect(nameState.suffix).toBe(nameState.middle);
+      expect(nameState.first).toBe(first);
+    }
+    setTimeout(testExpect, 0);
 
     testStore.getManager().getActionProcessorAPI().removePostProcessor(triggerProcessor);
   });

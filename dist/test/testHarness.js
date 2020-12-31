@@ -11,7 +11,7 @@ var __assign = (this && this.__assign) || function () {
     return __assign.apply(this, arguments);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createTestStore = exports.createTestState = exports.NameStateCreator = exports.createNameContainer = void 0;
+exports.timerPromise = exports.createTestStore = exports.createTestState = exports.NameStateCreator = exports.createNameContainer = void 0;
 var Store_1 = require("../src/types/Store");
 // import { ArrayKeyGeneratorFn, propertyKeyGenerator } from '../src/actions/actions';
 var actionCreators_1 = require("../src/actions/actionCreators");
@@ -82,4 +82,13 @@ function createTestStore() {
     return new Store_1.Store(createTestState(), {});
 }
 exports.createTestStore = createTestStore;
+function timerPromise(millis, resolve) {
+    // const resolve = (delay: number) => `waited ${delay}`;
+    // const reject = () => {};
+    // tslint:disable-next-line:no-shadowed-variable
+    return new Promise(function (resolve, reject) {
+        setTimeout(resolve, millis);
+    });
+}
+exports.timerPromise = timerPromise;
 //# sourceMappingURL=testHarness.js.map

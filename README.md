@@ -180,26 +180,40 @@ let appStore = new AppStore(new AppStateCreator().appState, {});
 
 export const getAppStore = (): AppStore => appStore;
 ```  
-- How to build accessors; throw if the state doesn't exist, returning an unambiguous type/value.
+- How to access application state: optional chaining using the `getStateObject` method.
+
+  Since application state is dynamic, it is generally declared to be optional or unioned with 'undefined'.
+  So, optional chaining can be used to get state objects.
+  
+  However, after the app is initialized, app state objects have usually been created, and verifying 
+  that they are actually defined is cumbersome.  In other words, your code usually runs after state 
+  has been initialized, and you assume that, and that assumption is usually correct.
+  
+  So manifold-dx supplies api's that expect that state objects have been created, are declared as 
+  such (non-optional, never undefined), failing fast by throwing an error.
+  
+  This allows you to use optional chaining to access state objects deterministically.
+```typescript
+// access app state using optional chaining
+const _user: UserState = getStateObject(getAppStore().state.userMaintenance?.user); // throws if user is undefined
+// create actions using optional chaining (then dispatch them)
+getActionCreator(getAppStore().state?.uiLayout).set('redirectTo', SceneUrl.MY_GROUP).dispatch(); // throws if uiLayout isundefined
+```
+- How to build custom accessors; throw if the state doesn't exist, returning an unambiguous type/value.
 ```typescript jsx
 export const getUser = (): GroupUserState => {
   const _user = getUserMaintenance().user;
-  if (!_user) {
+  if (_user === undefined || _user === null) {
     throw new Error('user must be defined');
   }
   return _user;
 };
 ```
-- An easier accessor using our getStateObject api with optional chaining.  Note that all our action creators
-  also allow optional chaining (see below).
-```typescript
-const _user = getStateObject(getAppStore().state.userMaintenance?.user);
-```
 - How to integrate with React Router v4
   - You can integrate routing with state management using RedirectDx [https://github.com/mfsjr/manifold-dx-redirect-dx]
   - So you can define actions to navigate to app URL's using predetermined properties, like so
 ```typescript jsx
-getActionCreator(getAppStore().state.uiLayout).set('redirectTo', SceneUrl.MY_GROUP).dispatch()
+getActionCreator(getAppStore().state?.uiLayout).set('redirectTo', SceneUrl.MY_GROUP).dispatch(); // throws if uiLayout isundefined
 ```
   
 ### Mapping state to components

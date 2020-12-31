@@ -40,6 +40,11 @@ export declare class Store<A> {
     private state;
     private manager;
     /**
+     * for testing/debugging
+     * @private
+     */
+    private _deferredDispatchCount;
+    /**
      * Create state as a plain object.
      * @param parent container for this container, if undefined it implies this is to be root/top state
      * @param propertyName of this container in its parent, ie parent[propName] = returnValue (state)
@@ -97,6 +102,7 @@ export declare class Store<A> {
      */
     static stripStateObject(stateObject: any, includingFunctions?: boolean): any;
     private static getStateKeys;
+    get deferredDispatchCount(): number;
     constructor(appData: A, options: StateConfigOptions);
     /**
      * Add a child state object to the parent state object.  Note that the parent is assumed to be

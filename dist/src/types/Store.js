@@ -13,6 +13,11 @@ var StateMutationDiagnostics_1 = require("./StateMutationDiagnostics");
  */
 var Store = /** @class */ (function () {
     function Store(appData, options) {
+        /**
+         * for testing/debugging
+         * @private
+         */
+        this._deferredDispatchCount = 0;
         this.reset(appData, options);
     }
     /**
@@ -116,6 +121,13 @@ var Store = /** @class */ (function () {
         var appStore = new Store({}, {});
         return Object.keys(appStore.getState());
     };
+    Object.defineProperty(Store.prototype, "deferredDispatchCount", {
+        get: function () {
+            return this._deferredDispatchCount;
+        },
+        enumerable: false,
+        configurable: true
+    });
     /**
      * Add a child state object to the parent state object.  Note that the parent is assumed to be
      * in this store, and if it isn't this method will throw an error.
@@ -201,6 +213,7 @@ var Store = /** @class */ (function () {
         for (var _i = 0; _i < arguments.length; _i++) {
             actions[_i] = arguments[_i];
         }
+        this._deferredDispatchCount++;
         var dispatcher = this.dispatch.bind(this);
         /*tslint:disable:no-any*/
         return new Promise(function (resolve, reject) {

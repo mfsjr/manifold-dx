@@ -52,6 +52,12 @@ export class Store<A> {
   private manager: Manager;
 
   /**
+   * for testing/debugging
+   * @private
+   */
+  private _deferredDispatchCount = 0;
+
+  /**
    * Create state as a plain object.
    * @param parent container for this container, if undefined it implies this is to be root/top state
    * @param propertyName of this container in its parent, ie parent[propName] = returnValue (state)
@@ -190,6 +196,10 @@ export class Store<A> {
     return Object.keys(appStore.getState());
   }
 
+  public get deferredDispatchCount(): number {
+    return this._deferredDispatchCount;
+  }
+
   constructor(appData: A, options: StateConfigOptions) {
     this.reset(appData, options);
   }
@@ -276,6 +286,7 @@ export class Store<A> {
    * @param actions
    */
   public dispatchNext(...actions: Action[]): Promise<Action[]> {
+    this._deferredDispatchCount++;
     let dispatcher = this.dispatch.bind(this);
     /*tslint:disable:no-any*/
     return new Promise(
@@ -308,4 +319,3 @@ export function getStateObject<S>(state?: S & StateObject): S & StateObject {
   }
   return state;
 }
-

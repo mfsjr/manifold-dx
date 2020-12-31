@@ -126,3 +126,13 @@ export function createTestState(): TestState {
 export function createTestStore() {
   return new Store(createTestState(), {});
 }
+
+export function timerPromise(millis: number, resolve?: () => void): Promise<number> {
+  // const resolve = (delay: number) => `waited ${delay}`;
+  // const reject = () => {};
+  // tslint:disable-next-line:no-shadowed-variable
+  return new Promise<number>((resolve, reject) => {
+    setTimeout(resolve, millis);
+  });
+}
+

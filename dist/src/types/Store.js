@@ -197,14 +197,14 @@ var Store = /** @class */ (function () {
         return this.manager.actionRedo(nActions);
     };
     /**
-     * This method should only be called during action dispatch, which means you should do your
-     * best to avoid calling it at all.
+     * This method performs async dispatch.  It may be needed if you are trying to dispatch while
+     * React is rendering.
      *
-     * A use-case for calling this would be when you start to render something that requires
-     * authorization, so you can check to see whether the user is authorized, so you can
+     * A use-case for calling this would be when doing an auth check in a rendering function/component, so you can
      * respond accordingly, eg render if authorized, redirect elsewhere, pop up a message for the user, etc.
      *
-     * Note that this only allows simple dispatches, no undo or redo.
+     * Note that this api only allows simple dispatches, no undo or redo, although the actions dispatched
+     * here will be undoable and/or redoable.
      *
      * @param actions
      */
@@ -213,7 +213,7 @@ var Store = /** @class */ (function () {
         for (var _i = 0; _i < arguments.length; _i++) {
             actions[_i] = arguments[_i];
         }
-        this._deferredDispatchCount++;
+        this._deferredDispatchCount++; // testing/debugging
         var dispatcher = this.dispatch.bind(this);
         /*tslint:disable:no-any*/
         return new Promise(function (resolve, reject) {

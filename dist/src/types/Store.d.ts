@@ -146,4 +146,9 @@ export declare class Store<A> {
  * @returns {string}
  */
 export declare function JSON_replaceCyclicParent(key: any, value: any): any;
+/**
+ * Get the state object.
+ * @param state
+ * @throws if the state object supplied is falsy.
+ */
 export declare function getStateObject<S>(state?: S & StateObject): S & StateObject;

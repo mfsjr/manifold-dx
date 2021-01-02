@@ -154,8 +154,10 @@ export class ActionCreator<S extends StateObject> {
 
 /**
  * Factory method for CrudActionCreator, rather than exposing implementation details
- * @param {S} parent
+ * @param {S} parent.
+ *
  * @returns {ActionCreator<S extends StateObject>}
+ * @throws if the parent state object passed in is falsy.
  */
 export function getActionCreator<S extends StateObject>(parent?: S): ActionCreator<S> {
   if (!parent) {
@@ -164,6 +166,12 @@ export function getActionCreator<S extends StateObject>(parent?: S): ActionCreat
   return new ActionCreator(parent);
 }
 
+/**
+ * Map an array from application state, to be mapped to a target.
+ * @param parent
+ * @param childArray
+ * @throws if the parent state object passed in is falsy.
+ */
 export function getArrayActionCreator<S extends StateObject, K extends Extract<keyof S, string>, V extends Object>
 (parent?: S, childArray?: Array<V> & S[K])
 : ArrayActionCreator<S, K, V> {
@@ -349,6 +357,12 @@ export type ExtractArrayKeys<E, VP> =
 export type ExtractMatchingConditional<S, K extends Extract<keyof S, string>, VP, E extends unknown> =
   E extends void ? ExtractMatching<S, K, VP> : ExtractMatchingArrayType<E, VP>;
 
+/**
+ * Create a mapping from app state to this component.
+ * @param _parent
+ * @param _propKey
+ * @throws if the parent state object passed in is falsy.
+ */
 export function getMappingActionCreator
   <S extends StateObject, K extends Extract<keyof S, string>, A extends StateObject, E extends void>
 (_parent: S | undefined, _propKey: K) {
@@ -375,6 +389,12 @@ export function getMappingActionCreator
   };
 }
 
+/**
+ * Create a mapping from an app state array to this component.
+ * @param _parent
+ * @param _propKey
+ * @throws if the parent state object is falsy
+ */
 export function getArrayMappingActionCreator
 <S extends StateObject, K extends ExtractArrayKeys<unknown, S>, A extends StateObject>
 (_parent: S | undefined, _propKey: K) {

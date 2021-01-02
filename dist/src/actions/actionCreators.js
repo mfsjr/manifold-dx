@@ -144,8 +144,10 @@ var ActionCreator = /** @class */ (function () {
 exports.ActionCreator = ActionCreator;
 /**
  * Factory method for CrudActionCreator, rather than exposing implementation details
- * @param {S} parent
+ * @param {S} parent.
+ *
  * @returns {ActionCreator<S extends StateObject>}
+ * @throws if the parent state object passed in is falsy.
  */
 function getActionCreator(parent) {
     if (!parent) {
@@ -154,6 +156,12 @@ function getActionCreator(parent) {
     return new ActionCreator(parent);
 }
 exports.getActionCreator = getActionCreator;
+/**
+ * Map an array from application state, to be mapped to a target.
+ * @param parent
+ * @param childArray
+ * @throws if the parent state object passed in is falsy.
+ */
 function getArrayActionCreator(parent, childArray) {
     if (!parent) {
         throw new Error("getArrayActionCreator received an undefined parent state object");
@@ -291,6 +299,12 @@ var ArrayActionCreator = /** @class */ (function () {
     return ArrayActionCreator;
 }());
 exports.ArrayActionCreator = ArrayActionCreator;
+/**
+ * Create a mapping from app state to this component.
+ * @param _parent
+ * @param _propKey
+ * @throws if the parent state object passed in is falsy.
+ */
 function getMappingActionCreator(_parent, _propKey) {
     if (!_parent) {
         throw new Error("getMappingActionCreator received an undefined parent state object");
@@ -316,6 +330,12 @@ function getMappingActionCreator(_parent, _propKey) {
     };
 }
 exports.getMappingActionCreator = getMappingActionCreator;
+/**
+ * Create a mapping from an app state array to this component.
+ * @param _parent
+ * @param _propKey
+ * @throws if the parent state object is falsy
+ */
 function getArrayMappingActionCreator(_parent, _propKey) {
     if (!_parent) {
         throw new Error("getMappingActionCreator received an undefined parent state object");

@@ -271,6 +271,11 @@ function JSON_replaceCyclicParent(key, value) {
     return key === '_parent' ? '(parent)' : value;
 }
 exports.JSON_replaceCyclicParent = JSON_replaceCyclicParent;
+/**
+ * Get the state object.
+ * @param state
+ * @throws if the state object supplied is falsy.
+ */
 function getStateObject(state) {
     if (!state) {
         throw new Error("getStateObject received an undefined state object");

@@ -7,11 +7,10 @@ This TypeScript framework relies on developers to define application state based
 whose type information is then used to infer action ID's, action objects, action creators, 
 reducers.
 
-The framework uses these to provide developers with all the API's they need for mapping state to 
-React components, action creation, action dispatch, and many other features.
-
-Where Redux's implementation is based on functional programming and immutability, we use 
-TypeScript's strongly typed data structures and generics.
+Where Redux's implementation is based on functional programming and immutability, Manifold-dx uses  
+TypeScript to define immutable structure, then uses generics and type inference to provide 
+out-of-the-box API's for action creation, predefined reducers, dispatching, mapping state to components,  
+and much more.
 
 ### How It Works
 
@@ -186,8 +185,8 @@ export const getAppStore = (): AppStore => appStore;
   So, optional chaining can be used to get state objects.
   
   However, after the app is initialized, app state objects have usually been created, and verifying 
-  that they are actually defined is cumbersome.  In other words, your code usually runs after state 
-  has been initialized, and you assume that, and that assumption is usually correct.
+  that they are actually defined is cumbersome.  In other words, after your app is initialized, state has 
+  usually been created, and your code usually assumes it exists (and it usually does).
   
   So manifold-dx supplies api's that expect that state objects have been created, are declared as 
   such (non-optional, never undefined), failing fast by throwing an error.

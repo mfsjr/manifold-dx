@@ -78,10 +78,18 @@ export declare class ActionCreator<S extends StateObject> {
 }
 /**
  * Factory method for CrudActionCreator, rather than exposing implementation details
- * @param {S} parent
+ * @param {S} parent.
+ *
  * @returns {ActionCreator<S extends StateObject>}
+ * @throws if the parent state object passed in is falsy.
  */
 export declare function getActionCreator<S extends StateObject>(parent?: S): ActionCreator<S>;
+/**
+ * Map an array from application state, to be mapped to a target.
+ * @param parent
+ * @param childArray
+ * @throws if the parent state object passed in is falsy.
+ */
 export declare function getArrayActionCreator<S extends StateObject, K extends Extract<keyof S, string>, V extends Object>(parent?: S, childArray?: Array<V> & S[K]): ArrayActionCreator<S, K, V>;
 /**
  * Class for creating CRUD actions for arrays of objects (not primitives).
@@ -168,9 +176,21 @@ export declare type ExtractArrayKeys<E, VP> = {
  * This seems like it should work for declaring TP in MappingAction class, but doesn't
  */
 export declare type ExtractMatchingConditional<S, K extends Extract<keyof S, string>, VP, E extends unknown> = E extends void ? ExtractMatching<S, K, VP> : ExtractMatchingArrayType<E, VP>;
+/**
+ * Create a mapping from app state to this component.
+ * @param _parent
+ * @param _propKey
+ * @throws if the parent state object passed in is falsy.
+ */
 export declare function getMappingActionCreator<S extends StateObject, K extends Extract<keyof S, string>, A extends StateObject, E extends void>(_parent: S | undefined, _propKey: K): {
     createPropertyMappingAction: <CP, VP, TP_1 extends { [TP in Extract<keyof VP, string>]: VP[TP] extends S[K] ? TP : never; }[Extract<keyof VP, string>]>(_component: ContainerComponent<CP, VP, A, {}>, targetPropKey: TP_1, ...mappingHooks: MappingHook[]) => MappingAction<S, K, CP, VP, TP_1, A, E>;
 };
+/**
+ * Create a mapping from an app state array to this component.
+ * @param _parent
+ * @param _propKey
+ * @throws if the parent state object is falsy
+ */
 export declare function getArrayMappingActionCreator<S extends StateObject, K extends ExtractArrayKeys<unknown, S>, A extends StateObject>(_parent: S | undefined, _propKey: K): {
     createArrayIndexMappingAction: <CP, VP, E extends unknown, TP_1 extends { [TP in Extract<keyof VP, string>]: VP[TP] extends E ? TP : never; }[Extract<keyof VP, string>]>(_array: S[K] & E[], index: number | null, _component: ContainerComponent<CP, VP, A, {}>, targetPropKey: TP_1, ...mappingHooks: MappingHook[]) => MappingAction<S, K, CP, VP, TP_1, A, E>;
 };

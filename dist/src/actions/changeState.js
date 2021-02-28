@@ -23,13 +23,16 @@ var throwIf = function (condition, message) {
         throw new Error(message);
     }
 };
+/**
+ * Used by callers to throw a message about unexpected types of mutations.
+ */
 /* tslint:disable:no-any */
-var actionImmutabilityCheck = function (actionId, oldValue, newValue, propertyName, index) {
+var actionMutationCheck = function (actionId, oldValue, newValue, propertyName, index) {
     /* tslint:enable:no-any */
-    if (oldValue === newValue) {
+    if (oldValue === newValue && actionId !== actions_1.ActionId.UPDATE_PROPERTY_NO_OP) {
         var oldJson = JSON.stringify(oldValue, Store_1.JSON_replaceCyclicParent, 4);
         var newJson = JSON.stringify(newValue, Store_1.JSON_replaceCyclicParent, 4);
-        var message = "Action immutability violated (" + actions_1.ActionId[actionId] + ")  \n      mutation in property '" + propertyName + "', oldValue=" + oldJson + ", newValue=" + newJson;
+        var message = "Action mutation check (" + actions_1.ActionId[actionId] + ")  \n      mutation in property '" + propertyName + "', oldValue=" + oldJson + ", newValue=" + newJson;
         message = index !== undefined ? "at index=" + index + ", " + message + " " : message;
         throw new StateMutationCheck_1.MutationError(message);
     }
@@ -59,12 +62,12 @@ function changeArray(actionType, stateObject, values, value, propertyName, index
         case actions_1.ActionId.UPDATE_PROPERTY: {
             var oldValue = values[index];
             values[index] = value;
-            actionImmutabilityCheck(actionType, oldValue, value, propertyName, index);
+            actionMutationCheck(actionType, oldValue, value, propertyName, index);
             return { oldValue: oldValue };
         }
         case actions_1.ActionId.INSERT_PROPERTY: {
             values.splice(index, 0, value);
-            actionImmutabilityCheck(actionType, undefined, value, propertyName, index);
+            actionMutationCheck(actionType, undefined, value, propertyName, index);
             return {};
         }
         case actions_1.ActionId.DELETE_PROPERTY: {
@@ -94,7 +97,7 @@ function changeValue(actionType, stateObject, value, propertyName) {
             var isStateObject = Store_1.Store.isInstanceOfStateObject(value);
             throwIf(isStateObject, actions_1.ActionId[actionType] + " action isn't applicable to state objects");
             var oldValue = _.get(stateObject, propertyName);
-            actionImmutabilityCheck(actionType, oldValue, value, propertyName);
+            actionMutationCheck(actionType, oldValue, value, propertyName);
             _.set(stateObject, propertyName, value);
             return { oldValue: oldValue };
         }
@@ -114,7 +117,7 @@ function changeValue(actionType, stateObject, value, propertyName) {
                 throw new Error('Cannot insert, a value already exists, use update instead');
             }
             stateObject[propertyName] = value;
-            actionImmutabilityCheck(actionType, undefined, value, propertyName);
+            actionMutationCheck(actionType, undefined, value, propertyName);
             return {};
         }
         case actions_1.ActionId.DELETE_PROPERTY: {
@@ -124,7 +127,7 @@ function changeValue(actionType, stateObject, value, propertyName) {
             // Let's be rigorous until we can't be (or until VM's address this, and they've started to)
             var oldValue = stateObject[propertyName];
             _.unset(stateObject, propertyName);
-            actionImmutabilityCheck(actionType, oldValue, undefined, propertyName);
+            actionMutationCheck(actionType, oldValue, undefined, propertyName);
             return { oldValue: oldValue };
         }
         case actions_1.ActionId.INSERT_STATE_OBJECT: {
@@ -133,7 +136,7 @@ function changeValue(actionType, stateObject, value, propertyName) {
                 throw new Error('Cannot insert a falsey value, consider using delete instead');
             }
             Store_1.Store.convertAndAdd(stateObject, propertyName, value);
-            actionImmutabilityCheck(actionType, undefined, value, propertyName);
+            actionMutationCheck(actionType, undefined, value, propertyName);
             return {};
         }
         case actions_1.ActionId.DELETE_STATE_OBJECT: {
@@ -142,7 +145,7 @@ function changeValue(actionType, stateObject, value, propertyName) {
             throwIf(!isStateObject, actions_1.ActionId[actionType] + " action is applicable to state objects; value = " + oldValue);
             var valueStateObject = _.get(stateObject, propertyName);
             if (Store_1.Store.isInstanceOfStateObject(valueStateObject)) {
-                actionImmutabilityCheck(actionType, oldValue, undefined, propertyName);
+                actionMutationCheck(actionType, oldValue, undefined, propertyName);
                 // delete the valueStateObject from the app state graph
                 _.unset(stateObject, propertyName);
                 // delete the stateObject from mappings of state to react commentsUI

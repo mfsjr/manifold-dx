@@ -24,14 +24,17 @@ let throwIf = function(condition: boolean, message: string) {
   }
 };
 
+/**
+ * Used by callers to throw a message about unexpected types of mutations.
+ */
 /* tslint:disable:no-any */
-let actionImmutabilityCheck = function(actionId: ActionId, oldValue: any, newValue: any,
-                                       propertyName: any, index?: number) {
+let actionMutationCheck = function(actionId: ActionId, oldValue: any, newValue: any,
+                                   propertyName: any, index?: number) {
   /* tslint:enable:no-any */
-  if (oldValue === newValue) {
+  if (oldValue === newValue && actionId !== ActionId.UPDATE_PROPERTY_NO_OP) {
     let oldJson = JSON.stringify(oldValue, JSON_replaceCyclicParent, 4);
     let newJson = JSON.stringify(newValue, JSON_replaceCyclicParent, 4);
-    let message = `Action immutability violated (${ActionId[actionId]})  
+    let message = `Action mutation check (${ActionId[actionId]})  
       mutation in property '${propertyName}', oldValue=${oldJson}, newValue=${newJson}`;
     message = index !== undefined ? `at index=${index}, ${message} ` : message;
     throw new MutationError(message);
@@ -67,12 +70,12 @@ export function changeArray<S extends StateObject, K extends Extract<keyof S, st
     case ActionId.UPDATE_PROPERTY: {
       let oldValue: V = values[index];
       values[index] = value;
-      actionImmutabilityCheck(actionType, oldValue, value, propertyName, index);
+      actionMutationCheck(actionType, oldValue, value, propertyName, index);
       return {oldValue: oldValue};
     }
     case ActionId.INSERT_PROPERTY: {
       values.splice(index, 0, value);
-      actionImmutabilityCheck(actionType, undefined, value, propertyName, index);
+      actionMutationCheck(actionType, undefined, value, propertyName, index);
       return {};
     }
     case ActionId.DELETE_PROPERTY: {
@@ -104,7 +107,7 @@ export function changeValue<S extends StateObject, K extends Extract<keyof S, st
       let isStateObject = Store.isInstanceOfStateObject(value);
       throwIf(isStateObject, `${ActionId[actionType]} action isn't applicable to state objects`);
       let oldValue: S[K] = _.get(stateObject, propertyName);
-      actionImmutabilityCheck(actionType, oldValue, value, propertyName);
+      actionMutationCheck(actionType, oldValue, value, propertyName);
       _.set(stateObject, propertyName, value);
       return {oldValue: oldValue};
     }
@@ -125,7 +128,7 @@ export function changeValue<S extends StateObject, K extends Extract<keyof S, st
       }
       stateObject[propertyName] = value;
 
-      actionImmutabilityCheck(actionType, undefined, value, propertyName);
+      actionMutationCheck(actionType, undefined, value, propertyName);
       return {};
     }
     case ActionId.DELETE_PROPERTY: {
@@ -136,7 +139,7 @@ export function changeValue<S extends StateObject, K extends Extract<keyof S, st
       let oldValue: S[K] = stateObject[propertyName];
       _.unset(stateObject, propertyName);
 
-      actionImmutabilityCheck(actionType, oldValue, undefined, propertyName);
+      actionMutationCheck(actionType, oldValue, undefined, propertyName);
 
       return {oldValue: oldValue};
     }
@@ -149,7 +152,7 @@ export function changeValue<S extends StateObject, K extends Extract<keyof S, st
         throw new Error('Cannot insert a falsey value, consider using delete instead');
       }
       Store.convertAndAdd<S[K]>(stateObject, propertyName, value);
-      actionImmutabilityCheck(actionType, undefined, value, propertyName);
+      actionMutationCheck(actionType, undefined, value, propertyName);
       return {};
     }
     case ActionId.DELETE_STATE_OBJECT: {
@@ -158,7 +161,7 @@ export function changeValue<S extends StateObject, K extends Extract<keyof S, st
       throwIf(!isStateObject, `${ActionId[actionType]} action is applicable to state objects; value = ${oldValue}`);
       let valueStateObject = _.get(stateObject, propertyName);
       if (Store.isInstanceOfStateObject(valueStateObject)) {
-        actionImmutabilityCheck(actionType, oldValue, undefined, propertyName);
+        actionMutationCheck(actionType, oldValue, undefined, propertyName);
 
         // delete the valueStateObject from the app state graph
         _.unset(stateObject, propertyName);

@@ -100,6 +100,11 @@ describe('Add the name container', () => {
     test('oldValue for the updateMiddleAction should be "F"', () => {
       expect(updateMiddleAction.oldValue).toEqual('F');
     });
+    test('updateIfChanged to same value should not throw', () => {
+      expect(() => {
+        nameState.getActionCreator(nameState).updateIfChanged('middle', 'J').dispatch();
+      }).not.toThrow();
+    });
   });
 
   describe('Remove the name prefix', () => {

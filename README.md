@@ -272,7 +272,7 @@ Also note, a coincidental similarity with Vuex is a somewhat nested/compositiona
   - this will also turn on state diff output, when mutations are detected
    
 #### Recently completed work
-- Putting manifold-dx into production
+- Generic accessors
 - Enhancing usability, optional chaining
 - Keeping up to date with recent TypeScript and React releases
 

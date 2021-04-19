@@ -277,4 +277,4 @@ Also note, a coincidental similarity with Vuex is a somewhat nested/compositiona
 - Keeping up to date with recent TypeScript and React releases
 
 #### What's Next
-- Dev tools for action replay (time travel)
+- Dev tools for action replay (aka time travel)

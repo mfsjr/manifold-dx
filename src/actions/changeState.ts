@@ -114,9 +114,9 @@ export function changeValue<S extends StateObject, K extends Extract<keyof S, st
     case ActionId.INSERT_PROPERTY: {
       let isStateObject = Store.isInstanceOfStateObject(value);
       throwIf(isStateObject, `${ActionId[actionType]} action is not applicable to state objects`);
-      // only assign if value is not undefined or null
-      if (value === undefined || value == null) {
-        throw new Error('Cannot insert an undefined/null value, consider deleting instead');
+      // only assign if value is not undefined
+      if (value === undefined) {
+        throw new Error('Cannot insert an undefined value, consider deleting instead');
       }
       // let oldValue: S[K] = stateObject[propertyName];
       // if (oldValue !== undefined && oldValue !== null) {

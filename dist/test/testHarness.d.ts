@@ -9,7 +9,7 @@ export interface Address {
     country?: string;
 }
 export interface Name {
-    prefix?: string;
+    prefix?: string | null;
     suffix?: string;
     first: string;
     middle: string;

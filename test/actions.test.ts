@@ -123,6 +123,15 @@ describe('Add the name container', () => {
       testStore.getManager().actionUndo(1);
       expect(nameState.prefix).toEqual(prefixValue);
     });
+    test('Delete the prefix property again, using a new action', () => {
+      testStore.dispatch( getActionCreator(nameState).remove('prefix') );
+      expect(nameState.prefix).toBeUndefined();
+    });
+    test( 'set undefined prefix property to be null', () => {
+      const a = getActionCreator(nameState).set('prefix', null);
+      testStore.dispatch(a);
+      expect(nameState.prefix).toBeNull();
+    });
   });
 
   describe('Array related actions', () => {

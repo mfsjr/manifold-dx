@@ -104,9 +104,9 @@ function changeValue(actionType, stateObject, value, propertyName) {
         case actions_1.ActionId.INSERT_PROPERTY: {
             var isStateObject = Store_1.Store.isInstanceOfStateObject(value);
             throwIf(isStateObject, actions_1.ActionId[actionType] + " action is not applicable to state objects");
-            // only assign if value is not undefined or null
-            if (value === undefined || value == null) {
-                throw new Error('Cannot insert an undefined/null value, consider deleting instead');
+            // only assign if value is not undefined
+            if (value === undefined) {
+                throw new Error('Cannot insert an undefined value, consider deleting instead');
             }
             // let oldValue: S[K] = stateObject[propertyName];
             // if (oldValue !== undefined && oldValue !== null) {

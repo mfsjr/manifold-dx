@@ -14,7 +14,7 @@ export interface Address {
 }
 
 export interface Name {
-  prefix?: string;
+  prefix?: string | null;
   suffix?: string;
   first: string;
   middle: string;

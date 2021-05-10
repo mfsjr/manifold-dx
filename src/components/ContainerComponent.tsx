@@ -206,12 +206,26 @@ export abstract class ContainerComponent<CP, VP, A extends StateObject, RS = {} 
     }
   }
 
-  handleChange(executedActions: Action[]) {
+  /**
+   * Hande updates for the executedActions
+   * @param executedActions
+   * @return true if {@link forceUpdate} was invoked, false if not
+   */
+  handleChange(executedActions: Action[]): boolean {
     this.updateViewPropsUsingMappings(executedActions);
     this.invokeMappingHooks(executedActions);
     this.updateViewProps(executedActions);
-    // our state has changed, force a render
-    this.forceUpdate();
+    let isDataAction: boolean = false;
+    for (const action of executedActions) {
+      // we don't want mapping actions to trigger renders
+      isDataAction =  !(action instanceof MappingAction);
+      if (isDataAction) {
+        // our state has changed, force a render
+        this.forceUpdate();
+        return true;
+      }
+    }
+    return false;
   }
 
   /**

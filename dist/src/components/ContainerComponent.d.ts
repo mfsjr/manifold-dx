@@ -92,7 +92,12 @@ export declare abstract class ContainerComponent<CP, VP, A extends StateObject, 
     protected updateViewPropsUsingMappings(executedActions: Action[]): void;
     componentDidMount(): void;
     componentWillUnmount(): void;
-    handleChange(executedActions: Action[]): void;
+    /**
+     * Hande updates for the executedActions
+     * @param executedActions
+     * @return true if {@link forceUpdate} was invoked, false if not
+     */
+    handleChange(executedActions: Action[]): boolean;
     /**
      * Return true if viewProps, props or state has changed.
      *

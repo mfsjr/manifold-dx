@@ -1,15 +1,17 @@
 import {
-  Action, ActionId, actionLogging, ActionLoggingObject, ArrayChangeAction,
+  Action, ActionId, actionLogging, ActionLoggingObject, AnyMappingAction, ArrayChangeAction, MappingHook,
   StateCrudAction
 } from '../src/actions/actions';
 import { Store } from '../src/types/Store';
-import { Address, createTestStore, createTestState, Name, NameState } from './testHarness';
+import { Address, createTestStore, createTestState, Name, NameState, TestState } from './testHarness';
 import { createNameContainer } from './testHarness';
 import { StateObject } from '../src/types/Store';
 import { ActionProcessorFunctionType, DataTrigger } from '../src/types/ActionProcessor';
 import * as _ from 'lodash';
 import { onFailureDiff } from '../src/types/StateMutationDiagnostics';
-import { getArrayActionCreator, getActionCreator } from '../src';
+import { getArrayActionCreator, getActionCreator, ContainerComponent, getMappingActionCreator } from '../src';
+import { BowlerProps, ScoreCardProps } from './Components.test';
+import * as React from 'react';
 // import { getCrudCreator } from '../src';
 
 const testStore = createTestStore();
@@ -592,4 +594,111 @@ describe('safe operations, updateIfChanged, insertIfEmpty, removeIfHasData, and 
     testStore.getManager().getActionProcessorAPI().removePostProcessor(triggerProcessor);
   });
 
+});
+
+export class BowlerContainer2 extends ContainerComponent<BowlerProps, ScoreCardProps, TestState & StateObject> {
+
+  public average: number;
+  // nameState = state.getState().name;
+  nameState: Name & StateObject; // | undefined;
+
+  constructor(bowlerProps: BowlerProps) {
+    super(bowlerProps, testStore.getState(), undefined);
+    if (!this.appState.name) {
+      throw new Error('nameState must be defined!');
+    }
+    this.nameState = this.appState.name;
+    // this.addressesMapper = getMappingCreator(this.nameState, this).createMappingAction('addresses', 'addresses');
+  }
+
+  public createViewProps(): ScoreCardProps {
+    if ( !this.nameState ) {
+      return {
+        fullName: this.props.fullName,
+        scores: [],
+        street: '',
+        city: '',
+        state: '',
+        calcAverage: () => 0.0,
+        addresses: []
+      };
+    } else {
+      return {
+        fullName: this.props.fullName,
+        scores: this.nameState.bowlingScores || [],
+        street: this.nameState.address ? this.nameState.address.street : '',
+        city: this.nameState.address ? this.nameState.address.city : '',
+        state: this.nameState.address ? this.nameState.address.state : '',
+        calcAverage: () => 0.0,
+        addresses: []
+      };
+    }
+  }
+
+  public createView(viewProps: ScoreCardProps) {
+    return new React.Component(viewProps);
+  }
+
+  appendToMappingActions(actions: AnyMappingAction[])
+    : void {
+    let nameStateMapper = getMappingActionCreator(this.nameState, 'first');
+    let bowlingMapper = getMappingActionCreator(this.nameState, 'bowlingScores');
+    actions.push( nameStateMapper.createPropertyMappingAction(this, 'fullName') );
+    actions.push( bowlingMapper.createPropertyMappingAction(this, 'scores', this.calcAverage.bind(this)) );
+    let addressesMapper = getMappingActionCreator(this.nameState, 'addresses');
+    actions.push(addressesMapper.createPropertyMappingAction(this, 'addresses'));
+    // let addressesMapper = nameStateMapper.createMappingAction('addresses', 'addresses');
+    // actions.push( addressesMapper );
+  }
+
+  /**
+   * This is unrelated to any of the container's mapping internals, is simply being used for standalone testing.
+   *
+   * @returns {GenericContainerMappingTypes<BowlerProps, ScoreCardProps, TestState & StateObject>[]}
+   */
+  generateMappingActions(): AnyMappingAction[] {
+    let actions: AnyMappingAction[] = [];
+    let nameStateMapper = getMappingActionCreator(this.nameState, 'first');
+    let bowlingMapper = getMappingActionCreator(this.nameState, 'bowlingScores');
+    actions.push( nameStateMapper.createPropertyMappingAction(this, 'fullName') );
+    actions.push( bowlingMapper.createPropertyMappingAction(this, 'scores', this.calcAverage.bind(this)) );
+    return actions;
+  }
+
+  public updateViewProps(executedActions: Action[]) {
+    // this.updateViewPropsUsingMappings(executedActions);
+  }
+
+  /* tslint:disable:no-any */
+  public calcAverage: MappingHook = (action: StateCrudAction<any, any>): void => {
+    /* tslint:enable:no-any */
+    // console.log(`calcAverage dispatched by ${ActionId[action.type]}`);
+    this.average = this.viewProps.scores.reduce(
+      function(previous: number, current: number) { return previous + current; }, 0.0);
+    this.average = this.average / this.viewProps.scores.length;
+  }
+}
+
+describe('Test that handleChange updates on data changes, not on mapping changes', () => {
+  const bowler = new BowlerContainer2({fullName: 'Jane Doe'});
+  let updated = false;
+  const dataAction = getActionCreator(testStore.getState()).set('appName', 'boohoo');
+  const mappingAction: AnyMappingAction = getMappingActionCreator(testStore.getState(), 'appName').
+    createPropertyMappingAction(bowler, 'fullName');
+  test('no actions should not force update', () => {
+    updated = bowler.handleChange([]);
+    expect(updated).toBe(false);
+  });
+  test('data actions should force an update', () => {
+    updated = bowler.handleChange([dataAction]);
+    expect(updated).toBe(true);
+  });
+  test('mapping actions should not force an update', () => {
+    updated = bowler.handleChange([mappingAction]);
+    expect(updated).toBe(false);
+  });
+  test('mixed mapping and data actions should force an update', () => {
+    updated = bowler.handleChange([mappingAction, dataAction]);
+    expect(updated).toBe(true);
+  });
 });

@@ -186,12 +186,27 @@ var ContainerComponent = /** @class */ (function (_super) {
             (_a = Manager_1.Manager.get(this.appState)).actionUndo.apply(_a, __spreadArrays([0], unmappingActions_1));
         }
     };
+    /**
+     * Hande updates for the executedActions
+     * @param executedActions
+     * @return true if {@link forceUpdate} was invoked, false if not
+     */
     ContainerComponent.prototype.handleChange = function (executedActions) {
         this.updateViewPropsUsingMappings(executedActions);
         this.invokeMappingHooks(executedActions);
         this.updateViewProps(executedActions);
-        // our state has changed, force a render
-        this.forceUpdate();
+        var isDataAction = false;
+        for (var _i = 0, executedActions_1 = executedActions; _i < executedActions_1.length; _i++) {
+            var action = executedActions_1[_i];
+            // we don't want mapping actions to trigger renders
+            isDataAction = !(action instanceof actions_1.MappingAction);
+            if (isDataAction) {
+                // our state has changed, force a render
+                this.forceUpdate();
+                return true;
+            }
+        }
+        return false;
     };
     /**
      * Return true if viewProps, props or state has changed.

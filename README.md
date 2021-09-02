@@ -107,6 +107,6 @@ Recent work has centered on:
 - Cleaned up state and api management to make testing easier (and added more unit tests)
 - Handling arrays of state data and component lists in React
 - action-creation API's for improved ease-of-use 
-- co-locating accessor methods alongside the StateObjects that they are operating on.
+- co-locating accessor methods alongside the StateObjects that they are operating on
 
 

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { ComponentClass, FunctionComponent, ReactNode } from 'react';
-import { Action, AnyMappingAction, MappingAction, MappingHook, StateAction, StateCrudAction } from '../actions/actions';
+import { Action, AnyMappingAction, MappingAction, ContainerPostReducer, StateAction, StateCrudAction } from '../actions/actions';
 import * as _ from 'lodash';
 import { Manager } from '../types/Manager';
 import { StateObject } from '../types/Store';
@@ -62,9 +62,9 @@ export abstract class ContainerComponent<CP, VP, A extends StateObject, RS = {} 
 
   createMappingAction
   <S extends StateObject, K extends Extract<keyof S, string>, TP extends Extract<keyof VP, string>, V>
-  (parentState: S, _propKey: K, targetPropKey: TP, ...mappingHooks: MappingHook[])
+  (parentState: S, _propKey: K, targetPropKey: TP, ...postReducerCallbacks: ContainerPostReducer[])
     : MappingAction<S, K, CP, VP, TP, A, V> {
-    return new MappingAction(parentState, _propKey, this, targetPropKey, ...mappingHooks);
+    return new MappingAction(parentState, _propKey, this, targetPropKey, ...postReducerCallbacks);
   }
 
   /**
@@ -95,9 +95,9 @@ export abstract class ContainerComponent<CP, VP, A extends StateObject, RS = {} 
 
   public createMapping
           <S extends StateObject, K extends Extract<keyof S, string>, TP extends Extract<keyof VP, string>, V>
-          (stateObject: S, stateObjectProperty: K, targetViewProp: TP, ...mappingHooks: MappingHook[])
+          (stateObject: S, stateObjectProperty: K, targetViewProp: TP, ...postReducerCallbacks: ContainerPostReducer[])
           : MappingAction<S, K, CP, VP, TP, A, V> {
-    return new MappingAction(stateObject, stateObjectProperty, this, targetViewProp, ...mappingHooks);
+    return new MappingAction(stateObject, stateObjectProperty, this, targetViewProp, ...postReducerCallbacks);
   }
 
   /**
@@ -127,21 +127,21 @@ export abstract class ContainerComponent<CP, VP, A extends StateObject, RS = {} 
   public updateViewProps(executedActions: Action[]): void { return; }
 
   /**
-   * Default implementation of mappingHook functions contained in mapping actions.
+   * Default implementation of {@link ContainerPostReducer} functions contained in mapping actions.
    *
    * Note that only actions whose pathing matches the mapping will invoke
    *
    * @param {Action[]} executedActions have already modified state, whose changes have already been mapped,
    * but not yet rendered.
    */
-  protected invokeMappingHooks(executedActions: Action[]): void {
+  protected invokeContainerPostReducers(executedActions: Action[]): void {
     executedActions.forEach((action) => {
       if (action instanceof StateCrudAction) {
         let mappingActions = action.mappingActions;
         if (mappingActions && mappingActions.length > 0) {
           mappingActions.forEach((mapping) => {
-            if (mapping.mappingHooks && mapping.mappingHooks.length > 0) {
-              mapping.mappingHooks.forEach((hookFunction) => hookFunction(action));
+            if (mapping.postReducerCallbacks && mapping.postReducerCallbacks.length > 0) {
+              mapping.postReducerCallbacks.forEach((callback) => callback(action));
             }
           });
         }
@@ -213,7 +213,7 @@ export abstract class ContainerComponent<CP, VP, A extends StateObject, RS = {} 
    */
   handleChange(executedActions: Action[]): boolean {
     this.updateViewPropsUsingMappings(executedActions);
-    this.invokeMappingHooks(executedActions);
+    this.invokeContainerPostReducers(executedActions);
     this.updateViewProps(executedActions);
     let isDataAction: boolean = false;
     for (const action of executedActions) {

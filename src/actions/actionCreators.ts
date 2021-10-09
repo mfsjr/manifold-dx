@@ -1,14 +1,8 @@
 import { StateObject } from '../';
 import {
-  ActionId, ArrayChangeAction, MappingHook, MappingAction, StateAction, StateCrudAction,
+  ActionId, ArrayChangeAction, ContainerPostReducer, MappingAction, StateAction, StateCrudAction,
 } from './actions';
 import { ContainerComponent } from '../components/ContainerComponent';
-
-export type NotArray<T> = T;
-// TODO: figure out how to do type checking with this instead of RTE
-export function isNotArray<T>(value: T): value is NotArray<T> {
-  return !(value instanceof Array);
-}
 
 /**
  * Create CRUD actions for properties of a StateObject.
@@ -374,14 +368,14 @@ export function getMappingActionCreator
    *
    * @param {ContainerComponent<CP, VP, A extends StateObject>} _component
    * @param {TP} targetPropKey
-   * @param {MappingHook} functions that are executed after mapping but before rendering
+   * @param {ContainerPostReducer} functions that are executed after reducer but before rendering
    * @returns {MappingAction<S extends StateObject, K extends Extract<keyof S, string>, CP, VP, TP extends keyof VP,
    * A extends StateObject, E>}
    */
   const createPropertyMappingAction = function<CP, VP, TP extends ExtractMatching<S, K, VP>>
-  (_component: ContainerComponent<CP, VP, A>, targetPropKey: TP, ...mappingHooks: MappingHook[])
+  (_component: ContainerComponent<CP, VP, A>, targetPropKey: TP, ...postReducerCallbacks: ContainerPostReducer[])
   : MappingAction<S, K, CP, VP, TP, A, E> {
-    return new MappingAction(_parent, _propKey, _component, targetPropKey, ...mappingHooks);
+    return new MappingAction(_parent, _propKey, _component, targetPropKey, ...postReducerCallbacks);
   };
 
   return {
@@ -409,7 +403,7 @@ export function getArrayMappingActionCreator
    * @param {number | null} index use number to map from an array element, or null to map the array itself
    * @param {ContainerComponent<CP, VP, A extends StateObject>} _component the component being mapped, typically 'this'
    * @param {TP} targetPropKey the name of the view/target property being updated
-   * @param {MappingHook} optional functions executed after the action but before rendering.  View props
+   * @param {ContainerPostReducer} optional functions executed after the action but before rendering.  View props
    *    may be updated here
    * @returns {MappingAction
    * <S extends StateObject, K extends Extract<keyof S, string>, CP, VP, TP extends keyof VP, A extends StateObject, E>}
@@ -422,14 +416,14 @@ export function getArrayMappingActionCreator
       index: number | null,
       _component: ContainerComponent<CP, VP, A>,
       targetPropKey: TP,
-      ...mappingHooks: MappingHook[]
+      ...postReducerCallbacks: ContainerPostReducer[]
     )
       : MappingAction<S, K, CP, VP, TP, A, E> {
-      if (!_parent) {
-        throw new Error(`getArrayMappingActionCreator received an undefined parent state object`);
-      }
+      // if (!_parent) {
+      //   throw new Error(`getArrayMappingActionCreator received an undefined parent state object`);
+      // }
 
-      let mappingAction = new MappingAction(_parent, _propKey, _component, targetPropKey, ...mappingHooks);
+      let mappingAction = new MappingAction(_parent, _propKey, _component, targetPropKey, ...postReducerCallbacks);
       // TODO: try building a custom type guard for Array<E>
       let propKey: K | undefined;
       for (let key in _parent) {

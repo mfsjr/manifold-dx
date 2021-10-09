@@ -84,18 +84,18 @@ var ContainerComponent = /** @class */ (function (_super) {
     };
     ContainerComponent.prototype.getMappingActions = function () { return this.mappingActions; };
     ContainerComponent.prototype.createMappingAction = function (parentState, _propKey, targetPropKey) {
-        var mappingHooks = [];
+        var postReducerCallbacks = [];
         for (var _i = 3; _i < arguments.length; _i++) {
-            mappingHooks[_i - 3] = arguments[_i];
+            postReducerCallbacks[_i - 3] = arguments[_i];
         }
-        return new (actions_1.MappingAction.bind.apply(actions_1.MappingAction, __spreadArrays([void 0, parentState, _propKey, this, targetPropKey], mappingHooks)))();
+        return new (actions_1.MappingAction.bind.apply(actions_1.MappingAction, __spreadArrays([void 0, parentState, _propKey, this, targetPropKey], postReducerCallbacks)))();
     };
     ContainerComponent.prototype.createMapping = function (stateObject, stateObjectProperty, targetViewProp) {
-        var mappingHooks = [];
+        var postReducerCallbacks = [];
         for (var _i = 3; _i < arguments.length; _i++) {
-            mappingHooks[_i - 3] = arguments[_i];
+            postReducerCallbacks[_i - 3] = arguments[_i];
         }
-        return new (actions_1.MappingAction.bind.apply(actions_1.MappingAction, __spreadArrays([void 0, stateObject, stateObjectProperty, this, targetViewProp], mappingHooks)))();
+        return new (actions_1.MappingAction.bind.apply(actions_1.MappingAction, __spreadArrays([void 0, stateObject, stateObjectProperty, this, targetViewProp], postReducerCallbacks)))();
     };
     /**
      * Update the properties of the view (presentational component) immediately after the
@@ -106,21 +106,21 @@ var ContainerComponent = /** @class */ (function (_super) {
      */
     ContainerComponent.prototype.updateViewProps = function (executedActions) { return; };
     /**
-     * Default implementation of mappingHook functions contained in mapping actions.
+     * Default implementation of {@link ContainerPostReducer} functions contained in mapping actions.
      *
      * Note that only actions whose pathing matches the mapping will invoke
      *
      * @param {Action[]} executedActions have already modified state, whose changes have already been mapped,
      * but not yet rendered.
      */
-    ContainerComponent.prototype.invokeMappingHooks = function (executedActions) {
+    ContainerComponent.prototype.invokeContainerPostReducers = function (executedActions) {
         executedActions.forEach(function (action) {
             if (action instanceof actions_1.StateCrudAction) {
                 var mappingActions = action.mappingActions;
                 if (mappingActions && mappingActions.length > 0) {
                     mappingActions.forEach(function (mapping) {
-                        if (mapping.mappingHooks && mapping.mappingHooks.length > 0) {
-                            mapping.mappingHooks.forEach(function (hookFunction) { return hookFunction(action); });
+                        if (mapping.postReducerCallbacks && mapping.postReducerCallbacks.length > 0) {
+                            mapping.postReducerCallbacks.forEach(function (hookFunction) { return hookFunction(action); });
                         }
                     });
                 }
@@ -193,7 +193,7 @@ var ContainerComponent = /** @class */ (function (_super) {
      */
     ContainerComponent.prototype.handleChange = function (executedActions) {
         this.updateViewPropsUsingMappings(executedActions);
-        this.invokeMappingHooks(executedActions);
+        this.invokeContainerPostReducers(executedActions);
         this.updateViewProps(executedActions);
         var isDataAction = false;
         for (var _i = 0, executedActions_1 = executedActions; _i < executedActions_1.length; _i++) {

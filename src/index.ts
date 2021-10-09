@@ -1,4 +1,4 @@
-import { Action, StateCrudAction, MappingAction, MappingHook, AnyMappingAction } from './actions/actions';
+import { Action, StateCrudAction, MappingAction, ContainerPostReducer, AnyMappingAction } from './actions/actions';
 import { ContainerComponent } from './components/ContainerComponent';
 import { RenderPropsComponent, ContainerRenderProps } from './components/RenderPropsComponent';
 import { Store, StateObject, State, StateParent, StateProp, StateConfigOptions, getStateObject } from './types/Store';
@@ -33,7 +33,7 @@ export {
   Manager,
   MappingAction,
   AnyMappingAction,
-  MappingHook,
+  ContainerPostReducer,
   ContainerComponent,
   RenderPropsComponent,
   ContainerRenderProps

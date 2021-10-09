@@ -24,21 +24,17 @@ export declare enum ActionId {
 }
 export declare const ActionTypeIsNoOp: (actionId: ActionId) => boolean;
 /**
- * Mapping hooks are functions that can optionally be attached to mappings (see {@link MappingAction}).
+ * ContainerPostReducers are functions that can optionally be attached to mappings (see {@link MappingAction}).
  *
  * They are executed after a dispatched action has updated the component with the new state values, but immediately
  * before the component renders.  So this is a place where the component's view props could be modified.
  *
- * These have nothing to do with React hooks, as they were created before them.
- * To avoid confusion, these will likely be renamed in a backward-compatible way (e.g., deprecated with
- * a new descriptive name being preferred), without any other changes.
+ * See {@link ContainerComponent#handleChange} and {@link ContainerComponent#invokeContainerPostReducers}
  *
- * See {@link ContainerComponent#handleChange} and {@link ContainerComponent#invokeMappingHooks}
- *
- * Note that these differ from postHooks in that those are attached to specific actions, and postHooks
- * execute immediately before mappingHooks.
+ * Note that these differ from actionPostReducer in that those are attached to specific actions, and actionPostReducer
+ * execute immediately before ContainerPostReducer callbacks.
  */
-export declare type MappingHook = (action: StateCrudAction<any, any>) => void;
+export declare type ContainerPostReducer = (action: StateCrudAction<any, any>) => void;
 export declare abstract class Action {
     /**
      * Optional action to be performed after an action has been dispatched (after everything),
@@ -48,7 +44,7 @@ export declare abstract class Action {
      * In order to avoid confusion, these may get renamed in a backward compatible way (e.g.,
      * deprecated in favor of another descriptive name), without any other changes.
      */
-    postHook?: () => void;
+    actionPostReducer?: () => void;
     type: ActionId;
     changed: boolean;
     pristine: boolean;
@@ -154,7 +150,7 @@ export declare class MappingAction<S extends StateObject, K extends Extract<keyo
     component: ContainerComponent<CP, VP, A>;
     fullPath: string;
     targetPropName: TP;
-    mappingHooks: MappingHook[];
+    postReducerCallbacks: ContainerPostReducer[];
     index: number | null;
     propArray?: Array<E>;
     protected assignProps(from: MappingAction<S, K, CP, VP, TP, A, E>): void;
@@ -172,10 +168,10 @@ export declare class MappingAction<S extends StateObject, K extends Extract<keyo
      * @param {K} _propertyOrArrayName
      * @param {ContainerComponent<CP, VP, any>} _component
      * @param {TP} targetPropName
-     * @param {MappingHook} mappingHooks - these are generally instance functions in the component that update other
+     * @param {ContainerPostReducer} postReducerCallbacks - these are generally instance functions in the component that update other
      *          component view properties as a function of the target view property having changed.
      */
-    constructor(parent: S, _propertyOrArrayName: K, _component: ContainerComponent<CP, VP, A>, targetPropName: TP, ...mappingHooks: MappingHook[]);
+    constructor(parent: S, _propertyOrArrayName: K, _component: ContainerComponent<CP, VP, A>, targetPropName: TP, ...postReducerCallbacks: ContainerPostReducer[]);
     getValue(): S[K];
     getTargetPropName(): keyof VP;
     /**

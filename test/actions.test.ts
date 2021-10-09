@@ -1,5 +1,5 @@
 import {
-  Action, ActionId, actionLogging, ActionLoggingObject, AnyMappingAction, ArrayChangeAction, MappingHook,
+  Action, ActionId, actionLogging, ActionLoggingObject, AnyMappingAction, ArrayChangeAction, ContainerPostReducer,
   StateCrudAction
 } from '../src/actions/actions';
 import { Store } from '../src/types/Store';
@@ -670,7 +670,7 @@ export class BowlerContainer2 extends ContainerComponent<BowlerProps, ScoreCardP
   }
 
   /* tslint:disable:no-any */
-  public calcAverage: MappingHook = (action: StateCrudAction<any, any>): void => {
+  public calcAverage: ContainerPostReducer = (action: StateCrudAction<any, any>): void => {
     /* tslint:enable:no-any */
     // console.log(`calcAverage dispatched by ${ActionId[action.type]}`);
     this.average = this.viewProps.scores.reduce(

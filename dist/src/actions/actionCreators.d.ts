@@ -1,5 +1,5 @@
 import { StateObject } from '../';
-import { ArrayChangeAction, MappingHook, MappingAction, StateAction, StateCrudAction } from './actions';
+import { ArrayChangeAction, ContainerPostReducer, MappingAction, StateAction, StateCrudAction } from './actions';
 import { ContainerComponent } from '../components/ContainerComponent';
 export declare type NotArray<T> = T;
 export declare function isNotArray<T>(value: T): value is NotArray<T>;
@@ -183,7 +183,7 @@ export declare type ExtractMatchingConditional<S, K extends Extract<keyof S, str
  * @throws if the parent state object passed in is falsy.
  */
 export declare function getMappingActionCreator<S extends StateObject, K extends Extract<keyof S, string>, A extends StateObject, E extends void>(_parent: S | undefined, _propKey: K): {
-    createPropertyMappingAction: <CP, VP, TP_1 extends { [TP in Extract<keyof VP, string>]: VP[TP] extends S[K] ? TP : never; }[Extract<keyof VP, string>]>(_component: ContainerComponent<CP, VP, A, {}>, targetPropKey: TP_1, ...mappingHooks: MappingHook[]) => MappingAction<S, K, CP, VP, TP_1, A, E>;
+    createPropertyMappingAction: <CP, VP, TP_1 extends { [TP in Extract<keyof VP, string>]: VP[TP] extends S[K] ? TP : never; }[Extract<keyof VP, string>]>(_component: ContainerComponent<CP, VP, A, {}>, targetPropKey: TP_1, ...postReducerCallbacks: ContainerPostReducer[]) => MappingAction<S, K, CP, VP, TP_1, A, E>;
 };
 /**
  * Create a mapping from an app state array to this component.
@@ -192,5 +192,5 @@ export declare function getMappingActionCreator<S extends StateObject, K extends
  * @throws if the parent state object is falsy
  */
 export declare function getArrayMappingActionCreator<S extends StateObject, K extends ExtractArrayKeys<unknown, S>, A extends StateObject>(_parent: S | undefined, _propKey: K): {
-    createArrayIndexMappingAction: <CP, VP, E extends unknown, TP_1 extends { [TP in Extract<keyof VP, string>]: VP[TP] extends E ? TP : never; }[Extract<keyof VP, string>]>(_array: S[K] & E[], index: number | null, _component: ContainerComponent<CP, VP, A, {}>, targetPropKey: TP_1, ...mappingHooks: MappingHook[]) => MappingAction<S, K, CP, VP, TP_1, A, E>;
+    createArrayIndexMappingAction: <CP, VP, E extends unknown, TP_1 extends { [TP in Extract<keyof VP, string>]: VP[TP] extends E ? TP : never; }[Extract<keyof VP, string>]>(_array: S[K] & E[], index: number | null, _component: ContainerComponent<CP, VP, A, {}>, targetPropKey: TP_1, ...postReducerCallbacks: ContainerPostReducer[]) => MappingAction<S, K, CP, VP, TP_1, A, E>;
 };

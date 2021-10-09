@@ -133,8 +133,8 @@ export class ActionProcessor implements ActionProcessorAPI {
       this.mutationCheck.postActionCopyState(actions);
     }
     actions.forEach((action) => {
-      if (action.postHook) {
-        action.postHook();
+      if (action.actionPostReducer) {
+        action.actionPostReducer();
       }
     });
     this.renderer(actions);

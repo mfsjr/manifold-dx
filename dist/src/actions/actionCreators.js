@@ -314,16 +314,16 @@ function getMappingActionCreator(_parent, _propKey) {
      *
      * @param {ContainerComponent<CP, VP, A extends StateObject>} _component
      * @param {TP} targetPropKey
-     * @param {MappingHook} functions that are executed after mapping but before rendering
+     * @param {ContainerPostReducer} functions that are executed after reducer but before rendering
      * @returns {MappingAction<S extends StateObject, K extends Extract<keyof S, string>, CP, VP, TP extends keyof VP,
      * A extends StateObject, E>}
      */
     var createPropertyMappingAction = function (_component, targetPropKey) {
-        var mappingHooks = [];
+        var postReducerCallbacks = [];
         for (var _i = 2; _i < arguments.length; _i++) {
-            mappingHooks[_i - 2] = arguments[_i];
+            postReducerCallbacks[_i - 2] = arguments[_i];
         }
-        return new (actions_1.MappingAction.bind.apply(actions_1.MappingAction, __spreadArrays([void 0, _parent, _propKey, _component, targetPropKey], mappingHooks)))();
+        return new (actions_1.MappingAction.bind.apply(actions_1.MappingAction, __spreadArrays([void 0, _parent, _propKey, _component, targetPropKey], postReducerCallbacks)))();
     };
     return {
         createPropertyMappingAction: createPropertyMappingAction,
@@ -346,21 +346,21 @@ function getArrayMappingActionCreator(_parent, _propKey) {
      * @param {number | null} index use number to map from an array element, or null to map the array itself
      * @param {ContainerComponent<CP, VP, A extends StateObject>} _component the component being mapped, typically 'this'
      * @param {TP} targetPropKey the name of the view/target property being updated
-     * @param {MappingHook} optional functions executed after the action but before rendering.  View props
+     * @param {ContainerPostReducer} optional functions executed after the action but before rendering.  View props
      *    may be updated here
      * @returns {MappingAction
      * <S extends StateObject, K extends Extract<keyof S, string>, CP, VP, TP extends keyof VP, A extends StateObject, E>}
      *  the mapping action
      */
     var createArrayIndexMappingAction = function (_array, index, _component, targetPropKey) {
-        var mappingHooks = [];
+        var postReducerCallbacks = [];
         for (var _i = 4; _i < arguments.length; _i++) {
-            mappingHooks[_i - 4] = arguments[_i];
+            postReducerCallbacks[_i - 4] = arguments[_i];
         }
         if (!_parent) {
             throw new Error("getArrayMappingActionCreator received an undefined parent state object");
         }
-        var mappingAction = new (actions_1.MappingAction.bind.apply(actions_1.MappingAction, __spreadArrays([void 0, _parent, _propKey, _component, targetPropKey], mappingHooks)))();
+        var mappingAction = new (actions_1.MappingAction.bind.apply(actions_1.MappingAction, __spreadArrays([void 0, _parent, _propKey, _component, targetPropKey], postReducerCallbacks)))();
         // TODO: try building a custom type guard for Array<E>
         var propKey;
         for (var key in _parent) {

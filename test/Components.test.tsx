@@ -2,7 +2,7 @@ import { NameState, Address, NameStateCreator, createTestState, createTestStore,
 import { Name } from './testHarness';
 import * as React from 'react';
 import { ContainerComponent } from '../src/components/ContainerComponent';
-import { Action, ActionId, AnyMappingAction, MappingHook, StateCrudAction } from '../src/actions/actions';
+import { Action, ActionId, AnyMappingAction, ContainerPostReducer, StateCrudAction } from '../src/actions/actions';
 import { Manager } from '../src/types/Manager';
 import {
   ExtractMatchingArrayType, getActionCreator,
@@ -189,7 +189,7 @@ class BowlerContainer extends ContainerComponent<BowlerProps, ScoreCardProps, Te
   }
 
     /* tslint:disable:no-any */
-  public calcAverage: MappingHook = (action: StateCrudAction<any, any>): void => {
+  public calcAverage: ContainerPostReducer = (action: StateCrudAction<any, any>): void => {
       /* tslint:enable:no-any */
     // console.log(`calcAverage dispatched by ${ActionId[action.type]}`);
     this.average = this.viewProps.scores.reduce(
@@ -275,10 +275,7 @@ describe('ContainerComponent instantiation, mount, update, unmount', () => {
     // this is done in render, which we are not testing here
     addr1Container.viewProps = addr1Container.createViewProps();
     address1Container = addr1Container;
-    // let keyGen = (address: Address) => address.id;
-    // let addr1MappingAction = getMappingCreator(nameState, addr1Container)
-    // .createMappingAction('addresses', 'address');
-    // let addressesOptions = {keyGen: keyGen, array: nameState.addresses};
+
     let addr1MappingAction = getArrayMappingActionCreator(nameState, 'addresses')
       .createArrayIndexMappingAction(nameState.addresses, 0, addr1Container, 'address');
 

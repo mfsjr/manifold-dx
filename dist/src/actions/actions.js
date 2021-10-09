@@ -321,13 +321,13 @@ var MappingAction = /** @class */ (function (_super) {
      * @param {K} _propertyOrArrayName
      * @param {ContainerComponent<CP, VP, any>} _component
      * @param {TP} targetPropName
-     * @param {MappingHook} mappingHooks - these are generally instance functions in the component that update other
+     * @param {ContainerPostReducer} postReducerCallbacks - these are generally instance functions in the component that update other
      *          component view properties as a function of the target view property having changed.
      */
     function MappingAction(parent, _propertyOrArrayName, _component, targetPropName) {
-        var mappingHooks = [];
+        var postReducerCallbacks = [];
         for (var _i = 4; _i < arguments.length; _i++) {
-            mappingHooks[_i - 4] = arguments[_i];
+            postReducerCallbacks[_i - 4] = arguments[_i];
         }
         var _this = _super.call(this, ActionId.MAP_STATE_TO_PROP, parent, _propertyOrArrayName) || this;
         //
@@ -335,7 +335,7 @@ var MappingAction = /** @class */ (function (_super) {
         _this.component = _component;
         _this.fullPath = Manager_1.Manager.get(_this.parent).getFullPath(_this.parent, _this.propertyName);
         _this.targetPropName = targetPropName;
-        _this.mappingHooks = mappingHooks;
+        _this.postReducerCallbacks = postReducerCallbacks;
         return _this;
     }
     MappingAction.prototype.assignProps = function (from) {
@@ -343,14 +343,14 @@ var MappingAction = /** @class */ (function (_super) {
         this.component = from.component;
         this.fullPath = from.fullPath;
         this.targetPropName = from.targetPropName;
-        this.mappingHooks = from.mappingHooks;
+        this.postReducerCallbacks = from.postReducerCallbacks;
         this.index = from.index;
     };
     MappingAction.prototype.clone = function () {
         var copy = new (MappingAction.bind.apply(MappingAction, __spreadArrays([void 0, this.parent,
             this.propertyName,
             this.component,
-            this.targetPropName], this.mappingHooks)))();
+            this.targetPropName], this.postReducerCallbacks)))();
         copy.assignProps(this);
         return copy;
     };

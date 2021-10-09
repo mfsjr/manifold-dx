@@ -106,8 +106,8 @@ var ActionProcessor = /** @class */ (function () {
             this.mutationCheck.postActionCopyState(actions);
         }
         actions.forEach(function (action) {
-            if (action.postHook) {
-                action.postHook();
+            if (action.actionPostReducer) {
+                action.actionPostReducer();
             }
         });
         this.renderer(actions);

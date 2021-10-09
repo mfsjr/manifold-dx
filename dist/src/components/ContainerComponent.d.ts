@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { ComponentClass, FunctionComponent, ReactNode } from 'react';
-import { Action, AnyMappingAction, MappingAction, MappingHook } from '../actions/actions';
+import { Action, AnyMappingAction, MappingAction, ContainerPostReducer } from '../actions/actions';
 import { StateObject } from '../types/Store';
 /**
  *
@@ -38,7 +38,7 @@ export declare abstract class ContainerComponent<CP, VP, A extends StateObject, 
      */
     static newArray<T>(oldArray: Array<T>, index: number, newElement: T): Array<T>;
     getMappingActions(): AnyMappingAction[];
-    createMappingAction<S extends StateObject, K extends Extract<keyof S, string>, TP extends Extract<keyof VP, string>, V>(parentState: S, _propKey: K, targetPropKey: TP, ...mappingHooks: MappingHook[]): MappingAction<S, K, CP, VP, TP, A, V>;
+    createMappingAction<S extends StateObject, K extends Extract<keyof S, string>, TP extends Extract<keyof VP, string>, V>(parentState: S, _propKey: K, targetPropKey: TP, ...postReducerCallbacks: ContainerPostReducer[]): MappingAction<S, K, CP, VP, TP, A, V>;
     /**
      * Pass in the props and application state.  Optionally pass in a function component or
      * class component, or override the render method.
@@ -49,7 +49,7 @@ export declare abstract class ContainerComponent<CP, VP, A extends StateObject, 
      * @param {ComponentGenerator<VP> | undefined} viewGenerator
      */
     constructor(_props: CP, appData: StateObject & A, functionComp?: FunctionComponent<VP> | undefined, viewGenerator?: ComponentClass<VP> | undefined, reactState?: RS);
-    createMapping<S extends StateObject, K extends Extract<keyof S, string>, TP extends Extract<keyof VP, string>, V>(stateObject: S, stateObjectProperty: K, targetViewProp: TP, ...mappingHooks: MappingHook[]): MappingAction<S, K, CP, VP, TP, A, V>;
+    createMapping<S extends StateObject, K extends Extract<keyof S, string>, TP extends Extract<keyof VP, string>, V>(stateObject: S, stateObjectProperty: K, targetViewProp: TP, ...postReducerCallbacks: ContainerPostReducer[]): MappingAction<S, K, CP, VP, TP, A, V>;
     /**
      * Append mappings to the provided array, so that the container will be notified of state changes affecting its props.
      *
@@ -74,14 +74,14 @@ export declare abstract class ContainerComponent<CP, VP, A extends StateObject, 
      */
     updateViewProps(executedActions: Action[]): void;
     /**
-     * Default implementation of mappingHook functions contained in mapping actions.
+     * Default implementation of {@link ContainerPostReducer} functions contained in mapping actions.
      *
      * Note that only actions whose pathing matches the mapping will invoke
      *
      * @param {Action[]} executedActions have already modified state, whose changes have already been mapped,
      * but not yet rendered.
      */
-    protected invokeMappingHooks(executedActions: Action[]): void;
+    protected invokeContainerPostReducers(executedActions: Action[]): void;
     /**
      * Use the executed actions to identify which state properties have changed,
      * then use the mapping actions to identify the target view props and set them.

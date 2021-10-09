@@ -7,13 +7,8 @@ var __spreadArrays = (this && this.__spreadArrays) || function () {
     return r;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getArrayMappingActionCreator = exports.getMappingActionCreator = exports.ArrayActionCreator = exports.getArrayActionCreator = exports.getActionCreator = exports.ActionCreator = exports.isNotArray = void 0;
+exports.getArrayMappingActionCreator = exports.getMappingActionCreator = exports.ArrayActionCreator = exports.getArrayActionCreator = exports.getActionCreator = exports.ActionCreator = void 0;
 var actions_1 = require("./actions");
-// TODO: figure out how to do type checking with this instead of RTE
-function isNotArray(value) {
-    return !(value instanceof Array);
-}
-exports.isNotArray = isNotArray;
 /**
  * Create CRUD actions for properties of a StateObject.
  * Array CRUD actions are in {@link ArrayActionCreator}
@@ -353,12 +348,12 @@ function getArrayMappingActionCreator(_parent, _propKey) {
      *  the mapping action
      */
     var createArrayIndexMappingAction = function (_array, index, _component, targetPropKey) {
+        // if (!_parent) {
+        //   throw new Error(`getArrayMappingActionCreator received an undefined parent state object`);
+        // }
         var postReducerCallbacks = [];
         for (var _i = 4; _i < arguments.length; _i++) {
             postReducerCallbacks[_i - 4] = arguments[_i];
-        }
-        if (!_parent) {
-            throw new Error("getArrayMappingActionCreator received an undefined parent state object");
         }
         var mappingAction = new (actions_1.MappingAction.bind.apply(actions_1.MappingAction, __spreadArrays([void 0, _parent, _propKey, _component, targetPropKey], postReducerCallbacks)))();
         // TODO: try building a custom type guard for Array<E>

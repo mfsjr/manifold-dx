@@ -1,8 +1,6 @@
 import { StateObject } from '../';
 import { ArrayChangeAction, ContainerPostReducer, MappingAction, StateAction, StateCrudAction } from './actions';
 import { ContainerComponent } from '../components/ContainerComponent';
-export declare type NotArray<T> = T;
-export declare function isNotArray<T>(value: T): value is NotArray<T>;
 /**
  * Create CRUD actions for properties of a StateObject.
  * Array CRUD actions are in {@link ArrayActionCreator}

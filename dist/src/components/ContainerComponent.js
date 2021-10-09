@@ -120,7 +120,7 @@ var ContainerComponent = /** @class */ (function (_super) {
                 if (mappingActions && mappingActions.length > 0) {
                     mappingActions.forEach(function (mapping) {
                         if (mapping.postReducerCallbacks && mapping.postReducerCallbacks.length > 0) {
-                            mapping.postReducerCallbacks.forEach(function (hookFunction) { return hookFunction(action); });
+                            mapping.postReducerCallbacks.forEach(function (callback) { return callback(action); });
                         }
                     });
                 }

@@ -37,12 +37,8 @@ export declare const ActionTypeIsNoOp: (actionId: ActionId) => boolean;
 export declare type ContainerPostReducer = (action: StateCrudAction<any, any>) => void;
 export declare abstract class Action {
     /**
-     * Optional action to be performed after an action has been dispatched (after everything),
+     * Optional function to be invoked after an action has been dispatched and its reducer executed, but before rendering,
      * see {@link ActionProcessor} ar {ActionProcessor#postProcess}.
-     *
-     * This has absolutely nothing to do with React hooks, as it was written before them.
-     * In order to avoid confusion, these may get renamed in a backward compatible way (e.g.,
-     * deprecated in favor of another descriptive name), without any other changes.
      */
     actionPostReducer?: () => void;
     type: ActionId;

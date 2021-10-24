@@ -130,6 +130,9 @@ export class Store<A> {
     let result = stateObject;
     while (result._parent !== null)  {
       result = result._parent;
+      if (result._parent === result._parent?._parent) { // this has only been observed during unit testing
+        throw new Error(`parents are self referencing in prop ${result._myPropname}`);
+      }
     }
     return result;
   }
@@ -238,7 +241,7 @@ export class Store<A> {
     }
     if (stateMutateChecking) {
       /*tslint:disable:no-console*/
-      console.log(`WARNING: strict mode - REACT_APP_STATE_MUTATION_CHECKING - is on (intended for dev debugging only)`);
+      console.log(`WARNING: mutation checking - REACT_APP_STATE_MUTATION_CHECKING - is on (intended for development only)`);
       /*tslint:enable:no-console*/
     }
 

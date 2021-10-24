@@ -383,7 +383,7 @@ describe(`test Manager's dispatch args`, () => {
     testStore.addChildToParent(testStore.getState(), greeting, 'greeting');
     expect(testStore.getState().greeting).toBe(greeting);
 
-    let fakeState: TestState = { };
+    let fakeState: TestState = { _parent: null, _myPropname: '' };
     let fakeStore = new Store(fakeState, {});
     // try attaching a child to a parent that is not in the store (should throw)
     expect(() => testStore.addChildToParent(fakeStore.getState(), greeting, 'greeting')).toThrow();

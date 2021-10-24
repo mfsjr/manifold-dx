@@ -108,10 +108,6 @@ export class ActionCreator<S extends StateObject> {
     return this.updateIfChanged(propertyKey, value);
   }
 
-  public isKeyOf<K extends Extract<keyof S, string>>(value: S, key: string): key is K {
-    return value.hasOwnProperty(key);
-  }
-
   /**
    * Delete the property (named 'remove' because 'delete' is a reserved word).
    *
@@ -264,11 +260,11 @@ export class ArrayActionCreator<S extends StateObject, K extends Extract<keyof S
     return actions;
   }
 
-  public rerenderElement(index: number): StateAction<S, K> {
-    return new ArrayChangeAction(
-      ActionId.RERENDER, this.parent, this.propertyKey, index, this.valuesArray, this.valuesArray[index]
-    );
-  }
+  // public rerenderElement(index: number): StateAction<S, K> {
+  //   return new ArrayChangeAction(
+  //     ActionId.RERENDER, this.parent, this.propertyKey, index, this.valuesArray, this.valuesArray[index]
+  //   );
+  // }
 
   public updateElement(index: number, newValue: V): ArrayChangeAction<S, K, V> {
     // let index = this.getIndexOf(oldValue);
@@ -300,7 +296,7 @@ export class ArrayActionCreator<S extends StateObject, K extends Extract<keyof S
         }
       }
       if (i >= newArray.length) {
-        actions.push(new ArrayChangeAction(ActionId.DELETE_PROPERTY, this.parent, this.propertyKey, i,
+        actions.push(new ArrayChangeAction(ActionId.DELETE_PROPERTY, this.parent, this.propertyKey, newArray.length,
           this.valuesArray, newArray[i]));
         // actions.concat(this.removeElement(i));
         continue;
@@ -419,21 +415,8 @@ export function getArrayMappingActionCreator
       ...postReducerCallbacks: ContainerPostReducer[]
     )
       : MappingAction<S, K, CP, VP, TP, A, E> {
-      // if (!_parent) {
-      //   throw new Error(`getArrayMappingActionCreator received an undefined parent state object`);
-      // }
 
       let mappingAction = new MappingAction(_parent, _propKey, _component, targetPropKey, ...postReducerCallbacks);
-      // TODO: try building a custom type guard for Array<E>
-      let propKey: K | undefined;
-      for (let key in _parent) {
-        if (_array === _parent[key] && _array instanceof Array) {
-          propKey = key as K;
-        }
-      }
-      if (!propKey) {
-        throw Error(`Failed to find array in parent`);
-      }
 
       let result = mappingAction.setArrayElement(index, _array);
       return result as MappingAction<S, K, CP, VP, TP, A, E>;

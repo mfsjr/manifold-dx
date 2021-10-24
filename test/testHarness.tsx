@@ -104,17 +104,22 @@ export interface GreetingState extends StateObject {
   message: string;
 }
 
-export interface TestState {
+export interface TestState extends StateObject {
   name?: Name & StateObject;
   me?: Name & StateObject;
   address?: Address & StateObject;
   appName?: string;
   greeting?: GreetingState;
   helper?: () => string;
+  redirectTo?: string;
+  modalMessage?: string;
 }
 
 export function createTestState(): TestState {
-  return {};
+  return {
+    _parent: null,
+    _myPropname: '',
+  } as TestState;
 }
 
 /**
@@ -135,4 +140,3 @@ export function timerPromise(millis: number, resolve?: () => void): Promise<numb
     setTimeout(resolve, millis);
   });
 }
-

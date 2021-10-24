@@ -2,9 +2,15 @@
 
 ## A TypeScript Implementation of Flux
 
-The goal here is to provide a quick and easy developer experience, using Flux mechanics.  This TypeScript framework relies on developers to define application state based on interfaces, whose type information is then used to infer action ID's, action objects, action creators, reducers.
+The goal here is to provide a quick and easy developer experience, using Flux mechanics.  This TypeScript framework 
+relies on developers to define application state based on interfaces, whose type information is then used to infer action ID's, 
+action objects, action creators, reducers.
 
-Where Redux's implementation is based on functional programming and immutability, Manifold-dx uses TypeScript to define immutable structure, then uses generics and type inference to provide out-of-the-box API's for action creation, predefined reducers, dispatching, mapping state to components, and much more.
+Where Redux's implementation is based on functional programming and immutability, manifold-dx uses TypeScript to define 
+immutable structure, then uses generics and type inference to provide out-of-the-box API's for action creation, predefined 
+reducers, dispatching, mapping state to components, dead simple middleware, and much more.
+
+As with Redux, be sure you actually need to use this.  Big standalone SPA's often need libraries to manage app state, others often do not.  
 
 ### How It Works
 
@@ -33,43 +39,44 @@ Just to reiterate, you didn't have to write anything, these API's are provided b
 
 1. **TypeScript Generics** are a powerful feature, and we take full advantage of them, without requiring developers to know much about them.  We can write type-safe, generic updates, that enforce valid property names and value types.  
    
-	1. The developer just calls a generic api, and gets all the IDE assistance you'd expect. 
-	   ![alt text](./typeChecking.png)
+    1. The developer just calls a generic api, and gets all the IDE assistance you'd expect. 
+       ![alt text](./typeChecking.png)
     2. Also note that IDE's provide autocomplete for the property names, and flag property name misspellings.
     
-1. **Strongly Typed Data Structures** 
-	1. Developers often spend a lot of time figuring out what their application state should look like.
-	   Given that developers have defined their state, we just add in a couple properties in the nodes
-	   of their state graph (the blue circles in the diagrams above):
-	   1. `_parent` is the node that contains this one, or null if it the topmost node (application state)
-	   2. `_myPropname` is what my parent calls me, or an empty string if the topmost node (application state)
-	1. Example - what initial state might look like 
-	```typescript jsx
-	let user: UserState = {
-	  // properties of the StateObject
-	  // parent in the state application graph
-	  _parent: userMaintenance,
-	  // parent's name for this object, ie this === this._parent[this._myPropname]
-	  _myPropname: 'user',
-	  // raw data properties
-	  given_name: '',
-	  family_name: '',
-	  email: '',
+2. **Strongly Typed Data Structures** 
+    1. Developers often spend a lot of time figuring out what their application state should look like.
+       Given that developers have defined their state, we just add in a couple properties in the nodes
+       of their state graph (the blue circles in the diagrams above):
+       1. `_parent` is the node that contains this one, or null if it the topmost node (application state)
+       2. `_myPropname` is what my parent calls me, or an empty string if the topmost node (application state)
+    2. Example - what initial state might look like 
+    ```typescript jsx
+    let user: UserState = {
+      // properties of the StateObject
+      // parent in the state application graph
+      _parent: userMaintenance,
+      // parent's name for this object, ie this === this._parent[this._myPropname]
+      _myPropname: 'user',
+      // raw data properties
+      given_name: '',
+      family_name: '',
+      email: '',
       UserState: '',
       cell: ''
-	}
-	```
+    }
+    ```
+    **In other words, the only thing a developer has to do is to add two properties to the nodes of their
+    application state.**  This makes it easy for us to generate the property path (`'userMaintenance.user.given_name"`), given only the node in the application state.
+3. **Container Class Templates** Because nobody wants to write Container classes from scratch all the time!
+  - You can copy and past them from the project's "templates" directory, these are your 'smart' classes that delegate to 'dumb' renderers 
+    - TemplateContainer.tsx, TemplateRenderProps.tsx, TemplateSimple.tsx
+    - They contain some recommended patterns, including FunctionComponents, where your rendering components use React Hooks.
+  - Just fill in your strongly typed interfaces and mappings and write your renderering functions
 
-**In other words, the only thing a developer has to do is to add two properties to the nodes of their 
-application state.**  This makes it easy for us to generate the property path (`'userMaintenance.user.given_name"`), given only the node in the application state.
 
 ### Demo App
 - See the todo app at [https://github.com/mfsjr/manifold-dx-todo](https://github.com/mfsjr/manifold-dx-todo).
 - Once you understand this, check out some more robust, scalable techniques provided in the sections below.
-
-### Class Templates
-- These are located in the 'templates' directory, and can be helpful to copy/paste when you are building new components.
-- It contains some recommended patterns, which include FunctionComponents, where you can use hooks.  
 
 ### To Install
 - `npm i manifold-dx`   
@@ -181,21 +188,11 @@ const _user: UserState = getStateObject(getAppStore().state.userMaintenance?.use
 // create actions using optional chaining (then dispatch them)
 getActionCreator(getAppStore().state?.uiLayout).set('redirectTo', SceneUrl.MY_GROUP).dispatch(); // throws if uiLayout isundefined
 ```
-- How to build custom accessors; throw if the state doesn't exist, returning an unambiguous type/value.
-```typescript jsx
-export const getUser = (): GroupUserState => {
-  const _user = getUserMaintenance().user;
-  if (_user === undefined || _user === null) {
-    throw new Error('user must be defined');
-  }
-  return _user;
-};
-```
-- How to integrate with React Router v4
+- How to integrate with React Router v4 and up
   - You can integrate routing with state management using RedirectDx [https://github.com/mfsjr/manifold-dx-redirect-dx]
   - So you can define actions to navigate to app URL's using predetermined properties, like so
 ```typescript jsx
-getActionCreator(getAppStore().state?.uiLayout).set('redirectTo', SceneUrl.MY_GROUP).dispatch(); // throws if uiLayout isundefined
+getActionCreator(getAppStore().state?.uiLayout).set('redirectTo', SceneUrl.MY_GROUP).dispatch(); 
 ```
   
 ### Mapping state to components
@@ -233,22 +230,58 @@ export class Alert extends RenderPropsComponent<AlertProps, AlertViewProps, AppS
 ```
 
 ### Key Features
-- You may have noticed above, where the action contains both the old and the new value.  This allows actions to be 'unapplied', like a database transaction log, allowing us to do time-travel.
-- Strict mode, which will throw errors if state is mutated other than by actions (careful - development only!)   
-- Simplified middleware - developer-provided functions can be invoked immediately before or after actions are dispatched.
-  
-  For example, an **ActionLoggingObject** interface and actionLogging implementation to be used by middleware
-  actions are performed.
+- You may have noticed above, where the action contains both the old and the new value.  This allows actions to be
+  'unapplied', like a database transaction log, allowing us to do time-travel.
+- **Mutation Checking**, will throw errors if state is mutated by anything other than actions (careful - development only!).
+  This is controlled by the environment variable REACT_APP_STATE_MUTATION_CHECKING.
+- **Simple, Powerful Middleware** - optional developer-provided functions can be invoked at various times in the lifecycle.
+  i.e., before reducers (state changes) or after components are updated (or both).
+  - **Middleware Lifecycle:  dispatch, preProcessor, reducer, actionPostReducer, containerPostReducer, postProcessor, renderer**
+    - dispatch - is available via actions or store:
+      - `getActionCreator(stateObject).set('modalMessage', 'You cannot use the Admin UI');`
+      - `store.dispatch(action1, action2, ...actionN);`
+    - preProcessor - optionally execute code before anything changes, can read all actions, allow them to pass, or replace them
+      - `getAppStore().getManager().getActionProcessorAPI().appendPreProcessor(myPreProessor);`
+    - reducer - You don't have to write reducers, manifold-dx implements generic reducers that get called for you.
+    - actionPostReducer - optionally added to specific actions when something needs to be done immediately after a state change, e.g.
+      - `scoreAppendAction.actionPostReducer = () => { /* recalculate average score here */ }`
+    - containerPostReducer - optionally added to mapping actions, invoked by the container when the state in the mapping action is updated. 
+      Using the previous example, if we don't want to have to remember to update the average, let's put the average in the component
+      and use the optional containerPostReducer by appending the argument function 'this.calcAverage':
+      - `actions.push( bowlingMapper.createPropertyMappingAction(this, 'scores', this.calcAverage.bind(this)) );`
+    - postProcessor - optionally execute code after state has updated, but immediately before component renders invoked (which are async)
+      - See the logging example below
+    - render - invoked by manifold-dx, all containers mapped to the changed state will be rendered
+      - multiple state changes are deduped so only one render will be invoked per container component (although React may re-render repeatedly)
+  - **ActionLoggingObject** interface to log actions before they actually do anything
  ```typescript
   let logging: string[] = [];
   let loggerObject: ActionLoggingObject = actionLogging(logging, false);
   getAppStore().getManager().getActionProcessorAPI().appendPreProcessor(loggerObject.processor);
 ```
-- **DataTriggers** are also implemented using the middleware.  This allows you to watch for changes to specific state data, and dispatch additional actions to modify dependent state values.  So if a user has defined an array of DataTrigger functions called 'triggers', they are easily applied:
- ```typescript
-    const triggerProcessor = getAppStore().getManager().getActionProcessorAPI()
-      .createDataTriggerProcessor(triggers);
-    getAppStore().getManager().getActionProcessorAPI().appendPostProcessor(triggerProcessor);
+- **Action Type Guards** are provided as convenience methods, since all actions pass through Processors and you will want to
+  find specific kinds of actions.
+
+  There are a lot of things you might want to do, like performing transforms on data that are state dependent, 
+  or like below, using `action.isStatePropChange` to validate whether the user can perform specific actions.
+  Note that if you need to you can replace the inbound actions with whatever other actions may be needed.
+```typescript
+const store = createStore(); // your app would define this
+const userIsAdmin = () => false;
+const actionValidator: ActionProcessorFunctionType = // actions: Action[] => Action[]
+  actions => {
+    const stateObject = getStateObject(store.getState());
+    for(let i = 0; i < actions.length; i++) {
+      const action = actions[i];
+      if (action.isStatePropChange() && action.parent === stateObject && 
+        action.propertyName === 'redirectTo' &&  action.value === '/admin/secret/ui' && !userIsAdmin()) {
+          const replacementAction = getActionCreator(stateObject).set('modalMessage', 'You cannot use the Admin UI');
+          return [replacementAction];
+      }      
+    }
+    return actions;
+  };
+store.getManager().getActionProcessorAPI().appendPreProcessor(actionValidator);
 ```
 
 - Type-safe generic api's mean developers never code any action types, actions, action creators, reducers, etc.
@@ -264,17 +297,30 @@ Obviously Redux has been our frame of reference, but Vuex should be mentioned, a
 - Since state is global, we have no need for declarative/nested access, we just declare it globally, eg:
 	`export const appStore = new AppStore(new AppStateCreator().appState, {});`
 
-Also note, a coincidental similarity with Vuex is a somewhat nested/compositional approach to state, as opposed to Redux's preferred 'flat' shape.
+Also note, a coincidental similarity with Vuex is a somewhat nested/compositional approach to state, as opposed to 
+Redux's preferred 'flat' shape.
 
-**Run Tests:** `npm test --runInBand REACT_APP_STATE_MUTATION_CHECKING=true` 
+**To Run Tests:** `npm test --runInBand REACT_APP_STATE_MUTATION_CHECKING=true` 
 - `runInBand` since we need to have tests execute in order
 - and we want REACT_APP_STATE_MUTATION_CHECKING on when testing or debugging.
   - this will also turn on state diff output, when mutations are detected
    
-#### Recently completed work
-- Generic accessors
+#### Recent releases
+##### v1.1.25
+- Action instance type guard methods to facilitate easier use of ProcessorAPI's (see above)
+  - isStatePropChange, isStateArrayChange, isMappingChange
+- Improved test coverage: added unit tests
+  - removed unused code
+  - fixed (successfully executing) non-terminating unit test
+- Un- or rarely-used API's:
+    - one minor fix,
+    - renamings to avoid confusion
+##### v1.1.24
 - Enhancing usability, optional chaining
+- Generic type-safe accessor
+  - `const name = getStateObject(store.getAppState()?.name);`
 - Keeping up to date with recent TypeScript and React releases
-
-#### What's Next
+    
+    
+#### Future Work
 - Dev tools for action replay (time travel)

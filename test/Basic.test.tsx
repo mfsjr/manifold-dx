@@ -24,7 +24,13 @@ global.navigator = { userAgent: 'node.js' };
 import * as enzyme from 'enzyme';
 import * as Adapter from 'enzyme-adapter-react-16';
 
-import { ContainerComponent, getActionCreator, getArrayActionCreator, StateObject } from '../src';
+import {
+  ActionProcessorFunctionType,
+  ContainerComponent,
+  getActionCreator,
+  getArrayActionCreator, Manager,
+  StateObject
+} from '../src';
 import { Address, createTestStore, Name, TestState } from './testHarness';
 import { Action, AnyMappingAction, StateCrudAction } from '../src/actions/actions';
 import { ReactElement, FunctionComponent, useState } from 'react';
@@ -362,6 +368,35 @@ describe('hook functionality', () => {
     expect(() => {
       AddressFunctionComp(addr4);
     }).not.toThrow();
+  });
+
+});
+describe('show action validation', () => {
+  test('replacing an action after dispatch using a validating preProcessor', () => {
+    const testState: TestState = testStore.getState();
+    const manager: Manager = testStore.getManager();
+    getActionCreator(testState).set('modalMessage', undefined).dispatch();
+    const appName = testStore.getState().appName;
+
+    const replacer: ActionProcessorFunctionType =
+      actions => {
+        for (let i = 0; i < actions.length; i++) {
+          const a = actions[i];
+          if (a.isStatePropChange() && a.propertyName === 'appName') {
+            return [getActionCreator(testState).set('modalMessage', 'replaced')];
+          }
+        }
+        return actions;
+      };
+    manager.getActionProcessorAPI().appendPreProcessor(replacer);
+    const wontbe = 'won\'t be';
+    expect(appName).not.toBe(wontbe);
+
+    getActionCreator(testState).set('appName', wontbe).dispatch();
+    expect(testState.modalMessage).toBe('replaced');
+    expect(testState.appName).not.toBe(wontbe);
+
+    manager.getActionProcessorAPI().removePreProcessor(replacer);
   });
 
 });

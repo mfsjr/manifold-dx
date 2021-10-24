@@ -75,6 +75,42 @@ export abstract class Action {
     action.undoChange();
   }
 
+  /**
+   * Is this action modifying a data prop, ie is it a StateCrudAction?
+   * Convenience method which could be useful in {@link ActionProcessorFunctionType}
+   * @param includeNoOps if false and the action is a no-op, return false; defeaults to false
+   */
+  // tslint:disable-next-line:no-any
+  public isStatePropChange(includeNoOps?: boolean): this is StateCrudAction<any, any> {
+    if (!includeNoOps && ActionTypeIsNoOp(this.type)) {
+      return false;
+    }
+    return this instanceof StateCrudAction;
+  }
+
+  /**
+   * Is this action modifying an array, ie is it a ArrayChangeAction?
+   * @param includeNoOps if false and the action is a no-op, return false; defeaults to false
+   */
+  // tslint:disable-next-line:no-any
+  public isStateArrayChange(includeNoOps?: boolean): this is ArrayChangeAction<any, any, any> {
+    if (!includeNoOps && ActionTypeIsNoOp(this.type)) {
+      return false;
+    }
+    return this instanceof ArrayChangeAction;
+  }
+
+  /**
+   * Is this action Mapping app state to a component, ie is it a MappingAction?
+   * @param includeNoOps if false and the action is a no-op, return false; defeaults to false
+   */
+  public isMappingChange(includeNoOps?: boolean): this is AnyMappingAction {
+    if (!includeNoOps && ActionTypeIsNoOp(this.type)) {
+      return false;
+    }
+    return this instanceof MappingAction;
+  }
+
   protected abstract change(perform: boolean): void;
 
   public abstract clone(): Action;
@@ -424,8 +460,9 @@ export class MappingAction
    * @param {K} _propertyOrArrayName
    * @param {ContainerComponent<CP, VP, any>} _component
    * @param {TP} targetPropName
-   * @param {ContainerPostReducer} postReducerCallbacks - these are generally instance functions in the component that update other
-   *          component view properties as a function of the target view property having changed.
+   * // tslint:disable-next-line:max-line-length
+   * @param {ContainerPostReducer} postReducerCallbacks - these are generally instance functions in the component that
+   *  update other component view properties as a function of the target view property having changed.
    */
 
   constructor(
@@ -473,10 +510,6 @@ export class MappingAction
 
     this.propArray = _propArray;
     return this;
-  }
-
-  public getIndex(): number | null {
-    return this.index;
   }
 
   /**

@@ -1,6 +1,6 @@
 import { JSON_replaceCyclicParent } from '../src/types/Store';
 import { Name } from './testHarness';
-import { changeArray, changeValue } from '../src/actions/changeState';
+import { changeArray, changeValue, validateArrayIndex } from '../src/actions/changeState';
 import { ActionId } from '../src/actions/actions';
 import * as _ from 'lodash';
 import { Address, createTestStore, createTestState, TestState } from './testHarness';
@@ -249,4 +249,22 @@ describe('Test maps with mutating keys', () => {
     expect(map.get(k1)).toBe('Doe');
   });
 
+});
+describe('test validateArrayIndex', () => {
+  test('test validateArrayIndex', () => {
+    const ra = ['a', 'b', 'c'];
+    expect(() => { validateArrayIndex(ActionId.INSERT_PROPERTY, ra, -1, 'letters'); }).toThrow();
+    expect(() => { validateArrayIndex(ActionId.INSERT_PROPERTY, ra, 0, 'letters'); }).not.toThrow();
+    expect(() => { validateArrayIndex(ActionId.INSERT_PROPERTY, ra, 1, 'letters'); }).not.toThrow();
+    expect(() => { validateArrayIndex(ActionId.INSERT_PROPERTY, ra, 2, 'letters'); }).not.toThrow();
+    expect(() => { validateArrayIndex(ActionId.INSERT_PROPERTY, ra, 3, 'letters'); }).not.toThrow();
+    expect(() => { validateArrayIndex(ActionId.INSERT_PROPERTY, ra, 4, 'letters'); }).toThrow();
+
+    expect(() => { validateArrayIndex(ActionId.UPDATE_PROPERTY, ra, -1, 'letters'); }).toThrow();
+    expect(() => { validateArrayIndex(ActionId.UPDATE_PROPERTY, ra, 0, 'letters'); }).not.toThrow();
+    expect(() => { validateArrayIndex(ActionId.UPDATE_PROPERTY, ra, 1, 'letters'); }).not.toThrow();
+    expect(() => { validateArrayIndex(ActionId.UPDATE_PROPERTY, ra, 2, 'letters'); }).not.toThrow();
+    expect(() => { validateArrayIndex(ActionId.UPDATE_PROPERTY, ra, 3, 'letters'); }).toThrow();
+    expect(() => { validateArrayIndex(ActionId.UPDATE_PROPERTY, ra, 4, 'letters'); }).toThrow();
+  });
 });

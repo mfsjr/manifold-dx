@@ -199,7 +199,7 @@ class BowlerContainer extends ContainerComponent<BowlerProps, ScoreCardProps, Te
 }
 
 let resetTestObjects = () => {
-  testStore.reset({name: nameState}, {});
+  testStore.reset({_myPropname: '', _parent: null, name: nameState}, {});
   name = {first: 'Matthew', middle: 'F', last: 'Hooper', prefix: 'Mr', bowlingScores: [], addresses: []};
   // nameState = State.createStateObject<Name>(testStore.getState(), 'name', name);
   // nameState = createNameContainer(name, testStore.getState(), 'name');
@@ -239,6 +239,14 @@ describe('ContainerComponent instantiation, mount, update, unmount', () => {
   });
   test('bowler\'s viewProps contains the correct "fullname"', () => {
     expect(container.viewProps.fullName).toEqual(nameState.first);
+  });
+  test('getRootState will throw if it recieves a self referencing state object', () => {
+    const nameObject: Name & StateObject = {...name, _parent: null, _myPropname: 'name'};
+    nameObject._parent = nameObject;
+    expect(() => {
+      Store.getRootState(nameObject);
+    }).toThrow();
+    // nameObject._parent = testStore.getState();
   });
 
   test('container\'s props should contian the correct "fullname"', () => {
@@ -280,6 +288,16 @@ describe('ContainerComponent instantiation, mount, update, unmount', () => {
       .createArrayIndexMappingAction(nameState.addresses, 0, addr1Container, 'address');
 
     addr1MappingAction.dispatch();
+
+    expect(() => {
+      addr1MappingAction = getArrayMappingActionCreator(nameState, 'addresses')
+        .createArrayIndexMappingAction(nameState.addresses, 999, addr1Container, 'address');
+    }).toThrow();
+
+    expect(() => {
+      addr1MappingAction = getArrayMappingActionCreator(nameState, 'addresses')
+        .createArrayIndexMappingAction(nameState.addresses, -1, addr1Container, 'address');
+    }).toThrow();
 
     let manager = Manager.get(nameState);
     let fullpath = manager.getFullPath(nameState, 'addresses');
@@ -462,9 +480,22 @@ describe('Standalone tests for instance of MappingState', () => {
   });
 
   test('remove entire paths', () => {
+    // throw when attempting to remove path at invalid indexes
+    expect(() => { mappingState.removePath('addresses', -1); } ).toThrow();
+    expect(() => { mappingState.removePath('addresses', addressesMappings.length); } ).toThrow();
     let n = mappingState.removePath('addresses');
     // we expect there to be one entry for every element in the array, plus one for the array itself
     expect(n).toBe(addr1Mappings.length + 1);
+    expect(mappingState.removePath('addresses')).toBe(0);
+
+    // const appNameMapping = mappingState.getOrCreatePathMapping('appName', 0);
+    // expect(appNameMapping.length).toBe(0);
+    // expect(() => { mappingState.removePath('appName', -1); } ).toThrow();
+    // expect(() => { mappingState.removePath('appName', addressesMappings.length + 1); } ).toThrow();
+    // n = mappingState.removePath('appName');
+    // expect(n).toBe(1);
+    // expect(mappingState.removePath('appName')).toBe(0);
+
     // now add them back and restore the variables we're using for testing
     mappingState.getOrCreatePathMapping('addresses');
     mappingState.getOrCreatePathMapping('addresses', 1);
@@ -477,7 +508,7 @@ describe('Standalone tests for instance of MappingState', () => {
     mappingState.getOrCreatePathMapping('address');
     let n = mappingState.removeStatePath('address');
     // both 'address' and 'addresses' should be removed by the 'address' path prefix / state path
-    expect(n === 2).toBeTruthy();
+    expect(n).toBe(2);
   });
 
   test('Map to an index array without mapping to the array itself', () => {

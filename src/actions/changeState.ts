@@ -4,11 +4,15 @@ import { MutationError } from '../types/StateMutationCheck';
 import { JSON_replaceCyclicParent, StateObject, Store } from '../types/Store';
 
 /**
- * StateObjects are changed here, any other changes will be detected and throw an error.
+ * These are reducers invoked by actions, the only place where state may be changed.
  */
 
+/**
+ * Check to see that the provided indexes are valid for the given action type (allowing for insertions at the end
+ * of the array), throw an informative error if not.
+ */
 /* tslint:disable:no-any */
-let validateArrayIndex = function(actionType: ActionId, ra: Array<any>, index: number,  propertyName: string) {
+export function validateArrayIndex(actionType: ActionId, ra: Array<any>, index: number,  propertyName: string) {
   /* tslint:enable:no-any */
   let di = actionType === ActionId.INSERT_PROPERTY || actionType === ActionId.INSERT_STATE_OBJECT ? 1 : 0;
   let max = ra.length - 1 + di;
@@ -16,7 +20,7 @@ let validateArrayIndex = function(actionType: ActionId, ra: Array<any>, index: n
     throw new Error(`Index=${index} is not in [0, ${ra.length}] for array property=${propertyName}`);
   }
   return ra;
-};
+}
 
 let throwIf = function(condition: boolean, message: string) {
   if (condition) {
@@ -59,7 +63,7 @@ export function changeArray<S extends StateObject, K extends Extract<keyof S, st
 : {oldValue?: V} {
 
   if (!values) {
-    throw new Error(`${propertyName} array is falsey, insert the array property before trying to change it`);
+    throw new Error(`${propertyName} array is falsy, insert the array property before trying to change it`);
   }
   validateArrayIndex(actionType, values, index, propertyName);
   switch (actionType) {
@@ -149,7 +153,7 @@ export function changeValue<S extends StateObject, K extends Extract<keyof S, st
         `${ActionId[actionType]} action is applicable to plain objects; value = ${value}`);
 
       if (!value) {
-        throw new Error('Cannot insert a falsey value, consider using delete instead');
+        throw new Error('Cannot insert a falsy value, consider using delete instead');
       }
       Store.convertAndAdd<S[K]>(stateObject, propertyName, value);
       actionMutationCheck(actionType, undefined, value, propertyName);

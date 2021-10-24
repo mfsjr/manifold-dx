@@ -1,15 +1,28 @@
 import {
-  Action, ActionId, actionLogging, ActionLoggingObject, AnyMappingAction, ArrayChangeAction, ContainerPostReducer,
+  Action,
+  actionDescription,
+  ActionId,
+  actionLogging,
+  ActionLoggingObject,
+  AnyMappingAction,
+  ArrayChangeAction,
+  ContainerPostReducer,
   StateCrudAction
 } from '../src/actions/actions';
-import { Store } from '../src/types/Store';
-import { Address, createTestStore, createTestState, Name, NameState, TestState } from './testHarness';
-import { createNameContainer } from './testHarness';
-import { StateObject } from '../src/types/Store';
+import { StateObject, Store } from '../src/types/Store';
+import {
+  Address,
+  createNameContainer,
+  createTestState,
+  createTestStore,
+  Name,
+  NameState,
+  TestState
+} from './testHarness';
 import { ActionProcessorFunctionType, DataTrigger } from '../src/types/ActionProcessor';
 import * as _ from 'lodash';
 import { onFailureDiff } from '../src/types/StateMutationDiagnostics';
-import { getArrayActionCreator, getActionCreator, ContainerComponent, getMappingActionCreator } from '../src';
+import { ContainerComponent, getActionCreator, getArrayActionCreator, getMappingActionCreator } from '../src';
 import { BowlerProps, ScoreCardProps } from './Components.test';
 import * as React from 'react';
 // import { getCrudCreator } from '../src';
@@ -29,6 +42,21 @@ let address2: Address = {
   country: 'US',
   zip: '54321'
 };
+
+export class FakeAction extends Action {
+  protected change(perform: boolean): void {
+    this.pristine = false;
+  }
+  public clone(): Action {
+    return this;
+  }
+  public dispatch(): void {
+    this.pristine = false;
+  }
+  constructor(_actionType: ActionId) {
+    super(_actionType);
+  }
+}
 
 let resetTestObjects = () => {
   testStore.reset(createTestState(), {});
@@ -58,6 +86,13 @@ describe('Add the name container', () => {
     });
     test('nameState\'s parent should be state container', () => {
       expect(nameState._parent).toBe(appState);
+    });
+  });
+
+  describe('test empty action processing, eg if preProcessor removes all actions', () => {
+    test('empty dispatch => empty processor', () => {
+      expect(() => {testStore.dispatch(); } ).not.toThrow();
+      expect(() => {testStore.getManager().actionProcess(); } ).not.toThrow();
     });
   });
 
@@ -93,6 +128,13 @@ describe('Add the name container', () => {
   describe('Modify the name\'s middle initial', () => {
     // let updateMiddleAction = new StateCrudAction(ActionId.UPDATE_PROPERTY, nameState, 'middle', 'J');
     let updateMiddleAction = nameState.getActionCreator(nameState).update('middle', 'J');
+    test('action description', () => {
+      let description = actionDescription(updateMiddleAction);
+      expect(description).toContain('StateCrudAction');
+      expect(description).toContain('J');
+      expect(description).toContain('name.middle');
+    });
+
     test('middle initial should be "J"', () => {
       // let appState = state.getState();
       testStore.getManager().actionProcess(updateMiddleAction);
@@ -248,12 +290,37 @@ describe('Add the name container', () => {
     ];
 
     expect(nameState.addresses.length).toBe(1);
+
+    const addresses4 = [addresses3[0], addresses3[1]];
+    let updateAllActions2 = getArrayActionCreator(nameState, nameState.addresses).replaceAll(addresses4);
+    testStore.dispatch(...updateAllActions2);
+    // updateAllActions.forEach(action => action.dispatch());
+    expect(addresses4.length).toBe(2);
+    expect(nameState.addresses.length).toBe(2);
+    addresses4.forEach((addr, index) => expect(nameState.addresses[index]).toBe(addresses4[index]));
+
     let updateAllActions = getArrayActionCreator(nameState, nameState.addresses).replaceAll(addresses3);
     testStore.dispatch(...updateAllActions);
     // updateAllActions.forEach(action => action.dispatch());
     expect(addresses3.length).toBe(3);
     expect(nameState.addresses.length).toBe(3);
     addresses3.forEach((addr, index) => expect(nameState.addresses[index]).toBe(addresses3[index]));
+
+    let addresses1 = [addresses3[1]];
+    let updateAllActions1 = getArrayActionCreator(nameState, nameState.addresses).replaceAll(addresses1);
+    testStore.dispatch(...updateAllActions1);
+    // updateAllActions.forEach(action => action.dispatch());
+    expect(addresses1.length).toBe(1);
+    expect(nameState.addresses.length).toBe(1);
+    addresses1.forEach((addr, index) => expect(nameState.addresses[index]).toBe(addresses1[index]));
+
+    // let updateAllActions = getArrayActionCreator(nameState, nameState.addresses).replaceAll(addresses3);
+    updateAllActions = getArrayActionCreator(nameState, nameState.addresses).replaceAll(addresses3);
+    testStore.dispatch(...updateAllActions);
+
+    expect(() => {
+      getArrayActionCreator(undefined, undefined).replaceAll(addresses3);
+    }).toThrow();
   });
 
   describe('Verify StateMutationCheck', () => {
@@ -270,7 +337,7 @@ describe('Add the name container', () => {
       let middle = nameState.middle;
       nameState.middle = 'ZAX';
       if (!nameState.bowlingScores) {
-        throw new Error('nameState.bowlingScores should be defined but is falsey');
+        throw new Error('nameState.bowlingScores should be defined but is falsy');
       }
 
       let appendScore = new ArrayChangeAction(
@@ -291,7 +358,7 @@ describe('Add the name container', () => {
       let middle = nameState.middle;
       nameState.middle = 'ZAX';
       if (!nameState.bowlingScores) {
-        throw new Error('nameState.bowlingScores should be defined but is falsey');
+        throw new Error('nameState.bowlingScores should be defined but is falsy');
       }
 
       let appendScore = new ArrayChangeAction(
@@ -419,6 +486,12 @@ describe('actionLogging tests', () => {
   let loggerObject: ActionLoggingObject = actionLogging(logging, false);
   testStore.getManager().getActionProcessorAPI().appendPreProcessor(loggerObject.processor);
 
+  let logging2: string[] = [];
+  let loggerObject2: ActionLoggingObject = actionLogging(logging2, true);
+  testStore.getManager().getActionProcessorAPI().appendPreProcessor(loggerObject2.processor);
+
+  // let consoleLogMock = console.log;
+
   test('updating all array elements using addresses3 should update all the addresses in state', () => {
     let addresses3: Address[] = [
       {
@@ -457,6 +530,7 @@ describe('actionLogging tests', () => {
 
     expect(logging.length).toBeGreaterThan(0);
     let loggingLength = logging.length;
+    expect(logging2.length).toBe(loggingLength);
 
     let updateAllActions = getArrayActionCreator(nameState, nameState.addresses).replaceAll(addresses3);
     testStore.dispatch(...updateAllActions);
@@ -475,6 +549,12 @@ describe('actionLogging tests', () => {
 });
 
 describe('safe operations, updateIfChanged, insertIfEmpty, removeIfHasData, and set', () => {
+  let testState = testStore.getState();
+  beforeEach(() => {
+    testState = testStore.getState();
+    testState._parent = null;
+    testState._myPropname = '';
+  });
   test('property updateIfChanged', () => {
     let ns = testStore.getState().name;
     expect(ns).toBeTruthy();
@@ -597,10 +677,13 @@ describe('safe operations, updateIfChanged, insertIfEmpty, removeIfHasData, and 
 });
 
 export class BowlerContainer2 extends ContainerComponent<BowlerProps, ScoreCardProps, TestState & StateObject> {
+  public static postActionCount: number = 0;
+
+  public getMappings = super.getMappingActions;
 
   public average: number;
   // nameState = state.getState().name;
-  nameState: Name & StateObject; // | undefined;
+  nameState: Name & StateObject; // | undefined
 
   constructor(bowlerProps: BowlerProps) {
     super(bowlerProps, testStore.getState(), undefined);
@@ -681,10 +764,17 @@ export class BowlerContainer2 extends ContainerComponent<BowlerProps, ScoreCardP
 
 describe('Test that handleChange updates on data changes, not on mapping changes', () => {
   const bowler = new BowlerContainer2({fullName: 'Jane Doe'});
+
   let updated = false;
   const dataAction = getActionCreator(testStore.getState()).set('appName', 'boohoo');
   const mappingAction: AnyMappingAction = getMappingActionCreator(testStore.getState(), 'appName').
     createPropertyMappingAction(bowler, 'fullName');
+
+  let mappingDescription = actionDescription(mappingAction);
+  expect(mappingDescription).toContain('MappingAction');
+  expect(mappingDescription).toContain('appName');
+  expect(mappingDescription).toContain('fullName');
+
   test('no actions should not force update', () => {
     updated = bowler.handleChange([]);
     expect(updated).toBe(false);
@@ -700,5 +790,86 @@ describe('Test that handleChange updates on data changes, not on mapping changes
   test('mixed mapping and data actions should force an update', () => {
     updated = bowler.handleChange([mappingAction, dataAction]);
     expect(updated).toBe(true);
+  });
+  test('action description for unknown action type', () => {
+    const fakeAction = new FakeAction(ActionId.UPDATE_PROPERTY_NO_OP);
+    expect(actionDescription(fakeAction)).toContain('Not StateCrud, Array or Mapping; action.type ===');
+  });
+  test('actionPostReducer', () => {
+    const actionWithPostReducer = getActionCreator(testStore.getState()).set('appName', 'boohoo');
+    function incrementor() {
+      BowlerContainer2.postActionCount = 1 + BowlerContainer2.postActionCount;
+    }
+    actionWithPostReducer.actionPostReducer = incrementor;
+    const beforeCount = BowlerContainer2.postActionCount;
+    actionWithPostReducer.dispatch();
+
+    expect(BowlerContainer2.postActionCount).toBe(1 + beforeCount);
+  });
+});
+
+describe('action type guards', () => {
+  const ac = getActionCreator(nameState);
+  test('prop action type guards', () => {
+    const action = ac.update('prefix', 'Mr');
+    expect(action.isStatePropChange(false)).toBe(true);
+    expect(action.isStatePropChange(true)).toBe(true);
+    expect(action.isStateArrayChange(false)).toBe(false);
+    expect(action.isStateArrayChange(true)).toBe(false);
+    expect(action.isMappingChange(false)).toBe(false);
+    expect(action.isMappingChange(true)).toBe(false);
+
+    action.type = ActionId.UPDATE_PROPERTY_NO_OP;
+    expect(action.isStatePropChange(false)).toBe(false);
+    expect(action.isStatePropChange(true)).toBe(true);
+    expect(action.isStateArrayChange(false)).toBe(false);
+    expect(action.isStateArrayChange(true)).toBe(false);
+    expect(action.isMappingChange(false)).toBe(false);
+    expect(action.isMappingChange(true)).toBe(false);
+  });
+  const aac = getArrayActionCreator(nameState, nameState.bowlingScores);
+  test('array action type guards', () => {
+    const action = aac.insertElement(0, 220)[0];
+    expect(action.isStatePropChange(false)).toBe(false);
+    expect(action.isStatePropChange(true)).toBe(false);
+    expect(action.isStateArrayChange(false)).toBe(true);
+    expect(action.isStateArrayChange(true)).toBe(true);
+    expect(action.isMappingChange(false)).toBe(false);
+    expect(action.isMappingChange(true)).toBe(false);
+
+    action.type = ActionId.UPDATE_PROPERTY_NO_OP;
+    expect(action.isStatePropChange(false)).toBe(false);
+    expect(action.isStatePropChange(true)).toBe(false);
+    expect(action.isStateArrayChange(false)).toBe(false);
+    expect(action.isStateArrayChange(true)).toBe(true);
+    expect(action.isMappingChange(false)).toBe(false);
+    expect(action.isMappingChange(true)).toBe(false);
+  });
+
+  test('type guards for mapping actions', () => {
+    const bowler = new BowlerContainer2({fullName: 'Jane Doe'});
+    const action: AnyMappingAction = getMappingActionCreator(testStore.getState(), 'appName').
+      createPropertyMappingAction(bowler, 'fullName');
+
+    expect(action.isStatePropChange(false)).toBe(false);
+    expect(action.isStatePropChange(true)).toBe(false);
+    expect(action.isStateArrayChange(false)).toBe(false);
+    expect(action.isStateArrayChange(true)).toBe(false);
+    expect(action.isMappingChange(false)).toBe(true);
+    expect(action.isMappingChange(true)).toBe(true);
+
+    action.type = ActionId.UPDATE_PROPERTY_NO_OP;
+    expect(action.isStatePropChange(false)).toBe(false);
+    expect(action.isStatePropChange(true)).toBe(false);
+    expect(action.isStateArrayChange(false)).toBe(false);
+    expect(action.isStateArrayChange(true)).toBe(false);
+    expect(action.isMappingChange(false)).toBe(false);
+    expect(action.isMappingChange(true)).toBe(true);
+  });
+  test('removeStateObject', () => {
+    expect(testStore.getState().name).toBeTruthy();
+    const acs = getActionCreator(testStore.getState());
+    acs.removeStateObject('name').dispatch();
+    expect(testStore.getState().name).toBeFalsy();
   });
 });

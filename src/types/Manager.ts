@@ -84,7 +84,12 @@ export class Manager {
   public getActionQueue() {
     return this.actionQueue;
   }
-  // TODO: implement a single method for dispatching safely
+
+  /**
+   * This method allows you to undo actions, from the most recent on backwards.
+   * @param nActions
+   * @param _undoActions
+   */
   public actionUndo(nActions: number = 1, ..._undoActions: Action[]): Action[] {
     if (nActions === 0 && _undoActions.length === 0 ) {
       throw Error(`Expecting to undo existing actions or receive actions to undo, received neither`);

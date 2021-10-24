@@ -51,7 +51,7 @@ var actionMutationCheck = function (actionId, oldValue, newValue, propertyName, 
  */
 function changeArray(actionType, stateObject, values, value, propertyName, index) {
     if (!values) {
-        throw new Error(propertyName + " array is falsey, insert the array property before trying to change it");
+        throw new Error(propertyName + " array is falsy, insert the array property before trying to change it");
     }
     validateArrayIndex(actionType, values, index, propertyName);
     switch (actionType) {
@@ -133,7 +133,7 @@ function changeValue(actionType, stateObject, value, propertyName) {
         case actions_1.ActionId.INSERT_STATE_OBJECT: {
             throwIf(!_.isPlainObject(value), actions_1.ActionId[actionType] + " action is applicable to plain objects; value = " + value);
             if (!value) {
-                throw new Error('Cannot insert a falsey value, consider using delete instead');
+                throw new Error('Cannot insert a falsy value, consider using delete instead');
             }
             Store_1.Store.convertAndAdd(stateObject, propertyName, value);
             actionMutationCheck(actionType, undefined, value, propertyName);

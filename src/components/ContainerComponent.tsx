@@ -5,7 +5,7 @@ import * as _ from 'lodash';
 import { Manager } from '../types/Manager';
 import { StateObject } from '../types/Store';
 import { ArrayChangeAction } from '../';
-import { shallowEqual } from 'recompose';
+// import { shallowEqual } from 'recompose';
 
 /**
  *
@@ -14,6 +14,9 @@ import { shallowEqual } from 'recompose';
  *
  * This component can delegate rendering to another react component, or you can
  * override this render to render as needed.
+ *
+ * This component uses the default React.Component, so users can implement <code>shouldComponentUpdate</code>
+ * if they choose to (manifold-dx isn't affected by how it is implemented).
  *
  * CP: container props, a plain object (pojo)
  * VP: view component props, also a plain object
@@ -226,26 +229,6 @@ export abstract class ContainerComponent<CP, VP, A extends StateObject, RS = {} 
       }
     }
     return false;
-  }
-
-  /**
-   * Return true if viewProps, props or state has changed.
-   *
-   * We track viewProps changes when actions have changed state that is mapped to viewProps.
-   *
-   * Our props and state changes are checked against the incoming nextProps and nextState using
-   * recompose's 'shallowEqual'.
-   *
-   * @param {CP} nextProps
-   * @returns {boolean}
-   */
-  shouldComponentUpdate<S, CTX>(nextProps: CP, nextState: S, nextContext: CTX ) {
-    let result = this.viewPropsUpdated || !shallowEqual(this.props, nextProps);
-    // if this.viewPropsUpdated is true, we will return true, we want to update only once, so reset to null
-    this.viewPropsUpdated = this.viewPropsUpdated ? null : this.viewPropsUpdated;
-    result = result || !shallowEqual(this.state, nextState);
-
-    return result;
   }
 
   render(): ReactNode {

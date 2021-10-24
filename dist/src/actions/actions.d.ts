@@ -57,6 +57,22 @@ export declare abstract class Action {
      * @param {Action} action
      */
     static undo(action: Action): void;
+    /**
+     * Is this action modifying a data prop, ie is it a StateCrudAction?
+     * Convenience method which could be useful in {@link ActionProcessorFunctionType}
+     * @param includeNoOps if false and the action is a no-op, return false; defeaults to false
+     */
+    isStatePropChange(includeNoOps?: boolean): this is StateCrudAction<any, any>;
+    /**
+     * Is this action modifying an array, ie is it a ArrayChangeAction?
+     * @param includeNoOps if false and the action is a no-op, return false; defeaults to false
+     */
+    isStateArrayChange(includeNoOps?: boolean): this is ArrayChangeAction<any, any, any>;
+    /**
+     * Is this action Mapping app state to a component, ie is it a MappingAction?
+     * @param includeNoOps if false and the action is a no-op, return false; defeaults to false
+     */
+    isMappingChange(includeNoOps?: boolean): this is AnyMappingAction;
     protected abstract change(perform: boolean): void;
     abstract clone(): Action;
     abstract dispatch(): void;
@@ -164,8 +180,9 @@ export declare class MappingAction<S extends StateObject, K extends Extract<keyo
      * @param {K} _propertyOrArrayName
      * @param {ContainerComponent<CP, VP, any>} _component
      * @param {TP} targetPropName
-     * @param {ContainerPostReducer} postReducerCallbacks - these are generally instance functions in the component that update other
-     *          component view properties as a function of the target view property having changed.
+     * // tslint:disable-next-line:max-line-length
+     * @param {ContainerPostReducer} postReducerCallbacks - these are generally instance functions in the component that
+     *  update other component view properties as a function of the target view property having changed.
      */
     constructor(parent: S, _propertyOrArrayName: K, _component: ContainerComponent<CP, VP, A>, targetPropName: TP, ...postReducerCallbacks: ContainerPostReducer[]);
     getValue(): S[K];
@@ -180,7 +197,6 @@ export declare class MappingAction<S extends StateObject, K extends Extract<keyo
      * @param {ArrayKeyGeneratorFn<E>} _keyGen
      */
     setArrayElement(_index: number | null, _propArray: S[K] & Array<E>): MappingAction<S, K, CP, VP, TP, A, E>;
-    getIndex(): number | null;
     /**
      * Map this property/component pair to the applications ContainerState, or if false, unmap it.
      * @param {boolean} perform

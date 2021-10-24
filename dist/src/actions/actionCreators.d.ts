@@ -57,7 +57,6 @@ export declare class ActionCreator<S extends StateObject> {
      * @param value
      */
     set<K extends Extract<keyof S, string>>(propertyKey: K, value?: S[K]): StateCrudAction<S, K>;
-    isKeyOf<K extends Extract<keyof S, string>>(value: S, key: string): key is K;
     /**
      * Delete the property (named 'remove' because 'delete' is a reserved word).
      *
@@ -139,7 +138,6 @@ export declare class ArrayActionCreator<S extends StateObject, K extends Extract
      * @returns {Action}
      */
     insertElement(index: number, value: V): StateAction<S, K>[];
-    rerenderElement(index: number): StateAction<S, K>;
     updateElement(index: number, newValue: V): ArrayChangeAction<S, K, V>;
     updateElementIfChanged(index: number, newValue: V): ArrayChangeAction<S, K, V>;
     /**

@@ -51,7 +51,7 @@ function arrayMapInsert(arrayMap, index) {
 exports.arrayMapInsert = arrayMapInsert;
 /**
  * Relates application state properties with React components, for the purpose of
- * forcing components to update (ie render).
+ * making components update (ie render).
  *
  */
 var MappingState = /** @class */ (function () {

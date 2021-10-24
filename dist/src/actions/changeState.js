@@ -1,15 +1,19 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.changeValue = exports.changeArray = void 0;
+exports.changeValue = exports.changeArray = exports.validateArrayIndex = void 0;
 var actions_1 = require("./actions");
 var _ = require("lodash");
 var StateMutationCheck_1 = require("../types/StateMutationCheck");
 var Store_1 = require("../types/Store");
 /**
- * StateObjects are changed here, any other changes will be detected and throw an error.
+ * These are reducers invoked by actions, the only place where state may be changed.
+ */
+/**
+ * Check to see that the provided indexes are valid for the given action type (allowing for insertions at the end
+ * of the array), throw an informative error if not.
  */
 /* tslint:disable:no-any */
-var validateArrayIndex = function (actionType, ra, index, propertyName) {
+function validateArrayIndex(actionType, ra, index, propertyName) {
     /* tslint:enable:no-any */
     var di = actionType === actions_1.ActionId.INSERT_PROPERTY || actionType === actions_1.ActionId.INSERT_STATE_OBJECT ? 1 : 0;
     var max = ra.length - 1 + di;
@@ -17,7 +21,8 @@ var validateArrayIndex = function (actionType, ra, index, propertyName) {
         throw new Error("Index=" + index + " is not in [0, " + ra.length + "] for array property=" + propertyName);
     }
     return ra;
-};
+}
+exports.validateArrayIndex = validateArrayIndex;
 var throwIf = function (condition, message) {
     if (condition) {
         throw new Error(message);

@@ -59,7 +59,11 @@ var Manager = /** @class */ (function () {
     Manager.prototype.getActionQueue = function () {
         return this.actionQueue;
     };
-    // TODO: implement a single method for dispatching safely
+    /**
+     * This method allows you to undo actions, from the most recent on backwards.
+     * @param nActions
+     * @param _undoActions
+     */
     Manager.prototype.actionUndo = function (nActions) {
         var _this = this;
         if (nActions === void 0) { nActions = 1; }

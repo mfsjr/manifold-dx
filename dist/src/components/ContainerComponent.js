@@ -26,7 +26,7 @@ var actions_1 = require("../actions/actions");
 var _ = require("lodash");
 var Manager_1 = require("../types/Manager");
 var __1 = require("../");
-var recompose_1 = require("recompose");
+// import { shallowEqual } from 'recompose';
 /**
  *
  * A kind of React.Component container/controller (constructor takes a component
@@ -34,6 +34,9 @@ var recompose_1 = require("recompose");
  *
  * This component can delegate rendering to another react component, or you can
  * override this render to render as needed.
+ *
+ * This component uses the default React.Component, so users can implement <code>shouldComponentUpdate</code>
+ * if they choose to (manifold-dx isn't affected by how it is implemented).
  *
  * CP: container props, a plain object (pojo)
  * VP: view component props, also a plain object
@@ -207,24 +210,6 @@ var ContainerComponent = /** @class */ (function (_super) {
             }
         }
         return false;
-    };
-    /**
-     * Return true if viewProps, props or state has changed.
-     *
-     * We track viewProps changes when actions have changed state that is mapped to viewProps.
-     *
-     * Our props and state changes are checked against the incoming nextProps and nextState using
-     * recompose's 'shallowEqual'.
-     *
-     * @param {CP} nextProps
-     * @returns {boolean}
-     */
-    ContainerComponent.prototype.shouldComponentUpdate = function (nextProps, nextState, nextContext) {
-        var result = this.viewPropsUpdated || !recompose_1.shallowEqual(this.props, nextProps);
-        // if this.viewPropsUpdated is true, we will return true, we want to update only once, so reset to null
-        this.viewPropsUpdated = this.viewPropsUpdated ? null : this.viewPropsUpdated;
-        result = result || !recompose_1.shallowEqual(this.state, nextState);
-        return result;
     };
     ContainerComponent.prototype.render = function () {
         if (!this.viewProps) {

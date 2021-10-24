@@ -1,6 +1,14 @@
 import { ActionId } from './actions';
 import { StateObject } from '../types/Store';
 /**
+ * These are reducers invoked by actions, the only place where state may be changed.
+ */
+/**
+ * Check to see that the provided indexes are valid for the given action type (allowing for insertions at the end
+ * of the array), throw an informative error if not.
+ */
+export declare function validateArrayIndex(actionType: ActionId, ra: Array<any>, index: number, propertyName: string): any[];
+/**
  *
  * @param {ActionId} actionType
  * @param {S} stateObject

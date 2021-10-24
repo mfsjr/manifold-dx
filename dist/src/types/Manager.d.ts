@@ -35,6 +35,11 @@ export declare class Manager {
     getActionProcessorAPI(): ActionProcessor;
     resetActionProcessors(state: Store<any>, options: StateConfigOptions): void;
     getActionQueue(): ActionQueue;
+    /**
+     * This method allows you to undo actions, from the most recent on backwards.
+     * @param nActions
+     * @param _undoActions
+     */
     actionUndo(nActions?: number, ..._undoActions: Action[]): Action[];
     actionRedo(nActions?: number): Action[];
     /**

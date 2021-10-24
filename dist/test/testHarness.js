@@ -69,7 +69,10 @@ var NameStateCreator = /** @class */ (function () {
 }());
 exports.NameStateCreator = NameStateCreator;
 function createTestState() {
-    return {};
+    return {
+        _parent: null,
+        _myPropname: '',
+    };
 }
 exports.createTestState = createTestState;
 /**

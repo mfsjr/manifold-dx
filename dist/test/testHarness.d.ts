@@ -50,13 +50,15 @@ export declare class NameStateCreator {
 export interface GreetingState extends StateObject {
     message: string;
 }
-export interface TestState {
+export interface TestState extends StateObject {
     name?: Name & StateObject;
     me?: Name & StateObject;
     address?: Address & StateObject;
     appName?: string;
     greeting?: GreetingState;
     helper?: () => string;
+    redirectTo?: string;
+    modalMessage?: string;
 }
 export declare function createTestState(): TestState;
 /**

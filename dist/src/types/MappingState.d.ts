@@ -20,7 +20,7 @@ export declare function arrayMapDelete(arrayMap: ArrayMap, index: number, num?: 
 export declare function arrayMapInsert(arrayMap: ArrayMap, index: number, ...insertedMappingActions: Array<AnyMappingAction[]>): number;
 /**
  * Relates application state properties with React components, for the purpose of
- * forcing components to update (ie render).
+ * making components update (ie render).
  *
  */
 export declare class MappingState {

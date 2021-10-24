@@ -87,9 +87,13 @@ var Store = /** @class */ (function () {
         return stateObject;
     };
     Store.getRootState = function (stateObject) {
+        var _a;
         var result = stateObject;
         while (result._parent !== null) {
             result = result._parent;
+            if (result._parent === ((_a = result._parent) === null || _a === void 0 ? void 0 : _a._parent)) { // this has only been observed during unit testing
+                throw new Error("parents are self referencing in prop " + result._myPropname);
+            }
         }
         return result;
     };
@@ -161,7 +165,7 @@ var Store = /** @class */ (function () {
         }
         if (stateMutateChecking) {
             /*tslint:disable:no-console*/
-            console.log("WARNING: strict mode - REACT_APP_STATE_MUTATION_CHECKING - is on (intended for dev debugging only)");
+            console.log("WARNING: mutation checking - REACT_APP_STATE_MUTATION_CHECKING - is on (intended for development only)");
             /*tslint:enable:no-console*/
         }
         if (stateMutateChecking) {

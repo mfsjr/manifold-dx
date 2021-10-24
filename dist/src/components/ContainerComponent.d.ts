@@ -10,6 +10,9 @@ import { StateObject } from '../types/Store';
  * This component can delegate rendering to another react component, or you can
  * override this render to render as needed.
  *
+ * This component uses the default React.Component, so users can implement <code>shouldComponentUpdate</code>
+ * if they choose to (manifold-dx isn't affected by how it is implemented).
+ *
  * CP: container props, a plain object (pojo)
  * VP: view component props, also a plain object
  * A: application state (root/top of the StateObject graph) {@link StateObject}
@@ -98,18 +101,6 @@ export declare abstract class ContainerComponent<CP, VP, A extends StateObject, 
      * @return true if {@link forceUpdate} was invoked, false if not
      */
     handleChange(executedActions: Action[]): boolean;
-    /**
-     * Return true if viewProps, props or state has changed.
-     *
-     * We track viewProps changes when actions have changed state that is mapped to viewProps.
-     *
-     * Our props and state changes are checked against the incoming nextProps and nextState using
-     * recompose's 'shallowEqual'.
-     *
-     * @param {CP} nextProps
-     * @returns {boolean}
-     */
-    shouldComponentUpdate<S, CTX>(nextProps: CP, nextState: S, nextContext: CTX): boolean;
     render(): ReactNode;
 }
 export declare type AnyContainerComponent = ContainerComponent<any, any, any>;

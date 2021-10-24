@@ -102,9 +102,6 @@ var ActionCreator = /** @class */ (function () {
         }
         return this.updateIfChanged(propertyKey, value);
     };
-    ActionCreator.prototype.isKeyOf = function (value, key) {
-        return value.hasOwnProperty(key);
-    };
     /**
      * Delete the property (named 'remove' because 'delete' is a reserved word).
      *
@@ -242,9 +239,11 @@ var ArrayActionCreator = /** @class */ (function () {
         ];
         return actions;
     };
-    ArrayActionCreator.prototype.rerenderElement = function (index) {
-        return new actions_1.ArrayChangeAction(actions_1.ActionId.RERENDER, this.parent, this.propertyKey, index, this.valuesArray, this.valuesArray[index]);
-    };
+    // public rerenderElement(index: number): StateAction<S, K> {
+    //   return new ArrayChangeAction(
+    //     ActionId.RERENDER, this.parent, this.propertyKey, index, this.valuesArray, this.valuesArray[index]
+    //   );
+    // }
     ArrayActionCreator.prototype.updateElement = function (index, newValue) {
         // let index = this.getIndexOf(oldValue);
         return new actions_1.ArrayChangeAction(actions_1.ActionId.UPDATE_PROPERTY, this.parent, this.propertyKey, index, this.valuesArray, newValue);
@@ -271,7 +270,7 @@ var ArrayActionCreator = /** @class */ (function () {
                 }
             }
             if (i >= newArray.length) {
-                actions.push(new actions_1.ArrayChangeAction(actions_1.ActionId.DELETE_PROPERTY, this.parent, this.propertyKey, i, this.valuesArray, newArray[i]));
+                actions.push(new actions_1.ArrayChangeAction(actions_1.ActionId.DELETE_PROPERTY, this.parent, this.propertyKey, newArray.length, this.valuesArray, newArray[i]));
                 // actions.concat(this.removeElement(i));
                 continue;
             }
@@ -348,24 +347,11 @@ function getArrayMappingActionCreator(_parent, _propKey) {
      *  the mapping action
      */
     var createArrayIndexMappingAction = function (_array, index, _component, targetPropKey) {
-        // if (!_parent) {
-        //   throw new Error(`getArrayMappingActionCreator received an undefined parent state object`);
-        // }
         var postReducerCallbacks = [];
         for (var _i = 4; _i < arguments.length; _i++) {
             postReducerCallbacks[_i - 4] = arguments[_i];
         }
         var mappingAction = new (actions_1.MappingAction.bind.apply(actions_1.MappingAction, __spreadArrays([void 0, _parent, _propKey, _component, targetPropKey], postReducerCallbacks)))();
-        // TODO: try building a custom type guard for Array<E>
-        var propKey;
-        for (var key in _parent) {
-            if (_array === _parent[key] && _array instanceof Array) {
-                propKey = key;
-            }
-        }
-        if (!propKey) {
-            throw Error("Failed to find array in parent");
-        }
         var result = mappingAction.setArrayElement(index, _array);
         return result;
     };

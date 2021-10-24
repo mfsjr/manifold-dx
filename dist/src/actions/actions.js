@@ -73,6 +73,39 @@ var Action = /** @class */ (function () {
     Action.undo = function (action) {
         action.undoChange();
     };
+    /**
+     * Is this action modifying a data prop, ie is it a StateCrudAction?
+     * Convenience method which could be useful in {@link ActionProcessorFunctionType}
+     * @param includeNoOps if false and the action is a no-op, return false; defeaults to false
+     */
+    // tslint:disable-next-line:no-any
+    Action.prototype.isStatePropChange = function (includeNoOps) {
+        if (!includeNoOps && exports.ActionTypeIsNoOp(this.type)) {
+            return false;
+        }
+        return this instanceof StateCrudAction;
+    };
+    /**
+     * Is this action modifying an array, ie is it a ArrayChangeAction?
+     * @param includeNoOps if false and the action is a no-op, return false; defeaults to false
+     */
+    // tslint:disable-next-line:no-any
+    Action.prototype.isStateArrayChange = function (includeNoOps) {
+        if (!includeNoOps && exports.ActionTypeIsNoOp(this.type)) {
+            return false;
+        }
+        return this instanceof ArrayChangeAction;
+    };
+    /**
+     * Is this action Mapping app state to a component, ie is it a MappingAction?
+     * @param includeNoOps if false and the action is a no-op, return false; defeaults to false
+     */
+    Action.prototype.isMappingChange = function (includeNoOps) {
+        if (!includeNoOps && exports.ActionTypeIsNoOp(this.type)) {
+            return false;
+        }
+        return this instanceof MappingAction;
+    };
     Action.prototype.performChange = function (perform) {
         this.change(perform ? perform : true);
     };
@@ -321,8 +354,9 @@ var MappingAction = /** @class */ (function (_super) {
      * @param {K} _propertyOrArrayName
      * @param {ContainerComponent<CP, VP, any>} _component
      * @param {TP} targetPropName
-     * @param {ContainerPostReducer} postReducerCallbacks - these are generally instance functions in the component that update other
-     *          component view properties as a function of the target view property having changed.
+     * // tslint:disable-next-line:max-line-length
+     * @param {ContainerPostReducer} postReducerCallbacks - these are generally instance functions in the component that
+     *  update other component view properties as a function of the target view property having changed.
      */
     function MappingAction(parent, _propertyOrArrayName, _component, targetPropName) {
         var postReducerCallbacks = [];
@@ -392,9 +426,6 @@ var MappingAction = /** @class */ (function (_super) {
         this.index = _index;
         this.propArray = _propArray;
         return this;
-    };
-    MappingAction.prototype.getIndex = function () {
-        return this.index;
     };
     /**
      * Map this property/component pair to the applications ContainerState, or if false, unmap it.

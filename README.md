@@ -238,54 +238,56 @@ export class Alert extends RenderPropsComponent<AlertProps, AlertViewProps, AppS
   This is controlled by the environment variable REACT_APP_STATE_MUTATION_CHECKING.
 - **Simple, Powerful Middleware** - optional developer-provided functions can be invoked at various times in the lifecycle.
   i.e., before reducers (state changes) or after components are updated (or both).
-  - **Middleware Lifecycle:**
-    1. **dispatch** - is available via actions or store:
-       - `getActionCreator(stateObject).set('modalMessage', 'You cannot use the Admin UI');`
-       - `store.dispatch(action1, action2, ...actionN);`
-    2. **preProcessor** - optionally execute code before anything changes, can read all actions, allow them to pass, or replace them
-       - `getAppStore().getManager().getActionProcessorAPI().appendPreProcessor(myPreProessor);`
-    3. **reducer** - You don't have to write reducers, manifold-dx implements generic reducers that get called for you.
-       - actionPostReducer - optionally added to specific actions when something needs to be done immediately after a state change, e.g.
-         - `scoreAppendAction.actionPostReducer = () => { /* recalculate average score here */ }`
-    4. **containerPostReducer** - optionally added to mapping actions, invoked by the container when the state in the mapping action is updated. 
-        Using the previous example, if we don't want to have to remember to update the average, let's put the average in the component
-        and use the optional containerPostReducer by appending the argument function 'this.calcAverage':
-       - `actions.push( bowlingMapper.createPropertyMappingAction(this, 'scores', this.calcAverage.bind(this)) );`
-    5. **postProcessor** - optionally execute code after state has updated, but immediately before component renders invoked (which are async)
-       - See the logging example below
-    6. **render** - invoked by manifold-dx, all containers mapped to the changed state will be rendered
-       - multiple state changes are deduped so only one render will be invoked per container component (although React 
-         may re-render repeatedly)
-  - **ActionLoggingObject** interface to log actions before they change anything (or after)
-    ```typescript
-      let logging: string[] = [];
-      let loggerObject: ActionLoggingObject = actionLogging(logging, false);
-      getAppStore().getManager().getActionProcessorAPI().appendPreProcessor(loggerObject.processor);
-    ```
-  - **Action Type Guards** are provided as convenience methods, since all actions pass through Processors and you will want to
-    find specific kinds of actions.
 
-    There are a lot of things you might want to do, like performing transforms on data that are state dependent, 
-    or like below, using `action.isStatePropChange` to validate whether the user can perform specific actions.
-    Note that if you need to you can replace the inbound actions with whatever other actions may be needed.
-      ```typescript
-      const store = createStore(); // your app would define this
-      const userIsAdmin = () => false;
-      const actionValidator: ActionProcessorFunctionType = // actions: Action[] => Action[]
-        actions => {
-          const stateObject = getStateObject(store.getState());
-          for(let i = 0; i < actions.length; i++) {
-            const action = actions[i];
-            if (action.isStatePropChange() && action.parent === stateObject && 
-              action.propertyName === 'redirectTo' &&  action.value === '/admin/secret/ui' && !userIsAdmin()) {
-                const replacementAction = getActionCreator(stateObject).set('modalMessage', 'You cannot use the Admin UI');
-                return [replacementAction];
-            }      
-          }
-          return actions;
-        };
-      store.getManager().getActionProcessorAPI().appendPreProcessor(actionValidator);
-      ```
+  **Middleware Lifecycle:**
+     1. **dispatch** - is available via actions or store:
+        - `getActionCreator(stateObject).set('modalMessage', 'You cannot use the Admin UI');`
+        - `store.dispatch(action1, action2, ...actionN);`
+     2. **preProcessor** - optionally execute code before anything changes, can read all actions, allow them to pass, or replace them
+        - `getAppStore().getManager().getActionProcessorAPI().appendPreProcessor(myPreProessor);`
+     3. **reducer** - You don't have to write reducers, manifold-dx implements generic reducers that get called for you.
+        - actionPostReducer - optionally added to specific actions when something needs to be done immediately after a state change, e.g.
+          - `scoreAppendAction.actionPostReducer = () => { /* recalculate average score here */ }`
+     4. **containerPostReducer** - optionally added to mapping actions, invoked by the container when the state in the mapping action is updated. 
+         Using the previous example, if we don't want to have to remember to update the average, let's put the average in the component
+         and use the optional containerPostReducer by appending the argument function 'this.calcAverage':
+        - `actions.push( bowlingMapper.createPropertyMappingAction(this, 'scores', this.calcAverage.bind(this)) );`
+     5. **postProcessor** - optionally execute code after state has updated, but immediately before component renders invoked (which are async)
+        - See the logging example below
+     6. **render** - invoked by manifold-dx, all containers mapped to the changed state will be rendered
+        - multiple state changes are deduped so only one render will be invoked per container component (although React 
+          may re-render repeatedly)
+        
+- **ActionLoggingObject** interface to log actions before they change anything (or after)
+  ```typescript
+    let logging: string[] = [];
+    let loggerObject: ActionLoggingObject = actionLogging(logging, false);
+    getAppStore().getManager().getActionProcessorAPI().appendPreProcessor(loggerObject.processor);
+  ```
+- **Action Type Guards** are provided as convenience methods, since all actions pass through Processors and you will want to
+  find specific kinds of actions.
+
+  There are a lot of things you might want to do, like performing transforms on data that are state dependent, 
+  or like below, using `action.isStatePropChange` to validate whether the user can perform specific actions.
+  Note that if you need to you can replace the inbound actions with whatever other actions may be needed.
+    ```typescript
+    const store = createStore(); // your app would define this
+    const userIsAdmin = () => false;
+    const actionValidator: ActionProcessorFunctionType = // actions: Action[] => Action[]
+      actions => {
+        const stateObject = getStateObject(store.getState());
+        for(let i = 0; i < actions.length; i++) {
+          const action = actions[i];
+          if (action.isStatePropChange() && action.parent === stateObject && 
+            action.propertyName === 'redirectTo' &&  action.value === '/admin/secret/ui' && !userIsAdmin()) {
+              const replacementAction = getActionCreator(stateObject).set('modalMessage', 'You cannot use the Admin UI');
+              return [replacementAction];
+          }      
+        }
+        return actions;
+      };
+    store.getManager().getActionProcessorAPI().appendPreProcessor(actionValidator);
+    ```
   - **'set' API** a convenience method that will do insert, update or delete depending on old and new data values.
   - **React Router (v4+) integration** via RedirectDx [https://github.com/mfsjr/manifold-dx-redirect-dx]
 

@@ -4,11 +4,16 @@
 
 The goal here is to provide a quick and easy developer experience, using Flux mechanics.  This TypeScript framework 
 relies on developers to define application state based on interfaces, whose type information is then used to infer action ID's, 
-action objects, action creators, reducers.
+action objects, action creators, and reducers.  So the only boilerplate you're writing are the strongly typed definitions that 
+comes with any React project in TypeScript.
 
-Where Redux's implementation is based on functional programming and immutability, manifold-dx uses TypeScript to define 
-immutable structure, then uses generics and type inference to provide out-of-the-box API's for action creation, predefined 
+Where Redux's implementation is based on functional programming and immutability, manifold-dx uses TypeScript to define strongly
+typed immutable structure, then uses generics and type inference to provide out-of-the-box API's for action creation, predefined 
 reducers, dispatching, mapping state to components, dead simple middleware, and much more.
+
+Since manifold-dx uses strongly typed nestable state objects, the actual shape of the application state can be whatever you want it 
+to be, or whatever the problem requires.  A deeply nested hierarchy doesn't present any problem, and component updates are performed
+efficiently.
 
 As with Redux, be sure you actually need to use this.  Big standalone SPA's often need libraries to manage app state, others often do not.  
 
@@ -72,7 +77,7 @@ Just to reiterate, you didn't have to write anything, these API's are provided b
    - You can copy and past them from the project's "templates" directory, these are your 'smart' classes that delegate to 'dumb' renderers 
      - TemplateContainer.tsx, TemplateRenderProps.tsx, TemplateSimple.tsx
      - They contain some recommended patterns, including using FunctionComponents and React Hooks.
-   - Just fill in your strongly typed interfaces and mappings and write your renderering functions
+   - Just fill in your strongly typed interfaces and mappings and write your rendering functions/components.
 
 
 ### Demo App
@@ -91,10 +96,14 @@ This is actually a more general question that applies to writing any UI, and it 
     3. Properties that are named (indexed by) strings
     4. No classes, class instances or functions
 2. The main observation here is that state is dynamic so everything besides the top node (application state) itself is 
-   usually optional (possibly undefined).  Whether we are waiting for async results or simply writing code line-by-line  state can always be optional.
-3. State Objects can always be obtained using optional chaining: `getStateObject(getAppStore().getState()?.uiLayout?.modal)`, where the function will throw if the state object is undefined (action creators can use optional chaining too).
-   1. You can also define accessors to return a real object, ie non-optionally, by throwing an exception if the object is undefined.  So you can define accessors to grab state objects which do the checking once.
-4. We provide helper intefaces that enforce parent child relationships.  They're easy to code and TypeScript will use them to provide code completion and flag mistakes.
+   usually optional (possibly undefined).  Whether we are waiting for async results or simply writing code line-by-line  state can 
+   always be optional.
+3. State Objects can always be obtained using optional chaining: `getStateObject(getAppStore().getState()?.uiLayout?.modal)`, 
+   where the function will throw if the state object is undefined (action creators can use optional chaining too).
+   1. You can also define accessors to return a real object, ie non-optionally, by throwing an exception if the object is 
+      undefined.  So you can define accessors to grab state objects which do the checking once.
+4. We provide helper intefaces that enforce parent child relationships.  They're easy to code and TypeScript will use them to 
+   provide code completion and flag mistakes.
 
 **Serialization** application state can be de/serialized using a library called JSOG, that extends JSON 
 serialization to handle cyclic graphs.
@@ -186,9 +195,9 @@ export const getAppStore = (): AppStore => appStore;
   This allows you to use optional chaining to access state objects deterministically.
 ```typescript
 // access app state using optional chaining
-const modal: ModalState = getStateObject(getAppStore().getState()?.uiLayout?.modal); // throws if user is undefined
+const message: string = getStateObject(getAppStore().getState()?.uiLayout?.modal).message; // throws if uiLayour or modal is undefined
 // or use it when creating actions
-getActionCreator().set('redirectTo', SceneUrl.MY_GROUP).dispatch(); // throws if uiLayout isundefined
+getActionCreator(getAppStore().getState()?.uiLayout?.modal).set('message', 'Your updates have been saved').dispatch(); // throws if uiLayout isundefined
 ```
 - How to integrate with React Router v4 and up
   - You can integrate routing with state management using RedirectDx [https://github.com/mfsjr/manifold-dx-redirect-dx]
@@ -245,7 +254,7 @@ export class Alert extends RenderPropsComponent<AlertProps, AlertViewProps, AppS
         - `store.dispatch(action1, action2, ...actionN);`
      2. **preProcessor** - optionally execute code before anything changes, can read all actions, allow them to pass, or replace them
         - `getAppStore().getManager().getActionProcessorAPI().appendPreProcessor(myPreProessor);`
-     3. **reducer** - You don't have to write reducers, manifold-dx implements generic reducers that get called for you.
+     3. **reducer** - You don't write reducers, manifold-dx implements generic reducers that get called for you.
         - actionPostReducer - optionally added to specific actions when something needs to be done immediately after a state change, e.g.
           - `scoreAppendAction.actionPostReducer = () => { /* recalculate average score here */ }`
      4. **containerPostReducer** - optionally added to mapping actions, invoked by the container when the state in the mapping action is updated. 
@@ -254,8 +263,8 @@ export class Alert extends RenderPropsComponent<AlertProps, AlertViewProps, AppS
         - `actions.push( bowlingMapper.createPropertyMappingAction(this, 'scores', this.calcAverage.bind(this)) );`
      5. **postProcessor** - optionally execute code after state has updated, but immediately before component renders invoked (which are async)
         - See the logging example below
-     6. **render** - invoked by manifold-dx, all containers mapped to the changed state will be rendered
-        - multiple state changes are deduped so only one render will be invoked per container component (although React 
+     6. **render** - invoked for you by manifold-dx when app state changes, all containers mapped to the changed state will be rendered
+        - multiple state changes are de-duped so only there's only one render per container component (although React 
           may re-render repeatedly)
         
 - **ActionLoggingObject** interface to log actions before they change anything (or after)
@@ -264,15 +273,16 @@ export class Alert extends RenderPropsComponent<AlertProps, AlertViewProps, AppS
     let loggerObject: ActionLoggingObject = actionLogging(logging, false);
     getAppStore().getManager().getActionProcessorAPI().appendPreProcessor(loggerObject.processor);
   ```
-- **Action Type Guards** are provided as convenience methods, since all actions pass through Processors and you will want to
-  find specific kinds of actions.
+- **Action Type Guards** are provided as convenience methods, since all actions pass through Processor 
+  middleware, where you often want to find specific kinds of actions.
 
   There are a lot of things you might want to do, like performing transforms on data that are state dependent, 
   or like below, using `action.isStatePropChange` to validate whether the user can perform specific actions.
   Note that if you need to you can replace the inbound actions with whatever other actions may be needed.
     ```typescript
-    const store = createStore(); // your app would define this
-    const userIsAdmin = () => false;
+    import { userIsAdmin } from '../auth';  // your app defines this
+    import { createStore } from '../store'; // your app defines this
+    const store = createStore(); 
     const actionValidator: ActionProcessorFunctionType = // actions: Action[] => Action[]
       actions => {
         const stateObject = getStateObject(store.getState());
@@ -292,8 +302,8 @@ export class Alert extends RenderPropsComponent<AlertProps, AlertViewProps, AppS
   - **React Router (v4+) integration** via RedirectDx [https://github.com/mfsjr/manifold-dx-redirect-dx]
 
 ### Prior Art
-Obviously Redux has been our frame of reference, but Vuex should be mentioned, as it influenced this design in a couple of ways:
-- State is synchronous, async aspects should be handled elsewhere (separation of concerns).
+Obviously Redux has been our frame of reference, but Vuex should be mentioned as it influenced this design in a couple of ways:
+- State is modified synchronously, although in our case async aspects should be handled elsewhere (separation of concerns).
 - Since state is global, we have no need for declarative/nested access, we just declare it globally, eg:
 	`export const appStore = new AppStore(new AppStateCreator().appState, {});`
 
@@ -306,6 +316,9 @@ Redux's preferred 'flat' shape.
   - this will also turn on state diff output, when mutations are detected
    
 #### Recent releases
+##### v1.1.26
+- remove recompose
+- more README updates
 ##### v1.1.25
 - Action instance type guard methods to facilitate easier use of ProcessorAPI's (see above)
   - isStatePropChange, isStateArrayChange, isMappingChange

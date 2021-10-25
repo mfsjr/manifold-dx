@@ -5,7 +5,6 @@ import * as _ from 'lodash';
 import { Manager } from '../types/Manager';
 import { StateObject } from '../types/Store';
 import { ArrayChangeAction } from '../';
-// import { shallowEqual } from 'recompose';
 
 /**
  *

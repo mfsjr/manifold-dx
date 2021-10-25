@@ -26,7 +26,6 @@ var actions_1 = require("../actions/actions");
 var _ = require("lodash");
 var Manager_1 = require("../types/Manager");
 var __1 = require("../");
-// import { shallowEqual } from 'recompose';
 /**
  *
  * A kind of React.Component container/controller (constructor takes a component

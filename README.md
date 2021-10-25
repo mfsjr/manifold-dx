@@ -253,46 +253,41 @@ export class Alert extends RenderPropsComponent<AlertProps, AlertViewProps, AppS
        - `actions.push( bowlingMapper.createPropertyMappingAction(this, 'scores', this.calcAverage.bind(this)) );`
     5. **postProcessor** - optionally execute code after state has updated, but immediately before component renders invoked (which are async)
        - See the logging example below
-    6. render - invoked by manifold-dx, all containers mapped to the changed state will be rendered
-       - multiple state changes are deduped so only one render will be invoked per container component (although React may re-render repeatedly)
+    6. **render** - invoked by manifold-dx, all containers mapped to the changed state will be rendered
+       - multiple state changes are deduped so only one render will be invoked per container component (although React 
+         may re-render repeatedly)
   - **ActionLoggingObject** interface to log actions before they change anything (or after)
     ```typescript
       let logging: string[] = [];
       let loggerObject: ActionLoggingObject = actionLogging(logging, false);
       getAppStore().getManager().getActionProcessorAPI().appendPreProcessor(loggerObject.processor);
     ```
-- **Action Type Guards** are provided as convenience methods, since all actions pass through Processors and you will want to
-  find specific kinds of actions.
+  - **Action Type Guards** are provided as convenience methods, since all actions pass through Processors and you will want to
+    find specific kinds of actions.
 
-  There are a lot of things you might want to do, like performing transforms on data that are state dependent, 
-  or like below, using `action.isStatePropChange` to validate whether the user can perform specific actions.
-  Note that if you need to you can replace the inbound actions with whatever other actions may be needed.
-    ```typescript
-    const store = createStore(); // your app would define this
-    const userIsAdmin = () => false;
-    const actionValidator: ActionProcessorFunctionType = // actions: Action[] => Action[]
-      actions => {
-        const stateObject = getStateObject(store.getState());
-        for(let i = 0; i < actions.length; i++) {
-          const action = actions[i];
-          if (action.isStatePropChange() && action.parent === stateObject && 
-            action.propertyName === 'redirectTo' &&  action.value === '/admin/secret/ui' && !userIsAdmin()) {
-              const replacementAction = getActionCreator(stateObject).set('modalMessage', 'You cannot use the Admin UI');
-              return [replacementAction];
-          }      
-        }
-        return actions;
-      };
-    store.getManager().getActionProcessorAPI().appendPreProcessor(actionValidator);
-    ```
-
-- Type-safe generic api's mean developers never code any action types, actions, action creators, reducers, etc.
-- Render props
-- React Router (v4) integration via RedirectDx [https://github.com/mfsjr/manifold-dx-redirect-dx]
-- Batched updates for efficient rendering: `getAppStore().dispatch(...actions);`
-- **'set' API** a convenience method that will do insert, update or delete depending on old and new data values.
-- **Optional Chaining** our getStateObject and action creator api's can verify the existence of dynamically created state objects, 
-  allowing you to use optional chaining (eg `getAppStore().getState()?.uiLayout?.modal`).
+    There are a lot of things you might want to do, like performing transforms on data that are state dependent, 
+    or like below, using `action.isStatePropChange` to validate whether the user can perform specific actions.
+    Note that if you need to you can replace the inbound actions with whatever other actions may be needed.
+      ```typescript
+      const store = createStore(); // your app would define this
+      const userIsAdmin = () => false;
+      const actionValidator: ActionProcessorFunctionType = // actions: Action[] => Action[]
+        actions => {
+          const stateObject = getStateObject(store.getState());
+          for(let i = 0; i < actions.length; i++) {
+            const action = actions[i];
+            if (action.isStatePropChange() && action.parent === stateObject && 
+              action.propertyName === 'redirectTo' &&  action.value === '/admin/secret/ui' && !userIsAdmin()) {
+                const replacementAction = getActionCreator(stateObject).set('modalMessage', 'You cannot use the Admin UI');
+                return [replacementAction];
+            }      
+          }
+          return actions;
+        };
+      store.getManager().getActionProcessorAPI().appendPreProcessor(actionValidator);
+      ```
+  - **'set' API** a convenience method that will do insert, update or delete depending on old and new data values.
+  - **React Router (v4+) integration** via RedirectDx [https://github.com/mfsjr/manifold-dx-redirect-dx]
 
 ### Prior Art
 Obviously Redux has been our frame of reference, but Vuex should be mentioned, as it influenced this design in a couple of ways:

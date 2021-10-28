@@ -316,7 +316,7 @@ Redux's preferred 'flat' shape.
   - this will also turn on state diff output, when mutations are detected
    
 #### Recent releases
-##### v1.1.26
+##### v1.1.27
 - remove recompose
 - more README updates
 ##### v1.1.25

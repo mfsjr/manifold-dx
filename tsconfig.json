@@ -24,6 +24,10 @@
     "node_modules",
     "build",
     "scripts",
-    "test"
+    "test",
+    "templates"
+  ],
+  "include": [
+    "src"
   ]
 }

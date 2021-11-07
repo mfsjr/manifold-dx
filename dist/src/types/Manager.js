@@ -1,10 +1,8 @@
 "use strict";
-var __spreadArrays = (this && this.__spreadArrays) || function () {
-    for (var s = 0, i = 0, il = arguments.length; i < il; i++) s += arguments[i].length;
-    for (var r = Array(s), k = 0, i = 0; i < il; i++)
-        for (var a = arguments[i], j = 0, jl = a.length; j < jl; j++, k++)
-            r[k] = a[j];
-    return r;
+var __spreadArray = (this && this.__spreadArray) || function (to, from) {
+    for (var i = 0, il = from.length, j = to.length; i < il; i++, j++)
+        to[j] = from[i];
+    return to;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Manager = void 0;
@@ -91,7 +89,7 @@ var Manager = /** @class */ (function () {
             actions_1.Action.undo(action);
             _this.actionQueue.incrementCurrentIndex(-1);
         };
-        return this.dispatch.apply(this, __spreadArrays([actionMethod], actions));
+        return this.dispatch.apply(this, __spreadArray([actionMethod], actions));
     };
     Manager.prototype.actionRedo = function (nActions) {
         var _this = this;
@@ -106,7 +104,7 @@ var Manager = /** @class */ (function () {
             actions_1.Action.perform(action);
             _this.actionQueue.incrementCurrentIndex(1);
         };
-        return this.dispatch.apply(this, __spreadArrays([actionMethod], actions));
+        return this.dispatch.apply(this, __spreadArray([actionMethod], actions));
     };
     /**
      * All new actions are performed here.  Actions may be undone via {@link actionUndo} or replayed via
@@ -130,7 +128,7 @@ var Manager = /** @class */ (function () {
             actions_1.Action.perform(action);
             _this.actionQueue.push(action);
         };
-        return this.dispatch.apply(this, __spreadArrays([actionMethod], actions));
+        return this.dispatch.apply(this, __spreadArray([actionMethod], actions));
     };
     // NOTE: This commented dispatch code will catch if an action is dispatched while another executes, hold it until the
     // current action(s) are done executing, and then execute it.  Seems better to rule this out, but not really sure...
@@ -220,7 +218,7 @@ var Manager = /** @class */ (function () {
     };
     Manager.prototype.dispatchFromNextArgs = function (_dispatchArgs) {
         var args = _dispatchArgs.splice(0, 1);
-        return this.dispatch.apply(this, __spreadArrays([args[0].actionMethod], args[0].actions));
+        return this.dispatch.apply(this, __spreadArray([args[0].actionMethod], args[0].actions));
     };
     Manager.prototype.getFullPath = function (container, propName) {
         var fullPath = propName;

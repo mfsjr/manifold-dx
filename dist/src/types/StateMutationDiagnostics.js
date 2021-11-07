@@ -15,7 +15,7 @@ var StateMutationCheck_1 = require("./StateMutationCheck");
  * @type {DiffPatcher}
  */
 var diffPatcher = new jsondiffpatch_1.DiffPatcher();
-exports.onFailureDiff = function (baseline, failure) {
+var onFailureDiff = function (baseline, failure) {
     // console.log(`StateMutationCheck failed: `);
     var baselineClone = _.cloneDeep(baseline);
     Store_1.Store.stripStateObject(baselineClone);
@@ -26,4 +26,5 @@ exports.onFailureDiff = function (baseline, failure) {
     // console.log(result);
     throw new StateMutationCheck_1.MutationError(result);
 };
+exports.onFailureDiff = onFailureDiff;
 //# sourceMappingURL=StateMutationDiagnostics.js.map

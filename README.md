@@ -254,16 +254,16 @@ export class Alert extends RenderPropsComponent<AlertProps, AlertViewProps, AppS
         - `store.dispatch(action1, action2, ...actionN);`
      2. **preProcessor** - optionally execute code before anything changes, can read all actions, allow them to pass, or replace them
         - `getAppStore().getManager().getActionProcessorAPI().appendPreProcessor(myPreProessor);`
-     3. **reducer** - You don't write reducers, manifold-dx implements generic reducers that get called for you.
-        - actionPostReducer - optionally added to specific actions when something needs to be done immediately after a state change, e.g.
-          - `scoreAppendAction.actionPostReducer = () => { /* recalculate average score here */ }`
-     4. **containerPostReducer** - optionally added to mapping actions, invoked by the container when the state in the mapping action is updated. 
+     3. **reducer** - You don't write reducers, manifold-dx invokes its own generic reducers that get called for you.
+     4. **actionPostReducer** - optionally added to specific actions when something needs to be done immediately after a state change, e.g.
+       - `scoreAppendAction.actionPostReducer = () => { /* recalculate average score here */ }`
+     5. **containerPostReducer** - optionally added to mapping actions, invoked by the container when the state in the mapping action is updated. 
          Using the previous example, if we don't want to have to remember to update the average, let's put the average in the component
          and use the optional containerPostReducer by appending the argument function 'this.calcAverage':
         - `actions.push( bowlingMapper.createPropertyMappingAction(this, 'scores', this.calcAverage.bind(this)) );`
-     5. **postProcessor** - optionally execute code after state has updated, but immediately before component renders invoked (which are async)
+     6. **postProcessor** - optionally execute code after state has updated, but immediately before component renders invoked (which are async)
         - See the logging example below
-     6. **render** - invoked for you by manifold-dx when app state changes, all containers mapped to the changed state will be rendered
+     7. **render** - invoked for you by manifold-dx when app state changes, all containers mapped to the changed state will be rendered
         - multiple state changes are de-duped so only there's only one render per container component (although React 
           may re-render repeatedly)
         

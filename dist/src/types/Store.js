@@ -105,7 +105,9 @@ var Store = /** @class */ (function () {
     Store.stripStateObject = function (stateObject, includingFunctions) {
         /* tslint:enable:no-any */
         if (Store.isInstanceOfStateObject(stateObject)) {
+            // @ts-ignore we intend to break this StateObject (surfaced in TS 4.0.8)
             delete stateObject._myPropname;
+            // @ts-ignore we intend to break this StateObject (surfaced in TS 4.0.8)
             delete stateObject._parent;
             // let childStateObjects: StateObject[];
             for (var obj in stateObject) {

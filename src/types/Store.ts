@@ -178,7 +178,9 @@ export class Store<A> {
   public static stripStateObject(stateObject: any, includingFunctions?: boolean): any {
       /* tslint:enable:no-any */
       if (Store.isInstanceOfStateObject(stateObject)) {
+          // @ts-ignore we intend to break this StateObject (surfaced in TS 4.0.8)
           delete stateObject._myPropname;
+          // @ts-ignore we intend to break this StateObject (surfaced in TS 4.0.8)
           delete stateObject._parent;
           // let childStateObjects: StateObject[];
           for (let obj in stateObject) {
@@ -288,7 +290,7 @@ export class Store<A> {
    *
    * @param actions
    */
-  public dispatchNext(...actions: Action[]): Promise<Action[]> {
+  public dispatchNext(...actions: Action[]): Promise<Action[] | undefined> {
     this._deferredDispatchCount++; // testing/debugging
     let dispatcher = this.dispatch.bind(this);
     /*tslint:disable:no-any*/

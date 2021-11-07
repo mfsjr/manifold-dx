@@ -9,7 +9,7 @@ exports.createActionQueue = void 0;
  * @param {number} _max defaults to 100
  * @returns {any}
  */
-exports.createActionQueue = function (_max) {
+var createActionQueue = function (_max) {
     if (_max === void 0) { _max = 100; }
     var queue = [];
     var max = _max;
@@ -62,4 +62,5 @@ exports.createActionQueue = function (_max) {
     };
     return api;
 };
+exports.createActionQueue = createActionQueue;
 //# sourceMappingURL=ActionQueue.js.map

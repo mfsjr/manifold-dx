@@ -136,7 +136,7 @@ export declare class Store<A> {
      *
      * @param actions
      */
-    dispatchNext(...actions: Action[]): Promise<Action[]>;
+    dispatchNext(...actions: Action[]): Promise<Action[] | undefined>;
 }
 /**
  * This is only used in {@link JSON.stringify}, to prevent cyclic errors arising from

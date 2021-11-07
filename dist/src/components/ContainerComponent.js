@@ -3,21 +3,21 @@ var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-var __spreadArrays = (this && this.__spreadArrays) || function () {
-    for (var s = 0, i = 0, il = arguments.length; i < il; i++) s += arguments[i].length;
-    for (var r = Array(s), k = 0, i = 0; i < il; i++)
-        for (var a = arguments[i], j = 0, jl = a.length; j < jl; j++, k++)
-            r[k] = a[j];
-    return r;
+var __spreadArray = (this && this.__spreadArray) || function (to, from) {
+    for (var i = 0, il = from.length, j = to.length; i < il; i++, j++)
+        to[j] = from[i];
+    return to;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ContainerComponent = void 0;
@@ -80,7 +80,7 @@ var ContainerComponent = /** @class */ (function (_super) {
      * @returns {Array<T>}
      */
     ContainerComponent.newArray = function (oldArray, index, newElement) {
-        var newArray = __spreadArrays(oldArray);
+        var newArray = __spreadArray([], oldArray);
         newArray[index] = newElement;
         return newArray;
     };
@@ -90,14 +90,14 @@ var ContainerComponent = /** @class */ (function (_super) {
         for (var _i = 3; _i < arguments.length; _i++) {
             postReducerCallbacks[_i - 3] = arguments[_i];
         }
-        return new (actions_1.MappingAction.bind.apply(actions_1.MappingAction, __spreadArrays([void 0, parentState, _propKey, this, targetPropKey], postReducerCallbacks)))();
+        return new (actions_1.MappingAction.bind.apply(actions_1.MappingAction, __spreadArray([void 0, parentState, _propKey, this, targetPropKey], postReducerCallbacks)))();
     };
     ContainerComponent.prototype.createMapping = function (stateObject, stateObjectProperty, targetViewProp) {
         var postReducerCallbacks = [];
         for (var _i = 3; _i < arguments.length; _i++) {
             postReducerCallbacks[_i - 3] = arguments[_i];
         }
-        return new (actions_1.MappingAction.bind.apply(actions_1.MappingAction, __spreadArrays([void 0, stateObject, stateObjectProperty, this, targetViewProp], postReducerCallbacks)))();
+        return new (actions_1.MappingAction.bind.apply(actions_1.MappingAction, __spreadArray([void 0, stateObject, stateObjectProperty, this, targetViewProp], postReducerCallbacks)))();
     };
     /**
      * Update the properties of the view (presentational component) immediately after the
@@ -185,7 +185,7 @@ var ContainerComponent = /** @class */ (function (_super) {
                 var unmappingAction = action.getUndoAction();
                 unmappingActions_1.push(unmappingAction);
             });
-            (_a = Manager_1.Manager.get(this.appState)).actionUndo.apply(_a, __spreadArrays([0], unmappingActions_1));
+            (_a = Manager_1.Manager.get(this.appState)).actionUndo.apply(_a, __spreadArray([0], unmappingActions_1));
         }
     };
     /**

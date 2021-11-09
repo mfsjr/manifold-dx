@@ -22,7 +22,7 @@ global.document = window.document;
 global.navigator = { userAgent: 'node.js' };
 
 import * as enzyme from 'enzyme';
-import * as Adapter from 'enzyme-adapter-react-16';
+import * as Adapter from '@wojtekmaj/enzyme-adapter-react-17';
 
 import {
   ActionProcessorFunctionType,

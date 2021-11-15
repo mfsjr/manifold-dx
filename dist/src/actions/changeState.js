@@ -94,10 +94,11 @@ function changeValue(actionType, stateObject, value, propertyName) {
         case actions_1.ActionId.RERENDER: {
             return { oldValue: stateObject[propertyName] };
         }
-        case actions_1.ActionId.UPDATE_PROPERTY_NO_OP ||
-            actions_1.ActionId.INSERT_PROPERTY_NO_OP ||
-            actions_1.ActionId.DELETE_PROPERTY_NO_OP:
-            return { oldValue: value };
+        case actions_1.ActionId.UPDATE_PROPERTY_NO_OP:
+        case actions_1.ActionId.INSERT_PROPERTY_NO_OP:
+        case actions_1.ActionId.DELETE_PROPERTY_NO_OP: {
+            return { oldValue: stateObject[propertyName] };
+        }
         case actions_1.ActionId.UPDATE_PROPERTY: {
             var isStateObject = Store_1.Store.isInstanceOfStateObject(value);
             throwIf(isStateObject, actions_1.ActionId[actionType] + " action isn't applicable to state objects");

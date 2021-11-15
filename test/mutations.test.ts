@@ -45,6 +45,18 @@ describe('mutate object values', () => {
   test('return from insert should have no properties', () => {
     expect(Object.getOwnPropertyNames(resultInsertName).length).toBe(0);
   });
+  test('no_ops', () => {
+    const value = nameState.last;
+    let newValue = changeValue(ActionId.DELETE_PROPERTY_NO_OP, nameState, 'abcz', 'last');
+    expect(newValue.oldValue === value);
+    expect(nameState.last).toBe(value);
+    newValue = changeValue(ActionId.DELETE_PROPERTY_NO_OP, nameState, 'abcz', 'last');
+    expect(newValue.oldValue === value);
+    expect(nameState.last).toBe(value);
+    newValue = changeValue(ActionId.UPDATE_PROPERTY_NO_OP, nameState, 'abcz', 'last');
+    expect(newValue.oldValue === value);
+    expect(nameState.last).toBe(value);
+  });
 
   // let's insert an optional property "suffix" into the nameState
   describe('insert the optional "suffix" property into the nameState', () => {

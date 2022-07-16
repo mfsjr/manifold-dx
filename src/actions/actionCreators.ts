@@ -99,7 +99,7 @@ export class ActionCreator<S extends StateObject> {
    * @param propertyKey
    * @param value
    */
-  public set<K extends Extract<keyof S, string>>(propertyKey: K, value?: S[K]): StateCrudAction<S, K> {
+  public set<K extends Extract<keyof S, string>>(propertyKey: K, value: S[K]): StateCrudAction<S, K> {
     if (value === undefined) {
       return this.removeIfHasData(propertyKey);
     } else if (this.parent[propertyKey] === null || this.parent[propertyKey] === undefined) {

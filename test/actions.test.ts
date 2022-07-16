@@ -606,8 +606,8 @@ describe('safe operations, updateIfChanged, insertIfEmpty, removeIfHasData, and 
     const actionCreator = getActionCreator(nameState);
     actionCreator.set('middle', 'Z').dispatch();
     expect(nameState.middle).toBe('Z');
-    actionCreator.set('middle', undefined).dispatch();
-    expect(nameState.middle).toBeUndefined();
+    actionCreator.set('middle', '').dispatch();
+    expect(nameState.middle).toBeFalsy();
     actionCreator.set('middle', 'R').dispatch();
     expect(nameState.middle).toBe('R');
     expect(() => actionCreator.set('middle', 'R').dispatch()).not.toThrow();
@@ -656,8 +656,8 @@ describe('safe operations, updateIfChanged, insertIfEmpty, removeIfHasData, and 
       // triggerMiss should not have
       expect(nameState.first).toBe(first);
 
-      actionCreator.set('middle', undefined).dispatch();
-      expect(nameState.middle).toBeUndefined();
+      actionCreator.set('middle', '').dispatch();
+      expect(nameState.middle).toBeFalsy();
       expect(nameState.suffix).toBe(nameState.middle);
       expect(nameState.first).toBe(first);
       // NOTE that where these were equal before setTimeout above, they are different now

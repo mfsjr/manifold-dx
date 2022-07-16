@@ -56,7 +56,7 @@ export declare class ActionCreator<S extends StateObject> {
      * @param propertyKey
      * @param value
      */
-    set<K extends Extract<keyof S, string>>(propertyKey: K, value?: S[K]): StateCrudAction<S, K>;
+    set<K extends Extract<keyof S, string>>(propertyKey: K, value: S[K]): StateCrudAction<S, K>;
     /**
      * Delete the property (named 'remove' because 'delete' is a reserved word).
      *

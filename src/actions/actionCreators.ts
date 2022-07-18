@@ -100,12 +100,9 @@ export class ActionCreator<S extends StateObject> {
    * @param value
    */
   public set<K extends Extract<keyof S, string>>(propertyKey: K, value: S[K]): StateCrudAction<S, K> {
-    // if (value === undefined) {
-    //   return this.removeIfHasData(propertyKey);
-    // } else if (this.parent[propertyKey] === null || this.parent[propertyKey] === undefined) {
-    //   return this.insert(propertyKey, value);
-    // }
-    if (value !== undefined && (this.parent[propertyKey] === null || this.parent[propertyKey] === undefined)) {
+    if (value === undefined) {
+      return this.removeIfHasData(propertyKey);
+    } else if (this.parent[propertyKey] === null || this.parent[propertyKey] === undefined) {
       return this.insert(propertyKey, value);
     }
     return this.updateIfChanged(propertyKey, value);

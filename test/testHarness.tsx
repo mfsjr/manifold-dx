@@ -17,7 +17,7 @@ export interface Name {
   prefix?: string | null;
   suffix?: string;
   first: string;
-  middle: string;
+  middle?: string;
   last: string;
   address?: Address;
   addresses: Array<Address>;

@@ -583,12 +583,12 @@ describe('safe operations, updateIfChanged, insertIfEmpty, removeIfHasData, and 
     expect(nameState.addresses[0] === addr01).toBe(true);
   });
   test('property insertDeleteIfHasData', () => {
-    expect(nameState.middle.length > 0).toBe(true);
+    expect(nameState.middle && nameState.middle.length > 0).toBe(true);
     let actionCreator = getActionCreator(nameState);
-    actionCreator.removeIfHasData('middle').dispatch();
+    actionCreator.set('middle', undefined).dispatch();
     expect( nameState.middle).toBeFalsy();
     expect(() => actionCreator.remove('middle').dispatch()).toThrow();
-    expect( () => actionCreator.removeIfHasData('middle').dispatch()).not.toThrow();
+    expect( () => actionCreator.set('middle', undefined).dispatch()).not.toThrow();
 
   });
   test( 'property insertIfEmpty', () => {

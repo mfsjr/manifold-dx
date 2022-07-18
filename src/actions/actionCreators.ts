@@ -120,17 +120,6 @@ export class ActionCreator<S extends StateObject> {
     return new StateCrudAction(ActionId.DELETE_PROPERTY, this.parent, propertyKey);
   }
 
-  /**
-   * If the value of the property is not undefined or null, remove it, else return a no-op action.
-   * @param propertyKey
-   */
-  public removeIfHasData<K extends ExtractOptionalKeys<S>>(propertyKey: K): StateCrudAction<S, K> {
-    const type = this.parent[propertyKey] === undefined || this.parent[propertyKey] === null ?
-      ActionId.DELETE_PROPERTY_NO_OP :
-      ActionId.DELETE_PROPERTY;
-    return new StateCrudAction(type, this.parent, propertyKey);
-  }
-
   // TODO: can this and the crudInsert above actually work when defined in terms of non-existent keys?
   public insertStateObject<K extends Extract<keyof S, string>>(value: S[K] & StateObject, propertyKey: K)
       : StateCrudAction<S, K> {
@@ -139,6 +128,19 @@ export class ActionCreator<S extends StateObject> {
   public removeStateObject<K extends Extract<keyof S, string>>(propertyKey: K): StateCrudAction<S, K> {
     this.throwIfArray(this.parent[propertyKey]);
     return new StateCrudAction(ActionId.DELETE_STATE_OBJECT, this.parent, propertyKey, this.parent[propertyKey]);
+  }
+  /**
+   * If the value of the property is not undefined or null, remove it, else return a no-op action.
+   *
+   * Since this is only called from {@link #set}, where setting a property to undefined is type-checked, we are
+   * essentially converting this assignment of undefined to removing the key.
+   * @param propertyKey
+   */
+  private removeIfHasData<K extends Extract<keyof S, string>>(propertyKey: K): StateCrudAction<S, K> {
+    const type = this.parent[propertyKey] === undefined || this.parent[propertyKey] === null ?
+      ActionId.DELETE_PROPERTY_NO_OP :
+      ActionId.DELETE_PROPERTY;
+    return new StateCrudAction(type, this.parent, propertyKey);
   }
 }
 

@@ -100,9 +100,12 @@ export class ActionCreator<S extends StateObject> {
    * @param value
    */
   public set<K extends Extract<keyof S, string>>(propertyKey: K, value: S[K]): StateCrudAction<S, K> {
-    if (value === undefined) {
-      return this.removeIfHasData(propertyKey);
-    } else if (this.parent[propertyKey] === null || this.parent[propertyKey] === undefined) {
+    // if (value === undefined) {
+    //   return this.removeIfHasData(propertyKey);
+    // } else if (this.parent[propertyKey] === null || this.parent[propertyKey] === undefined) {
+    //   return this.insert(propertyKey, value);
+    // }
+    if (value !== undefined && (this.parent[propertyKey] === null || this.parent[propertyKey] === undefined)) {
       return this.insert(propertyKey, value);
     }
     return this.updateIfChanged(propertyKey, value);
@@ -115,7 +118,7 @@ export class ActionCreator<S extends StateObject> {
    * @param {K} propertyKey
    * @returns {Action}
    */
-  public remove<K extends Extract<keyof S, string>>(propertyKey: K): StateCrudAction<S, K> {
+  public remove<K extends ExtractOptionalKeys<S>>(propertyKey: K): StateCrudAction<S, K> {
     // this.throwIfArray(this.parent[propertyKey]);
     return new StateCrudAction(ActionId.DELETE_PROPERTY, this.parent, propertyKey);
   }
@@ -124,7 +127,7 @@ export class ActionCreator<S extends StateObject> {
    * If the value of the property is not undefined or null, remove it, else return a no-op action.
    * @param propertyKey
    */
-  public removeIfHasData<K extends Extract<keyof S, string>>(propertyKey: K): StateCrudAction<S, K> {
+  public removeIfHasData<K extends ExtractOptionalKeys<S>>(propertyKey: K): StateCrudAction<S, K> {
     const type = this.parent[propertyKey] === undefined || this.parent[propertyKey] === null ?
       ActionId.DELETE_PROPERTY_NO_OP :
       ActionId.DELETE_PROPERTY;
@@ -323,6 +326,15 @@ export class ArrayActionCreator<S extends StateObject, K extends Extract<keyof S
     ];
   }
 }
+
+/**
+ * Based on {@link ExtractMatching} below.
+ *
+ * The Partial type makes all keys optional, so testing the conditional type of the property requires
+ * that it be partial.
+ */
+export type ExtractOptionalKeys<VP> =
+  { [TP in Extract<keyof VP, string>]: Partial<VP>[TP] extends VP[TP] ? TP : never; } [Extract<keyof VP, string>];
 
 /**
  * Extract keys (which are strings) whose value's types match the type of S[K].

@@ -298,7 +298,7 @@ export class Alert extends RenderPropsComponent<AlertProps, AlertViewProps, AppS
       };
     store.getManager().getActionProcessorAPI().appendPreProcessor(actionValidator);
     ```
-  - **'set' API** a convenience method that will do insert, update or delete depending on old and new data values.
+  - **'set' API** a convenience method that will do insert, update or remove (delete) depending on old and new data values.
   - **React Router (v4+) integration** via RedirectDx [https://github.com/mfsjr/manifold-dx-redirect-dx]
 
 ### Prior Art

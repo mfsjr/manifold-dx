@@ -229,6 +229,20 @@ describe('Get the full path of properties in state objects, usable by lodash "ge
     expect(fullPath).toEqual('name.bowlingScores[0]');
     expect(_.get(appState, fullPath)).toBe(bowlingScores[0]);
   });
+  test('operations with partials and undefined', () => {
+    let middle = nameState.middle;
+    getActionCreator(nameState).update('middle', undefined).dispatch();
+    expect(nameState.middle).toBeUndefined();
+    expect('middle' in nameState).toBeTruthy();
+    getActionCreator(nameState).set('middle', middle).dispatch();
+    getActionCreator(nameState).remove('middle').dispatch();
+    expect('middle' in nameState).toBeFalsy();
+    // inserts will throw if you're inserting a new key with a value of undefined, this may change
+    expect(() => {
+      getActionCreator(nameState).insert('middle', undefined).dispatch();
+    }).toThrow();
+    getActionCreator(nameState).set('middle', middle).dispatch();
+  });
   test('full path for bowling scores array', () => {
     let fullPath = testStore.getManager().getFullPath(nameState, 'bowlingScores');
     expect(fullPath).toEqual('name.bowlingScores');

@@ -111,16 +111,6 @@ var ActionCreator = /** @class */ (function () {
         // this.throwIfArray(this.parent[propertyKey]);
         return new actions_1.StateCrudAction(actions_1.ActionId.DELETE_PROPERTY, this.parent, propertyKey);
     };
-    /**
-     * If the value of the property is not undefined or null, remove it, else return a no-op action.
-     * @param propertyKey
-     */
-    ActionCreator.prototype.removeIfHasData = function (propertyKey) {
-        var type = this.parent[propertyKey] === undefined || this.parent[propertyKey] === null ?
-            actions_1.ActionId.DELETE_PROPERTY_NO_OP :
-            actions_1.ActionId.DELETE_PROPERTY;
-        return new actions_1.StateCrudAction(type, this.parent, propertyKey);
-    };
     // TODO: can this and the crudInsert above actually work when defined in terms of non-existent keys?
     ActionCreator.prototype.insertStateObject = function (value, propertyKey) {
         return new actions_1.StateCrudAction(actions_1.ActionId.INSERT_STATE_OBJECT, this.parent, propertyKey, value);
@@ -128,6 +118,19 @@ var ActionCreator = /** @class */ (function () {
     ActionCreator.prototype.removeStateObject = function (propertyKey) {
         this.throwIfArray(this.parent[propertyKey]);
         return new actions_1.StateCrudAction(actions_1.ActionId.DELETE_STATE_OBJECT, this.parent, propertyKey, this.parent[propertyKey]);
+    };
+    /**
+     * If the value of the property is not undefined or null, remove it, else return a no-op action.
+     *
+     * Since this is only called from {@link #set}, where setting a property to undefined is type-checked, we are
+     * essentially converting this assignment of undefined to removing the key.
+     * @param propertyKey
+     */
+    ActionCreator.prototype.removeIfHasData = function (propertyKey) {
+        var type = this.parent[propertyKey] === undefined || this.parent[propertyKey] === null ?
+            actions_1.ActionId.DELETE_PROPERTY_NO_OP :
+            actions_1.ActionId.DELETE_PROPERTY;
+        return new actions_1.StateCrudAction(type, this.parent, propertyKey);
     };
     return ActionCreator;
 }());

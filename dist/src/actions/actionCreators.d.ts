@@ -64,14 +64,17 @@ export declare class ActionCreator<S extends StateObject> {
      * @param {K} propertyKey
      * @returns {Action}
      */
-    remove<K extends Extract<keyof S, string>>(propertyKey: K): StateCrudAction<S, K>;
-    /**
-     * If the value of the property is not undefined or null, remove it, else return a no-op action.
-     * @param propertyKey
-     */
-    removeIfHasData<K extends Extract<keyof S, string>>(propertyKey: K): StateCrudAction<S, K>;
+    remove<K extends ExtractOptionalKeys<S>>(propertyKey: K): StateCrudAction<S, K>;
     insertStateObject<K extends Extract<keyof S, string>>(value: S[K] & StateObject, propertyKey: K): StateCrudAction<S, K>;
     removeStateObject<K extends Extract<keyof S, string>>(propertyKey: K): StateCrudAction<S, K>;
+    /**
+     * If the value of the property is not undefined or null, remove it, else return a no-op action.
+     *
+     * Since this is only called from {@link #set}, where setting a property to undefined is type-checked, we are
+     * essentially converting this assignment of undefined to removing the key.
+     * @param propertyKey
+     */
+    private removeIfHasData;
 }
 /**
  * Factory method for CrudActionCreator, rather than exposing implementation details
@@ -151,6 +154,15 @@ export declare class ArrayActionCreator<S extends StateObject, K extends Extract
     replaceAll(newArray: Array<V>): StateAction<S, K>[];
     removeElement(index: number): StateAction<S, K>[];
 }
+/**
+ * Based on {@link ExtractMatching} below.
+ *
+ * The Partial type makes all keys optional, so testing the conditional type of the property requires
+ * that it be partial.
+ */
+export declare type ExtractOptionalKeys<VP> = {
+    [TP in Extract<keyof VP, string>]: Partial<VP>[TP] extends VP[TP] ? TP : never;
+}[Extract<keyof VP, string>];
 /**
  * Extract keys (which are strings) whose value's types match the type of S[K].
  * See "Conditional types are particularly useful when combined with mapped types:"

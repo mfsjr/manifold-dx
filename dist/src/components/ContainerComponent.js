@@ -14,10 +14,14 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-var __spreadArray = (this && this.__spreadArray) || function (to, from) {
-    for (var i = 0, il = from.length, j = to.length; i < il; i++, j++)
-        to[j] = from[i];
-    return to;
+var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
+    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
+        if (ar || !(i in from)) {
+            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
+            ar[i] = from[i];
+        }
+    }
+    return to.concat(ar || Array.prototype.slice.call(from));
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ContainerComponent = void 0;
@@ -80,7 +84,7 @@ var ContainerComponent = /** @class */ (function (_super) {
      * @returns {Array<T>}
      */
     ContainerComponent.newArray = function (oldArray, index, newElement) {
-        var newArray = __spreadArray([], oldArray);
+        var newArray = __spreadArray([], oldArray, true);
         newArray[index] = newElement;
         return newArray;
     };
@@ -90,14 +94,14 @@ var ContainerComponent = /** @class */ (function (_super) {
         for (var _i = 3; _i < arguments.length; _i++) {
             postReducerCallbacks[_i - 3] = arguments[_i];
         }
-        return new (actions_1.MappingAction.bind.apply(actions_1.MappingAction, __spreadArray([void 0, parentState, _propKey, this, targetPropKey], postReducerCallbacks)))();
+        return new (actions_1.MappingAction.bind.apply(actions_1.MappingAction, __spreadArray([void 0, parentState, _propKey, this, targetPropKey], postReducerCallbacks, false)))();
     };
     ContainerComponent.prototype.createMapping = function (stateObject, stateObjectProperty, targetViewProp) {
         var postReducerCallbacks = [];
         for (var _i = 3; _i < arguments.length; _i++) {
             postReducerCallbacks[_i - 3] = arguments[_i];
         }
-        return new (actions_1.MappingAction.bind.apply(actions_1.MappingAction, __spreadArray([void 0, stateObject, stateObjectProperty, this, targetViewProp], postReducerCallbacks)))();
+        return new (actions_1.MappingAction.bind.apply(actions_1.MappingAction, __spreadArray([void 0, stateObject, stateObjectProperty, this, targetViewProp], postReducerCallbacks, false)))();
     };
     /**
      * Update the properties of the view (presentational component) immediately after the
@@ -185,7 +189,7 @@ var ContainerComponent = /** @class */ (function (_super) {
                 var unmappingAction = action.getUndoAction();
                 unmappingActions_1.push(unmappingAction);
             });
-            (_a = Manager_1.Manager.get(this.appState)).actionUndo.apply(_a, __spreadArray([0], unmappingActions_1));
+            (_a = Manager_1.Manager.get(this.appState)).actionUndo.apply(_a, __spreadArray([0], unmappingActions_1, false));
         }
     };
     /**

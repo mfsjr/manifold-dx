@@ -1,8 +1,12 @@
 "use strict";
-var __spreadArray = (this && this.__spreadArray) || function (to, from) {
-    for (var i = 0, il = from.length, j = to.length; i < il; i++, j++)
-        to[j] = from[i];
-    return to;
+var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
+    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
+        if (ar || !(i in from)) {
+            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
+            ar[i] = from[i];
+        }
+    }
+    return to.concat(ar || Array.prototype.slice.call(from));
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Manager = void 0;
@@ -44,7 +48,7 @@ var Manager = /** @class */ (function () {
     };
     Manager.prototype.resetManager = function (_store, options) {
         this.store = _store;
-        this.actionQueue = ActionQueue_1.createActionQueue(options.actionQueueSize);
+        this.actionQueue = (0, ActionQueue_1.createActionQueue)(options.actionQueueSize);
         this.mappingState = new MappingState_1.MappingState();
         this.resetActionProcessors(_store, options);
     };
@@ -89,7 +93,7 @@ var Manager = /** @class */ (function () {
             actions_1.Action.undo(action);
             _this.actionQueue.incrementCurrentIndex(-1);
         };
-        return this.dispatch.apply(this, __spreadArray([actionMethod], actions));
+        return this.dispatch.apply(this, __spreadArray([actionMethod], actions, false));
     };
     Manager.prototype.actionRedo = function (nActions) {
         var _this = this;
@@ -104,7 +108,7 @@ var Manager = /** @class */ (function () {
             actions_1.Action.perform(action);
             _this.actionQueue.incrementCurrentIndex(1);
         };
-        return this.dispatch.apply(this, __spreadArray([actionMethod], actions));
+        return this.dispatch.apply(this, __spreadArray([actionMethod], actions, false));
     };
     /**
      * All new actions are performed here.  Actions may be undone via {@link actionUndo} or replayed via
@@ -128,7 +132,7 @@ var Manager = /** @class */ (function () {
             actions_1.Action.perform(action);
             _this.actionQueue.push(action);
         };
-        return this.dispatch.apply(this, __spreadArray([actionMethod], actions));
+        return this.dispatch.apply(this, __spreadArray([actionMethod], actions, false));
     };
     // NOTE: This commented dispatch code will catch if an action is dispatched while another executes, hold it until the
     // current action(s) are done executing, and then execute it.  Seems better to rule this out, but not really sure...
@@ -177,8 +181,8 @@ var Manager = /** @class */ (function () {
             actions[_i - 1] = arguments[_i];
         }
         // if a no-op exists, filter it and any others out of the array
-        if (actions.find(function (action) { return actions_1.ActionTypeIsNoOp(action.type); })) {
-            actions = actions.filter(function (action) { return !actions_1.ActionTypeIsNoOp(action.type); });
+        if (actions.find(function (action) { return (0, actions_1.ActionTypeIsNoOp)(action.type); })) {
+            actions = actions.filter(function (action) { return !(0, actions_1.ActionTypeIsNoOp)(action.type); });
         }
         if (actions.length === 0) {
             return actions;
@@ -203,7 +207,7 @@ var Manager = /** @class */ (function () {
             actions = this.actionProcessor.postProcess(actions);
         }
         catch (err) {
-            var actionMessage = actions_1.actionDescription(actions[0]);
+            var actionMessage = (0, actions_1.actionDescription)(actions[0]);
             /*tslint:disable:no-console*/
             console.log("Error dispatching " + actionMessage + ", actions length = " + actions.length);
             /*tslint:disable:no-console*/
@@ -218,7 +222,7 @@ var Manager = /** @class */ (function () {
     };
     Manager.prototype.dispatchFromNextArgs = function (_dispatchArgs) {
         var args = _dispatchArgs.splice(0, 1);
-        return this.dispatch.apply(this, __spreadArray([args[0].actionMethod], args[0].actions));
+        return this.dispatch.apply(this, __spreadArray([args[0].actionMethod], args[0].actions, false));
     };
     Manager.prototype.getFullPath = function (container, propName) {
         var fullPath = propName;

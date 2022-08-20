@@ -14,10 +14,14 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-var __spreadArray = (this && this.__spreadArray) || function (to, from) {
-    for (var i = 0, il = from.length, j = to.length; i < il; i++, j++)
-        to[j] = from[i];
-    return to;
+var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
+    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
+        if (ar || !(i in from)) {
+            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
+            ar[i] = from[i];
+        }
+    }
+    return to.concat(ar || Array.prototype.slice.call(from));
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.actionDescription = exports.actionLogging = exports.MappingAction = exports.ArrayChangeAction = exports.StateCrudAction = exports.StateAction = exports.Action = exports.ActionTypeIsNoOp = exports.ActionId = void 0;
@@ -81,7 +85,7 @@ var Action = /** @class */ (function () {
      */
     // tslint:disable-next-line:no-any
     Action.prototype.isStatePropChange = function (includeNoOps) {
-        if (!includeNoOps && exports.ActionTypeIsNoOp(this.type)) {
+        if (!includeNoOps && (0, exports.ActionTypeIsNoOp)(this.type)) {
             return false;
         }
         return this instanceof StateCrudAction;
@@ -92,7 +96,7 @@ var Action = /** @class */ (function () {
      */
     // tslint:disable-next-line:no-any
     Action.prototype.isStateArrayChange = function (includeNoOps) {
-        if (!includeNoOps && exports.ActionTypeIsNoOp(this.type)) {
+        if (!includeNoOps && (0, exports.ActionTypeIsNoOp)(this.type)) {
             return false;
         }
         return this instanceof ArrayChangeAction;
@@ -102,7 +106,7 @@ var Action = /** @class */ (function () {
      * @param includeNoOps if false and the action is a no-op, return false; defeaults to false
      */
     Action.prototype.isMappingChange = function (includeNoOps) {
-        if (!includeNoOps && exports.ActionTypeIsNoOp(this.type)) {
+        if (!includeNoOps && (0, exports.ActionTypeIsNoOp)(this.type)) {
             return false;
         }
         return this instanceof MappingAction;
@@ -230,7 +234,7 @@ var StateCrudAction = /** @class */ (function (_super) {
         // annotateActionInState(this);
         var actionId = perform ? this.type : this.getUndoActionId();
         var _value = perform ? this.value : this.oldValue;
-        this.changeResult = changeState_1.changeValue(actionId, this.parent, _value, this.propertyName);
+        this.changeResult = (0, changeState_1.changeValue)(actionId, this.parent, _value, this.propertyName);
         if (perform) {
             this.oldValue = this.changeResult ? this.changeResult.oldValue : undefined;
             this.changed = true;
@@ -294,7 +298,7 @@ var ArrayChangeAction = /** @class */ (function (_super) {
         // let key = this.keyGen && this.index > -1 ? this.keyGen(this.valuesArray[this.index]) : undefined;
         // NOTE that index is of type number, required, not possibly undefined or null
         this.mappingActions = Manager_1.Manager.get(this.parent).getMappingState().getPathMappings(fullpath, this.index) || [];
-        this.changeResult = changeState_1.changeArray(actionId, this.parent, this.valuesArray, this.value, this.propertyName, this.index);
+        this.changeResult = (0, changeState_1.changeArray)(actionId, this.parent, this.valuesArray, this.value, this.propertyName, this.index);
         if (perform) {
             this.oldValue = this.changeResult ? this.changeResult.oldValue : undefined;
             this.changed = true;
@@ -308,7 +312,7 @@ var ArrayChangeAction = /** @class */ (function (_super) {
                 }
                 if (arrayMap) {
                     // the component to be rendered will place its mapping actions in this slot
-                    MappingState_1.arrayMapInsert(arrayMap, this.index, []);
+                    (0, MappingState_1.arrayMapInsert)(arrayMap, this.index, []);
                 }
             }
             else if (this.type === ActionId.DELETE_PROPERTY) {
@@ -316,7 +320,7 @@ var ArrayChangeAction = /** @class */ (function (_super) {
                 var arrayMap = mappingState.getPathMappingsArrayMap(fullpath);
                 if (arrayMap) {
                     // the component to be rendered will place its mapping actions in this slot
-                    MappingState_1.arrayMapDelete(arrayMap, this.index);
+                    (0, MappingState_1.arrayMapDelete)(arrayMap, this.index);
                 }
             }
         }
@@ -385,7 +389,7 @@ var MappingAction = /** @class */ (function (_super) {
         var copy = new (MappingAction.bind.apply(MappingAction, __spreadArray([void 0, this.parent,
             this.propertyName,
             this.component,
-            this.targetPropName], this.postReducerCallbacks)))();
+            this.targetPropName], this.postReducerCallbacks, false)))();
         copy.assignProps(this);
         return copy;
     };
@@ -477,7 +481,7 @@ function actionLogging(_logging, _toConsole) {
         actions.forEach(function (action) {
             // let isDataAction: boolean = !(actions[0] instanceof MappingAction);
             // lines.push(`isDataAction = ${isDataAction}`);
-            lines.push(exports.actionDescription(action));
+            lines.push((0, exports.actionDescription)(action));
         });
         if (_toConsole) {
             lines.forEach(function (line) {
@@ -487,7 +491,7 @@ function actionLogging(_logging, _toConsole) {
             });
         }
         if (logging) {
-            logging.splice.apply(logging, __spreadArray([logging.length, 0], lines));
+            logging.splice.apply(logging, __spreadArray([logging.length, 0], lines, false));
         }
         return actions;
     };

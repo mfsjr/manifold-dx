@@ -6,11 +6,11 @@
  *       https://stackoverflow.com/questions/41194264/mocha-react-navigator-is-not-defined
  */
 
-import { JSDOM } from 'jsdom';
+import { DOMWindow, JSDOM } from 'jsdom';
 const { window } = new JSDOM('<!doctype html><html><body></body></html>');
 export interface Global {
   document: Document;
-  window: Window;
+  window: Window | DOMWindow;
   navigator: {
     userAgent: string;
   };

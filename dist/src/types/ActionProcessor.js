@@ -1,8 +1,12 @@
 "use strict";
-var __spreadArray = (this && this.__spreadArray) || function (to, from) {
-    for (var i = 0, il = from.length, j = to.length; i < il; i++, j++)
-        to[j] = from[i];
-    return to;
+var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
+    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
+        if (ar || !(i in from)) {
+            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
+            ar[i] = from[i];
+        }
+    }
+    return to.concat(ar || Array.prototype.slice.call(from));
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.createDataTriggerProcessor = exports.ActionProcessor = void 0;
@@ -16,7 +20,7 @@ var ActionProcessor = /** @class */ (function () {
         this.preProcessors = [];
         this.postProcessors = [];
         this.createDataTriggerProcessor = function (triggers) {
-            return exports.createDataTriggerProcessor(triggers);
+            return (0, exports.createDataTriggerProcessor)(triggers);
         };
         this.mutationCheck = new StateMutationCheck_1.StateMutationCheck(state);
         /* tslint:enable:no-any */
@@ -149,8 +153,8 @@ var ActionProcessor = /** @class */ (function () {
     };
     ActionProcessor.prototype.getProcessorClones = function () {
         return {
-            pre: __spreadArray([], this.preProcessors),
-            post: __spreadArray([], this.postProcessors)
+            pre: __spreadArray([], this.preProcessors, true),
+            post: __spreadArray([], this.postProcessors, true)
         };
     };
     return ActionProcessor;

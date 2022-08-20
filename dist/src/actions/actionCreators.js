@@ -28,7 +28,7 @@ var ActionCreator = /** @class */ (function () {
                 return key;
             }
         }
-        throw new Error("Failed to find property value " + value + " in parent");
+        throw new Error("Failed to find property value ".concat(value, " in parent"));
     };
     ActionCreator.prototype.throwIfArray = function (propValue) {
         if (propValue instanceof Array) {

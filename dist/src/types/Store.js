@@ -37,7 +37,7 @@ var Store = /** @class */ (function () {
             parent[propertyName] = state;
         }
         else if (parent || propertyName) {
-            throw Error("parent and propName should either both be defined or undefined; propName=" + propertyName);
+            throw Error("parent and propName should either both be defined or undefined; propName=".concat(propertyName));
         }
         return state;
     };
@@ -92,7 +92,7 @@ var Store = /** @class */ (function () {
         while (result._parent !== null) {
             result = result._parent;
             if (result._parent === ((_a = result._parent) === null || _a === void 0 ? void 0 : _a._parent)) { // this has only been observed during unit testing
-                throw new Error("parents are self referencing in prop " + result._myPropname);
+                throw new Error("parents are self referencing in prop ".concat(result._myPropname));
             }
         }
         return result;

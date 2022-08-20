@@ -34,14 +34,14 @@ var Manager = /** @class */ (function () {
         var rootState = Store_1.Store.getRootState(stateObject);
         var result = Manager.stateManagerMap.get(rootState);
         if (!result) {
-            var err = "Failed to find manager for stateObject = \n        " + JSON.stringify(stateObject, Store_1.JSON_replaceCyclicParent, 4);
+            var err = "Failed to find manager for stateObject = \n        ".concat(JSON.stringify(stateObject, Store_1.JSON_replaceCyclicParent, 4));
             throw Error(err);
         }
         return result;
     };
     Manager.set = function (stateObject, manager) {
         if (Manager.stateManagerMap.has(stateObject)) {
-            var message = "Map already has key for \n        " + JSON.stringify(stateObject, Store_1.JSON_replaceCyclicParent, 4);
+            var message = "Map already has key for \n        ".concat(JSON.stringify(stateObject, Store_1.JSON_replaceCyclicParent, 4));
             throw new Error(message);
         }
         Manager.stateManagerMap.set(stateObject, manager);
@@ -209,7 +209,7 @@ var Manager = /** @class */ (function () {
         catch (err) {
             var actionMessage = (0, actions_1.actionDescription)(actions[0]);
             /*tslint:disable:no-console*/
-            console.log("Error dispatching " + actionMessage + ", actions length = " + actions.length);
+            console.log("Error dispatching ".concat(actionMessage, ", actions length = ").concat(actions.length));
             /*tslint:disable:no-console*/
             throw err;
         }

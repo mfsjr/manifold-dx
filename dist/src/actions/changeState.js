@@ -18,7 +18,7 @@ function validateArrayIndex(actionType, ra, index, propertyName) {
     var di = actionType === actions_1.ActionId.INSERT_PROPERTY || actionType === actions_1.ActionId.INSERT_STATE_OBJECT ? 1 : 0;
     var max = ra.length - 1 + di;
     if (index < 0 || index > max) {
-        throw new Error("Index=" + index + " is not in [0, " + ra.length + "] for array property=" + propertyName);
+        throw new Error("Index=".concat(index, " is not in [0, ").concat(ra.length, "] for array property=").concat(propertyName));
     }
     return ra;
 }
@@ -37,8 +37,8 @@ var actionMutationCheck = function (actionId, oldValue, newValue, propertyName, 
     if (oldValue === newValue && actionId !== actions_1.ActionId.UPDATE_PROPERTY_NO_OP) {
         var oldJson = JSON.stringify(oldValue, Store_1.JSON_replaceCyclicParent, 4);
         var newJson = JSON.stringify(newValue, Store_1.JSON_replaceCyclicParent, 4);
-        var message = "Action mutation check (" + actions_1.ActionId[actionId] + ")  \n      mutation in property '" + propertyName + "', oldValue=" + oldJson + ", newValue=" + newJson;
-        message = index !== undefined ? "at index=" + index + ", " + message + " " : message;
+        var message = "Action mutation check (".concat(actions_1.ActionId[actionId], ")  \n      mutation in property '").concat(propertyName, "', oldValue=").concat(oldJson, ", newValue=").concat(newJson);
+        message = index !== undefined ? "at index=".concat(index, ", ").concat(message, " ") : message;
         throw new StateMutationCheck_1.MutationError(message);
     }
 };
@@ -56,7 +56,7 @@ var actionMutationCheck = function (actionId, oldValue, newValue, propertyName, 
  */
 function changeArray(actionType, stateObject, values, value, propertyName, index) {
     if (!values) {
-        throw new Error(propertyName + " array is falsy, insert the array property before trying to change it");
+        throw new Error("".concat(propertyName, " array is falsy, insert the array property before trying to change it"));
     }
     validateArrayIndex(actionType, values, index, propertyName);
     switch (actionType) {
@@ -82,7 +82,7 @@ function changeArray(actionType, stateObject, values, value, propertyName, index
         case actions_1.ActionId.RERENDER: {
             return { oldValue: values[index] };
         }
-        default: throw new Error("changeArray: unhandled actionType=" + actionType);
+        default: throw new Error("changeArray: unhandled actionType=".concat(actionType));
     }
 }
 exports.changeArray = changeArray;
@@ -101,7 +101,7 @@ function changeValue(actionType, stateObject, value, propertyName) {
         }
         case actions_1.ActionId.UPDATE_PROPERTY: {
             var isStateObject = Store_1.Store.isInstanceOfStateObject(value);
-            throwIf(isStateObject, actions_1.ActionId[actionType] + " action isn't applicable to state objects");
+            throwIf(isStateObject, "".concat(actions_1.ActionId[actionType], " action isn't applicable to state objects"));
             var oldValue = _.get(stateObject, propertyName);
             actionMutationCheck(actionType, oldValue, value, propertyName);
             _.set(stateObject, propertyName, value);
@@ -109,7 +109,7 @@ function changeValue(actionType, stateObject, value, propertyName) {
         }
         case actions_1.ActionId.INSERT_PROPERTY: {
             var isStateObject = Store_1.Store.isInstanceOfStateObject(value);
-            throwIf(isStateObject, actions_1.ActionId[actionType] + " action is not applicable to state objects");
+            throwIf(isStateObject, "".concat(actions_1.ActionId[actionType], " action is not applicable to state objects"));
             // only assign if value is not undefined
             if (value === undefined) {
                 throw new Error('Cannot insert an undefined value, consider deleting instead');
@@ -128,7 +128,7 @@ function changeValue(actionType, stateObject, value, propertyName) {
         }
         case actions_1.ActionId.DELETE_PROPERTY: {
             var isStateObject = Store_1.Store.isInstanceOfStateObject(_.get(stateObject, propertyName));
-            throwIf(isStateObject, actions_1.ActionId[actionType] + " action isn''t applicable to state objects");
+            throwIf(isStateObject, "".concat(actions_1.ActionId[actionType], " action isn''t applicable to state objects"));
             // delete performance is improving but still slow, but these are likely to be rare.
             // Let's be rigorous until we can't be (or until VM's address this, and they've started to)
             var oldValue = stateObject[propertyName];
@@ -137,7 +137,7 @@ function changeValue(actionType, stateObject, value, propertyName) {
             return { oldValue: oldValue };
         }
         case actions_1.ActionId.INSERT_STATE_OBJECT: {
-            throwIf(!_.isPlainObject(value), actions_1.ActionId[actionType] + " action is applicable to plain objects; value = " + value);
+            throwIf(!_.isPlainObject(value), "".concat(actions_1.ActionId[actionType], " action is applicable to plain objects; value = ").concat(value));
             if (!value) {
                 throw new Error('Cannot insert a falsy value, consider using delete instead');
             }
@@ -148,7 +148,7 @@ function changeValue(actionType, stateObject, value, propertyName) {
         case actions_1.ActionId.DELETE_STATE_OBJECT: {
             var oldValue = _.get(stateObject, propertyName);
             var isStateObject = Store_1.Store.isInstanceOfStateObject(oldValue);
-            throwIf(!isStateObject, actions_1.ActionId[actionType] + " action is applicable to state objects; value = " + oldValue);
+            throwIf(!isStateObject, "".concat(actions_1.ActionId[actionType], " action is applicable to state objects; value = ").concat(oldValue));
             var valueStateObject = _.get(stateObject, propertyName);
             if (Store_1.Store.isInstanceOfStateObject(valueStateObject)) {
                 actionMutationCheck(actionType, oldValue, undefined, propertyName);
@@ -159,12 +159,12 @@ function changeValue(actionType, stateObject, value, propertyName) {
                 valueStateObject._parent = valueStateObject;
             }
             else {
-                throw new Error("Expecting a StateObject for " + propertyName + " but is not a StateObject");
+                throw new Error("Expecting a StateObject for ".concat(propertyName, " but is not a StateObject"));
             }
             return { oldValue: oldValue };
         }
         default:
-            throw new Error("Unhandled actionType=" + actionType);
+            throw new Error("Unhandled actionType=".concat(actionType));
     }
 }
 exports.changeValue = changeValue;

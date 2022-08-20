@@ -137,7 +137,7 @@ var Action = /** @class */ (function () {
                 : ActionId.INSERT_STATE_OBJECT;
         }
         if (!undoAction) {
-            throw new Error("Failed to find undoAction for " + this.type + ", " + ActionId[this.type]);
+            throw new Error("Failed to find undoAction for ".concat(this.type, ", ").concat(ActionId[this.type]));
         }
         return undoAction;
     };
@@ -307,7 +307,7 @@ var ArrayChangeAction = /** @class */ (function (_super) {
                 var arrayMap = mappingState.getPathMappingsArrayMap(fullpath);
                 if (!arrayMap) {
                     /*tslint:disable:no-console*/
-                    console.log("WARNING: action isn't wired to component, failed to get arrayMap for " + fullpath);
+                    console.log("WARNING: action isn't wired to component, failed to get arrayMap for ".concat(fullpath));
                     /*tslint:enable:no-console*/
                 }
                 if (arrayMap) {
@@ -422,11 +422,11 @@ var MappingAction = /** @class */ (function (_super) {
     MappingAction.prototype.setArrayElement = function (_index, _propArray) {
         if ((this.index !== -1 || this.index === null) || this.propArray) {
             // this can be done once and only once, or we throw
-            throw new Error("attempting to reset array " + this.propertyName + " at index = " + _index);
+            throw new Error("attempting to reset array ".concat(this.propertyName, " at index = ").concat(_index));
         }
         if (_index !== null && (_propArray.length < _index || _propArray.length < 0 || !_propArray[_index])) {
             var fullpath = Manager_1.Manager.get(this.parent).getFullPath(this.parent, this.propertyName);
-            throw new Error("Can't map to an undefined array index " + _index + " at " + fullpath);
+            throw new Error("Can't map to an undefined array index ".concat(_index, " at ").concat(fullpath));
         }
         this.index = _index;
         this.propArray = _propArray;
@@ -506,15 +506,15 @@ var actionDescription = function (action) {
         var value = '';
         switch (action.type) {
             case ActionId.INSERT_PROPERTY:
-                value = "new value = " + action.value;
+                value = "new value = ".concat(action.value);
                 break;
             case ActionId.UPDATE_PROPERTY:
-                value = "new value = " + action.value;
+                value = "new value = ".concat(action.value);
                 break;
             default: value = '';
         }
         var path = Manager_1.Manager.get(action.parent).getFullPath(action.parent, action.propertyName);
-        var log = "StateCrudAction[" + ActionId[action.type] + "]: path: " + path + ", index=" + action.index;
+        var log = "StateCrudAction[".concat(ActionId[action.type], "]: path: ").concat(path, ", index=").concat(action.index);
         log += value ? ' value: ' + value : '';
         return log;
     }
@@ -523,22 +523,22 @@ var actionDescription = function (action) {
         var value = '';
         switch (action.type) {
             case ActionId.INSERT_PROPERTY:
-                value = "new value = " + action.value;
+                value = "new value = ".concat(action.value);
                 break;
             case ActionId.UPDATE_PROPERTY:
-                value = "new value = " + action.value;
+                value = "new value = ".concat(action.value);
                 break;
             default: value = '';
         }
-        return "StateCrudAction[" + ActionId[action.type] + "]: path: " + path + " " + (value ? 'value: ' + value : '');
+        return "StateCrudAction[".concat(ActionId[action.type], "]: path: ").concat(path, " ").concat(value ? 'value: ' + value : '');
     }
     if (action instanceof MappingAction) {
         var path = Manager_1.Manager.get(action.parent).getFullPath(action.parent, action.propertyName);
-        var indexMessage = action.index !== null && action.index > -1 ? ", index=" + action.index : '';
-        var message = "MappingAction[" + path + " => " + action.targetPropName + "]" + indexMessage;
+        var indexMessage = action.index !== null && action.index > -1 ? ", index=".concat(action.index) : '';
+        var message = "MappingAction[".concat(path, " => ").concat(action.targetPropName, "]").concat(indexMessage);
         return message;
     } // TODO: throw?
-    return "Not StateCrud, Array or Mapping; action.type === " + ActionId[action.type];
+    return "Not StateCrud, Array or Mapping; action.type === ".concat(ActionId[action.type]);
 };
 exports.actionDescription = actionDescription;
 //# sourceMappingURL=actions.js.map

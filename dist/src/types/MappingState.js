@@ -5,13 +5,13 @@ function arrayMapDelete(arrayMap, index, num) {
     var result = arrayMap.get(index);
     var dx = num ? num : 1;
     if (!result) {
-        throw new Error("undefined actions at index = " + index);
+        throw new Error("undefined actions at index = ".concat(index));
     }
     var size = arrayMap.get(null) ? arrayMap.size - 1 : arrayMap.size;
     var _loop_1 = function (i) {
         var mappingActions = arrayMap.get(i);
         if (!mappingActions) {
-            throw new Error("undefined actions at index = " + i);
+            throw new Error("undefined actions at index = ".concat(i));
         }
         arrayMap.set(i - dx, mappingActions);
         mappingActions.forEach(function (ma) { return ma.index = i - dx; });
@@ -35,7 +35,7 @@ function arrayMapInsert(arrayMap, index) {
     var _loop_2 = function (i) {
         var mappingActions = arrayMap.get(i);
         if (!mappingActions) {
-            throw new Error("found undefined entry at i - " + inserts + " = " + (i - inserts));
+            throw new Error("found undefined entry at i - ".concat(inserts, " = ").concat(i - inserts));
         }
         arrayMap.set(i + inserts, mappingActions);
         mappingActions.forEach(function (ma) { return ma.index = i + inserts; });
@@ -77,7 +77,7 @@ var MappingState = /** @class */ (function () {
             var _key = index !== undefined ? index : null;
             return pathResults.get(_key);
         }
-        throw Error("pathResults from " + path + " expected to be instanceof Array, or a Map");
+        throw Error("pathResults from ".concat(path, " expected to be instanceof Array, or a Map"));
     };
     /**
      * Get (find) or create an array of mapping actions, each of which refer to components (typically to be updated).
@@ -115,7 +115,7 @@ var MappingState = /** @class */ (function () {
                     holder.set(null, result);
                 }
                 else {
-                    throw new Error("Mapping failure, array is not mapped, holder is not a Map: " + JSON.stringify(holder));
+                    throw new Error("Mapping failure, array is not mapped, holder is not a Map: ".concat(JSON.stringify(holder)));
                 }
             }
             else if (result instanceof Map) {
@@ -235,7 +235,7 @@ var MappingState = /** @class */ (function () {
         }
         if (result instanceof Array) {
             if (!this.pathMappings.delete(propPath)) {
-                throw new Error("Failed to delete " + propPath);
+                throw new Error("Failed to delete ".concat(propPath));
             }
             return 1;
         }
@@ -245,12 +245,12 @@ var MappingState = /** @class */ (function () {
         var keyMap = result;
         if (index !== undefined) {
             if (!keyMap.delete(index)) {
-                throw new Error("Failed to delete key " + index + " at propPath " + propPath);
+                throw new Error("Failed to delete key ".concat(index, " at propPath ").concat(propPath));
             }
         }
         else {
             if (!this.pathMappings.delete(propPath)) {
-                throw new Error("failed to delete array at path " + propPath);
+                throw new Error("failed to delete array at path ".concat(propPath));
             }
             // return the number of entries in the deleted map
             return keyMap.size;

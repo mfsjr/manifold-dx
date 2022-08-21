@@ -248,7 +248,6 @@ describe('Get the full path of properties in state objects, usable by lodash "ge
     expect(fullPath).toEqual('name.bowlingScores');
   });
 });
-
 describe('Test state reset last - leave other tests undisturbed by it', () => {
   test('verify that app state gets reset, but state api does not', () => {
     let c = 'corruption';

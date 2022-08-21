@@ -8,8 +8,7 @@ import { ContainerComponent } from '../components/ContainerComponent';
 export declare class ActionCreator<S extends StateObject> {
     private parent;
     constructor(parent: S);
-    protected getPropertyKeyForValue<V>(value: V): keyof S;
-    protected throwIfArray<K extends Extract<keyof S, string>>(propValue: S[K]): void;
+    throwIfArray<K extends Extract<keyof S, string>>(propValue: S[K]): void;
     rerender<K extends Extract<keyof S, string>>(propertyKey: K): StateCrudAction<S, K>;
     /**
      * Insert the value.  If the current value exists, an error will be thrown.
@@ -66,6 +65,10 @@ export declare class ActionCreator<S extends StateObject> {
      */
     remove<K extends ExtractOptionalKeys<S>>(propertyKey: K): StateCrudAction<S, K>;
     insertStateObject<K extends Extract<keyof S, string>>(value: S[K] & StateObject, propertyKey: K): StateCrudAction<S, K>;
+    /**
+     * Unclear if this would ever be needed, but if it is, then maybe see {@link removeStatePath}.
+     * @param propertyKey
+     */
     removeStateObject<K extends Extract<keyof S, string>>(propertyKey: K): StateCrudAction<S, K>;
     /**
      * If the value of the property is not undefined or null, remove it, else return a no-op action.

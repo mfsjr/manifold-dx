@@ -20,16 +20,6 @@ var ActionCreator = /** @class */ (function () {
     function ActionCreator(parent) {
         this.parent = parent;
     }
-    ActionCreator.prototype.getPropertyKeyForValue = function (value) {
-        for (var key in this.parent) {
-            /* tslint:disable:no-any */
-            if (value === this.parent[key]) {
-                /* tslint:enable:no-any */
-                return key;
-            }
-        }
-        throw new Error("Failed to find property value ".concat(value, " in parent"));
-    };
     ActionCreator.prototype.throwIfArray = function (propValue) {
         if (propValue instanceof Array) {
             throw new Error("Invalid action type for ActionCreator using an array, try using ArrayActionCreator");
@@ -119,6 +109,10 @@ var ActionCreator = /** @class */ (function () {
     ActionCreator.prototype.insertStateObject = function (value, propertyKey) {
         return new actions_1.StateCrudAction(actions_1.ActionId.INSERT_STATE_OBJECT, this.parent, propertyKey, value);
     };
+    /**
+     * Unclear if this would ever be needed, but if it is, then maybe see {@link removeStatePath}.
+     * @param propertyKey
+     */
     ActionCreator.prototype.removeStateObject = function (propertyKey) {
         this.throwIfArray(this.parent[propertyKey]);
         return new actions_1.StateCrudAction(actions_1.ActionId.DELETE_STATE_OBJECT, this.parent, propertyKey, this.parent[propertyKey]);

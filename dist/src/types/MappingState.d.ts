@@ -54,6 +54,7 @@ export declare class MappingState {
     removePathMapping(_fullPath: string, mappingAction: AnyMappingAction, _index?: number | null): number;
     /**
      * If a state object is removed it will not be mapped directly, but it may have many child properties that are.
+     * See {@link StateCrudAction#removeStateObject}
      *
      * So, this method iterates through all of the path keys, and deletes any that are children of the state path,
      * i.e., paths that begin with the state path.

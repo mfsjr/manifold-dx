@@ -28,7 +28,7 @@ import {
   ActionProcessorFunctionType,
   ContainerComponent,
   getActionCreator,
-  getArrayActionCreator, Manager,
+  getArrayActionCreator, getStateObject, Manager,
   StateObject
 } from '../src';
 import { Address, createTestStore, Name, TestState } from './testHarness';
@@ -323,6 +323,24 @@ describe('enzyme tests for lifecycle methods', () => {
       </BowlerContainer>
     );
     expect(bowler.find('#bowlerDiv').text()).toContain(_fullName);
+
+    let _name = getStateObject(testStore.getState().name);
+    let ac = getActionCreator(_name);
+    expect(() => {
+      ac.throwIfArray(_name.addresses);
+    }).toThrow();
+
+    const manager = testStore.getManager();
+    let path = manager.getFullPath(getStateObject(testStore.getState().name), 'addresses');
+    let removedCount = manager.getMappingState().removePath(path);
+    expect(removedCount).toBe(1); // see BowlerContainer's appendToMappingActions instance method
+
+    path = manager.getFullPath(testStore.getState(), 'name');
+    removedCount = manager.getMappingState().removeStatePath(path);
+    expect(removedCount).toBe(2); // see BowlerContainer's appendToMappingActions instance method
+
+    getActionCreator(testStore.getState()).removeStateObject('name').dispatch();
+    expect(testStore.getState().name).toBeUndefined();
 
   });
 });

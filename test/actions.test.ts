@@ -259,69 +259,69 @@ describe('Add the name container', () => {
       expect(nameState.addresses.length).toBe(1);
       expect(nameState.addresses[0]).toBe(address2);
     });
+    test('updating all array elements using addresses3 should update all the addresses in state', () => {
+      let addresses3: Address[] = [
+        {
+          id: 10,
+          city: 'Pawling',
+          street: '4th',
+          state: 'WY',
+          zip: '93837',
+          country: 'US'
+        },
+        {
+          id: 11,
+          city: 'Kingston',
+          street: '5th',
+          state: 'HI',
+          zip: '13227',
+          country: 'US'
+        },
+        {
+          id: 12,
+          city: 'Rome',
+          street: '6th',
+          state: 'CA',
+          zip: '83227',
+          country: 'US'
+        }
+      ];
+
+      expect(nameState.addresses.length).toBe(1);
+
+      const addresses4 = [addresses3[0], addresses3[1]];
+      let updateAllActions2 = getArrayActionCreator(nameState, nameState.addresses).replaceAll(addresses4);
+      testStore.dispatch(...updateAllActions2);
+      // updateAllActions.forEach(action => action.dispatch());
+      expect(addresses4.length).toBe(2);
+      expect(nameState.addresses.length).toBe(2);
+      addresses4.forEach((addr, index) => expect(nameState.addresses[index]).toBe(addresses4[index]));
+
+      let updateAllActions = getArrayActionCreator(nameState, nameState.addresses).replaceAll(addresses3);
+      testStore.dispatch(...updateAllActions);
+      // updateAllActions.forEach(action => action.dispatch());
+      expect(addresses3.length).toBe(3);
+      expect(nameState.addresses.length).toBe(3);
+      addresses3.forEach((addr, index) => expect(nameState.addresses[index]).toBe(addresses3[index]));
+
+      let addresses1 = [addresses3[1]];
+      let updateAllActions1 = getArrayActionCreator(nameState, nameState.addresses).replaceAll(addresses1);
+      testStore.dispatch(...updateAllActions1);
+      // updateAllActions.forEach(action => action.dispatch());
+      expect(addresses1.length).toBe(1);
+      expect(nameState.addresses.length).toBe(1);
+      addresses1.forEach((addr, index) => expect(nameState.addresses[index]).toBe(addresses1[index]));
+
+      // let updateAllActions = getArrayActionCreator(nameState, nameState.addresses).replaceAll(addresses3);
+      updateAllActions = getArrayActionCreator(nameState, nameState.addresses).replaceAll(addresses3);
+      testStore.dispatch(...updateAllActions);
+
+      expect(() => {
+        getArrayActionCreator(undefined, undefined).replaceAll(addresses3);
+      }).toThrow();
+    });
   });
-
-  test('updating all array elements using addresses3 should update all the addresses in state', () => {
-    let addresses3: Address[] = [
-      {
-        id: 10,
-        city: 'Pawling',
-        street: '4th',
-        state: 'WY',
-        zip: '93837',
-        country: 'US'
-      },
-      {
-        id: 11,
-        city: 'Kingston',
-        street: '5th',
-        state: 'HI',
-        zip: '13227',
-        country: 'US'
-      },
-      {
-        id: 12,
-        city: 'Rome',
-        street: '6th',
-        state: 'CA',
-        zip: '83227',
-        country: 'US'
-      }
-    ];
-
-    expect(nameState.addresses.length).toBe(1);
-
-    const addresses4 = [addresses3[0], addresses3[1]];
-    let updateAllActions2 = getArrayActionCreator(nameState, nameState.addresses).replaceAll(addresses4);
-    testStore.dispatch(...updateAllActions2);
-    // updateAllActions.forEach(action => action.dispatch());
-    expect(addresses4.length).toBe(2);
-    expect(nameState.addresses.length).toBe(2);
-    addresses4.forEach((addr, index) => expect(nameState.addresses[index]).toBe(addresses4[index]));
-
-    let updateAllActions = getArrayActionCreator(nameState, nameState.addresses).replaceAll(addresses3);
-    testStore.dispatch(...updateAllActions);
-    // updateAllActions.forEach(action => action.dispatch());
-    expect(addresses3.length).toBe(3);
-    expect(nameState.addresses.length).toBe(3);
-    addresses3.forEach((addr, index) => expect(nameState.addresses[index]).toBe(addresses3[index]));
-
-    let addresses1 = [addresses3[1]];
-    let updateAllActions1 = getArrayActionCreator(nameState, nameState.addresses).replaceAll(addresses1);
-    testStore.dispatch(...updateAllActions1);
-    // updateAllActions.forEach(action => action.dispatch());
-    expect(addresses1.length).toBe(1);
-    expect(nameState.addresses.length).toBe(1);
-    addresses1.forEach((addr, index) => expect(nameState.addresses[index]).toBe(addresses1[index]));
-
-    // let updateAllActions = getArrayActionCreator(nameState, nameState.addresses).replaceAll(addresses3);
-    updateAllActions = getArrayActionCreator(nameState, nameState.addresses).replaceAll(addresses3);
-    testStore.dispatch(...updateAllActions);
-
-    expect(() => {
-      getArrayActionCreator(undefined, undefined).replaceAll(addresses3);
-    }).toThrow();
-  });
+});
 
   describe('Verify StateMutationCheck', () => {
     // resetTestObjects();
@@ -401,7 +401,6 @@ describe('Add the name container', () => {
       expect(processors.post.indexOf(testProcessor)).toBe(-1);
     });
   });
-});
 
 describe('test stripping StateObject info', () => {
 

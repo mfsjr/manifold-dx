@@ -16,17 +16,6 @@ export class ActionCreator<S extends StateObject> {
     this.parent = parent;
   }
 
-  // protected getPropertyKeyForValue<V>(value: V): keyof S {
-  //   for (let key in this.parent) {
-  //     /* tslint:disable:no-any */
-  //     if (value as any === this.parent[key]) {
-  //       /* tslint:enable:no-any */
-  //       return key;
-  //     }
-  //   }
-  //   throw new Error(`Failed to find property value ${value} in parent`);
-  // }
-
   public throwIfArray<K extends Extract<keyof S, string>>(propValue: S[K]): void {
     if (propValue instanceof Array) {
       throw new Error(`Invalid action type for ActionCreator using an array, try using ArrayActionCreator`);

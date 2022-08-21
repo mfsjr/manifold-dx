@@ -62,10 +62,6 @@
     "jest-config": "^26.6.3",
     "jsdom": "^13.2.0"
   },
-  "engines" : {
-    "npm" : ">=6.14.12",
-    "node" : ">=14.16.1"
-  },
   "jest": {
     "collectCoverageFrom": [
       "src/**/*.{js,jsx,ts,tsx}"
